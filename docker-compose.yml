@@ -1,0 +1,398 @@
+networks:
+  mgmt:
+    driver_opts:
+      com.docker.network.container_iface_prefix: xr-6
+    ipam:
+      config:
+      - subnet: 172.40.0.0/24
+  source-xrd-27:
+    driver_opts:
+      com.docker.network.container_iface_prefix: xr-7
+    ipam:
+      config:
+      - subnet: 10.0.27.0/24
+  xrd-25-gi0:
+    driver_opts:
+      com.docker.network.container_iface_prefix: xr-11
+    internal: true
+    name: xrd-25-gi0
+  xrd-25-gi1:
+    driver_opts:
+      com.docker.network.container_iface_prefix: xr-12
+    internal: true
+    name: xrd-25-gi1
+  xrd-25-gi3:
+    driver_opts:
+      com.docker.network.container_iface_prefix: xr-13
+    internal: true
+    name: xrd-25-gi3
+  xrd-25-gi4-xrd-29-gi0:
+    driver_opts:
+      com.docker.network.container_iface_prefix: xr-2
+    internal: true
+    name: xrd-25-gi4-xrd-29-gi0
+  xrd-25-gi5-xrd-30-gi0:
+    driver_opts:
+      com.docker.network.container_iface_prefix: xr-3
+    internal: true
+    name: xrd-25-gi5-xrd-30-gi0
+  xrd-26-gi0:
+    driver_opts:
+      com.docker.network.container_iface_prefix: xr-14
+    internal: true
+    name: xrd-26-gi0
+  xrd-26-gi1:
+    driver_opts:
+      com.docker.network.container_iface_prefix: xr-15
+    internal: true
+    name: xrd-26-gi1
+  xrd-26-gi3:
+    driver_opts:
+      com.docker.network.container_iface_prefix: xr-16
+    internal: true
+    name: xrd-26-gi3
+  xrd-26-gi4-xrd-29-gi1:
+    driver_opts:
+      com.docker.network.container_iface_prefix: xr-4
+    internal: true
+    name: xrd-26-gi4-xrd-29-gi1
+  xrd-26-gi5-xrd-30-gi1:
+    driver_opts:
+      com.docker.network.container_iface_prefix: xr-5
+    internal: true
+    name: xrd-26-gi5-xrd-30-gi1
+  xrd-27-gi0-xrd-25-gi2:
+    driver_opts:
+      com.docker.network.container_iface_prefix: xr-0
+    internal: true
+    name: xrd-27-gi0-xrd-25-gi2
+  xrd-27-gi1-xrd-26-gi2:
+    driver_opts:
+      com.docker.network.container_iface_prefix: xr-1
+    internal: true
+    name: xrd-27-gi1-xrd-26-gi2
+  xrd-27-gi2:
+    driver_opts:
+      com.docker.network.container_iface_prefix: xr-10
+    internal: true
+    name: xrd-27-gi2
+  xrd-29-gi3:
+    driver_opts:
+      com.docker.network.container_iface_prefix: xr-17
+    internal: true
+    name: xrd-29-gi3
+  xrd-29-host:
+    driver_opts:
+      com.docker.network.container_iface_prefix: xr-8
+    ipam:
+      config:
+      - subnet: 10.10.29.0/24
+  xrd-30-gi3:
+    driver_opts:
+      com.docker.network.container_iface_prefix: xr-18
+    internal: true
+    name: xrd-30-gi3
+  xrd-30-host:
+    driver_opts:
+      com.docker.network.container_iface_prefix: xr-9
+    ipam:
+      config:
+      - subnet: 10.10.30.0/24
+services:
+  source:
+    cap_add:
+    - NET_ADMIN
+    command: /bin/sh -c "ip route add 10.0.0.0/8 via 10.0.27.1 && /bin/sh"
+    container_name: source
+    image: alpine:3.15
+    networks:
+      source-xrd-27:
+        ipv4_address: 10.0.27.2
+    stdin_open: true
+    tty: true
+  xrd-25:
+    cap_add:
+    - CHOWN
+    - DAC_OVERRIDE
+    - FSETID
+    - FOWNER
+    - MKNOD
+    - NET_RAW
+    - SETGID
+    - SETUID
+    - SETFCAP
+    - SETPCAP
+    - NET_BIND_SERVICE
+    - SYS_CHROOT
+    - KILL
+    - AUDIT_WRITE
+    - SYS_NICE
+    - SYS_ADMIN
+    - SYS_RESOURCE
+    - NET_ADMIN
+    - SYS_PTRACE
+    - IPC_LOCK
+    - SYS_RAWIO
+    cap_drop:
+    - all
+    container_name: xrd-25
+    devices:
+    - /dev/fuse
+    - /dev/net/tun
+    environment:
+      XR_EVERY_BOOT_CONFIG: /etc/xrd/startup.cfg
+      XR_INTERFACES: linux:xr-110,xr_name=Gi0/0/0/0;linux:xr-120,xr_name=Gi0/0/0/1;linux:xr-00,xr_name=Gi0/0/0/2;linux:xr-130,xr_name=Gi0/0/0/3;linux:xr-20,xr_name=Gi0/0/0/4;linux:xr-30,xr_name=Gi0/0/0/5
+      XR_MGMT_INTERFACES: linux:xr-60,xr_name=Mg0/RP0/CPU0/0,chksum
+    image: localhost/ios-xr:7.7.1.26I
+    networks:
+      mgmt: null
+      xrd-25-gi0: null
+      xrd-25-gi1: null
+      xrd-25-gi3: null
+      xrd-25-gi4-xrd-29-gi0: null
+      xrd-25-gi5-xrd-30-gi0: null
+      xrd-27-gi0-xrd-25-gi2: null
+    security_opt:
+    - apparmor:unconfined
+    - label:disable
+    stdin_open: true
+    tty: true
+    volumes:
+    - source: ./config/xrd-25-startup.cfg
+      target: /etc/xrd/startup.cfg
+      type: bind
+    - xrd-25:/xr-storage/
+    - read_only: true
+      source: /sys/fs/cgroup
+      target: /sys/fs/cgroup
+      type: bind
+  xrd-26:
+    cap_add:
+    - CHOWN
+    - DAC_OVERRIDE
+    - FSETID
+    - FOWNER
+    - MKNOD
+    - NET_RAW
+    - SETGID
+    - SETUID
+    - SETFCAP
+    - SETPCAP
+    - NET_BIND_SERVICE
+    - SYS_CHROOT
+    - KILL
+    - AUDIT_WRITE
+    - SYS_NICE
+    - SYS_ADMIN
+    - SYS_RESOURCE
+    - NET_ADMIN
+    - SYS_PTRACE
+    - IPC_LOCK
+    - SYS_RAWIO
+    cap_drop:
+    - all
+    container_name: xrd-26
+    devices:
+    - /dev/fuse
+    - /dev/net/tun
+    environment:
+      XR_EVERY_BOOT_CONFIG: /etc/xrd/startup.cfg
+      XR_INTERFACES: linux:xr-140,xr_name=Gi0/0/0/0;linux:xr-150,xr_name=Gi0/0/0/1;linux:xr-10,xr_name=Gi0/0/0/2;linux:xr-160,xr_name=Gi0/0/0/3;linux:xr-40,xr_name=Gi0/0/0/4;linux:xr-50,xr_name=Gi0/0/0/5
+      XR_MGMT_INTERFACES: linux:xr-60,xr_name=Mg0/RP0/CPU0/0,chksum
+    image: localhost/ios-xr:7.7.1.26I
+    networks:
+      mgmt: null
+      xrd-26-gi0: null
+      xrd-26-gi1: null
+      xrd-26-gi3: null
+      xrd-26-gi4-xrd-29-gi1: null
+      xrd-26-gi5-xrd-30-gi1: null
+      xrd-27-gi1-xrd-26-gi2: null
+    security_opt:
+    - apparmor:unconfined
+    - label:disable
+    stdin_open: true
+    tty: true
+    volumes:
+    - source: ./config/xrd-26-startup.cfg
+      target: /etc/xrd/startup.cfg
+      type: bind
+    - xrd-26:/xr-storage/
+    - read_only: true
+      source: /sys/fs/cgroup
+      target: /sys/fs/cgroup
+      type: bind
+  xrd-27:
+    cap_add:
+    - CHOWN
+    - DAC_OVERRIDE
+    - FSETID
+    - FOWNER
+    - MKNOD
+    - NET_RAW
+    - SETGID
+    - SETUID
+    - SETFCAP
+    - SETPCAP
+    - NET_BIND_SERVICE
+    - SYS_CHROOT
+    - KILL
+    - AUDIT_WRITE
+    - SYS_NICE
+    - SYS_ADMIN
+    - SYS_RESOURCE
+    - NET_ADMIN
+    - SYS_PTRACE
+    - IPC_LOCK
+    - SYS_RAWIO
+    cap_drop:
+    - all
+    container_name: xrd-27
+    devices:
+    - /dev/fuse
+    - /dev/net/tun
+    environment:
+      XR_EVERY_BOOT_CONFIG: /etc/xrd/startup.cfg
+      XR_INTERFACES: linux:xr-00,xr_name=Gi0/0/0/0;linux:xr-10,xr_name=Gi0/0/0/1;linux:xr-100,xr_name=Gi0/0/0/2;linux:xr-70,xr_name=Gi0/0/0/3,chksum
+      XR_MGMT_INTERFACES: linux:xr-60,xr_name=Mg0/RP0/CPU0/0,chksum
+    image: localhost/ios-xr:7.7.1.26I
+    networks:
+      mgmt: null
+      source-xrd-27: null
+      xrd-27-gi0-xrd-25-gi2: null
+      xrd-27-gi1-xrd-26-gi2: null
+      xrd-27-gi2: null
+    security_opt:
+    - apparmor:unconfined
+    - label:disable
+    stdin_open: true
+    tty: true
+    volumes:
+    - source: ./config/xrd-27-startup.cfg
+      target: /etc/xrd/startup.cfg
+      type: bind
+    - xrd-27:/xr-storage/
+    - read_only: true
+      source: /sys/fs/cgroup
+      target: /sys/fs/cgroup
+      type: bind
+  xrd-29:
+    cap_add:
+    - CHOWN
+    - DAC_OVERRIDE
+    - FSETID
+    - FOWNER
+    - MKNOD
+    - NET_RAW
+    - SETGID
+    - SETUID
+    - SETFCAP
+    - SETPCAP
+    - NET_BIND_SERVICE
+    - SYS_CHROOT
+    - KILL
+    - AUDIT_WRITE
+    - SYS_NICE
+    - SYS_ADMIN
+    - SYS_RESOURCE
+    - NET_ADMIN
+    - SYS_PTRACE
+    - IPC_LOCK
+    - SYS_RAWIO
+    cap_drop:
+    - all
+    container_name: xrd-29
+    devices:
+    - /dev/fuse
+    - /dev/net/tun
+    environment:
+      XR_EVERY_BOOT_CONFIG: /etc/xrd/startup.cfg
+      XR_INTERFACES: linux:xr-20,xr_name=Gi0/0/0/0;linux:xr-40,xr_name=Gi0/0/0/1;linux:xr-80,xr_name=Gi0/0/0/2,chksum;linux:xr-170,xr_name=Gi0/0/0/3
+      XR_MGMT_INTERFACES: linux:xr-60,xr_name=Mg0/RP0/CPU0/0,chksum
+    image: localhost/ios-xr:7.7.1.26I
+    networks:
+      mgmt: null
+      xrd-25-gi4-xrd-29-gi0: null
+      xrd-26-gi4-xrd-29-gi1: null
+      xrd-29-gi3: null
+      xrd-29-host: null
+    security_opt:
+    - apparmor:unconfined
+    - label:disable
+    stdin_open: true
+    tty: true
+    volumes:
+    - source: ./config/xrd-29-startup.cfg
+      target: /etc/xrd/startup.cfg
+      type: bind
+    - xrd-29:/xr-storage/
+    - read_only: true
+      source: /sys/fs/cgroup
+      target: /sys/fs/cgroup
+      type: bind
+  xrd-30:
+    cap_add:
+    - CHOWN
+    - DAC_OVERRIDE
+    - FSETID
+    - FOWNER
+    - MKNOD
+    - NET_RAW
+    - SETGID
+    - SETUID
+    - SETFCAP
+    - SETPCAP
+    - NET_BIND_SERVICE
+    - SYS_CHROOT
+    - KILL
+    - AUDIT_WRITE
+    - SYS_NICE
+    - SYS_ADMIN
+    - SYS_RESOURCE
+    - NET_ADMIN
+    - SYS_PTRACE
+    - IPC_LOCK
+    - SYS_RAWIO
+    cap_drop:
+    - all
+    container_name: xrd-30
+    devices:
+    - /dev/fuse
+    - /dev/net/tun
+    environment:
+      XR_EVERY_BOOT_CONFIG: /etc/xrd/startup.cfg
+      XR_INTERFACES: linux:xr-30,xr_name=Gi0/0/0/0;linux:xr-50,xr_name=Gi0/0/0/1;linux:xr-90,xr_name=Gi0/0/0/2,chksum;linux:xr-180,xr_name=Gi0/0/0/3
+      XR_MGMT_INTERFACES: linux:xr-60,xr_name=Mg0/RP0/CPU0/0,chksum
+    image: localhost/ios-xr:7.7.1.26I
+    networks:
+      mgmt: null
+      xrd-25-gi5-xrd-30-gi0: null
+      xrd-26-gi5-xrd-30-gi1: null
+      xrd-30-gi3: null
+      xrd-30-host: null
+    security_opt:
+    - apparmor:unconfined
+    - label:disable
+    stdin_open: true
+    tty: true
+    volumes:
+    - source: ./config/xrd-30-startup.cfg
+      target: /etc/xrd/startup.cfg
+      type: bind
+    - xrd-30:/xr-storage/
+    - read_only: true
+      source: /sys/fs/cgroup
+      target: /sys/fs/cgroup
+      type: bind
+version: '2.4'
+volumes:
+  xrd-25:
+    name: xrd-25
+  xrd-26:
+    name: xrd-26
+  xrd-27:
+    name: xrd-27
+  xrd-29:
+    name: xrd-29
+  xrd-30:
+    name: xrd-30
