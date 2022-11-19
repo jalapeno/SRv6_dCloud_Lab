@@ -42,6 +42,8 @@ net.bridge.bridge-nf-call-iptables=0
 net.bridge.bridge-nf-call-ip6tables=0
 fs.inotify.max_user_instances=65536
 fs.inotify.max_user_watches=65536
+vm.nr_hugepages=2048
+
 ```
 9. Reload sysctl:  
 ```
