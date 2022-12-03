@@ -54,6 +54,7 @@ sudo sysctl -p
 ./host-check 
 ```   
    You may see hugepages and IOMMU errors/warnings. I proceeded without addressing these.
+   If you get 
   
 11. Optional: dry run script 
 ```
