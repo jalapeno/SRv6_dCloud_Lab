@@ -61,11 +61,7 @@ sudo sysctl -p
 ```
 12. Launch the topology 
 ``` 
-./xr-compose -f docker-compose-6-node.yml -i localhost/ios-xr:7.7.1 -l
-
-or
-
-./xr-compose -f docker-compose-4-node.yml -i localhost/ios-xr:7.7.1 -l
+./xr-compose -f docker-compose-7-node.yml -i localhost/ios-xr:7.7.1 -l
   
 ```
 12. check containers: 
