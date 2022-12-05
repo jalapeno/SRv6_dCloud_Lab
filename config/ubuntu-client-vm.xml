@@ -1,4 +1,4 @@
-<domain type='kvm' id='15'>
+<domain type='qemu' id='15'>
   <name>ubuntu-client</name>
   <uuid>3421fd71-7755-4822-9486-a97f91536f0a</uuid>
   <memory unit='KiB'>2000000</memory>
