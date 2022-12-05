@@ -16,16 +16,7 @@
     <acpi/>
     <apic/>
   </features>
-  <cpu mode='custom' match='exact' check='full'>
-    <model fallback='forbid'>Haswell-noTSX-IBRS</model>
-    <feature policy='require' name='vme'/>
-    <feature policy='require' name='f16c'/>
-    <feature policy='require' name='rdrand'/>
-    <feature policy='require' name='hypervisor'/>
-    <feature policy='require' name='arat'/>
-    <feature policy='require' name='xsaveopt'/>
-    <feature policy='require' name='abm'/>
-  </cpu>
+  <cpu mode='host-passthrough' check='none' migratable='on'/>
   <clock offset='utc'>
     <timer name='rtc' tickpolicy='catchup'/>
     <timer name='pit' tickpolicy='delay'/>
