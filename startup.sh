@@ -13,10 +13,8 @@ sleep 10
 
 docker network ls | awk -F': ' '/srv6_dcloud_lab_mgmt /{print $0}' > mgt_br.txt
 mgt_br=$( head -n 1 mgt_br.txt | cut -c 1-12 )
-#sudo ip addr del 10.0.25.1/24 dev br-"$br25"
-#sudo ip addr add 10.0.25.3/24 dev br-"$br25"
-#sudo ip route add 10.0.0.1/32 via 10.0.25.1 dev br-"$br25"
 
 echo "$mgt_br"
+ifconfig br-"$mgt_br"
 
 
