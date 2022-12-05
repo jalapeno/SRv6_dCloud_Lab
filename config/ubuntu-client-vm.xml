@@ -50,22 +50,22 @@
     </disk>
     <controller type='usb' index='0' model='ich9-ehci1'>
       <alias name='usb'/>
-      <address type='pci' domain='0x0000' bus='0x00' slot='0x04' function='0x7'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x07' function='0x7'/>
     </controller>
     <controller type='usb' index='0' model='ich9-uhci1'>
       <alias name='usb'/>
       <master startport='0'/>
-      <address type='pci' domain='0x0000' bus='0x00' slot='0x04' function='0x0' multifunction='on'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x07' function='0x0' multifunction='on'/>
     </controller>
     <controller type='usb' index='0' model='ich9-uhci2'>
       <alias name='usb'/>
       <master startport='2'/>
-      <address type='pci' domain='0x0000' bus='0x00' slot='0x04' function='0x1'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x07' function='0x1'/>
     </controller>
     <controller type='usb' index='0' model='ich9-uhci3'>
       <alias name='usb'/>
       <master startport='4'/>
-      <address type='pci' domain='0x0000' bus='0x00' slot='0x04' function='0x2'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x07' function='0x2'/>
     </controller>
     <controller type='pci' index='0' model='pci-root'>
       <alias name='pci.0'/>
