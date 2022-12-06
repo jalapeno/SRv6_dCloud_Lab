@@ -6,7 +6,7 @@
 
 echo "starting setup: " >> /home/cisco/startup.log
 
-#./xr-compose -f docker-compose-6-node.yml  -li localhost/ios-xr:7.8.1.18I
+#./xr-compose -f docker-compose-7-node.yml  -li localhost/ios-xr:7.8.1.18I
 #sudo sysctl -p
 #echo "sleeping for 10 seconds to let images build" >> /home/cisco/startup.log
 #sleep 10

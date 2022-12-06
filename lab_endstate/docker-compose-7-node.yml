@@ -1,4 +1,5 @@
-# The 6-node topology is comprised of routers xrd25 thru xrd30
+# Run this file from SRv6 Lab top level directory:
+# ./xr-compose -f lab_endstate/docker-compose-7-node.yml  -li localhost/ios-xr:7.8.1.18I
 
 services:
 # Ubuntu containers

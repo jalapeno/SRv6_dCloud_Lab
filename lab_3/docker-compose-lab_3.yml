@@ -1,5 +1,5 @@
 # Run this file from SRv6 Lab top level directory:
-# ./xr-compose -f lab_0/docker-compose-lab_0.yml  -li localhost/ios-xr:7.8.1.18I
+# ./xr-compose -f lab_3/docker-compose-lab_3.yml  -li localhost/ios-xr:7.8.1.18I
 
 services:
 # Ubuntu containers
