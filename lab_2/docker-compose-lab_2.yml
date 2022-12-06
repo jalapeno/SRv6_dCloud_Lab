@@ -1,4 +1,5 @@
-# The 6-node topology is comprised of routers xrd25 thru xrd30
+# Run this file from SRv6 Lab top level directory:
+# ./xr-compose -f lab_2/docker-compose-lab_2.yml  -li localhost/ios-xr:7.8.1.18I
 
 services:
 # Ubuntu containers
@@ -17,7 +18,7 @@ services:
 
 # XRd containers
   xrd01:
-    xr_startup_cfg: lab_0/config/xrd01.cfg
+    xr_startup_cfg: config/xrd01.cfg
     xr_interfaces:
       - Gi0/0/0/0
       - Gi0/0/0/1
@@ -26,7 +27,7 @@ services:
       - Mg0/RP0/CPU0/0
 
   xrd02:
-    xr_startup_cfg: lab_0/config/xrd02.cfg
+    xr_startup_cfg: config/xrd02.cfg
     xr_interfaces:
       - Gi0/0/0/0
       - Gi0/0/0/1
@@ -34,7 +35,7 @@ services:
       - Gi0/0/0/3
       - Mg0/RP0/CPU0/0
   xrd03:
-    xr_startup_cfg: lab_0/config/xrd03.cfg
+    xr_startup_cfg: config/xrd03.cfg
     xr_interfaces:
       - Gi0/0/0/0
       - Gi0/0/0/1
@@ -42,7 +43,7 @@ services:
       - Gi0/0/0/3
       - Mg0/RP0/CPU0/0
   xrd04:
-    xr_startup_cfg: lab_0/config/xrd04.cfg
+    xr_startup_cfg: config/xrd04.cfg
     xr_interfaces:
       - Gi0/0/0/0
       - Gi0/0/0/1
@@ -50,7 +51,7 @@ services:
       - Gi0/0/0/3
       - Mg0/RP0/CPU0/0
   xrd05:
-    xr_startup_cfg: lab_0/config/xrd05.cfg
+    xr_startup_cfg: config/xrd05.cfg
     xr_interfaces:
       - Gi0/0/0/0
       - Gi0/0/0/1
@@ -58,7 +59,7 @@ services:
       - Gi0/0/0/3
       - Mg0/RP0/CPU0/0
   xrd06:
-    xr_startup_cfg: lab_0/config/xrd06.cfg
+    xr_startup_cfg: config/xrd06.cfg
     xr_interfaces:
       - Gi0/0/0/0
       - Gi0/0/0/1
@@ -66,7 +67,7 @@ services:
       - Gi0/0/0/3
       - Mg0/RP0/CPU0/0
   xrd07:
-    xr_startup_cfg: lab_0/config/xrd07.cfg
+    xr_startup_cfg: config/xrd07.cfg
     xr_interfaces:
       - Gi0/0/0/0
       - Gi0/0/0/1
@@ -96,32 +97,32 @@ networks:
       - xrd06:Mg0/RP0/CPU0/0
       - xrd07:Mg0/RP0/CPU0/0
     ipam:
-      lab_0/config:
+      config:
         - subnet: 10.254.254.0/24
   xrd01-host:
     ipam:
-      lab_0/config:
+      config:
         - subnet: 10.101.1.0/24
     xr_interfaces:
       - xrd01:Gi0/0/0/0
 
   xrd05-host:
     ipam:
-      lab_0/config:
+      config:
         - subnet: 10.1.1.24/29
     xr_interfaces:
       - xrd05:Gi0/0/0/3
 
   xrd06-host:
     ipam:
-      lab_0/config:
+      config:
         - subnet: 10.1.1.32/29
     xr_interfaces:
       - xrd06:Gi0/0/0/3
 
   xrd07-host:
     ipam:
-      lab_0/config:
+      config:
         - subnet: 10.107.1.0/24
     xr_interfaces:
       - xrd07:Gi0/0/0/0
