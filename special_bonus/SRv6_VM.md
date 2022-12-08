@@ -17,7 +17,7 @@ sudo vi /etc/fstab
   comment out the /swap.img line
 ```
 
-4. If using Calico-VPP, edit netplan to add a VPP interface /etc/netplan/00-installer-config.yaml
+4. Skip this step unless using Calico-VPP. Edit netplan to add a VPP interface /etc/netplan/00-installer-config.yaml
 
 ```
 network:
