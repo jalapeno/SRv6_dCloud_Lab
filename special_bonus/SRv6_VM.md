@@ -1,3 +1,4 @@
+### Install and run K8s on a VM that sits behind corporate proxy
 1. Add proxy settings to /etc/environment
 
 ```
@@ -16,8 +17,9 @@ sudo rm /swap.img
 sudo vi /etc/fstab
   comment out the /swap.img line
 ```
+Skip step 4 & 5 unless using Calico-VPP
 
-4. Skip this step unless using Calico-VPP. Edit netplan to add a VPP interface /etc/netplan/00-installer-config.yaml
+4. Edit netplan to add a VPP interface /etc/netplan/00-installer-config.yaml
 
 ```
 network:
