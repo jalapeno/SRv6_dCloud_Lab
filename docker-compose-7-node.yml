@@ -92,7 +92,7 @@ networks:
     driver_opts:
       parent: ens224
     ipam:
-      lab_endstate/config:
+      config:
         - subnet: 192.168.122.0/24
   mgmt:
     xr_interfaces:
