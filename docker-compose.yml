@@ -1,4 +1,11 @@
 networks:
+  macvlan0:
+    driver: macvlan
+    driver_opts:
+      parent: ens224
+    ipam:
+      config:
+      - subnet: 192.168.122.0/24
   mgmt:
     driver_opts:
       com.docker.network.container_iface_prefix: xr-9
@@ -147,7 +154,7 @@ services:
     - /dev/net/tun
     environment:
       XR_EVERY_BOOT_CONFIG: /etc/xrd/startup.cfg
-      XR_INTERFACES: linux:xr-100,xr_name=Gi0/0/0/0,chksum;linux:xr-00,xr_name=Gi0/0/0/1;linux:xr-10,xr_name=Gi0/0/0/2;linux:xr-140,xr_name=Gi0/0/0/3
+      XR_INTERFACES: linux:eth0,xr_name=Gi0/0/0/0,chksum;linux:xr-00,xr_name=Gi0/0/0/1;linux:xr-10,xr_name=Gi0/0/0/2;linux:xr-140,xr_name=Gi0/0/0/3
       XR_MGMT_INTERFACES: linux:xr-90,xr_name=Mg0/RP0/CPU0/0,chksum
     image: localhost/ios-xr:7.7.1
     networks:
@@ -155,14 +162,14 @@ services:
       xrd01-gi1-xrd02-gi0: null
       xrd01-gi2-xrd05-gi0: null
       xrd01-gi3: null
-      xrd01-host: null
+      macvlan0: null
     security_opt:
     - apparmor:unconfined
     - label:disable
     stdin_open: true
     tty: true
     volumes:
-    - source: ./config/xrd01.cfg
+    - source: ./lab_endstate/config/xrd01.cfg
       target: /etc/xrd/startup.cfg
       type: bind
     - xrd01:/xr-storage/
@@ -216,7 +223,7 @@ services:
     stdin_open: true
     tty: true
     volumes:
-    - source: ./config/xrd02.cfg
+    - source: ./lab_endstate/config/xrd02.cfg
       target: /etc/xrd/startup.cfg
       type: bind
     - xrd02:/xr-storage/
@@ -270,7 +277,7 @@ services:
     stdin_open: true
     tty: true
     volumes:
-    - source: ./config/xrd03.cfg
+    - source: ./lab_endstate/config/xrd03.cfg
       target: /etc/xrd/startup.cfg
       type: bind
     - xrd03:/xr-storage/
@@ -324,7 +331,7 @@ services:
     stdin_open: true
     tty: true
     volumes:
-    - source: ./config/xrd04.cfg
+    - source: ./lab_endstate/config/xrd04.cfg
       target: /etc/xrd/startup.cfg
       type: bind
     - xrd04:/xr-storage/
@@ -378,7 +385,7 @@ services:
     stdin_open: true
     tty: true
     volumes:
-    - source: ./config/xrd05.cfg
+    - source: ./lab_endstate/config/xrd05.cfg
       target: /etc/xrd/startup.cfg
       type: bind
     - xrd05:/xr-storage/
@@ -432,7 +439,7 @@ services:
     stdin_open: true
     tty: true
     volumes:
-    - source: ./config/xrd06.cfg
+    - source: ./lab_endstate/config/xrd06.cfg
       target: /etc/xrd/startup.cfg
       type: bind
     - xrd06:/xr-storage/
@@ -486,7 +493,7 @@ services:
     stdin_open: true
     tty: true
     volumes:
-    - source: ./config/xrd07.cfg
+    - source: ./lab_endstate/config/xrd07.cfg
       target: /etc/xrd/startup.cfg
       type: bind
     - xrd07:/xr-storage/
