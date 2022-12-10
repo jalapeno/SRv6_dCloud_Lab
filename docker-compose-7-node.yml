@@ -106,12 +106,12 @@ networks:
     ipam:
       config:
         - subnet: 10.254.254.0/24
-  xrd01-host:
-    ipam:
-      config:
-        - subnet: 10.101.1.0/24
-    xr_interfaces:
-      - xrd01:Gi0/0/0/0
+  # xrd01-host:
+  #   ipam:
+  #     config:
+  #       - subnet: 10.101.1.0/24
+  #   xr_interfaces:
+  #     - xrd01:Gi0/0/0/0
 
   xrd05-host:
     ipam:
