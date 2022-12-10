@@ -21,12 +21,12 @@ segment-routing
  global-block 100000 163999
  srv6
   encapsulation
-   source-address fc00:0:01::1
+   source-address fc00:0:1::1
   !
   locators
    locator MAIN
     micro-segment behavior unode psp-usd
-    prefix fc00:0:01::/48
+    prefix fc00:0:1::/48
    !
   !
  !
@@ -54,12 +54,12 @@ segment-routing
  global-block 100000 163999
  srv6
   encapsulation
-   source-address fc00:0:02::1
+   source-address fc00:0:2::1
   !
   locators
    locator MAIN
     micro-segment behavior unode psp-usd
-    prefix fc00:0:02::/48
+    prefix fc00:0:2::/48
    !
   !
  !
@@ -87,12 +87,12 @@ segment-routing
  global-block 100000 163999
  srv6
   encapsulation
-   source-address fc00:0:03::1
+   source-address fc00:0:3::1
   !
   locators
    locator MAIN
     micro-segment behavior unode psp-usd
-    prefix fc00:0:03::/48
+    prefix fc00:0:3::/48
    !
   !
  !
@@ -120,12 +120,12 @@ segment-routing
  global-block 100000 163999
  srv6
   encapsulation
-   source-address fc00:0:04::1
+   source-address fc00:0:4::1
   !
   locators
    locator MAIN
     micro-segment behavior unode psp-usd
-    prefix fc00:0:04::/48
+    prefix fc00:0:4::/48
    !
   !
  !
@@ -153,12 +153,12 @@ segment-routing
  global-block 100000 163999
  srv6
   encapsulation
-   source-address fc00:0:05::1
+   source-address fc00:0:5::1
   !
   locators
    locator MAIN
     micro-segment behavior unode psp-usd
-    prefix fc00:0:05::/48
+    prefix fc00:0:5::/48
    !
   !
  !
@@ -186,12 +186,12 @@ segment-routing
  global-block 100000 163999
  srv6
   encapsulation
-   source-address fc00:0:06::1
+   source-address fc00:0:6::1
   !
   locators
    locator MAIN
     micro-segment behavior unode psp-usd
-    prefix fc00:0:06::/48
+    prefix fc00:0:6::/48
    !
   !
  !
@@ -219,12 +219,12 @@ segment-routing
  global-block 100000 163999
  srv6
   encapsulation
-   source-address fc00:0:07::1
+   source-address fc00:0:7::1
   !
   locators
    locator MAIN
     micro-segment behavior unode psp-usd
-    prefix fc00:0:07::/48
+    prefix fc00:0:7::/48
    !
   !
  !
