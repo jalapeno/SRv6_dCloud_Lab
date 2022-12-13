@@ -1,0 +1,15 @@
+# login to xrd07 and copy-paste:
+
+ping 10.107.1.1
+ping 10.0.0.5 source lo0
+ping 10.0.0.6 source lo0
+ping 10.0.0.7 source lo0
+ping fc00:0:5::1 source lo0
+ping fc00:0:6::1 source lo0
+ping fc00:0:7::1 source lo0
+show bgp ipv4 uni 
+show bgp ipv6 uni
+show bgp vpnv4 uni
+show mpls forwarding
+show segment-routing srv6 sid  
+ping 10.101.1.1 source lo0
