@@ -1,4 +1,4 @@
-### configure SR, SRv6 for ISIS
+### configure SR, SRv6, and SRv6-L3VPN for BGP
 
 R01 
 ```
@@ -29,6 +29,7 @@ router bgp 65000
   segment-routing srv6
    locator BGP
   !
+  network 10.101.1.0/24 route-policy SID(10101)
   network 10.0.128.1/32 route-policy SID(32769)
  !
  address-family ipv6 unicast
@@ -202,6 +203,7 @@ router bgp 65000
   segment-routing srv6
    locator BGP
   !
+  network 10.107.1.0/24 route-policy SID(10107)
   network 10.0.128.7/32 route-policy SID(32775)
  !
  address-family ipv6 unicast
