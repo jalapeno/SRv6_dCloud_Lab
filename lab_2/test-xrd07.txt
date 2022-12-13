@@ -15,3 +15,13 @@ show bgp vpnv4 uni
 show mpls forwarding
 show segment-routing srv6 sid  
 
+show bgp vpnv4 unicast rd 10.0.0.1:0 10.9.1.0/24
+show bgp vpnv4 unicast rd 10.0.0.5:0 10.9.7.0/24
+ping 10.0.128.7 source lo128
+ping fc00:0:8007::1 source lo128
+ping 10.0.128.5 source lo128
+ping fc00:0:8005::1 source lo128
+
+ping 10.9.5.1 vrf carrots source lo9
+ping 10.9.6.1 vrf carrots source lo9
+ping 10.9.1.1 vrf carrots source lo9
