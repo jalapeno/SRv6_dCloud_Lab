@@ -2,10 +2,17 @@ networks:
   macvlan0:
     driver: macvlan
     driver_opts:
-      parent: ens8
+      parent: ens224
     ipam:
       config:
-      - subnet: 192.168.122.0/24
+      - subnet: 10.101.1.0/24
+  macvlan1:
+    driver: macvlan
+    driver_opts:
+      parent: ens256
+    ipam:
+      config:
+      - subnet: 10.107.1.0/24
   mgmt:
     driver_opts:
       com.docker.network.container_iface_prefix: xr-9
@@ -14,7 +21,7 @@ networks:
       - subnet: 10.254.254.0/24
   xrd01-gi0:
     driver_opts:
-      com.docker.network.container_iface_prefix: xr-13
+      com.docker.network.container_iface_prefix: xr-12
     internal: true
     name: xrd01-gi0
   xrd01-gi1-xrd02-gi0:
@@ -29,7 +36,7 @@ networks:
     name: xrd01-gi2-xrd05-gi0
   xrd01-gi3:
     driver_opts:
-      com.docker.network.container_iface_prefix: xr-14
+      com.docker.network.container_iface_prefix: xr-13
     internal: true
     name: xrd01-gi3
   xrd02-gi1-xrd03-gi0:
@@ -44,7 +51,7 @@ networks:
     name: xrd02-gi2-xrd06-gi1
   xrd02-gi3:
     driver_opts:
-      com.docker.network.container_iface_prefix: xr-15
+      com.docker.network.container_iface_prefix: xr-14
     internal: true
     name: xrd02-gi3
   xrd03-gi1-xrd04-gi0:
@@ -54,12 +61,12 @@ networks:
     name: xrd03-gi1-xrd04-gi0
   xrd03-gi2:
     driver_opts:
-      com.docker.network.container_iface_prefix: xr-16
+      com.docker.network.container_iface_prefix: xr-15
     internal: true
     name: xrd03-gi2
   xrd03-gi3:
     driver_opts:
-      com.docker.network.container_iface_prefix: xr-17
+      com.docker.network.container_iface_prefix: xr-16
     internal: true
     name: xrd03-gi3
   xrd04-gi1-xrd07-gi1:
@@ -74,7 +81,7 @@ networks:
     name: xrd04-gi2-xrd05-gi1
   xrd04-gi3:
     driver_opts:
-      com.docker.network.container_iface_prefix: xr-18
+      com.docker.network.container_iface_prefix: xr-17
     internal: true
     name: xrd04-gi3
   xrd05-gi2-xrd06-gi2:
@@ -99,17 +106,16 @@ networks:
     ipam:
       config:
       - subnet: 10.1.1.32/29
+  xrd07-gi0:
+    driver_opts:
+      com.docker.network.container_iface_prefix: xr-18
+    internal: true
+    name: xrd07-gi0
   xrd07-gi3:
     driver_opts:
       com.docker.network.container_iface_prefix: xr-19
     internal: true
     name: xrd07-gi3
-  xrd07-host:
-    driver_opts:
-      com.docker.network.container_iface_prefix: xr-12
-    ipam:
-      config:
-      - subnet: 10.107.1.0/24
 services:
   xrd01:
     cap_add:
@@ -142,7 +148,7 @@ services:
     - /dev/net/tun
     environment:
       XR_EVERY_BOOT_CONFIG: /etc/xrd/startup.cfg
-      XR_INTERFACES: linux:eth0,xr_name=Gi0/0/0/0;linux:xr-00,xr_name=Gi0/0/0/1;linux:xr-10,xr_name=Gi0/0/0/2;linux:xr-140,xr_name=Gi0/0/0/3
+      XR_INTERFACES: linux:eth0,xr_name=Gi0/0/0/0;linux:xr-00,xr_name=Gi0/0/0/1;linux:xr-10,xr_name=Gi0/0/0/2;linux:xr-130,xr_name=Gi0/0/0/3
       XR_MGMT_INTERFACES: linux:xr-90,xr_name=Mg0/RP0/CPU0/0,chksum
     image: localhost/ios-xr:7.7.1
     networks:
@@ -196,7 +202,7 @@ services:
     - /dev/net/tun
     environment:
       XR_EVERY_BOOT_CONFIG: /etc/xrd/startup.cfg
-      XR_INTERFACES: linux:xr-00,xr_name=Gi0/0/0/0;linux:xr-20,xr_name=Gi0/0/0/1;linux:xr-30,xr_name=Gi0/0/0/2;linux:xr-150,xr_name=Gi0/0/0/3
+      XR_INTERFACES: linux:xr-00,xr_name=Gi0/0/0/0;linux:xr-20,xr_name=Gi0/0/0/1;linux:xr-30,xr_name=Gi0/0/0/2;linux:xr-140,xr_name=Gi0/0/0/3
       XR_MGMT_INTERFACES: linux:xr-90,xr_name=Mg0/RP0/CPU0/0,chksum
     image: localhost/ios-xr:7.7.1
     networks:
@@ -250,7 +256,7 @@ services:
     - /dev/net/tun
     environment:
       XR_EVERY_BOOT_CONFIG: /etc/xrd/startup.cfg
-      XR_INTERFACES: linux:xr-20,xr_name=Gi0/0/0/0;linux:xr-40,xr_name=Gi0/0/0/1;linux:xr-160,xr_name=Gi0/0/0/2;linux:xr-170,xr_name=Gi0/0/0/3
+      XR_INTERFACES: linux:xr-20,xr_name=Gi0/0/0/0;linux:xr-40,xr_name=Gi0/0/0/1;linux:xr-150,xr_name=Gi0/0/0/2;linux:xr-160,xr_name=Gi0/0/0/3
       XR_MGMT_INTERFACES: linux:xr-90,xr_name=Mg0/RP0/CPU0/0,chksum
     image: localhost/ios-xr:7.7.1
     networks:
@@ -304,7 +310,7 @@ services:
     - /dev/net/tun
     environment:
       XR_EVERY_BOOT_CONFIG: /etc/xrd/startup.cfg
-      XR_INTERFACES: linux:xr-40,xr_name=Gi0/0/0/0;linux:xr-50,xr_name=Gi0/0/0/1;linux:xr-60,xr_name=Gi0/0/0/2;linux:xr-180,xr_name=Gi0/0/0/3
+      XR_INTERFACES: linux:xr-40,xr_name=Gi0/0/0/0;linux:xr-50,xr_name=Gi0/0/0/1;linux:xr-60,xr_name=Gi0/0/0/2;linux:xr-170,xr_name=Gi0/0/0/3
       XR_MGMT_INTERFACES: linux:xr-90,xr_name=Mg0/RP0/CPU0/0,chksum
     image: localhost/ios-xr:7.7.1
     networks:
@@ -466,15 +472,15 @@ services:
     - /dev/net/tun
     environment:
       XR_EVERY_BOOT_CONFIG: /etc/xrd/startup.cfg
-      XR_INTERFACES: linux:xr-120,xr_name=Gi0/0/0/0,chksum;linux:xr-50,xr_name=Gi0/0/0/1;linux:xr-80,xr_name=Gi0/0/0/2;linux:xr-190,xr_name=Gi0/0/0/3
+      XR_INTERFACES: linux:eth0,xr_name=Gi0/0/0/0;linux:xr-50,xr_name=Gi0/0/0/1;linux:xr-80,xr_name=Gi0/0/0/2;linux:xr-190,xr_name=Gi0/0/0/3
       XR_MGMT_INTERFACES: linux:xr-90,xr_name=Mg0/RP0/CPU0/0,chksum
     image: localhost/ios-xr:7.7.1
     networks:
       mgmt: null
       xrd04-gi1-xrd07-gi1: null
       xrd06-gi0-xrd07-gi2: null
+      macvlan1: null
       xrd07-gi3: null
-      xrd07-host: null
     security_opt:
     - apparmor:unconfined
     - label:disable
