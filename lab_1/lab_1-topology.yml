@@ -90,10 +90,17 @@ networks:
   macvlan0:
     driver: macvlan
     driver_opts:
-      parent: ens8
+      parent: ens224
     ipam:
       config:
-        - subnet: 192.168.122.0/24
+        - subnet: 10.101.1.0/24
+  macvlan1:
+    driver: macvlan
+    driver_opts:
+      parent: ens256
+    ipam:
+      config:
+        - subnet: 10.107.1.0/24
   mgmt:
     xr_interfaces:
       - xrd01:Mg0/RP0/CPU0/0
@@ -106,12 +113,6 @@ networks:
     ipam:
       config:
         - subnet: 10.254.254.0/24
-  # xrd01-host:
-  #   ipam:
-  #     config:
-  #       - subnet: 10.101.1.0/24
-  #   xr_interfaces:
-  #     - xrd01:Gi0/0/0/0
 
   xrd05-host:
     ipam:
@@ -126,10 +127,3 @@ networks:
         - subnet: 10.1.1.32/29
     xr_interfaces:
       - xrd06:Gi0/0/0/3
-
-  xrd07-host:
-    ipam:
-      config:
-        - subnet: 10.107.1.0/24
-    xr_interfaces:
-      - xrd07:Gi0/0/0/0
