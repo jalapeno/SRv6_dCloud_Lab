@@ -16,104 +16,25 @@ interface Loopback9
  vrf carrots
  ipv4 address 10.9.1.1 255.255.255.0
 !
-interface Loopback128
- ipv4 address 10.0.128.1 255.255.255.255
- ipv6 address fc00:0:8001::1/128
-!
 route-policy SID($SID)
   set label-index $SID
 end-policy
 !
 router bgp 65000
- address-family ipv4 unicast
   segment-routing srv6
-   locator BGP
-  !
-  network 10.101.1.0/24 route-policy SID(10101)
-  network 10.0.128.1/32 route-policy SID(32769)
- !
- address-family ipv6 unicast
-  segment-routing srv6
-   locator BGP
-  !
-  network fc00:0:8001::1/128
+   locator MAIN
  !
  vrf carrots
   rd auto
   address-family ipv4 unicast
    segment-routing srv6
-    locator BGP
+    locator MAIN
     alloc mode per-vrf
    !
    redistribute connected
   !
  !
 !
-segment-routing
- srv6
-  locators
-   locator BGP
-    micro-segment behavior unode psp-usd
-    prefix fc00:0:8001::/48
-   !
-
-```
-
-R05 
-```
-vrf carrots
- address-family ipv4 unicast
-  import route-target
-   9:9
-  !
-  export route-target
-   9:9
-  !
- !
-!
-interface Loopback9
- vrf carrots
- ipv4 address 10.9.5.1 255.255.255.0
-!
-interface Loopback128
- ipv4 address 10.0.128.5 255.255.255.255
- ipv6 address fc00:0:8005::1/128
-!
-route-policy SID($SID)
-  set label-index $SID
-end-policy
-!
-router bgp 65000
- address-family ipv4 unicast
-  segment-routing srv6
-   locator BGP
-  !
-  network 10.0.128.5/32 route-policy SID(32773)
- !
- address-family ipv6 unicast
-  segment-routing srv6
-   locator BGP
-  !
-  network fc00:0:8005::1/128
- !
- vrf carrots
-  rd auto
-  address-family ipv4 unicast
-   segment-routing srv6
-    locator BGP
-    alloc mode per-vrf
-   !
-   redistribute connected
-  !
- !
-!
-segment-routing
- srv6
-  locators
-   locator BGP
-    micro-segment behavior unode psp-usd
-    prefix fc00:0:8005::/48
-   !
 
 ```
 
@@ -133,45 +54,22 @@ interface Loopback9
  vrf carrots
  ipv4 address 10.9.6.1 255.255.255.0
 !
-interface Loopback128
- ipv4 address 10.0.128.6 255.255.255.255
- ipv6 address fc00:0:8006::1/128
-!
-route-policy SID($SID)
-  set label-index $SID
-end-policy
-!
 router bgp 65000
- address-family ipv4 unicast
   segment-routing srv6
-   locator BGP
-  !
-  network 10.0.128.6/32 route-policy SID(32774)
- !
- address-family ipv6 unicast
-  segment-routing srv6
-   locator BGP
-  !
-  network fc00:0:8006::1/128
+   locator MAIN
  !
  vrf carrots
   rd auto
   address-family ipv4 unicast
    segment-routing srv6
-    locator BGP
+    locator MAIN
     alloc mode per-vrf
    !
    redistribute connected
   !
  !
 !
-segment-routing
- srv6
-  locators
-   locator BGP
-    micro-segment behavior unode psp-usd
-    prefix fc00:0:8006::/48
-   !
+
 ```
 
 R07
@@ -190,46 +88,25 @@ interface Loopback9
  vrf carrots
  ipv4 address 10.9.7.1 255.255.255.0
 !
-interface Loopback128
- ipv4 address 10.0.128.7 255.255.255.255
- ipv6 address fc00:0:8007::1/128
-!
 route-policy SID($SID)
   set label-index $SID
 end-policy
 !
 router bgp 65000
- address-family ipv4 unicast
   segment-routing srv6
-   locator BGP
-  !
-  network 10.107.1.0/24 route-policy SID(10107)
-  network 10.0.128.7/32 route-policy SID(32775)
- !
- address-family ipv6 unicast
-  segment-routing srv6
-   locator BGP
-  !
-  network fc00:0:8007::1/128
+   locator MAIN
  !
  vrf carrots
   rd auto
   address-family ipv4 unicast
    segment-routing srv6
-    locator BGP
+    locator MAIN
     alloc mode per-vrf
    !
    redistribute connected
   !
  !
 !
-segment-routing
- srv6
-  locators
-   locator BGP
-    micro-segment behavior unode psp-usd
-    prefix fc00:0:8007::/48
-   !
 ```
 
 Validate changes:
