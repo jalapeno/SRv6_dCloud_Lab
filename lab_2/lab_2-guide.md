@@ -23,8 +23,6 @@ end-policy
 router bgp 65000
   segment-routing srv6
    locator MAIN
- address-family ipv4 unicast
-  network 10.101.1.0/24 route-policy SID(10101)
  !
  vrf carrots
   rd auto
@@ -97,8 +95,6 @@ end-policy
 router bgp 65000
   segment-routing srv6
    locator MAIN
- address-family ipv4 unicast
-  network 10.107.1.0/24 route-policy SID(10107)
  !
  vrf carrots
   rd auto
