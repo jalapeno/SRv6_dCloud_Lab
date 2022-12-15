@@ -1,0 +1,56 @@
+[
+    {
+        "key": "2_0_0_0000.0000.0001",
+        "name": "r01",
+        "router_id": "10.0.0.01",
+        "city": "LHR001",
+        "address": "Second Floor, Trinity Ct, Trinity St, Peterborough PE1 1DA, United Kingdom",
+        "prefix_sid": 100001,
+        "srv6_sid": "fc00:0:1::"
+    },
+    {
+        "key": "2_0_0_0000.0000.0026",
+        "name": "r26",
+        "router_id": "10.0.0.26",
+        "city": "CDG001",
+        "address": "18 Rue la Bo\u00e9tie, 75008 Paris, France",
+        "prefix_sid": 100026,
+        "srv6_sid": "fc00:0:26::"
+    },
+    {
+        "key": "2_0_0_0000.0000.0027",
+        "name": "r27",
+        "router_id": "10.0.0.27",
+        "city": "BML001",
+        "address": "Albrechtstra\u00dfe 110, 12103 Berlin, Germany",
+        "prefix_sid": 100027,
+        "srv6_sid": "fc00:0:27::"
+    },
+    {
+        "key": "2_0_0_0000.0000.0028",
+        "name": "r28",
+        "router_id": "10.0.0.28",
+        "city": "MXP001",
+        "address": "Via Caldera, 21, 20153 Milano MI, Italy",
+        "prefix_sid": 100028,
+        "srv6_sid": "fc00:0:28::"
+    },
+    {
+        "key": "2_0_0_0000.0000.0029",
+        "name": "r29",
+        "router_id": "10.0.0.29",
+        "city": "PRG001",
+        "address": "Mile\u0161ovsk\u00e1 1136/5 130 00 Praha 3",
+        "prefix_sid": 100029,
+        "srv6_sid": "fc00:0:29::"
+    },
+    {
+        "key": "2_0_0_0000.0000.0030",
+        "name": "r30",
+        "router_id": "10.0.0.30",
+        "city": "AMS001",
+        "address": "Frederiksplein 42, 1017 XN Amsterdam, Netherlands",
+        "prefix_sid": 100030,
+        "srv6_sid": "fc00:0:30::"
+    }
+]

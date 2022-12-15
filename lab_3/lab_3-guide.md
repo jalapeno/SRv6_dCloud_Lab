@@ -128,15 +128,13 @@ for l in ls_node return l
 ```
 note: after running a query comment it out before running the next query. Example:
 
-<img src="arango-query.png" width="700">
+<img src="arango-query.png" width="600">
 
-```
-//for l in ls_node return l
-
-for l in ls_link filter l.mt_id !=2 return l
 ```
 More queries:
 ```
+for l in ls_link filter l.mt_id !=2 return l
+
 for n in ls_node_edge return n
 
 for n in sr_topology return n
