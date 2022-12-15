@@ -120,9 +120,22 @@ kubectl get all -A
 kubectl get pods -n jalapeno
 kubectl get pods -n jalapeno-collectors
 ```
-Kafka
+Kafka:
+1. List Kafka topics
+2. Listen to Kafka topics
 ```
-command
+kubectl exec -it kafka-0 /bin/bash -n jalapeno
+
+cd bin
+unset JMX_PORT
+
+./kafka-topics.sh --list  --bootstrap-server localhost:9092
+./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_node
+./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_link
+./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.l3vpn_prefix_v4
+
+./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic jalapeno.telemetry
+
 ```
 
 
