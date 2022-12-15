@@ -1,4 +1,4 @@
-### configure BGP Monitoring Protocol (BMP)
+### Configure BGP Monitoring Protocol (BMP)
 
 R05
 ```
@@ -80,45 +80,17 @@ Wed Dec 14 23:24:01.861 UTC
 BMP server 1
 Host 198.18.128.101 Port 30511
 Connected for 00:01:18
-Last Disconnect event received : 00:01:24
-Precedence:  internet
-BGP neighbors: 4
-VRF: - (0x60000000)
-Update Source: 10.254.254.106 (Mg0/RP0/CPU0/0)
-Update Source Vrf ID: 0x60000000
-
-Queue write pulse sent            : Dec 14 23:23:14.170, Dec 14 23:23:05.478 (all)
-Queue write pulse received        : Dec 14 23:23:14.170
-Update Mode : Route Monitoring Pre-Policy
-
-TCP: 
-  Last message sent: Dec 14 23:23:14.170, Status: No Pending Data
-  Last write pulse received: Dec 14 23:23:14.172, Waiting: FALSE
-
-Message Stats:
-Total msgs dropped   : 0
-Total msgs pending   : 0, Max: 3 at Dec 14 23:22:37.260
-Total messages sent  : 16
-Total bytes sent     : 2790, Time spent: 0.000 secs
-           INITIATION: 2
-          TERMINATION: 0
-         STATS-REPORT: 2
-    PER-PEER messages: 12
-
-ROUTE-MON messages   : 8
-
-  Neighbor fc00:0:7::1
-Messages pending: 0
-Messages dropped: 0
-Messages sent   : 6
-      PEER-UP   : 2
-    PEER-DOWN   : 0
+...
 ```
-Kubectl commands
+ssh to the Jalapeno VM and run some Kubectl commands
 ```
+ssh cisco@198.18.1.101
+
 kubectl get all -A
 kubectl get pods -n jalapeno
 kubectl get pods -n jalapeno-collectors
+kubectl get services -A
+
 ```
 Kafka:
 1. List Kafka topics
@@ -132,7 +104,7 @@ unset JMX_PORT
 ./kafka-topics.sh --list  --bootstrap-server localhost:9092
 ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_node
 ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_link
-./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.l3vpn_prefix_v4
+./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.l3vpn_v4
 
 ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic jalapeno.telemetry
 
@@ -149,15 +121,21 @@ DB: jalapeno
 
 ```
 Explore data collections
-Vertex:
-Edge:
 
 Run DB Queries:
 ```
 for l in ls_node return l
+```
+note: after running a query comment it out before running the next query. Example:
+
+![Arango query](arango-query.png "Arango query")
+```
+//for l in ls_node return l
 
 for l in ls_link filter l.mt_id !=2 return l
-
+```
+More queries:
+```
 for n in ls_node_edge return n
 
 for n in sr_topology return n
