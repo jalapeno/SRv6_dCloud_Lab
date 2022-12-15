@@ -128,9 +128,8 @@ for l in ls_node return l
 ```
 note: after running a query comment it out before running the next query. Example:
 
-<img src="arango-query.png" width="200">
+<img src="arango-query.png" width="700">
 
-#![Arango query](arango-query.png "Arango query")
 ```
 //for l in ls_node return l
 
