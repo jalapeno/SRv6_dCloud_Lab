@@ -114,6 +114,17 @@ Messages sent   : 6
       PEER-UP   : 2
     PEER-DOWN   : 0
 ```
+Kubectl commands
+```
+kubectl get all -A
+kubectl get pods -n jalapeno
+kubectl get pods -n jalapeno-collectors
+```
+Kafka
+```
+command
+```
+
 
 Connect to Jalapeno's Arango GraphDB
 ```
@@ -122,5 +133,24 @@ http://198.18.1.101:30852/
 user: root
 password: jalapeno
 DB: jalapeno
+
+```
+Explore data collections
+Vertex:
+Edge:
+
+Run DB Queries:
+```
+for l in ls_node return l
+
+for l in ls_link filter l.mt_id !=2 return l
+
+for n in ls_node_edge return n
+
+for n in sr_topology return n
+
+for l in sr_node return { sid: l.prefix_sid, address: l.address }
+
+for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0025' TO 'unicast_prefix_v4/10.10.3.0_24_10.0.0.29' sr_topology return  { prefix: v.prefix, name: v.name, sid: e.srv6_sid, latency: e.latency }
 
 ```
