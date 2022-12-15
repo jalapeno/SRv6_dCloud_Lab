@@ -130,17 +130,30 @@ note: after running a query comment it out before running the next query. Exampl
 
 <img src="arango-query.png" width="600">
 
-```
 More queries:
 ```
-for l in ls_link filter l.mt_id !=2 return l
+for l in ls_link return l
 
-for n in ls_node_edge return n
+for l in ls_link filter l.mt_id_tlv.mt_id !=2 return l
 
-for n in sr_topology return n
+for l in ls_link filter l.mt_id_tlv.mt_id !=2 return { key: l._key, router_id: l.router_id, igp_id: l.igp_router_id, local_ip: l.local_link_ip, remote_ip: l.remote_link_ip }
 
-for l in sr_node return { sid: l.prefix_sid, address: l.address }
+for l in ls_node_edge return l
 
-for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0025' TO 'unicast_prefix_v4/10.10.3.0_24_10.0.0.29' sr_topology return  { prefix: v.prefix, name: v.name, sid: e.srv6_sid, latency: e.latency }
+for l in sr_topology return l
+
+for l in sr_node return { node: l.router_id, name: l.name, prefix_sid: l.prefix_attr_tlvs.ls_prefix_sid, srv6sid: l.srv6_sid }
+```
+
+Add some synthetic data:
+```
+python script
+
+```
+Run some more queries
+```
+for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0001' TO 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' sr_topology return  { name: v.name, sid: e.srv6_sid, latency: e.latency }
+
+
 
 ```
