@@ -1,10 +1,10 @@
-1. Add proxy settings to /etc/environment
+1. Add proxy settings to /etc/environment if needed
 
 ```
-http_proxy=http://proxy.esl.cisco.com:8080
-https_proxy=http://proxy.esl.cisco.com:8080
-ftp_proxy=http://proxy.esl.cisco.com:8080
-all_proxy=http://proxy.esl.cisco.com:8080
+http_proxy=http://myproxy.com:8080
+https_proxy=http://myproxy.com:8080
+ftp_proxy=http://myproxy.com:8080
+all_proxy=http://myproxy.com:8080
 no_proxy=localhost,127.0.0.1,.cisco.com,.gspie.lab,10.200.96.74,10.200.96.120,mirror1,10.200.99.3,10.200.99.7,10.0.0.0/8,192.168.122.12,10.96.0.0/16,10.96.0.1
 ```
 2. Logout and log back in
@@ -50,9 +50,9 @@ sudo vi /etc/systemd/system/containerd.service.d/http-proxy.conf
 Add this:
 
 [Service]
-Environment="http_proxy=http://proxy.esl.cisco.com:8080" 
-Environment="https_proxy=http://proxy.esl.cisco.com:8080" 
-Environment="no_proxy=localhost,127.0.0.1,127.0.0.0/8,.cisco.com,.gspie.lab,10.200.96.74,10.200.96.120,mirror1,10.200.99.0/24,10.200.99.7,10.0.0.0/8,192.168.122.23,10.96.0.0/16,10.0.16.2,10.0.16.3”
+Environment="http_proxy=http://myproxy.com:8080" 
+Environment="https_proxy=http://myproxy.com:8080" 
+Environment="no_proxy=localhost,127.0.0.1,127.0.0.0/8,10.96.0.0/16”
 ```
 
 8. Restart containerd
@@ -127,7 +127,7 @@ Containerd env (note there isn't a no_proxy)
 ```
 systemctl show --property=Environment containerd
 
-Environment=http_proxy=http://proxy.esl.cisco.com:8080 https_proxy=http://proxy.esl.cisco.com:8080
+Environment=http_proxy=http://myproxy.com:8080 https_proxy=http://myproxy.com:8080
 ```
 
 1. Disable containerd proxy settings:

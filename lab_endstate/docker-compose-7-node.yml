@@ -3,22 +3,22 @@
 
 services:
 # Ubuntu containers
-  source:
-    non_xr: true
-    image: alpine:3.15
-    container_name: source
-    stdin_open: true
-    tty: true
-    cap_add:
-      - NET_ADMIN
-    command: /bin/sh -c "ip route add 10.0.0.0/8 via 10.0.95.1 && /bin/sh"
-    networks:
-      xrd01-host:
-        ipv4_address: 10.101.1.99
+  # source:
+  #   non_xr: true
+  #   image: alpine:3.15
+  #   container_name: source
+  #   stdin_open: true
+  #   tty: true
+  #   cap_add:
+  #     - NET_ADMIN
+  #   command: /bin/sh -c "ip route add 10.0.0.0/8 via 10.0.95.1 && /bin/sh"
+  #   networks:
+  #     xrd01-host:
+  #       ipv4_address: 10.101.1.99
 
 # XRd containers
   xrd01:
-    xr_startup_cfg: config/xrd01.cfg
+    xr_startup_cfg: lab_endstate/config/xrd01.cfg
     xr_interfaces:
       - Gi0/0/0/0
       - Gi0/0/0/1
@@ -27,7 +27,7 @@ services:
       - Mg0/RP0/CPU0/0
 
   xrd02:
-    xr_startup_cfg: config/xrd02.cfg
+    xr_startup_cfg: lab_endstate/config/xrd02.cfg
     xr_interfaces:
       - Gi0/0/0/0
       - Gi0/0/0/1
@@ -35,7 +35,7 @@ services:
       - Gi0/0/0/3
       - Mg0/RP0/CPU0/0
   xrd03:
-    xr_startup_cfg: config/xrd03.cfg
+    xr_startup_cfg: lab_endstate/config/xrd03.cfg
     xr_interfaces:
       - Gi0/0/0/0
       - Gi0/0/0/1
@@ -43,7 +43,7 @@ services:
       - Gi0/0/0/3
       - Mg0/RP0/CPU0/0
   xrd04:
-    xr_startup_cfg: config/xrd04.cfg
+    xr_startup_cfg: lab_endstate/config/xrd04.cfg
     xr_interfaces:
       - Gi0/0/0/0
       - Gi0/0/0/1
@@ -51,7 +51,7 @@ services:
       - Gi0/0/0/3
       - Mg0/RP0/CPU0/0
   xrd05:
-    xr_startup_cfg: config/xrd05.cfg
+    xr_startup_cfg: lab_endstate/config/xrd05.cfg
     xr_interfaces:
       - Gi0/0/0/0
       - Gi0/0/0/1
@@ -59,7 +59,7 @@ services:
       - Gi0/0/0/3
       - Mg0/RP0/CPU0/0
   xrd06:
-    xr_startup_cfg: config/xrd06.cfg
+    xr_startup_cfg: lab_endstate/config/xrd06.cfg
     xr_interfaces:
       - Gi0/0/0/0
       - Gi0/0/0/1
@@ -67,7 +67,7 @@ services:
       - Gi0/0/0/3
       - Mg0/RP0/CPU0/0
   xrd07:
-    xr_startup_cfg: config/xrd07.cfg
+    xr_startup_cfg: lab_endstate/config/xrd07.cfg
     xr_interfaces:
       - Gi0/0/0/0
       - Gi0/0/0/1
@@ -106,12 +106,12 @@ networks:
     ipam:
       config:
         - subnet: 10.254.254.0/24
-  xrd01-host:
-    ipam:
-      config:
-        - subnet: 10.101.1.0/24
-    xr_interfaces:
-      - xrd01:Gi0/0/0/0
+  # xrd01-host:
+  #   ipam:
+  #     config:
+  #       - subnet: 10.101.1.0/24
+  #   xr_interfaces:
+  #     - xrd01:Gi0/0/0/0
 
   xrd05-host:
     ipam:
