@@ -1,0 +1,12 @@
+# login to xrd07 and copy-paste:
+
+show bgp vpnv4 uni
+show mpls forwarding
+show segment-routing srv6 sid  
+
+show bgp vpnv4 unicast rd 10.0.0.1:0 10.9.1.0/24
+show bgp vpnv4 unicast rd 10.0.0.6:0 10.9.6.0/24
+
+ping 10.9.1.1 vrf carrots source lo9
+ping 10.9.6.1 vrf carrots source lo9
+

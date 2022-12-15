@@ -1,6 +1,6 @@
 #/bin/sh
 
-#../xr-compose -f lab_2-topology.yml -i localhost/ios-xr:7.7.1
+#../xr-compose -f lab_1-topology.yml -i localhost/ios-xr:7.7.1
 
 # macvlan for xrd01 
 #sed -i 's/linux:xr-120/linux:eth0/g' docker-compose.yml
