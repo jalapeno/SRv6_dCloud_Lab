@@ -138,8 +138,8 @@ srt0102['country_codes'] = ['NLD', 'DEU']
 srt.update(srt0102)
 
 srt0105 = srt.get("2_0_0_0_0000.0000.0001_10.1.1.8_0000.0000.0005_10.1.1.9")
-srt0105['latency'] = 10
-srt0105['percent_util_out'] = 40
+srt0105['latency'] = 5
+srt0105['percent_util_out'] = 50
 srt0105['country_codes'] = ['NLD', 'GBR']
 srt.update(srt0105)
 
@@ -149,4 +149,39 @@ srt0203['percent_util_out'] = 25
 srt0203['country_codes'] = ['DEU', 'POL', 'UKR']
 srt.update(srt0203)
 
+srt0206 = srt.get("2_0_0_0_0000.0000.0002_10.1.1.10_0000.0000.0006_10.1.1.11")
+srt0206['latency'] = 20
+srt0206['percent_util_out'] = 40
+srt0206['country_codes'] = ['DEU', 'POL', 'UKR']
+srt.update(srt0206)
+
+srt0304 = srt.get("2_0_0_0_0000.0000.0003_10.1.1.4_0000.0000.0004_10.1.1.5")
+srt0304['latency'] = 40
+srt0304['percent_util_out'] = 20
+srt0304['country_codes'] = ['UKR', 'MDA', 'BGR', 'TUR']
+srt.update(srt0304)
+
+srt0504 = srt.get("2_0_0_0_0000.0000.0005_10.1.1.12_0000.0000.0004_10.1.1.13")
+srt0504['latency'] = 60
+srt0504['percent_util_out'] = 25
+srt0504['country_codes'] = ['GBR', 'BEL', 'DEU', 'AUT', 'HUN', 'SRB', 'BGR', 'TUR']
+srt.update(srt0504)
+
+srt0407 = srt.get("2_0_0_0_0000.0000.0004_10.1.1.6_0000.0000.0007_10.1.1.7")
+srt0407['latency'] = 30
+srt0407['percent_util_out'] = 20
+srt0407['country_codes'] = ['TUR', 'GRC', 'ITA']
+srt.update(srt0407)
+
+srt0506 = srt.get("2_0_0_0_0000.0000.0005_10.1.1.14_0000.0000.0006_10.1.1.15")
+srt0506['latency'] = 5
+srt0506['percent_util_out'] = 55
+srt0506['country_codes'] = ['GBR', 'FRA']
+srt.update(srt0506)
+
+srt0607 = srt.get("2_0_0_0_0000.0000.0006_10.1.1.16_0000.0000.0007_10.1.1.17")
+srt0607['latency'] = 5
+srt0607['percent_util_out'] = 55
+srt0607['country_codes'] = ['GBR', 'FRA']
+srt.update(srt0607)
 
