@@ -134,6 +134,8 @@ r07['location_id'] = 'FCO001'
 r07['address'] = "Via dei Tizii, 2C, 00185 Roma Italy"
 sr.update(r07)
 
+# Outbound path (left to right on diagram)
+
 srt0102 = srt.get("2_0_0_0_0000.0000.0001_10.1.1.0_0000.0000.0002_10.1.1.1")
 srt0102['latency'] = 10
 srt0102['percent_util_out'] = 30
@@ -188,8 +190,7 @@ srt0607['percent_util_out'] = 55
 srt0607['country_codes'] = ['GBR', 'FRA']
 srt.update(srt0607)
 
-
-
+# Return path
 
 srt0201 = srt.get("2_0_0_0_0000.0000.0002_10.1.1.1_0000.0000.0001_10.1.1.0")
 srt0201['latency'] = 10
