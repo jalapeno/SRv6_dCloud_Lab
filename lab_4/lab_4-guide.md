@@ -1,5 +1,7 @@
 ### Exploring Jalapeno, Kafka, ArangoDB
 
+#### Continue on the Jalapeno VM
+
 Kafka:
 1. List Kafka topics
 2. Listen to Kafka topics
@@ -17,7 +19,6 @@ unset JMX_PORT
 ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic jalapeno.telemetry
 
 ```
-
 
 Connect to Jalapeno's Arango GraphDB
 ```
@@ -53,15 +54,18 @@ for l in sr_topology return l
 for l in sr_node return { node: l.router_id, name: l.name, prefix_sid: l.prefix_attr_tlvs.ls_prefix_sid, srv6sid: l.srv6_sid }
 ```
 
-Add some synthetic data:
+Return to the Jalapeno VM ssh session and add some synthetic meta data to the DB:
 ```
-python script
-
+python3 add_meta_data.py
 ```
-Run some more queries
+Run the get_nodes.py script:
+```
+python3 get_nodes.py
+cat nodes.json
+```
+Return to the ArangoDB browser UI and run some more queries:
 ```
 for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0001' TO 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' sr_topology return  { name: v.name, sid: e.srv6_sid, latency: e.latency }
-
 
 
 ```

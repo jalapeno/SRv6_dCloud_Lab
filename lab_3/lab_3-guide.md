@@ -85,7 +85,7 @@ Connected for 00:01:18
 ```
 ### Install Jalapeno 
 
-1. ssh to the Jalapeno VM 
+1. In a separate terminal session ssh to the Jalapeno VM 
 ```
 cisco@198.18.1.101
 pw = cisco123
