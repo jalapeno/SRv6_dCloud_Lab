@@ -1,10 +1,10 @@
 from arango import ArangoClient
 
-user = "username"
-pw = "password"
-dbname = "database"
+user = "root"
+pw = "jalapeno"
+dbname = "jalapeno"
 
-client = ArangoClient(hosts='http://198.18.1.101:06852')
+client = ArangoClient(hosts='http://198.18.1.101:30852')
 db = client.db(dbname, username=user, password=pw)
 
 if db.has_collection('sr_node'):
