@@ -1,7 +1,7 @@
 import json
 from arango import ArangoClient
 client = ArangoClient(hosts='http://198.18.1.101:30852')
-db = client.db('poblano', username='root', password='jalapeno')
+db = client.db('jalapeno', username='root', password='jalapeno')
 if db.has_collection('sr_node'):
     sr = db.collection('sr_node')
 
