@@ -1,3 +1,6 @@
+# Script writes site and link meta data into the Arango graphDB
+# python3 network_meta_data.py
+
 from arango import ArangoClient
 
 user = "root"
@@ -136,6 +139,7 @@ srt0102['latency'] = 10
 srt0102['percent_util_out'] = 30
 srt0102['country_codes'] = ['NLD', 'DEU']
 srt.update(srt0102)
+print(srt0102)
 
 srt0105 = srt.get("2_0_0_0_0000.0000.0001_10.1.1.8_0000.0000.0005_10.1.1.9")
 srt0105['latency'] = 5
