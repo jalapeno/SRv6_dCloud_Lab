@@ -185,9 +185,9 @@ srt0506['country_codes'] = ['GBR', 'FRA']
 srt.update(srt0506)
 
 srt0607 = srt.get("2_0_0_0_0000.0000.0006_10.1.1.16_0000.0000.0007_10.1.1.17")
-srt0607['latency'] = 5
-srt0607['percent_util_out'] = 55
-srt0607['country_codes'] = ['GBR', 'FRA']
+srt0607['latency'] = 30
+srt0607['percent_util_out'] = 35
+srt0607['country_codes'] = ['FRA', 'ITA']
 srt.update(srt0607)
 
 # Return path
@@ -241,7 +241,7 @@ srt0605['country_codes'] = ['GBR', 'FRA']
 srt.update(srt0605)
 
 srt0706 = srt.get("2_0_0_0_0000.0000.0007_10.1.1.17_0000.0000.0006_10.1.1.16")
-srt0706['latency'] = 5
-srt0706['percent_util_out'] = 55
-srt0706['country_codes'] = ['GBR', 'FRA']
+srt0706['latency'] = 30
+srt0706['percent_util_out'] = 35
+srt0706['country_codes'] = ['FRA', 'ITA']
 srt.update(srt0706)

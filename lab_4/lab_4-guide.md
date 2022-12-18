@@ -71,9 +71,23 @@ Run the get_nodes.py script:
 python3 get_nodes.py
 cat nodes.json
 ```
-Return to the ArangoDB browser UI and run some more queries:
+Return to the ArangoDB browser UI and run a graph traversal:
 ```
-for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0001' TO 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' sr_topology return  { name: v.name, sid: e.srv6_sid, latency: e.latency }
+for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0001' TO 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' sr_topology return  { path: v.name, sid: e.srv6_sid, latency: e.latency }
 
+Run it the opposite direction:
+
+for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0007' TO 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology return  { path: v.name, sid: e.srv6_sid, latency: e.latency }
 
 ```
+Note, this shortest path result is based purely on hop count.
+
+The graphDB allows us to run a 'weighted traversal' based on any metric or other piece of meta data in the graph:
+```
+for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0001' TO 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' sr_topology OPTIONS {weightAttribute: 'latency' } return  { prefix: v.prefix, name: v.name, sid: e.srv6_sid, latency: e.latency }
+
+Return path:
+
+for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0007' TO 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology OPTIONS {weightAttribute: 'latency' } return  { prefix: v.prefix, name: v.name, sid: e.srv6_sid, latency: e.latency }
+
+``
