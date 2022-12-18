@@ -242,6 +242,6 @@ srt.update(srt0605)
 
 srt0706 = srt.get("2_0_0_0_0000.0000.0007_10.1.1.17_0000.0000.0006_10.1.1.16")
 srt0706['latency'] = 30
-srt0706['percent_util_out'] = 35
+srt0706['percent_util_out'] = 25
 srt0706['country_codes'] = ['FRA', 'ITA']
 srt.update(srt0706)
