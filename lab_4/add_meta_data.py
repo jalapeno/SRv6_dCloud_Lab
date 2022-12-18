@@ -138,13 +138,13 @@ sr.update(r07)
 
 srt0102 = srt.get("2_0_0_0_0000.0000.0001_10.1.1.0_0000.0000.0002_10.1.1.1")
 srt0102['latency'] = 10
-srt0102['percent_util_out'] = 30
+srt0102['percent_util_out'] = 35
 srt0102['country_codes'] = ['NLD', 'DEU']
 srt.update(srt0102)
 
 srt0105 = srt.get("2_0_0_0_0000.0000.0001_10.1.1.8_0000.0000.0005_10.1.1.9")
 srt0105['latency'] = 5
-srt0105['percent_util_out'] = 50
+srt0105['percent_util_out'] = 55
 srt0105['country_codes'] = ['NLD', 'GBR']
 srt.update(srt0105)
 
@@ -185,9 +185,9 @@ srt0506['country_codes'] = ['GBR', 'FRA']
 srt.update(srt0506)
 
 srt0607 = srt.get("2_0_0_0_0000.0000.0006_10.1.1.16_0000.0000.0007_10.1.1.17")
-srt0607['latency'] = 5
-srt0607['percent_util_out'] = 55
-srt0607['country_codes'] = ['GBR', 'FRA']
+srt0607['latency'] = 30
+srt0607['percent_util_out'] = 35
+srt0607['country_codes'] = ['FRA', 'ITA']
 srt.update(srt0607)
 
 # Return path
@@ -212,13 +212,13 @@ srt.update(srt0302)
 
 srt0602 = srt.get("2_0_0_0_0000.0000.0006_10.1.1.11_0000.0000.0002_10.1.1.10")
 srt0602['latency'] = 20
-srt0602['percent_util_out'] = 40
+srt0602['percent_util_out'] = 25
 srt0602['country_codes'] = ['DEU', 'POL', 'UKR']
 srt.update(srt0602)
 
 srt0403 = srt.get("2_0_0_0_0000.0000.0004_10.1.1.5_0000.0000.0003_10.1.1.4")
 srt0403['latency'] = 40
-srt0403['percent_util_out'] = 20
+srt0403['percent_util_out'] = 30
 srt0403['country_codes'] = ['UKR', 'MDA', 'BGR', 'TUR']
 srt.update(srt0403)
 
@@ -230,7 +230,7 @@ srt.update(srt0405)
 
 srt0704 = srt.get("2_0_0_0_0000.0000.0007_10.1.1.7_0000.0000.0004_10.1.1.6")
 srt0704['latency'] = 30
-srt0704['percent_util_out'] = 20
+srt0704['percent_util_out'] = 30
 srt0704['country_codes'] = ['TUR', 'GRC', 'ITA']
 srt.update(srt0704)
 
@@ -241,7 +241,7 @@ srt0605['country_codes'] = ['GBR', 'FRA']
 srt.update(srt0605)
 
 srt0706 = srt.get("2_0_0_0_0000.0000.0007_10.1.1.17_0000.0000.0006_10.1.1.16")
-srt0706['latency'] = 5
-srt0706['percent_util_out'] = 55
-srt0706['country_codes'] = ['GBR', 'FRA']
+srt0706['latency'] = 30
+srt0706['percent_util_out'] = 25
+srt0706['country_codes'] = ['FRA', 'ITA']
 srt.update(srt0706)
