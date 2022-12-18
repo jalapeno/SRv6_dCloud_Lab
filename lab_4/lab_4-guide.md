@@ -58,8 +58,14 @@ for l in sr_node return { node: l.router_id, name: l.name, prefix_sid: l.prefix_
 
 Return to the Jalapeno VM ssh session and add some synthetic meta data to the DB:
 ```
+cd ~/SRv6_dCloud_Lab/lab_4/
 python3 add_meta_data.py
 ```
+Validate meta data with ArangoDB query:
+```
+for l in sr_topology return { key: l._key, from: l._from, to: l._to, latency: l.latency, utilization: l.percent_util_out, country_codes: l.country_codes }
+```
+
 Run the get_nodes.py script:
 ```
 python3 get_nodes.py
