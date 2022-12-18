@@ -110,6 +110,8 @@ Return path:
 
 FOR v, e, p IN 1..6 outbound 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' sr_topology OPTIONS {uniqueVertices: "path", bfs: true} FILTER v._id == 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' RETURN { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
 ```
+Note the Amsterdam to Rome path is different than the Rome to Amsterdam path
+
 The previous queries provided paths up to 6-hops in length. We can increase or decrease the number of hops a graph traversal may use:
 
 ```
