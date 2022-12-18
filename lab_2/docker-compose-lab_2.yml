@@ -148,12 +148,12 @@ services:
     - /dev/net/tun
     environment:
       XR_EVERY_BOOT_CONFIG: /etc/xrd/startup.cfg
-      XR_INTERFACES: linux:xr-120,xr_name=Gi0/0/0/0;linux:xr-00,xr_name=Gi0/0/0/1;linux:xr-10,xr_name=Gi0/0/0/2;linux:xr-130,xr_name=Gi0/0/0/3
+      XR_INTERFACES: linux:eth0,xr_name=Gi0/0/0/0;linux:xr-00,xr_name=Gi0/0/0/1;linux:xr-10,xr_name=Gi0/0/0/2;linux:xr-130,xr_name=Gi0/0/0/3
       XR_MGMT_INTERFACES: linux:xr-90,xr_name=Mg0/RP0/CPU0/0,chksum
     image: ios-xr/xrd-control-plane:7.8.1
     networks:
       mgmt: null
-      xrd01-gi0: null
+      macvlan0: null
       xrd01-gi1-xrd02-gi0: null
       xrd01-gi2-xrd05-gi0: null
       xrd01-gi3: null
@@ -472,14 +472,14 @@ services:
     - /dev/net/tun
     environment:
       XR_EVERY_BOOT_CONFIG: /etc/xrd/startup.cfg
-      XR_INTERFACES: linux:xr-180,xr_name=Gi0/0/0/0;linux:xr-50,xr_name=Gi0/0/0/1;linux:xr-80,xr_name=Gi0/0/0/2;linux:xr-190,xr_name=Gi0/0/0/3
+      XR_INTERFACES: linux:eth0,xr_name=Gi0/0/0/0;linux:xr-50,xr_name=Gi0/0/0/1;linux:xr-80,xr_name=Gi0/0/0/2;linux:xr-190,xr_name=Gi0/0/0/3
       XR_MGMT_INTERFACES: linux:xr-90,xr_name=Mg0/RP0/CPU0/0,chksum
     image: ios-xr/xrd-control-plane:7.8.1
     networks:
       mgmt: null
       xrd04-gi1-xrd07-gi1: null
       xrd06-gi0-xrd07-gi2: null
-      xrd07-gi0: null
+      macvlan1: null
       xrd07-gi3: null
     security_opt:
     - apparmor:unconfined
