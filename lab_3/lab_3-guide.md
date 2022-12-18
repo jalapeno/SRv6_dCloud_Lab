@@ -148,6 +148,8 @@ kubectl apply -f sr-topology.yaml
 
 kubectl get pods -n jalapeno
 
+### Expected output:
+
 cisco@jalapeno:~/sr-processors$ kubectl get pods -n jalapeno
 NAME                                          READY   STATUS    RESTARTS      AGE
 arangodb-0                                    1/1     Running   0             12m

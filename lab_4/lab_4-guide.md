@@ -20,7 +20,7 @@ unset JMX_PORT
 
 ```
 
-Connect to Jalapeno's Arango GraphDB
+Switch to web browser and connect to Jalapeno's Arango GraphDB
 ```
 http://198.18.1.101:30852/
 
@@ -35,11 +35,13 @@ Run DB Queries:
 ```
 for l in ls_node return l
 ```
-note: after running a query comment it out before running the next query. Example:
+Note: after running a query comment it out before running the next query. 
+
+Example:
 
 <img src="arango-query.png" width="600">
 
-More queries:
+More sample queries:
 ```
 for l in ls_link return l
 
