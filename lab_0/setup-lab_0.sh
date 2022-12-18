@@ -14,3 +14,6 @@ sed -i 's/xrd07-gi0: null/macvlan1: null/g' docker-compose-lab_0.yml
 
 echo "launching topology"
 docker-compose -f docker-compose-lab_0.yml up --detach
+
+echo "sudo systemctl -p"
+sudo systemctl -p
