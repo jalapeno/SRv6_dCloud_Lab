@@ -82,7 +82,8 @@ for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0007' TO 'unicast_pr
 ```
 Note, this shortest path result is based purely on hop count.
 
-The graphDB allows us to run a 'weighted traversal' based on any metric or other piece of meta data in the graph:
+The graphDB allows us to run a 'weighted traversal' based on any metric or other piece of meta data in the graph.
+Graph traversal query for the lowest latency path:
 ```
 for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0001' TO 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' sr_topology OPTIONS {weightAttribute: 'latency' } return  { prefix: v.prefix, name: v.name, sid: e.srv6_sid, latency: e.latency }
 
@@ -91,3 +92,19 @@ Return path:
 for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0007' TO 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology OPTIONS {weightAttribute: 'latency' } return  { prefix: v.prefix, name: v.name, sid: e.srv6_sid, latency: e.latency }
 
 ``
+Backups, data replication, other bulk transfers may not need to take
+Graph traversal query for the least utilized path:
+```
+FOR v, e, p IN 1..6 outbound 'sr_node/2_0_0_0000.0000.0001' sr_topology OPTIONS {uniqueVertices: "path", bfs: true} FILTER v._id == 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' RETURN { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
+
+Return path:
+
+FOR v, e, p IN 1..6 outbound 'sr_node/2_0_0_0000.0000.0007' sr_topology OPTIONS {uniqueVertices: "path", bfs: true} FILTER v._id == 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' RETURN { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
+```
+The previous queries provided paths up to 6-hops in length, which gave several good results and one that didn't make a lot of sense. We can change the number of hops a query will consider, in this case dropping it to 5:
+
+```
+FOR v, e, p IN 1..5 outbound 'sr_node/2_0_0_0000.0000.0001' sr_topology OPTIONS {uniqueVertices: "path", bfs: true} FILTER v._id == 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' RETURN { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
+```
+
+

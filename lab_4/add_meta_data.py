@@ -138,13 +138,13 @@ sr.update(r07)
 
 srt0102 = srt.get("2_0_0_0_0000.0000.0001_10.1.1.0_0000.0000.0002_10.1.1.1")
 srt0102['latency'] = 10
-srt0102['percent_util_out'] = 30
+srt0102['percent_util_out'] = 35
 srt0102['country_codes'] = ['NLD', 'DEU']
 srt.update(srt0102)
 
 srt0105 = srt.get("2_0_0_0_0000.0000.0001_10.1.1.8_0000.0000.0005_10.1.1.9")
 srt0105['latency'] = 5
-srt0105['percent_util_out'] = 50
+srt0105['percent_util_out'] = 55
 srt0105['country_codes'] = ['NLD', 'GBR']
 srt.update(srt0105)
 
@@ -212,7 +212,7 @@ srt.update(srt0302)
 
 srt0602 = srt.get("2_0_0_0_0000.0000.0006_10.1.1.11_0000.0000.0002_10.1.1.10")
 srt0602['latency'] = 20
-srt0602['percent_util_out'] = 40
+srt0602['percent_util_out'] = 25
 srt0602['country_codes'] = ['DEU', 'POL', 'UKR']
 srt.update(srt0602)
 
