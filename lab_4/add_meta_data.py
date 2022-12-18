@@ -218,7 +218,7 @@ srt.update(srt0602)
 
 srt0403 = srt.get("2_0_0_0_0000.0000.0004_10.1.1.5_0000.0000.0003_10.1.1.4")
 srt0403['latency'] = 40
-srt0403['percent_util_out'] = 20
+srt0403['percent_util_out'] = 30
 srt0403['country_codes'] = ['UKR', 'MDA', 'BGR', 'TUR']
 srt.update(srt0403)
 
@@ -230,7 +230,7 @@ srt.update(srt0405)
 
 srt0704 = srt.get("2_0_0_0_0000.0000.0007_10.1.1.7_0000.0000.0004_10.1.1.6")
 srt0704['latency'] = 30
-srt0704['percent_util_out'] = 20
+srt0704['percent_util_out'] = 30
 srt0704['country_codes'] = ['TUR', 'GRC', 'ITA']
 srt.update(srt0704)
 
