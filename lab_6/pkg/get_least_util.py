@@ -107,7 +107,7 @@ else:
         sys.stdout = f 
         print(pathobj)
 
-    subprocess.call(['sudo ip route add ', dst, 'encap seg6 mode encap segs ', srv6_sid, 'dev ens192'])
+    subprocess.call(['sudo', 'ip', 'route', 'add', dst, 'encap', 'seg6', 'mode', 'encap', 'segs', srv6_sid, 'dev', 'ens192'])
     # sudo ip -6 route add 10.0.0.1/32 encap seg6 mode segs fc00:0:2:3:4:7:: dev ens192
     print(subprocess)
     
