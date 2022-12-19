@@ -1,7 +1,8 @@
 ## SRv6 dCloud Lab
-#### This repository contains lab configurations and instructions, and scripts for launching and cleaning up the XRd topology at various stages 
+#### This repository contains lab configurations, instructions, and scripts for launching and cleaning up the XRd topology at various stages 
 
 General instructions for building and running XRd topologies on bare-metal, VMs, AWS, etc. can be found here:
+https://github.com/brmcdoug/XRd
 
 Scripts in this top level directory:
 ```
@@ -10,9 +11,10 @@ Scripts in this top level directory:
 ./xr-compose ## generates a docker-compose yml based upon the input (-f) topology yml file
 
 Example:
-./xr-compose -f docker-compose-lab_1.yml -i ios-xr/xrd-control-plane:7.8.1
-  
+./xr-compose -f docker-compose-lab_1.yml -li ios-xr/xrd-control-plane:7.8.1
 ```
+However, at the beginning of the CLEU lab we'll launch the topology using the setup script found in the lab_0 directory.  
+  
 After lauching the topology, check containers: 
 ```
 docker ps
