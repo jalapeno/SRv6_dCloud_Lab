@@ -4,7 +4,7 @@
 SRv6 configurations on Cisco XR routers. In addition it features content on the Jalpaneo telemetry project.
 
 ## Contents
-1. [Lab One Guide] [A RELATIVE LINK](jalapeno/SRv6_dCloud_Lab/blob/main/lab_1/lab_1-guide.md)
+1. [Lab One Guide](/lab_1/lab_1-guide.md)
 
 General instructions for building and running XRd topologies on bare-metal, VMs, AWS, etc. can be found here:
 https://github.com/brmcdoug/XRd
