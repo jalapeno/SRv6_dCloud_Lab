@@ -1,163 +1,165 @@
-## Exploring Jalapeno, Kafka, ArangoDB
+## Intro to Jalapeno
+### Configure BGP Monitoring Protocol (BMP) and Install open-source Jalapeno package
 
-#### Continue on the Jalapeno VM
-
-### Kafka:
-1. List Kafka topics
-2. Listen to Kafka topics
+R05
 ```
-kubectl exec -it kafka-0 /bin/bash -n jalapeno
-
-cd bin
-unset JMX_PORT
-
-./kafka-topics.sh --list  --bootstrap-server localhost:9092
-./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_node
-./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_link
-./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.l3vpn_v4
-
-./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic jalapeno.telemetry
-
-```
-### Arango GraphDB
-
-Switch to web browser and connect to Jalapeno's Arango GraphDB
-```
-http://198.18.1.101:30852/
-
-user: root
-password: jalapeno
-DB: jalapeno
-
-```
-#### Explore data collections
-
-Run DB Queries:
-```
-for l in ls_node return l
-```
-Note: after running a query comment it out before running the next query. 
-
-Example:
-
-<img src="arango-query.png" width="600">
-
-More sample queries:
-```
-for l in ls_link return l
-
-for l in ls_link filter l.mt_id_tlv.mt_id !=2 return l
-
-for l in ls_link filter l.mt_id_tlv.mt_id !=2 return { key: l._key, router_id: l.router_id, igp_id: l.igp_router_id, local_ip: l.local_link_ip, remote_ip: l.remote_link_ip }
-
-for l in ls_node_edge return l
-
-for l in sr_topology return l
-
-for l in sr_node return { node: l.router_id, name: l.name, prefix_sid: l.prefix_attr_tlvs.ls_prefix_sid, srv6sid: l.srv6_sid }
-```
-### Populating the DB with external data 
-Return to the Jalapeno VM ssh session and add some synthetic meta data to the DB:
-```
-cd ~/SRv6_dCloud_Lab/lab_4/
-python3 add_meta_data.py
-```
-Validate meta data with ArangoDB query:
-```
-for l in sr_topology return { key: l._key, from: l._from, to: l._to, latency: l.latency, 
-    utilization: l.percent_util_out, country_codes: l.country_codes }
-```
-
-Run the get_nodes.py script:
-```
-python3 get_nodes.py
-cat nodes.json
-```
-
-### Graph traversals
-
-Return to the ArangoDB browser UI and run a graph traversal from xrd01 to xrd07:
-```
-for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0001' TO 'sr_node/2_0_0_0000.0000.0007' sr_topology
-    return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, srv6sid: v.srv6_sid }
-```
-Return path:
-```
-for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0007' TO 'sr_node/2_0_0_0000.0000.0001' sr_topology
-    return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, srv6sid: v.srv6_sid }
-```
-
-Run a graph traversal from source prefix to destination prefix:
-```
-for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' 
-    TO 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' sr_topology return  { node: v.name, 
-    location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, sid: v.srv6_sid, 
-    latency: e.latency }
-```
-Return path:
-```
-for v, e in outbound shortest_path 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' 
-    TO 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology return  { node: v.name, 
-    location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, sid: v.srv6_sid, 
-    latency: e.latency }
-```
-These shortest path result are based purely on hop count. However, the graphDB allows us to run a 'weighted traversal' based on any metric or other piece of meta data in the graph.
-
-### Graph traversals using metrics other than hop count
-
-#### Query for the lowest latency path:
-```
-for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' 
-    TO 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' sr_topology OPTIONS {weightAttribute: 'latency' } 
-    return  { prefix: v.prefix, name: v.name, sid: e.srv6_sid, latency: e.latency }
-```
-Return path:
-```
-for v, e in outbound shortest_path 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' 
-    TO 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology OPTIONS {weightAttribute: 'latency' } 
-    return  { prefix: v.prefix, name: v.name, sid: e.srv6_sid, latency: e.latency }
-```
-#### Query for the least utilized path
-Backups, data replication, other bulk transfers can oftentimes take a non-best path through the network.
-Graph traversal query for the least utilized path:
-```
-FOR v, e, p IN 1..6 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
-    OPTIONS {uniqueVertices: "path", bfs: true} FILTER v._id == 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' 
-    RETURN { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*],
-    latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
-```
-Return path:
-```
-FOR v, e, p IN 1..6 outbound 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' sr_topology 
-    OPTIONS {uniqueVertices: "path", bfs: true} FILTER v._id == 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' 
-    RETURN { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*],
-    latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
-```
-Note the Amsterdam to Rome path is different than the Rome to Amsterdam path
-
-The previous queries provided paths up to 6-hops in length. We can increase or decrease the number of hops a graph traversal may use:
+bmp server 1
+ host 198.18.128.101 port 30511
+ description jalapeno GoBMP  
+ update-source MgmtEth0/RP0/CPU0/0
+ flapping-delay 60
+ initial-delay 5
+ stats-reporting-period 60
+ initial-refresh delay 25 spread 2
+!
+router bgp 65000
+ neighbor 10.0.0.1
+  bmp-activate server 1
+ !
+ neighbor fc00:0:1::1
+  bmp-activate server 1
+  !
+ !
+ neighbor 10.0.0.7
+  bmp-activate server 1
+ !
+ neighbor fc00:0:7::1
+  bmp-activate server 1
+  !
+ !
+! 
 
 ```
-FOR v, e, p IN 1..5 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
-    OPTIONS {uniqueVertices: "path", bfs: true} FILTER v._id == 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' 
-    RETURN { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*],
-    latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
+
+R06
 ```
-Or
-```
-FOR v, e, p IN 1..8 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
-    OPTIONS {uniqueVertices: "path", bfs: true} FILTER v._id == 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' 
-    RETURN { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*],
-    latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
+bmp server 1
+ host 198.18.128.101 port 30511
+ description jalapeno GoBMP  
+ update-source MgmtEth0/RP0/CPU0/0
+ flapping-delay 60
+ initial-delay 5
+ stats-reporting-period 60
+ initial-refresh delay 25 spread 2
+!
+router bgp 65000
+ neighbor 10.0.0.1
+  bmp-activate server 1
+ !
+ neighbor fc00:0:1::1
+  bmp-activate server 1
+  !
+ !
+ neighbor 10.0.0.7
+  bmp-activate server 1
+ !
+ neighbor fc00:0:7::1
+  bmp-activate server 1
+  !
+ !
+! 
 
 ```
-### Data sovereignty
 
-Find a suitable path that avoids France
-
+Validate changes:
 ```
-for p in outbound k_shortest_paths  'sr_node/2_0_0_0000.0000.0001' TO 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7'
-    sr_topology filter p.edges[*].country_codes !like "%FRA%" return { path: p.edges[*].remote_node_name, 
-    sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency),
-    percent_util_out: avg(p.edges[*].percent_util_out)}
+ping 198.18.128.101
+show bgp bmp server 1
+```
+
+Expected output:
+```
+RP/0/RP0/CPU0:xrd06#ping 198.18.128.101
+Wed Dec 14 23:00:18.649 UTC
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 198.18.128.101, timeout is 2 seconds:
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 1/2/7 ms
+
+RP/0/RP0/CPU0:xrd06#sho bgp bmp ser 1  
+Wed Dec 14 23:24:01.861 UTC
+BMP server 1
+Host 198.18.128.101 Port 30511
+Connected for 00:01:18
+...
+```
+### Install Jalapeno 
+
+1. In a separate terminal session ssh to the Jalapeno VM 
+```
+cisco@198.18.1.101
+pw = cisco123
+```
+2. Clone the Jalapeno repository at https://github.com/cisco-open/jalapeno and switch to the cleu-srv6-lab code branch:
+```
+git clone https://github.com/cisco-open/jalapeno.git
+git checkout cleu-srv6-lab
+```
+
+3. Run the Jalapeno install script
+```
+cd jalapeno/install/
+./deploy_jalapeno.sh 
+```
+4. Verify k8s pods are running (note, some pods may initially be in a crashloop state. These should resolve after 2-3 minutes):
+```
+kubectl get pods -A
+```
+Expected output:
+```
+cisco@jalapeno:~/jalapeno/install$ kubectl get pods -A
+NAMESPACE             NAME                                           READY   STATUS    RESTARTS        AGE
+jalapeno-collectors   gobmp-5db68bd644-hzs82                         1/1     Running   3 (4m5s ago)    4m25s
+jalapeno-collectors   telegraf-ingress-deployment-5b456574dc-wdhjk   1/1     Running   1 (4m2s ago)    4m25s
+jalapeno              arangodb-0                                     1/1     Running   0               4m33s
+jalapeno              grafana-deployment-565756bd74-x2szz            1/1     Running   0               4m32s
+jalapeno              influxdb-0                                     1/1     Running   0               4m32s
+jalapeno              kafka-0                                        1/1     Running   0               4m33s
+jalapeno              lslinknode-edge-b954577f9-k8w6l                1/1     Running   4 (3m35s ago)   4m18s
+jalapeno              telegraf-egress-deployment-5795ffdd9c-t8xrp    1/1     Running   2 (4m11s ago)   4m19s
+jalapeno              topology-678ddb8bb4-rt9jg                      1/1     Running   3 (4m1s ago)    4m19s
+jalapeno              zookeeper-0                                    1/1     Running   0               4m33s
+kube-system           calico-kube-controllers-798cc86c47-d482k       1/1     Running   4 (16m ago)     14d
+kube-system           calico-node-jd7cw                              1/1     Running   4 (16m ago)     14d
+kube-system           coredns-565d847f94-fr8pp                       1/1     Running   4 (16m ago)     14d
+kube-system           coredns-565d847f94-grmtl                       1/1     Running   4 (16m ago)     14d
+kube-system           etcd-jalapeno                                  1/1     Running   5 (16m ago)     14d
+kube-system           kube-apiserver-jalapeno                        1/1     Running   5 (16m ago)     14d
+kube-system           kube-controller-manager-jalapeno               1/1     Running   6 (16m ago)     14d
+kube-system           kube-proxy-pmwft                               1/1     Running   5 (16m ago)     14d
+kube-system           kube-scheduler-jalapeno                        1/1     Running   6 (16m ago)     14d
+```
+5. Additional k8s commands:
+```
+kubectl get pods -n jalapeno
+kubectl get pods -n jalapeno-collectors
+kubectl get services -A
+kubectl get all -A
+kubectl get nodes
+kubectl describe pod -n <namespace> <pod name>
+
+example: kubectl describe pod -n jalapeno topology-678ddb8bb4-rt9jg
+```
+6. Install Jalapeno SR-Processors
+```
+cd ~/sr-processors/
+kubectl apply -f sr-node.yaml 
+kubectl apply -f sr-topology.yaml 
+
+kubectl get pods -n jalapeno
+
+### Expected output:
+
+cisco@jalapeno:~/sr-processors$ kubectl get pods -n jalapeno
+NAME                                          READY   STATUS    RESTARTS      AGE
+arangodb-0                                    1/1     Running   0             12m
+grafana-deployment-565756bd74-x2szz           1/1     Running   0             12m
+influxdb-0                                    1/1     Running   0             12m
+kafka-0                                       1/1     Running   0             12m
+lslinknode-edge-b954577f9-k8w6l               1/1     Running   4 (11m ago)   12m
+sr-node-8487488c9f-ftj59                      1/1     Running   0             40s  <--
+sr-topology-6b45d48c8-h8zns                   1/1     Running   0             33s  <--
+telegraf-egress-deployment-5795ffdd9c-t8xrp   1/1     Running   2 (12m ago)   12m
+topology-678ddb8bb4-rt9jg                     1/1     Running   3 (11m ago)   12m
+zookeeper-0                                   1/1     Running   0             12m
 ```
