@@ -1,8 +1,8 @@
-### Exploring Jalapeno, Kafka, ArangoDB
+## Exploring Jalapeno, Kafka, ArangoDB
 
 #### Continue on the Jalapeno VM
 
-Kafka:
+### Kafka:
 1. List Kafka topics
 2. Listen to Kafka topics
 ```
@@ -19,6 +19,7 @@ unset JMX_PORT
 ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic jalapeno.telemetry
 
 ```
+### Arango GraphDB
 
 Switch to web browser and connect to Jalapeno's Arango GraphDB
 ```
@@ -29,7 +30,7 @@ password: jalapeno
 DB: jalapeno
 
 ```
-Explore data collections
+#### Explore data collections
 
 Run DB Queries:
 ```
@@ -55,7 +56,7 @@ for l in sr_topology return l
 
 for l in sr_node return { node: l.router_id, name: l.name, prefix_sid: l.prefix_attr_tlvs.ls_prefix_sid, srv6sid: l.srv6_sid }
 ```
-
+### Populating the DB with external data 
 Return to the Jalapeno VM ssh session and add some synthetic meta data to the DB:
 ```
 cd ~/SRv6_dCloud_Lab/lab_4/
@@ -63,7 +64,8 @@ python3 add_meta_data.py
 ```
 Validate meta data with ArangoDB query:
 ```
-for l in sr_topology return { key: l._key, from: l._from, to: l._to, latency: l.latency, utilization: l.percent_util_out, country_codes: l.country_codes }
+for l in sr_topology return { key: l._key, from: l._from, to: l._to, latency: l.latency, 
+    utilization: l.percent_util_out, country_codes: l.country_codes }
 ```
 
 Run the get_nodes.py script:
@@ -71,56 +73,91 @@ Run the get_nodes.py script:
 python3 get_nodes.py
 cat nodes.json
 ```
+
+### Graph traversals
+
 Return to the ArangoDB browser UI and run a graph traversal from xrd01 to xrd07:
 ```
-for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0001' TO 'sr_node/2_0_0_0000.0000.0007' sr_topology return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, srv6sid: v.srv6_sid }
-
+for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0001' TO 'sr_node/2_0_0_0000.0000.0007' sr_topology
+    return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, srv6sid: v.srv6_sid }
+```
 Return path:
-
-for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0007' TO 'sr_node/2_0_0_0000.0000.0001' sr_topology return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, srv6sid: v.srv6_sid }
-
+```
+for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0007' TO 'sr_node/2_0_0_0000.0000.0001' sr_topology
+    return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, srv6sid: v.srv6_sid }
 ```
 
 Run a graph traversal from source prefix to destination prefix:
 ```
-for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' TO 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' sr_topology return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, sid: v.srv6_sid, latency: e.latency }
-
+for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' 
+    TO 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' sr_topology return  { node: v.name, 
+    location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, sid: v.srv6_sid, 
+    latency: e.latency }
+```
 Return path:
-
-for v, e in outbound shortest_path 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' TO 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, sid: v.srv6_sid, latency: e.latency }
-
+```
+for v, e in outbound shortest_path 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' 
+    TO 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology return  { node: v.name, 
+    location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, sid: v.srv6_sid, 
+    latency: e.latency }
 ```
 These shortest path result are based purely on hop count. However, the graphDB allows us to run a 'weighted traversal' based on any metric or other piece of meta data in the graph.
 
-Graph traversal query for the lowest latency path:
+### Graph traversals using metrics other than hop count
+
+#### Query for the lowest latency path:
 ```
-for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' TO 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' sr_topology OPTIONS {weightAttribute: 'latency' } return  { prefix: v.prefix, name: v.name, sid: e.srv6_sid, latency: e.latency }
-
+for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' 
+    TO 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' sr_topology OPTIONS {weightAttribute: 'latency' } 
+    return  { prefix: v.prefix, name: v.name, sid: e.srv6_sid, latency: e.latency }
+```
 Return path:
-
-for v, e in outbound shortest_path 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' TO 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology OPTIONS {weightAttribute: 'latency' } return  { prefix: v.prefix, name: v.name, sid: e.srv6_sid, latency: e.latency }
-
-``
+```
+for v, e in outbound shortest_path 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' 
+    TO 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology OPTIONS {weightAttribute: 'latency' } 
+    return  { prefix: v.prefix, name: v.name, sid: e.srv6_sid, latency: e.latency }
+```
+#### Query for the least utilized path
 Backups, data replication, other bulk transfers can oftentimes take a non-best path through the network.
 Graph traversal query for the least utilized path:
 ```
-FOR v, e, p IN 1..6 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology OPTIONS {uniqueVertices: "path", bfs: true} FILTER v._id == 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' RETURN { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
-
+FOR v, e, p IN 1..6 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
+    OPTIONS {uniqueVertices: "path", bfs: true} FILTER v._id == 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' 
+    RETURN { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*],
+    latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
+```
 Return path:
-
-FOR v, e, p IN 1..6 outbound 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' sr_topology OPTIONS {uniqueVertices: "path", bfs: true} FILTER v._id == 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' RETURN { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
+```
+FOR v, e, p IN 1..6 outbound 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' sr_topology 
+    OPTIONS {uniqueVertices: "path", bfs: true} FILTER v._id == 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' 
+    RETURN { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*],
+    latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
 ```
 Note the Amsterdam to Rome path is different than the Rome to Amsterdam path
 
 The previous queries provided paths up to 6-hops in length. We can increase or decrease the number of hops a graph traversal may use:
 
 ```
-FOR v, e, p IN 1..5 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology OPTIONS {uniqueVertices: "path", bfs: true} FILTER v._id == 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' RETURN { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
-
+FOR v, e, p IN 1..5 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
+    OPTIONS {uniqueVertices: "path", bfs: true} FILTER v._id == 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' 
+    RETURN { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*],
+    latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
+```
 Or
-
-FOR v, e, p IN 1..8 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology OPTIONS {uniqueVertices: "path", bfs: true} FILTER v._id == 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' RETURN { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
+```
+FOR v, e, p IN 1..8 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
+    OPTIONS {uniqueVertices: "path", bfs: true} FILTER v._id == 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' 
+    RETURN { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*],
+    latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
 
 ```
+### Data sovereignty
 
+Find a suitable path that avoids France
 
+```
+for p in outbound k_shortest_paths  'sr_node/2_0_0_0000.0000.0001' TO 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7'
+    sr_topology filter p.edges[*].country_codes !like "%FRA%" return { path: p.edges[*].remote_node_name, 
+    sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency),
+    percent_util_out: avg(p.edges[*].percent_util_out)}
+```
