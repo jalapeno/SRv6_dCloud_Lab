@@ -21,3 +21,5 @@ docker-compose -f docker-compose-lab_0.yml up --detach
 
 echo "sudo sysctl -p"
 sudo sysctl -p
+
+echo "XRd containers will take 2 minutes to initialize"
