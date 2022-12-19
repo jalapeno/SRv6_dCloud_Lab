@@ -101,6 +101,8 @@ git checkout cleu-srv6-lab
 cd jalapeno/install/
 ./deploy_jalapeno.sh 
 ```
+Don't worry about the 'error validating' errors, they're cosmetic...we'll fix those one of these days
+
 4. Verify k8s pods are running (note, some pods may initially be in a crashloop state. These should resolve after 2-3 minutes):
 ```
 kubectl get pods -A

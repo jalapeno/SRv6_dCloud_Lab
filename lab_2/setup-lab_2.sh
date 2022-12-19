@@ -1,5 +1,9 @@
 #/bin/sh
 
+### run cleanup script to eliminate any stale docker network instances or volumes 
+
+./cleanup-lab_2.sh
+
 ### Uncomment these five lines if you need to rebuild lab_2's docker-compose-lab_2.yml file:
 
 #../xr-compose -f lab_2-topology.yml -o docker-compose-lab_2.yml -i ios-xr/xrd-control-plane:7.8.1
@@ -10,6 +14,8 @@
 
 echo "launching topology"
 docker-compose -f docker-compose-lab_2.yml up --detach
+
+### reset sysctl to allow routing over docker bridge instances
 
 echo "sudo sysctl -p"
 sudo sysctl -p
