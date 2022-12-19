@@ -1,5 +1,15 @@
-## SRv6 dCloud Lab
-#### This repository contains lab configurations, instructions, and scripts for launching and cleaning up the XRd topology at various stages 
+# SRv6 dCloud Lab Guide
+
+### Description: This repository contains lab configurations, instructions, and scripts to learn SR-MPLS and 
+SRv6 configurations on Cisco XR routers. In addition it features content on the Jalpaneo telemetry project.
+
+## Contents
+1. Lab 1 - Config Baseline SR-MPLS and SRv6 [LINK](/lab_1/lab_1-guide.md){:target="_blank"}
+2. Lab 2 - Config SRv6 with L3VPN [LINK](/lab_2/lab_2-guide.md)
+3. Lab 3 - Config SRv6 with TE [LINK](/lab_3/lab_3-guide.md)
+4. Lab 4 - Config BMP and install Jalapeno [LINK](/lab_4/lab_4-guide.md)
+5. Lab 5 - Config Jalapeno [LINK](/lab_5/lab_5-guide.md)
+6. Lab 6 - Build Cloud-Native SDN [LINK](/lab_6/lab_6-guide.md)
 
 General instructions for building and running XRd topologies on bare-metal, VMs, AWS, etc. can be found here:
 https://github.com/brmcdoug/XRd
