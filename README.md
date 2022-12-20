@@ -1,4 +1,4 @@
-# SRv6 dCloud Lab Guide
+# Welcome to the World of SRv6
 
 ### Description: This repository is a learning guide for SRv6 Cisco dCloud Lab. 
 Cisco Routers that run the XR operating system 7.X and newer support the SRv6 feature set. This guide walks 
@@ -9,6 +9,7 @@ open source project provides ways to see SRv6 created paths through the network.
 * Repository Overview [LINK](#repository-overview)
 * Lab Topology [LINK](#lab-topology)
 * Remote Access [LINK](#remote-access)
+* Jalapeno Stack [LINK](#jalapeno)
 * Lab 1 - Config Baseline SR-MPLS and SRv6 [LINK](/lab_1/lab_1-guide.md)
 * Lab 2 - Config SRv6 with L3VPN [LINK](/lab_2/lab_2-guide.md)
 * Lab 3 - Config SRv6 with TE [LINK](/lab_3/lab_3-guide.md)
@@ -80,3 +81,5 @@ system is running the Ubuntu OS. Last is a VM running Kubernetes which is hostin
 | xr05           | router      | SSH         | 10.254.254.105  |
 | xr06           | router      | SSH         | 10.254.254.106  |
 | xr07           | router      | SSH         | 10.254.254.107  |
+
+## Jalapeno
