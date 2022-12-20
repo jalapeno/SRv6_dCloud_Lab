@@ -7,7 +7,7 @@ open source project provides ways to see SRv6 created paths through the network.
 
 ## Contents
 * Repository Overview [LINK](#repository-overview)
-* Lab Topology [LINK](#topology)
+* Lab Topology [LINK](#lab-topology)
 * Remote Access [LINK](#remote-access)
 * Lab 1 - Config Baseline SR-MPLS and SRv6 [LINK](/lab_1/lab_1-guide.md)
 * Lab 2 - Config SRv6 with L3VPN [LINK](/lab_2/lab_2-guide.md)
@@ -50,6 +50,12 @@ General instructions for building and running XRd topologies on bare-metal, VMs,
 https://github.com/brmcdoug/XRd
 
 ## Lab Topology
+
+This lab is based on a simulated WAN design of seven routers running in a docker instance. Each of these 
+seven routers in the topology is running the XR operating system. In addition there are two client VMs named Amsterdam and Rome. Each client 
+system is running the Ubuntu OS. Last is a VM running Kubernetes which is hosting the Jalapeno application
+
+![Lab Topology](/topo_drawings/lab-topology-overview.png)
 
 ## Remote Access
 
