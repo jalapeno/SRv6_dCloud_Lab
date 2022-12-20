@@ -118,14 +118,14 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     b48429454f4c   xrd06-gi0-xrd07-gi2   bridge    local
     84b7ddd7e018   xrd07-gi3             bridge    local
     ```
-7. The XRD router instances should be available for access after 2 minutes of spin up.
+7. The XRD router instances should be available for access 2 minutes after spin up.
 
 ### Validate Jalaepno
 
 ### Validate Client VMs
 __Amsterdam__
 1. SSH to Amsterdam Client VM from your laptop. 
-2. Check that the interface to router xrd01 is UP and has the assigned IP 10.100.1.1/24
+2. Check that the interface to router xrd01 is UP and has the assigned IP 10.101.1.1/24
     ```
     cisco@amsterdam:~$ ip address show ens192
     3: ens192: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
@@ -146,6 +146,44 @@ __Amsterdam__
     64 bytes from 10.101.1.2: icmp_seq=1 ttl=255 time=1.18 ms
     64 bytes from 10.101.1.2: icmp_seq=2 ttl=255 time=1.18 ms
     64 bytes from 10.101.1.2: icmp_seq=3 ttl=255 time=1.37 ms
-    '''
+    ```
+
+__Rome__
+1. SSH to Rome Client VM from your laptop. 
+2. Check that the interface to router xrd07 is UP and has the assigned IP 10.107.1.1/24
+    ```
+    cisco@rome:~$ ip address show ens192
+    3: ens192: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+        link/ether 00:50:56:aa:ab:cf brd ff:ff:ff:ff:ff:ff
+        inet 10.107.1.1/24 brd 10.107.1.255 scope global ens192
+        valid_lft forever preferred_lft forever
+        inet6 fc00:0:107:1:250:56ff:feaa:abcf/64 scope global dynamic mngtmpaddr noprefixroute 
+        valid_lft 2591929sec preferred_lft 604729sec
+        inet6 fc00:0:107:1::1/64 scope global 
+        valid_lft forever preferred_lft forever
+        inet6 fe80::250:56ff:feaa:abcf/64 scope link 
+        valid_lft forever preferred_lft forever
+    ```
+3. Check connectivity from Rome to xrd07
+    ```
+    cisco@rome:~$ ping -c 3 10.107.1.2
+    PING 10.107.1.2 (10.107.1.2) 56(84) bytes of data.
+    64 bytes from 10.107.1.2: icmp_seq=1 ttl=255 time=2.70 ms
+    64 bytes from 10.107.1.2: icmp_seq=2 ttl=255 time=1.38 ms
+    64 bytes from 10.107.1.2: icmp_seq=3 ttl=255 time=1.30 ms
+    ```
 
 ### Connect to Routers
+1. Starting from the XRD VM log into each router instance consulting the management topology diagram above
+2. Confirm that the configured interfaces are in an UP|UP state
+    ```RP/0/RP0/CPU0:xrd01#show ip interface brief
+    Tue Dec 20 18:46:04.544 UTC
+
+    Interface                      IP-Address      Status          Protocol Vrf-Name
+    Loopback0                      10.0.0.1        Up              Up       default 
+    MgmtEth0/RP0/CPU0/0            10.254.254.101  Up              Up       default 
+    GigabitEthernet0/0/0/0         10.101.1.2      Up              Up       default 
+    GigabitEthernet0/0/0/1         10.1.1.0        Up              Up       default 
+    GigabitEthernet0/0/0/2         10.1.1.8        Up              Up       default 
+    GigabitEthernet0/0/0/3         unassigned      Shutdown        Down     default
+    ```
