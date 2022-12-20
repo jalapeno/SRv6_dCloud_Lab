@@ -3,22 +3,24 @@ import sys
 import subprocess
 from arango import ArangoClient
 
-def lu_logic():
+def lu_calc(src, dst, user, pw, dbname):
 
-    username = "username"
-    password = "password"
-    database = "database"
-    source = "source"
-    destination = "destination"
+    print("lu_calc: ", src, dst, user, pw, dbname)
 
-    f = open("rome_src_dst.json")
-    sd = json.load(f)
+    # username = "username"
+    # password = "password"
+    # database = "database"
+    # source = "source"
+    # destination = "destination"
 
-    user = sd[username]
-    pw = sd[password]
-    dbname = sd[database]
-    src = sd[source]
-    dst = sd[destination]
+    # f = open("rome_src_dst.json")
+    # sd = json.load(f)
+
+    # user = sd[username]
+    # pw = sd[password]
+    # dbname = sd[database]
+    # src = sd[source]
+    # dst = sd[destination]
 
     client = ArangoClient(hosts='http://198.18.1.101:30852')
     db = client.db(dbname, username=user, password=pw)
