@@ -31,10 +31,11 @@ The student upon completion of Lab 1 should have achieved the following objectiv
 Device access for this lab is primarly through SSH. All of the VMs within this toplogy can be accessed once you connect through Cisco AnyConnect VPN to the dCloud environment. Please see the management topology network diagram below. In addition their are seven instances of XR routers running in containers on the VM host XRD. The XRD VM acts as a jumpbox for these router containers. For router access you will need to SSH into the XRD VM and then initiate a separate SSH session to each of the routers. The XRD VM is configured for DNS resolution for each router name to save time.
 
 ### User Credentials
-For all instances you will use the same user credentials
-    - User: cisco
-    - Password: cisco123
-    
+For all instances you will use the same user credentials:
+```
+User: cisco Password: cisco123
+'''
+
 ### Management Network Topology
 
 ![Lab Topology Small](/topo_drawings/management-network-medium.png)
