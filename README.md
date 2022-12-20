@@ -1,9 +1,15 @@
 # Welcome to the World of SRv6
 
 ### Description: This repository is a learning guide for SRv6 Cisco dCloud Lab. 
-Cisco Routers that run the XR operating system 7.X and newer support the SRv6 feature set. This guide walks 
+
+SRv6 simplifies SR-MPLS networks by eliminating MPLS altogether and by relying on the native 
+IPv6 header and header extension to provide the same services and flexibility as SR-MPLS, directly over the 
+IPv6 data plane.
+
+Cisco routers that run the XR operating system 7.X and newer support the SRv6 feature set. This guide walks 
 through the basic steps to configure and test SR configurations in a controlled lab. In addition, Jalapeno an 
 open source project provides ways to see SRv6 created paths through the network.
+
 
 ## Contents
 * Repository Overview [LINK](#repository-overview)
