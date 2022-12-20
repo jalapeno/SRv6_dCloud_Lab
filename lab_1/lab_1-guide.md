@@ -79,45 +79,45 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     Creating xrd01 ... done
     ```
 5. Check that the docker containers were created and running
-```
-cisco@xrd:~/SRv6_dCloud_Lab/lab_0$ docker ps
-CONTAINER ID   IMAGE                            COMMAND                  CREATED              STATUS              PORTS     NAMES
-37960e0fea97   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd07
-1dd2e4ef748f   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd05
-970b0c888565   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd01
-4bd9ccd3e183   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd02
-9af05fddc01f   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd03
-c48dc39398ef   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd04
-7d0436c26cc8   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd06
-```
+    ```
+    cisco@xrd:~/SRv6_dCloud_Lab/lab_0$ docker ps
+    CONTAINER ID   IMAGE                            COMMAND                  CREATED              STATUS              PORTS     NAMES
+    37960e0fea97   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd07
+    1dd2e4ef748f   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd05
+    970b0c888565   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd01
+    4bd9ccd3e183   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd02
+    9af05fddc01f   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd03
+    c48dc39398ef   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd04
+    7d0436c26cc8   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd06
+    ```
 6. Confirm the docker networks were created. The Network ID are unique on creation
-```
-cisco@xrd:~/SRv6_dCloud_Lab/lab_0$ docker network ls
-NETWORK ID     NAME                  DRIVER    SCOPE
-cfd793a3a770   bridge                bridge    local
-b948b6ba5918   host                  host      local
-8ff8a898b08c   lab_0_macvlan0        macvlan   local
-62e49899e77a   lab_0_macvlan1        macvlan   local
-f7f3312f9e29   lab_0_mgmt            bridge    local
-2d455a6860aa   lab_0_xrd05-host      bridge    local
-00bae5fdbe48   lab_0_xrd06-host      bridge    local
-bdf431ee7377   none                  null      local
-336a27055564   xrd01-gi1-xrd02-gi0   bridge    local
-da281230d4b3   xrd01-gi2-xrd05-gi0   bridge    local
-a9cdde56cefa   xrd01-gi3             bridge    local
-c254a6c88536   xrd02-gi1-xrd03-gi0   bridge    local
-2fec9b3e52a5   xrd02-gi2-xrd06-gi1   bridge    local
-942edff76963   xrd02-gi3             bridge    local
-7a6f21c0cb6a   xrd03-gi1-xrd04-gi0   bridge    local
-3c6d5ff6828f   xrd03-gi2             bridge    local
-e3eb44320373   xrd03-gi3             bridge    local
-c03ebf10229b   xrd04-gi1-xrd07-gi1   bridge    local
-331c62bb019a   xrd04-gi2-xrd05-gi1   bridge    local
-8a2cb5e8083d   xrd04-gi3             bridge    local
-b300884b2030   xrd05-gi2-xrd06-gi2   bridge    local
-b48429454f4c   xrd06-gi0-xrd07-gi2   bridge    local
-84b7ddd7e018   xrd07-gi3             bridge    local
-```
+    ```
+    cisco@xrd:~/SRv6_dCloud_Lab/lab_0$ docker network ls
+    NETWORK ID     NAME                  DRIVER    SCOPE
+    cfd793a3a770   bridge                bridge    local
+    b948b6ba5918   host                  host      local
+    8ff8a898b08c   lab_0_macvlan0        macvlan   local
+    62e49899e77a   lab_0_macvlan1        macvlan   local
+    f7f3312f9e29   lab_0_mgmt            bridge    local
+    2d455a6860aa   lab_0_xrd05-host      bridge    local
+    00bae5fdbe48   lab_0_xrd06-host      bridge    local
+    bdf431ee7377   none                  null      local
+    336a27055564   xrd01-gi1-xrd02-gi0   bridge    local
+    da281230d4b3   xrd01-gi2-xrd05-gi0   bridge    local
+    a9cdde56cefa   xrd01-gi3             bridge    local
+    c254a6c88536   xrd02-gi1-xrd03-gi0   bridge    local
+    2fec9b3e52a5   xrd02-gi2-xrd06-gi1   bridge    local
+    942edff76963   xrd02-gi3             bridge    local
+    7a6f21c0cb6a   xrd03-gi1-xrd04-gi0   bridge    local
+    3c6d5ff6828f   xrd03-gi2             bridge    local
+    e3eb44320373   xrd03-gi3             bridge    local
+    c03ebf10229b   xrd04-gi1-xrd07-gi1   bridge    local
+    331c62bb019a   xrd04-gi2-xrd05-gi1   bridge    local
+    8a2cb5e8083d   xrd04-gi3             bridge    local
+    b300884b2030   xrd05-gi2-xrd06-gi2   bridge    local
+    b48429454f4c   xrd06-gi0-xrd07-gi2   bridge    local
+    84b7ddd7e018   xrd07-gi3             bridge    local
+    ```
 7. The XRD router instances should be available for access after 2 minutes of spin up.
 
 ### Validate Jalaepno
@@ -126,26 +126,26 @@ b48429454f4c   xrd06-gi0-xrd07-gi2   bridge    local
 __Amsterdam__
 1. SSH to Amsterdam Client VM from your laptop. 
 2. Check that the interface to router xrd01 is UP and has the assigned IP 10.100.1.1/24
-```
-cisco@amsterdam:~$ ip address show ens192
-3: ens192: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
-    link/ether 00:50:56:aa:a0:3f brd ff:ff:ff:ff:ff:ff
-    inet 10.101.1.1/24 brd 10.101.1.255 scope global ens192
-       valid_lft forever preferred_lft forever
-    inet6 fc00:0:101:1:250:56ff:feaa:a03f/64 scope global dynamic mngtmpaddr noprefixroute 
-       valid_lft 2591850sec preferred_lft 604650sec
-    inet6 fc00:0:101:1::1/64 scope global 
-       valid_lft forever preferred_lft forever
-    inet6 fe80::250:56ff:feaa:a03f/64 scope link 
-       valid_lft forever preferred_lft forever
-```
+    ```
+    cisco@amsterdam:~$ ip address show ens192
+    3: ens192: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+        link/ether 00:50:56:aa:a0:3f brd ff:ff:ff:ff:ff:ff
+        inet 10.101.1.1/24 brd 10.101.1.255 scope global ens192
+        valid_lft forever preferred_lft forever
+        inet6 fc00:0:101:1:250:56ff:feaa:a03f/64 scope global dynamic mngtmpaddr noprefixroute 
+        valid_lft 2591850sec preferred_lft 604650sec
+        inet6 fc00:0:101:1::1/64 scope global 
+        valid_lft forever preferred_lft forever
+        inet6 fe80::250:56ff:feaa:a03f/64 scope link 
+        valid_lft forever preferred_lft forever
+    ```
 3. Check connectivity from Amsterdam to xrd01
-```
-cisco@amsterdam:~$ ping -c 3 10.101.1.2
-PING 10.101.1.2 (10.101.1.2) 56(84) bytes of data.
-64 bytes from 10.101.1.2: icmp_seq=1 ttl=255 time=1.18 ms
-64 bytes from 10.101.1.2: icmp_seq=2 ttl=255 time=1.18 ms
-64 bytes from 10.101.1.2: icmp_seq=3 ttl=255 time=1.37 ms
-'''
+    ```
+    cisco@amsterdam:~$ ping -c 3 10.101.1.2
+    PING 10.101.1.2 (10.101.1.2) 56(84) bytes of data.
+    64 bytes from 10.101.1.2: icmp_seq=1 ttl=255 time=1.18 ms
+    64 bytes from 10.101.1.2: icmp_seq=2 ttl=255 time=1.18 ms
+    64 bytes from 10.101.1.2: icmp_seq=3 ttl=255 time=1.37 ms
+    '''
 
 ### Connect to Routers
