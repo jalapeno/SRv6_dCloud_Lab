@@ -128,7 +128,7 @@ __Amsterdam__
 2. Check that the interface to router xrd01 is UP and has the assigned IP 10.101.1.1/24
     ```
     cisco@amsterdam:~$ ip address show ens192
-    3: ens192: <BROADCAST,MULTICAST,__UP__,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+    3: ens192: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
         link/ether 00:50:56:aa:a0:3f brd ff:ff:ff:ff:ff:ff
         inet 10.101.1.1/24 brd 10.101.1.255 scope global ens192
         valid_lft forever preferred_lft forever
@@ -174,11 +174,11 @@ __Rome__
     ```
 
 ### Connect to Routers
-1. Starting from the XRD VM log into each router instance consulting the management topology diagram above
+1. Starting from the XRD VM log into each routers instance 1-7 consulting the management topology diagram above
 2. Confirm that the configured interfaces are in an UP|UP state
-    ```RP/0/RP0/CPU0:xrd01#show ip interface brief
-    Tue Dec 20 18:46:04.544 UTC
-
+    ```
+    RP/0/RP0/CPU0:xrd01#show ip interface brief
+    
     Interface                      IP-Address      Status          Protocol Vrf-Name
     Loopback0                      10.0.0.1        Up              Up       default 
     MgmtEth0/RP0/CPU0/0            10.254.254.101  Up              Up       default 
