@@ -9,7 +9,9 @@ confirm PE and P roles. Last you will create basic SRv6 configuration on routers
 ## Contents
 1. [Lab Objectives](#lab-objectives)
 2. [Validate Device Access](#validate-device-access)
-    - [Validate to XRD VM](#validate-xrd)
+    - [Validate XRD VM](#validate-xrd)
+    - [Validate Jalapeno VM](#validate-jalapeno)
+    - [Validate Client VMs](#validate-client-vms)
     - [Connect to Routers](#connect-to-routers)
 3. Validate ISIS Topology
 4. Validate BGP Topology
@@ -43,7 +45,7 @@ User: cisco Password: cisco123
 For full size image see [LINK](/topo_drawings/management-network.png)
 
 ### Validate XRD
-1. Connect to the Ubuntu VM XRD which is using Docker to host the XRD application
+1. SSH to the Ubuntu VM XRD which is using Docker to host the XRD application
 2. Change to the Git repository directory
     - The lab repository folder is found in the home directory ~/SRv6_dCloud_Lab/
 3. Validate there are no docker containers running or docker networks for XRD
@@ -89,7 +91,7 @@ c48dc39398ef   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About
 7d0436c26cc8   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd06
 ```
 6. Confirm the docker networks were created. The Network ID are unique on creation
-'''
+```
 cisco@xrd:~/SRv6_dCloud_Lab/lab_0$ docker network ls
 NETWORK ID     NAME                  DRIVER    SCOPE
 cfd793a3a770   bridge                bridge    local
@@ -116,6 +118,34 @@ b300884b2030   xrd05-gi2-xrd06-gi2   bridge    local
 b48429454f4c   xrd06-gi0-xrd07-gi2   bridge    local
 84b7ddd7e018   xrd07-gi3             bridge    local
 ```
+7. The XRD router instances should be available for access after 2 minutes of spin up.
 
+### Validate Jalaepno
+
+### Validate Client VMs
+__Amsterdam__
+1. SSH to Amsterdam Client VM from your laptop. 
+2. Check that the interface to router xrd01 is UP and has the assigned IP 10.100.1.1/24
+```
+cisco@amsterdam:~$ ip address show ens192
+3: ens192: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+    link/ether 00:50:56:aa:a0:3f brd ff:ff:ff:ff:ff:ff
+    inet 10.101.1.1/24 brd 10.101.1.255 scope global ens192
+       valid_lft forever preferred_lft forever
+    inet6 fc00:0:101:1:250:56ff:feaa:a03f/64 scope global dynamic mngtmpaddr noprefixroute 
+       valid_lft 2591850sec preferred_lft 604650sec
+    inet6 fc00:0:101:1::1/64 scope global 
+       valid_lft forever preferred_lft forever
+    inet6 fe80::250:56ff:feaa:a03f/64 scope link 
+       valid_lft forever preferred_lft forever
+```
+3. Check connectivity from Amsterdam to xrd01
+```
+cisco@amsterdam:~$ ping -c 3 10.101.1.2
+PING 10.101.1.2 (10.101.1.2) 56(84) bytes of data.
+64 bytes from 10.101.1.2: icmp_seq=1 ttl=255 time=1.18 ms
+64 bytes from 10.101.1.2: icmp_seq=2 ttl=255 time=1.18 ms
+64 bytes from 10.101.1.2: icmp_seq=3 ttl=255 time=1.37 ms
+'''
 
 ### Connect to Routers
