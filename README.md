@@ -1,14 +1,21 @@
-# SRv6 dCloud Lab Guide
+# Welcome to the World of SRv6
 
 ### Description: This repository is a learning guide for SRv6 Cisco dCloud Lab. 
-Cisco Routers that run the XR operating system 7.X and newer support the SRv6 feature set. This guide walks 
+
+SRv6 simplifies SR-MPLS networks by eliminating MPLS altogether and by relying on the native 
+IPv6 header and header extension to provide the same services and flexibility as SR-MPLS, directly over the 
+IPv6 data plane.
+
+Cisco routers that run the XR operating system 7.X and newer support the SRv6 feature set. This guide walks 
 through the basic steps to configure and test SR configurations in a controlled lab. In addition, Jalapeno an 
 open source project provides ways to see SRv6 created paths through the network.
+
 
 ## Contents
 * Repository Overview [LINK](#repository-overview)
 * Lab Topology [LINK](#lab-topology)
 * Remote Access [LINK](#remote-access)
+* Jalapeno Stack [LINK](#jalapeno)
 * Lab 1 - Config Baseline SR-MPLS and SRv6 [LINK](/lab_1/lab_1-guide.md)
 * Lab 2 - Config SRv6 with L3VPN [LINK](/lab_2/lab_2-guide.md)
 * Lab 3 - Config SRv6 with TE [LINK](/lab_3/lab_3-guide.md)
@@ -39,8 +46,8 @@ Within each lab directory you should see several files of importance :
 
 | File Name                | Description                                            |
 |:-------------------------|:-------------------------------------------------------|
-| cleanup-lab_X.sh         | Cleans up docker environemtn                           |
-| docker-compose-lab_1.yml | YAML input file used to launch docker                  |
+| cleanup-lab_X.sh         | Cleans up docker environemnt                           |
+| docker-compose-lab_X.yml | YAML input file used to launch docker                  |
 | lab_X-topology.yml       | YAML input file for XRD to create docker compose file. |
 | lab_X-guide.md           | User guide for this lab.                               |
 | setup-lab_X.sh           | Calls cleanup script and launches XRD environment      | 
@@ -61,22 +68,24 @@ system is running the Ubuntu OS. Last is a VM running Kubernetes which is hostin
 
 
 ### Device Access Table
-| Device Name    | Device Type  |  Access Type |   IP Address    |
-|:---------------|:-------------|:-------------|:---------------:|
-| XRD            | VM           | SSH          | 198.18.128.100  |
-| Jalapeno       | VM           | SSH          | 198.18.128.101  |
-| Amsterdam      | VM           | SSH          | 198.18.128.102  |
-| Rome           | VM           | SSH          | 198.18.128.103  |
+| Device Name    | Description              | Device Type | Access Type |   IP Address    |
+|:---------------|:-------------------------|:-----------:|:-----------:|:---------------:|
+| XRD            | Docker + XRD             | VM          | SSH         | 198.18.128.100  |
+| Jalapeno       | Kubernettes + Jalapeno   | VM          | SSH         | 198.18.128.101  |
+| Amsterdam      | Ubuntu client            | VM          | SSH         | 198.18.128.102  |
+| Rome           | Ubuntu client            | VM          | SSH         | 198.18.128.103  |
 
 
-* Usde XRD as jumpbox to access the below devices
+* Use XRD VM as jumpbox to access the below devices
 
-| Device Name    | Device Type  |  Access Type |   IP Address    |                                           
-|:---------------|:-------------|:-------------|:---------------:|                          
-| xr01           | router       | SSH          | 10.254.254.101  |
-| xr02           | router       | SSH          | 10.254.254.102  |
-| xr03           | router       | SSH          | 10.254.254.103  |
-| xr04           | router       | SSH          | 10.254.254.104  |
-| xr05           | router       | SSH          | 10.254.254.105  |
-| xr06           | router       | SSH          | 10.254.254.106  |
-| xr07           | router       | SSH          | 10.254.254.107  |
+| Device Name    | Device Type | Access Type |   IP Address    |                                           
+|:---------------|:------------|:------------|:---------------:|                          
+| xr01           | router      | SSH         | 10.254.254.101  |
+| xr02           | router      | SSH         | 10.254.254.102  |
+| xr03           | router      | SSH         | 10.254.254.103  |
+| xr04           | router      | SSH         | 10.254.254.104  |
+| xr05           | router      | SSH         | 10.254.254.105  |
+| xr06           | router      | SSH         | 10.254.254.106  |
+| xr07           | router      | SSH         | 10.254.254.107  |
+
+## Jalapeno
