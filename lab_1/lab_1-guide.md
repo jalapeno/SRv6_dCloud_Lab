@@ -9,7 +9,7 @@ confirm PE and P roles. Last you will create basic SRv6 configuration on routers
 ## Contents
 1. [Lab Objectives](#lab-objectives)
 2. [Validate Device Access](#validate-device-access)
-    - [Connect to VMs](#connect-to-vms)
+    - [Validate to XRD VM](#validate-xrd)
     - [Connect to Routers](#connect-to-routers)
 3. Validate ISIS Topology
 4. Validate BGP Topology
@@ -42,7 +42,31 @@ User: cisco Password: cisco123
 
 For full size image see [LINK](/topo_drawings/management-network.png)
 
-### Connect to VMs
+### Validate XRD
+1. Connect to the Ubuntu VM XRD which is using Docker to host the XRD application
+2. Change to the Git repository directory
+    - The lab repository folder is found in the home directory ~/SRv6_dCloud_Lab/
+3. Validate there are no docker containers running or docker networks for XRD
+    ```
+    cisco@xrd:~/SRv6_dCloud_Lab/lab_0$ docker ps
+    CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+    
+    cisco@xrd:~/SRv6_dCloud_Lab/lab_0$ docker network ls
+    NETWORK ID     NAME      DRIVER    SCOPE
+    cfd793a3a770   bridge    bridge    local
+    b948b6ba5918   host      host      local
+    bdf431ee7377   none      null      local
+    ```
+4.  Run the setup script stops any existing XRD docker containers and any XRD docker networks
+    - change to the lab_0 directory
+    ```
+    cisco@xrd:~/SRv6_dCloud_Lab$ cd lab_0
+    cisco@xrd:~/SRv6_dCloud_Lab/lab_0$
+    ```
+    - ``` 
+    run ./setup-lab_0.sh
+    ```
+3. 
 
 
 ### Connect to Routers
