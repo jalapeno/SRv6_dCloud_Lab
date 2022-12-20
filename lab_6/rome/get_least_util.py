@@ -9,7 +9,7 @@ database = "database"
 source = "source"
 destination = "destination"
 
-f = open("src_dst.json")
+f = open("rome_src_dst.json")
 sd = json.load(f)
 
 user = sd[username]
