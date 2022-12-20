@@ -8,8 +8,10 @@ confirm PE
 and P roles. Last you will create basic SRv6 configuration on routers 1-7 and confirm connectivity. 
 
 ## Contents
-1. [Lab Objectives](#1lab-objectives)
-2. [Validate Device Access](#2validate-device-access)
+1. [Lab Objectives](#lab-objectives)
+2. [Validate Device Access](#validate-device-access)
+    - [Connect to VMs](#connect-to-vms)
+    - [Connect to Routers](#connect-to-routers)
 3. Validate ISIS Topology
 4. Validate BGP Topology
 5. Configure and validate SR-MPLS
@@ -20,3 +22,8 @@ and P roles. Last you will create basic SRv6 configuration on routers 1-7 and co
 
 
 ## 2. Validate Device Access
+
+### Connect to VMs
+
+
+### Connect to Routers
