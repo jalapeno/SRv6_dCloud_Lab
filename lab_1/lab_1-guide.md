@@ -35,6 +35,8 @@ Device access for this lab is primarly through SSH. All of the VMs within this t
 ![Lab Topology](/topo_drawings/management-network.png)
 
 
+![Lab Topology Small](/topo_drawings/management-network-small.png)
+
 ### Connect to VMs
 
 
