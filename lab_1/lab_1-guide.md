@@ -34,7 +34,7 @@ Device access for this lab is primarly through SSH. All of the VMs within this t
 For all instances you will use the same user credentials:
 ```
 User: cisco Password: cisco123
-'''
+```
 
 ### Management Network Topology
 
