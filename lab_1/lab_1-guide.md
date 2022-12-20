@@ -121,6 +121,19 @@ For full size image see [LINK](/topo_drawings/management-network.png)
 7. The XRD router instances should be available for access 2 minutes after spin up.
 
 ### Validate Jalaepno
+1. SSH to the Ubuntu VM Jalapeno which is using Kubernetes to host the Jalapeno application
+2. Check that the interface to routers xrd05 and xrd06 is up and has assigned IP 198.18.1.101
+```
+    cisco@jalapeno:~$ ip address show ens192
+    3: ens192: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+        link/ether 00:50:56:97:15:aa brd ff:ff:ff:ff:ff:ff
+        altname enp11s0
+        inet 198.18.1.101/24 brd 198.18.1.255 scope global noprefixroute ens192
+        valid_lft forever preferred_lft forever
+        inet6 fe80::250:56ff:fe97:15aa/64 scope link 
+        valid_lft forever preferred_lft forever
+```
+3. 
 
 ### Validate Client VMs
 __Amsterdam__
