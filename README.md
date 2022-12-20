@@ -60,4 +60,23 @@ system is running the Ubuntu OS. Last is a VM running Kubernetes which is hostin
 ## Remote Access
 
 
+### Device Access Table
+| Device Name    | Device Type  |  Access Type |   IP Address    |
+|:---------------|:-------------|:-------------|:---------------:|
+| XRD            | VM           | SSH          | 198.18.128.100  |
+| Jalapeno       | VM           | SSH          | 198.18.128.101  |
+| Amsterdam      | VM           | SSH          | 198.18.128.102  |
+| Rome           | VM           | SSH          | 198.18.128.103  |
 
+
+* Usde XRD as jumpbox to access the below devices
+
+| Device Name    | Device Type  |  Access Type |   IP Address    |                                           
+|:---------------|:-------------|:-------------|:---------------:|                          
+| xr01           | router       | SSH          | 10.254.254.101  |
+| xr02           | router       | SSH          | 10.254.254.102  |
+| xr03           | router       | SSH          | 10.254.254.103  |
+| xr04           | router       | SSH          | 10.254.254.104  |
+| xr05           | router       | SSH          | 10.254.254.105  |
+| xr06           | router       | SSH          | 10.254.254.106  |
+| xr07           | router       | SSH          | 10.254.254.107  |
