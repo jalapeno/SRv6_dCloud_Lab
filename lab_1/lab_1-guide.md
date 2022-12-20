@@ -63,10 +63,59 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     cisco@xrd:~/SRv6_dCloud_Lab$ cd lab_0
     cisco@xrd:~/SRv6_dCloud_Lab/lab_0$
     ```
-    - ``` 
-    run ./setup-lab_0.sh
+    ``` 
+    run sudo ./setup-lab_0.sh
     ```
-3. 
+    - Look for the below output from the end of the script confirming XRD instances 1-7 were created
+    ```
+    Creating xrd03 ... done
+    Creating xrd04 ... done
+    Creating xrd06 ... done
+    Creating xrd02 ... done
+    Creating xrd05 ... done
+    Creating xrd07 ... done
+    Creating xrd01 ... done
+    ```
+5. Check that the docker containers were created and running
+```
+cisco@xrd:~/SRv6_dCloud_Lab/lab_0$ docker ps
+CONTAINER ID   IMAGE                            COMMAND                  CREATED              STATUS              PORTS     NAMES
+37960e0fea97   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd07
+1dd2e4ef748f   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd05
+970b0c888565   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd01
+4bd9ccd3e183   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd02
+9af05fddc01f   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd03
+c48dc39398ef   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd04
+7d0436c26cc8   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd06
+```
+6. Confirm the docker networks were created. The Network ID are unique on creation
+'''
+cisco@xrd:~/SRv6_dCloud_Lab/lab_0$ docker network ls
+NETWORK ID     NAME                  DRIVER    SCOPE
+cfd793a3a770   bridge                bridge    local
+b948b6ba5918   host                  host      local
+8ff8a898b08c   lab_0_macvlan0        macvlan   local
+62e49899e77a   lab_0_macvlan1        macvlan   local
+f7f3312f9e29   lab_0_mgmt            bridge    local
+2d455a6860aa   lab_0_xrd05-host      bridge    local
+00bae5fdbe48   lab_0_xrd06-host      bridge    local
+bdf431ee7377   none                  null      local
+336a27055564   xrd01-gi1-xrd02-gi0   bridge    local
+da281230d4b3   xrd01-gi2-xrd05-gi0   bridge    local
+a9cdde56cefa   xrd01-gi3             bridge    local
+c254a6c88536   xrd02-gi1-xrd03-gi0   bridge    local
+2fec9b3e52a5   xrd02-gi2-xrd06-gi1   bridge    local
+942edff76963   xrd02-gi3             bridge    local
+7a6f21c0cb6a   xrd03-gi1-xrd04-gi0   bridge    local
+3c6d5ff6828f   xrd03-gi2             bridge    local
+e3eb44320373   xrd03-gi3             bridge    local
+c03ebf10229b   xrd04-gi1-xrd07-gi1   bridge    local
+331c62bb019a   xrd04-gi2-xrd05-gi1   bridge    local
+8a2cb5e8083d   xrd04-gi3             bridge    local
+b300884b2030   xrd05-gi2-xrd06-gi2   bridge    local
+b48429454f4c   xrd06-gi0-xrd07-gi2   bridge    local
+84b7ddd7e018   xrd07-gi3             bridge    local
+```
 
 
 ### Connect to Routers
