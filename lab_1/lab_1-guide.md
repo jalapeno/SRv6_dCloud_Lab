@@ -205,7 +205,7 @@ __Rome__
     GigabitEthernet0/0/0/2         10.1.1.8        Up              Up       default 
     GigabitEthernet0/0/0/3         unassigned      Shutdown        Down     default
     ```
-3. Validate adjacencies and traffic passing on each router. Use the topology diagram to determine neighbors. The client devices Amsterdam and Rome will not show with CDP.
+3. Validate adjacencies and traffic passing on each router. Use the topology diagram to determine neighbors. The client devices Amsterdam and Rome are not running CDP.
     ```
     RP/0/RP0/CPU0:xrd05#show cdp neighbors 
     Wed Dec 21 18:16:57.657 UTC
@@ -217,3 +217,30 @@ __Rome__
     xrd04           Gi0/0/0/1        179     R          XRd Contr Gi0/0/0/2       
     xrd06           Gi0/0/0/2        124     R          XRd Contr Gi0/0/0/2  
     ```
+
+## Validate ISIS Topology
+
+In this lab we are using ISIS as the underlying IGP to establish link connectivity across routers xrd01 -> xrd07. ISIS has a basic configuration pre-configured setup starting in lab 1. The student will want to confirm that they see a full ISIS topology.
+
+![ISIS Topology](/topo_drawings/isis-topology-medium.png)
+
+The ISIS topology can be validated from any router. The command output will vary slightly based on router used.
+    ```
+    RP/0/RP0/CPU0:xrd03#show isis topology
+
+    IS-IS 100 paths to IPv4 Unicast (Level-1) routers
+    System Id          Metric    Next-Hop           Interface       SNPA          
+    xrd03              --      
+
+    IS-IS 100 paths to IPv4 Unicast (Level-2) routers
+    System Id          Metric    Next-Hop           Interface       SNPA          
+    xrd01              2         xrd02              Gi0/0/0/0       *PtoP*        
+    xrd02              1         xrd02              Gi0/0/0/0       *PtoP*        
+    xrd03              --      
+    xrd04              1         xrd04              Gi0/0/0/1       *PtoP*        
+    xrd05              2         xrd04              Gi0/0/0/1       *PtoP*        
+    xrd06              2         xrd02              Gi0/0/0/0       *PtoP*        
+    xrd07              2         xrd04              Gi0/0/0/1       *PtoP* 
+    ```
+
+## Validate BGP Topology
