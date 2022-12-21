@@ -1,6 +1,6 @@
 import argparse
 import json
-from rome import least_util
+from rome import least_util, low_latency
 
 parser = argparse.ArgumentParser(
     prog = 'Jalapeno client',
@@ -32,10 +32,11 @@ src = sd[source]
 dst = sd[destination]
 cc = sd[country]
 
-print(src, dst, dbname, user, pw, cc, encap)
+#print(src, dst, dbname, user, pw, cc, encap)
+
+#src_id = src_dst.get_src(src)
 
 if encap == "srv6":
-    print("encap: ", encap)
     if service == "lu":
         srv6_lu = least_util.lu_calc(src, dst, user, pw, dbname)
     if service == "ll":

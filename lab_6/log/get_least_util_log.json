@@ -2,37 +2,43 @@
     "statusCode": 200,
     "source": "10.0.0.7",
     "destination": "10.0.0.1",
-    "sid": "fc00:0:6:2:1::",
+    "sid": "fc00:0:6:5:1::",
     "path": [
+        {
+            "node": "10.0.0.7_32_10.0.0.7",
+            "name": null,
+            "sid": null,
+            "latency": null
+        },
         {
             "node": "2_0_0_0000.0000.0007",
             "name": "xrd07",
             "sid": null,
-            "util": null
+            "latency": null
         },
         {
             "node": "2_0_0_0000.0000.0006",
             "name": "xrd06",
             "sid": "fc00:0:6::",
-            "util": 25
+            "latency": 30
         },
         {
-            "node": "2_0_0_0000.0000.0002",
-            "name": "xrd02",
-            "sid": "fc00:0:2::",
-            "util": 25
+            "node": "2_0_0_0000.0000.0005",
+            "name": "xrd05",
+            "sid": "fc00:0:5::",
+            "latency": 5
         },
         {
             "node": "2_0_0_0000.0000.0001",
             "name": "xrd01",
             "sid": "fc00:0:1::",
-            "util": 30
+            "latency": 5
         },
         {
             "node": "10.0.0.1_32_10.0.0.1",
             "name": null,
             "sid": null,
-            "util": null
+            "latency": null
         }
     ]
 }
