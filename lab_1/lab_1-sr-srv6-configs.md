@@ -35,6 +35,7 @@ segment-routing
 
 ### xrd02 config
 
+```
 router isis 100
  address-family ipv4 unicast
    segment-routing mpls
@@ -100,9 +101,9 @@ segment-routing
    !
   !
  !
-
+```
  ### xrd04 config
-
+```
 router isis 100
  address-family ipv4 unicast
    segment-routing mpls
@@ -134,9 +135,9 @@ segment-routing
    !
   !
  !
-
+```
  ### xrd05 config
-
+```
 router isis 100
  address-family ipv4 unicast
    segment-routing mpls
@@ -168,9 +169,9 @@ segment-routing
    !
   !
  !
-
+```
  ### xrd06 config
-
+```
 router isis 100
  address-family ipv4 unicast
    segment-routing mpls
@@ -202,9 +203,9 @@ segment-routing
    !
   !
  !
-
+```
  ### xrd07 config
-
+```
 router isis 100
  address-family ipv4 unicast
    segment-routing mpls
@@ -236,9 +237,9 @@ segment-routing
    !
   !
  !
-
+```
 ### Validate SR and SRv6 config
-Segment Routing 
+#### Segment Routing 
 ```
 RP/0/RP0/CPU0:xrd07#show isis segment-routing label table                
 Wed Dec 21 20:09:51.478 UTC
@@ -286,7 +287,7 @@ Label  Label       or ID              Interface                    Switched
 100007 Aggregate   SR Pfx (idx 7)     default                      0           
 RP/0/RP0/CPU0:xrd07#
 ```
-SRv6 validation:
+#### SRv6 validation:
 ```
 RP/0/RP0/CPU0:xrd07#show segment-routing srv6 locator 
 Wed Dec 21 20:06:39.503 UTC
