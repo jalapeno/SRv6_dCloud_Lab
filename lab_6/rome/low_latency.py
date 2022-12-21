@@ -1,11 +1,11 @@
 import json
-import sys
-import subprocess
 from arango import ArangoClient
+from math import ceil
+import sys
 from . import add_route
 
-# Query DB for least utilized path parameters and return srv6 SID
-def lu_calc(src, dst, user, pw, dbname, intf):
+# Query DB for low latency path parameters and return srv6 SID
+def ll_calc(src, dst, user, pw, dbname, intf):
 
     client = ArangoClient(hosts='http://52.11.224.254:30852')
     db = client.db(dbname, username=user, password=pw)
@@ -36,25 +36,40 @@ def lu_calc(src, dst, user, pw, dbname, intf):
         
         """)
     else:
-        aql = db.aql
-        cursor = db.aql.execute("""for v, e in outbound shortest_path """ + '"%s"' % s[id] + """ TO """ + '"%s"' % d[id] + \
-                """ sr_topology OPTIONS { weightAttribute: 'percent_util_out' } filter e.mt_id != 2 \
-                    return { node: v._key, name: v.name, sid: e.srv6_sid, util: e.percent_util_out } """)
-        path = [doc for doc in cursor]
 
+        aql = db.aql
+        cursor = db.aql.execute("""for v, e in outbound shortest_path """ + '"%s"' % s[id] +  """ \
+            TO """ + '"%s"' % d[id] +  """ sr_topology \
+                    return  { node: v._key, sid: e.srv6_sid } """)
+        spf = [doc for doc in cursor]
+        print("spf: ", spf)
+
+        cursor = db.aql.execute("""for v, e in outbound shortest_path """ + '"%s"' % s[id] +  """ \
+            TO """ + '"%s"' % d[id] +  """ sr_topology \
+                OPTIONS {weightAttribute: 'latency' } \
+                    return  { node: v._key, name: v.name, sid: e.srv6_sid, latency: e.latency } """)
+        path = [doc for doc in cursor]
+        print("path: ", path)
+
+        hopcount = len(path)
+        print("hops: ", hopcount)
+        pq = ceil((hopcount/2)-1)
+        print(pq)
+        pq_node = (path[pq])
+        print("pqnode: ", pq_node)
         sid = 'sid'
         usid_block = 'fc00:0:'
 
-        locators = [a_dict[sid] for a_dict in path]
-        #print(sids)
+        sids = [a_dict[sid] for a_dict in path]
+        print(sids)
 
-        for sid in list(locators):
+        for sid in list(sids):
             if sid == None:
-                locators.remove(sid)
-        print("locators: ", locators)
+                sids.remove(sid)
+        print(sids)
 
         usid = []
-        for s in locators:
+        for s in sids:
             if s != None and usid_block in s:
                 usid_list = s.split(usid_block)
                 sid = usid_list[1]
@@ -81,10 +96,9 @@ def lu_calc(src, dst, user, pw, dbname, intf):
             }
 
         pathobj = json.dumps(pathdict, indent=4)
-        with open('log/least_util_log.json', 'w') as f:
+        with open('log/low_latency_log.json', 'w') as f:
             sys.stdout = f 
             print(pathobj)
 
         route = add_route.add_linux_route(dst, srv6_sid, intf)
         print("adding linux route: ", route)
-        

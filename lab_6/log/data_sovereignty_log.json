@@ -1,0 +1,36 @@
+{
+    "statusCode": 200,
+    "source": "10.0.0.3",
+    "destination": "10.71.2.0",
+    "sid": "fc00:0:2:6:7::",
+    "path": [
+        {
+            "path": [
+                null,
+                "R02",
+                "R06",
+                "R07",
+                "",
+                null
+            ],
+            "sid": [
+                "fc00:0:2::",
+                "fc00:0:6::",
+                "fc00:0:7::"
+            ],
+            "countries_traversed": [
+                [],
+                [],
+                [],
+                [],
+                [],
+                []
+            ],
+            "latency": 50,
+            "percent_util_out": 35
+        },
+        {
+            "srv6_sid": "fc00:0:2:6:7::"
+        }
+    ]
+}
