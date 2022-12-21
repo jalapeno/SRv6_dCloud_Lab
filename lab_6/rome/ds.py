@@ -11,54 +11,8 @@ def ds_calc(src, dst, user, pw, dbname, ctr, intf):
     db = client.db(dbname, username=user, password=pw)
 
     aql = db.aql
-    cursor = db.aql.execute("""for u in unicast_prefix_v4 filter u.prefix == """  + '"%s"' % src +  """ \
-        return { id: u._id, src_peer: u.peer_ip } """)
-    src_dict = [doc for doc in cursor]
-    print(src_dict)
-
-    # Get destination prefix ID to end graph traversal
-    aql = db.aql
-    cursor = db.aql.execute("""for u in unicast_prefix_v4 filter u.prefix == """  + '"%s"' % dst +  """ \
-        return { id: u._id, dst_peer: u.peer_ip } """)
-    dst_dict = [doc for doc in cursor]
-    print(dst_dict)
-
-    id = "id"
-    src_peer = "src_peer"
-    dst_peer = "dst_peer"
-
-    s = src_dict[0]
-    d = dst_dict[0]
-
-    if s[src_peer] == d[dst_peer]:
-        print(""" 
-        Source and destination are reachable via the same router, no optimization available
-        
-        """)
-
-    # aql = db.aql
-    # cursor = db.aql.execute("""for p in outbound k_shortest_paths \
-    #     """ + '"%s"' % s[id] + """ TO """ + '"%s"' % d[id] + """ sr_topology \
-    #         options {uniqueVertices: "path", bfs: true} \
-    #         filter p.edges[*].country_codes !like "%"""+'%s' % ctr +"""%" limit 1 \
-    #             return { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, \
-    #                 countries_traversed: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency), \
-    #                     percent_util_out: avg(p.edges[*].percent_util_out)} """)
-
-    # path = [doc for doc in cursor]
-    # print("path: ", path)
-
-    id = "id"
-    dest_peer = "dest_peer"
-    dest_id = [a_dict[id] for a_dict in dst_dict]
-
-    s = src_dict[0]
-    d = dst_dict[0]
-    print("d: ", d)
-
-    aql = db.aql
     cursor = db.aql.execute("""for p in outbound k_shortest_paths \
-        """ + '"%s"' % s[id] + """ TO """ + '"%s"' % d[id] + """ sr_topology \
+        """ + '"%s"' % src + """ TO """ + '"%s"' % dst + """ sr_topology \
             options {uniqueVertices: "path", bfs: true} \
             filter p.edges[*].country_codes !like "%"""+'%s' % ctr +"""%" limit 1 \
                 return { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, \

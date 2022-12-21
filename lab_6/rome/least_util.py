@@ -7,21 +7,21 @@ from . import add_route
 # Query DB for least utilized path parameters and return srv6 SID
 def lu_calc(src, dst, user, pw, dbname, intf):
 
-    client = ArangoClient(hosts='http://52.11.224.254:30852')
+    client = ArangoClient(hosts='http://198.18.1.101:30852')
     db = client.db(dbname, username=user, password=pw)
 
     aql = db.aql
     cursor = db.aql.execute("""for u in unicast_prefix_v4 filter u.prefix == """  + '"%s"' % src +  """ \
         return { id: u._id, src_peer: u.peer_ip } """)
     src_dict = [doc for doc in cursor]
-    print(src_dict)
+    #print(src_dict)
 
     # Get destination prefix ID to end graph traversal
     aql = db.aql
     cursor = db.aql.execute("""for u in unicast_prefix_v4 filter u.prefix == """  + '"%s"' % dst +  """ \
         return { id: u._id, dst_peer: u.peer_ip } """)
     dst_dict = [doc for doc in cursor]
-    print(dst_dict)
+    #print(dst_dict)
 
     id = "id"
     src_peer = "src_peer"
