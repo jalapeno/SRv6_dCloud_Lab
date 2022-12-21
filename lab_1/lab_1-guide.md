@@ -192,7 +192,8 @@ __Rome__
 
 ### Connect to Routers
 1. Starting from the XRD VM log into each routers instance 1-7 consulting the management topology diagram above
-2. Confirm that the configured interfaces are in an UP|UP state
+
+2. Confirm that the configured interfaces are in an `UP | UP` state
     ```
     RP/0/RP0/CPU0:xrd01#show ip interface brief
     
@@ -203,4 +204,16 @@ __Rome__
     GigabitEthernet0/0/0/1         10.1.1.0        Up              Up       default 
     GigabitEthernet0/0/0/2         10.1.1.8        Up              Up       default 
     GigabitEthernet0/0/0/3         unassigned      Shutdown        Down     default
+    ```
+3. Validate adjacencies and traffic passing on each router. Use the topology diagram to determine neighbors. The client devices Amsterdam and Rome will not show with CDP.
+    ```
+    RP/0/RP0/CPU0:xrd05#show cdp neighbors 
+    Wed Dec 21 18:16:57.657 UTC
+    Capability Codes: R - Router, T - Trans Bridge, B - Source Route Bridge
+                    S - Switch, H - Host, I - IGMP, r - Repeater
+
+    Device ID       Local Intrfce    Holdtme Capability Platform  Port ID
+    xrd01           Gi0/0/0/0        121     R          XRd Contr Gi0/0/0/2       
+    xrd04           Gi0/0/0/1        179     R          XRd Contr Gi0/0/0/2       
+    xrd06           Gi0/0/0/2        124     R          XRd Contr Gi0/0/0/2  
     ```
