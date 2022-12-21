@@ -40,7 +40,7 @@ User: cisco Password: cisco123
 
 ### Management Network Topology
 
-![Lab Topology Small](/topo_drawings/management-network-medium.png)
+![Management Topology](/topo_drawings/management-network-medium.png)
 
 For full size image see [LINK](/topo_drawings/management-network.png)
 
@@ -246,3 +246,9 @@ The ISIS topology can be validated from any router. The command output will vary
     ```
 
 ## Validate BGP Topology
+
+In this lab we are using BGP for SRv6 route/community exchange. In the lab we are running as single AS 65000 with BGP running on xrd01, xrd05, xrd06, xrd07.  Routers xrd05 and xrd06 are functioning as route reflectors for the lab. The student will want to confirm that they see a full BGP topology.
+
+![BGP Topology](/topo_drawings/bgp-topology-medium.png)
+
+For full size image see [LINK](/topo_drawings/bgp-topology-large.png)

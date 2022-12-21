@@ -62,7 +62,7 @@ This lab is based on a simulated WAN design of seven routers running in a docker
 seven routers in the topology is running the XR operating system. In addition there are two client VMs named Amsterdam and Rome. Each client 
 system is running the Ubuntu OS. Last is a VM running Kubernetes which is hosting the Jalapeno application
 
-![Lab Topology](/topo_drawings/lab-topology-overview.png)
+![Lab Topology](/topo_drawings/overview-topology.png)
 
 ## Remote Access
 
