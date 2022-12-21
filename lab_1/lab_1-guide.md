@@ -13,8 +13,8 @@ confirm PE and P roles. Last you will create basic SRv6 configuration on routers
     - [Validate Jalapeno VM](#validate-jalapeno)
     - [Validate Client VMs](#validate-client-vms)
     - [Connect to Routers](#connect-to-routers)
-3. Validate ISIS Topology
-4. Validate BGP Topology
+3. [Validate ISIS Topology](#validate-isis-topology)
+4. [Validate BGP Topology](#validate-bgp-topology)
 5. Configure and validate SR-MPLS
 6. Configure and validate SRv6
 
@@ -223,6 +223,8 @@ __Rome__
 In this lab we are using ISIS as the underlying IGP to establish link connectivity across routers xrd01 -> xrd07. ISIS has a basic configuration pre-configured setup starting in lab 1. The student will want to confirm that they see a full ISIS topology.
 
 ![ISIS Topology](/topo_drawings/isis-topology-medium.png)
+
+For full size image see [LINK](/topo_drawings/isis-topology-large.png)
 
 The ISIS topology can be validated from any router. The command output will vary slightly based on router used.
     ```
