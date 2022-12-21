@@ -67,9 +67,9 @@ segment-routing
    !
   !
  !
-
+```
  ### xrd03 config
-
+```
 router isis 100
  address-family ipv4 unicast
    segment-routing mpls
