@@ -1,7 +1,8 @@
 import subprocess
 
-def add_linux_route(dst, sid):
-    subprocess.call(['sudo', 'ip', 'route', 'add', dst, 'encap', 'seg6', 'mode', 'encap', 'segs', sid, 'dev', 'ens192'])
+def add_linux_route(dst, sid, intf):
+    p = subprocess.call(['sudo', 'ip', 'route', 'add', dst, 'encap', 'seg6', 'mode', 'encap', 'segs', sid, 'dev', intf])
+    print(p)
     # sudo ip -6 route add 10.0.0.1/32 encap seg6 mode segs fc00:0:2:3:4:7:: dev ens192
     subprocess.call(['ip', 'route'])
 

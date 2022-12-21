@@ -5,14 +5,10 @@ from arango import ArangoClient
 from . import add_route
 
 # Query DB for least utilized path parameters and return srv6 SID
-def lu_calc(src, dst, user, pw, dbname):
+def lu_calc(src, dst, user, pw, dbname, intf):
 
-    client = ArangoClient(hosts='http://198.18.1.101:30852')
+    client = ArangoClient(hosts='http://52.11.224.254:30852')
     db = client.db(dbname, username=user, password=pw)
-
-    if db.has_collection('sr_topology'):
-        srt = db.collection('sr_topology')
-    srt.properties()
 
     aql = db.aql
     cursor = db.aql.execute("""for u in unicast_prefix_v4 filter u.prefix == """  + '"%s"' % src +  """ \
@@ -85,10 +81,10 @@ def lu_calc(src, dst, user, pw, dbname):
             }
 
         pathobj = json.dumps(pathdict, indent=4)
-        with open('log/get_least_util_log.json', 'w') as f:
+        with open('log/least_util_log.json', 'w') as f:
             sys.stdout = f 
             print(pathobj)
 
-        route = add_route.add_linux_route(dst, srv6_sid)
+        route = add_route.add_linux_route(dst, srv6_sid, intf)
         print("adding linux route: ", route)
         

@@ -1,0 +1,68 @@
+{
+    "statusCode": 200,
+    "source": "10.0.0.3",
+    "destination": "10.71.2.0",
+    "sid": "fc00:0:18:17:16:5:4:7::",
+    "path": [
+        {
+            "node": "10.0.0.3_32_10.0.0.3",
+            "name": null,
+            "sid": null,
+            "latency": null
+        },
+        {
+            "node": "2_0_0_0000.0000.0003",
+            "name": "R03",
+            "sid": null,
+            "latency": null
+        },
+        {
+            "node": "2_0_0_0000.0000.0018",
+            "name": "R18",
+            "sid": "fc00:0:18::",
+            "latency": null
+        },
+        {
+            "node": "2_0_0_0000.0000.0017",
+            "name": "R17",
+            "sid": "fc00:0:17::",
+            "latency": null
+        },
+        {
+            "node": "2_0_0_0000.0000.0016",
+            "name": "R16",
+            "sid": "fc00:0:16::",
+            "latency": null
+        },
+        {
+            "node": "2_0_0_0000.0000.0005",
+            "name": "R05",
+            "sid": "fc00:0:5::",
+            "latency": null
+        },
+        {
+            "node": "2_0_0_0000.0000.0004",
+            "name": "R04",
+            "sid": "fc00:0:4::",
+            "latency": null
+        },
+        {
+            "node": "2_0_0_0000.0000.0007",
+            "name": "R07",
+            "sid": "fc00:0:7::",
+            "latency": 10
+        },
+        {
+            "node": "10.0.0.72_10.72.1.1",
+            "name": null,
+            "sid": null,
+            "latency": 10
+        },
+        {
+            "node": "10.71.2.0_24_10.72.1.1",
+            "name": null,
+            "sid": null,
+            "latency": 10
+        }
+    ]
+}
