@@ -371,8 +371,7 @@ services:
     - /dev/net/tun
     environment:
       XR_EVERY_BOOT_CONFIG: /etc/xrd/startup.cfg
-      XR_INTERFACES: 
-linux:xr-10,xr_name=Gi0/0/0/0;linux:xr-60,xr_name=Gi0/0/0/1;linux:xr-70,xr_name=Gi0/0/0/2;linux:eth2,xr_name=Gi0/0/0/3,chksum
+      XR_INTERFACES: linux:xr-10,xr_name=Gi0/0/0/0;linux:xr-60,xr_name=Gi0/0/0/1;linux:xr-70,xr_name=Gi0/0/0/2;linux:eth2,xr_name=Gi0/0/0/3,chksum
       XR_MGMT_INTERFACES: linux:xr-90,xr_name=Mg0/RP0/CPU0/0,chksum
     image: ios-xr/xrd-control-plane:7.8.1
     networks:
