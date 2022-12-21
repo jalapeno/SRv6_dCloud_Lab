@@ -22,10 +22,10 @@ confirm PE and P roles. Last you will create basic SRv6 configuration on routers
 ## 1. Lab Objectives
 The student upon completion of Lab 1 should have achieved the following objectives
 
-    * Access to all devices in the lab
-    * Understanding of the lab topology and components
-    * Understanding of basic configuration for SR-MPLS
-    * Understanding of basic configuration for SRv6
+* Access to all devices in the lab
+* Understanding of the lab topology and components
+* Understanding of basic configuration for SR-MPLS
+* Understanding of basic configuration for SRv6
    
 
 ## 2. Validate Device Access
@@ -46,8 +46,10 @@ For full size image see [LINK](/topo_drawings/management-network.png)
 
 ### Validate XRD
 1. SSH to the Ubuntu VM XRD which is using Docker to host the XRD application
+
 2. Change to the Git repository directory
     - The lab repository folder is found in the home directory ~/SRv6_dCloud_Lab/
+
 3. Validate there are no docker containers running or docker networks for XRD
     ```
     cisco@xrd:~/SRv6_dCloud_Lab/lab_0$ docker ps
@@ -78,6 +80,8 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     Creating xrd07 ... done
     Creating xrd01 ... done
     ```
+    Look for status of `done` for each xrd 01 -> 07
+
 5. Check that the docker containers were created and running
     ```
     cisco@xrd:~/SRv6_dCloud_Lab/lab_0$ docker ps
@@ -138,7 +142,7 @@ For full size image see [LINK](/topo_drawings/management-network.png)
 ### Validate Client VMs
 __Amsterdam__
 1. SSH to Amsterdam Client VM from your laptop. 
-2. Check that the interface to router xrd01 is UP and has the assigned IP 10.101.1.1/24
+2. Check that the interface to router xrd01 is `UP` and has the assigned IP `10.101.1.1/24`
     ```
     cisco@amsterdam:~$ ip address show ens192
     3: ens192: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
@@ -163,7 +167,7 @@ __Amsterdam__
 
 __Rome__
 1. SSH to Rome Client VM from your laptop. 
-2. Check that the interface to router xrd07 is UP and has the assigned IP 10.107.1.1/24
+2. Check that the interface to router xrd07 is `UP` and has the assigned IP `10.107.1.1/24`
     ```
     cisco@rome:~$ ip address show ens192
     3: ens192: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
