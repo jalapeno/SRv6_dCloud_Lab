@@ -1,5 +1,5 @@
 ## Intro to Jalapeno
-### Configure BGP Monitoring Protocol (BMP) and Install open-source Jalapeno package
+### Configure BGP Monitoring Protocol (BMP), Streaming Telemetry, and install open-source Jalapeno package
 
 R05
 ```
@@ -144,7 +144,7 @@ example: kubectl describe pod -n jalapeno topology-678ddb8bb4-rt9jg
 ```
 6. Install Jalapeno SR-Processors
 ```
-cd ~/sr-processors/
+cd ~/SRv6_dCloud_Lab/lab_4/
 kubectl apply -f sr-node.yaml 
 kubectl apply -f sr-topology.yaml 
 
