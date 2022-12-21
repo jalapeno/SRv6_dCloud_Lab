@@ -1,6 +1,6 @@
 import argparse
 import json
-from rome import least_util, low_latency, data_sovereignty, get_paths
+from rome import src_dst, lu, ll, ds, gp
 
 def main():
     parser = argparse.ArgumentParser(
@@ -35,34 +35,25 @@ def main():
     intf = sd[interface]
     ctr = sd[country]
 
+    sd_tuple = src_dst.get_src_dst(src, dst, user, pw, dbname)
+    #print(sd)
+    st = sd_tuple[0]
+    dt = sd_tuple[1]
     if encap == "srv6":
         if service == "lu":
-            srv6_lu = least_util.lu_calc(src, dst, user, pw, dbname, intf)
+            srv6_lu = lu.lu_calc(st, dt, user, pw, dbname, intf)
         if service == "ll":
-            srv6_ll = low_latency.ll_calc(src, dst, user, pw, dbname, intf)  
+            srv6_ll = ll.ll_calc(st, dt, user, pw, dbname, intf)  
         if service == "ds":
-            srv6_ds = data_sovereignty.ds_calc(src, dst, user, pw, dbname, ctr, intf)
+            srv6_ds = ds.ds_calc(st, dt, user, pw, dbname, ctr, intf)
         if service == "gp":
-            srv6_gp = get_paths.gp_calc(src, dst, user, pw, dbname)
+            srv6_gp = gp.gp_calc(st, dt, user, pw, dbname)
         
         else:
             print(""" 
             Please specify a service (ll, lu, ds, vpn)
             
             """)
-
-    # if encap == "sr": 
-    #     if service == "lu":
-    #         srv6_lu = least_util.lu_calc(src, dst, user, pw, dbname, intf)
-    #     if service == "ll":
-    #         srv6_ll = low_latency.ll_calc(src, dst, user, pw, dbname, intf)  
-    #     if service == "ds":
-    #         srv6_ll = data_sovereignty.ds_calc(src, dst, user, pw, dbname, ctr, intf)
-    #     else:
-    #         print(""" 
-    #         Please specify a service (ll, lu, ds, vpn)
-            
-    #         """)
 
 if __name__ == '__main__':
     main()

@@ -2,7 +2,7 @@ from arango import ArangoClient
 
 def get_src_dst(src, dst, user, pw, dbname):
 
-    client = ArangoClient(hosts='http://52.11.224.254:30852')
+    client = ArangoClient(hosts='http://198.18.1.101:30852')
     db = client.db(dbname, username=user, password=pw)
 
     aql = db.aql

@@ -23,15 +23,15 @@ def gp_calc(src, dst, user, pw, dbname):
             #print(key, ":", path[index][key])
             if key == "sid":
                 #print("sid: ", path[index][key])
-                sids = path[index][key]
+                locators = path[index][key]
                 usid_block = 'fc00:0:'
-                #print("sids: ", sids)
-                for sid in list(sids):
+                #print("locators: ", locators)
+                for sid in list(locators):
                     if sid == None:
-                        sids.remove(sid)
-                print("sids: ", sids)
+                        locators.remove(sid)
+                print("locators: ", locators)
                 usid = []
-                for s in sids:
+                for s in locators:
                     if s != None and usid_block in s:
                         usid_list = s.split(usid_block)
                         #print(usid_list)

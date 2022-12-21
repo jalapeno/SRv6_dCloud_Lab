@@ -9,8 +9,7 @@ def ll_calc(src, dst, user, pw, dbname, intf):
 
     client = ArangoClient(hosts='http://198.18.1.101:30852')
     db = client.db(dbname, username=user, password=pw)
-    print("source id: ", src)
-    print("dest id: ", dst)
+
     aql = db.aql
     cursor = db.aql.execute("""for v, e in outbound shortest_path """ + '"%s"' % src +  """ \
         TO """ + '"%s"' % dst +  """ sr_topology \
@@ -27,16 +26,15 @@ def ll_calc(src, dst, user, pw, dbname, intf):
     sid = 'sid'
     usid_block = 'fc00:0:'
 
-    sids = [a_dict[sid] for a_dict in path]
-    print(sids)
+    locators = [a_dict[sid] for a_dict in path]
 
-    for sid in list(sids):
+    for sid in list(locators):
         if sid == None:
-            sids.remove(sid)
-    print(sids)
+            locators.remove(sid)
+    print("locators: ", locators)
 
     usid = []
-    for s in sids:
+    for s in locators:
         if s != None and usid_block in s:
             usid_list = s.split(usid_block)
             sid = usid_list[1]

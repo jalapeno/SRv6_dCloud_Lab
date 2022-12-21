@@ -23,16 +23,16 @@ def ds_calc(src, dst, user, pw, dbname, ctr, intf):
     print("path: ", path)
 
     pdict = path[0]
-    sids = pdict['sid']
+    locators = pdict['sid']
     usid_block = 'fc00:0:'
-    print("sids: ", sids)
 
-    for sid in list(sids):
+    for sid in list(locators):
         if sid == None:
-            sids.remove(sid)
+            locators.remove(sid)
+    print("locators: ", locators)
 
     usid = []
-    for s in sids:
+    for s in locators:
         if s != None and usid_block in s:
             usid_list = s.split(usid_block)
             sid = usid_list[1]
