@@ -5,7 +5,7 @@ from arango import ArangoClient
 from . import add_route
 
 # Query DB for a path that avoids a given country and return srv6 SID
-def ds_calc(src, dst, user, pw, dbname, ctr, intf):
+def ds_calc(src, dst, user, pw, dbname, ctr, intf, route):
 
     client = ArangoClient(hosts='http://198.18.1.101:30852')
     db = client.db(dbname, username=user, password=pw)
@@ -63,9 +63,9 @@ def ds_calc(src, dst, user, pw, dbname, ctr, intf):
         }
 
     pathobj = json.dumps(pathdict, indent=4)
-    with open('log/data_sovereignty_log.json', 'w') as f:
+    with open('netservice/log/srv6_data_sovereignty.json', 'w') as f:
         sys.stdout = f 
         print(pathobj)
 
-    route = add_route.add_linux_route(dst, srv6_sid, intf)
-    print("adding linux route: ", route)
+    route_add = add_route.add_linux_route(dst, srv6_sid, intf, route)
+    #print("adding route: ", route_add, "type: ", route)

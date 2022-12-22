@@ -2,7 +2,7 @@
     "source": "10.0.0.7",
     "destination": "10.0.0.1",
     "interface": "ens192",
-    "route": "linux",
+    "route": "vpp",
     "country": "FRA",
     "username": "root",
     "password": "jalapeno",
