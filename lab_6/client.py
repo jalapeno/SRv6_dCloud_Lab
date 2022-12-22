@@ -37,19 +37,24 @@ def main():
     route = sd[route]
     ctr = sd[country]
 
-    sd_tuple = src_dst.get_src_dst(src, dst, user, pw, dbname)
-    #print(sd)
-    st = sd_tuple[0]
-    dt = sd_tuple[1]
+    srcpfxsplit = list(src.split('/'))
+    srcprefix = srcpfxsplit[0]
+    dstpfxsplit = list(dst.split('/'))
+    dstprefix = dstpfxsplit[0]
+
+    sd_tuple = src_dst.get_src_dst(srcprefix, dstprefix, user, pw, dbname)
+    print(sd_tuple)
+    src_id = sd_tuple[0]
+    dst_id = sd_tuple[1]
     if encap == "srv6":
         if service == "lu":
-            srv6_lu = lu.lu_calc(st, dt, user, pw, dbname, intf, route)
+            srv6_lu = lu.lu_calc(src_id, dst_id, dst, user, pw, dbname, intf, route)
         if service == "ll":
-            srv6_ll = ll.ll_calc(st, dt, user, pw, dbname, intf, route)  
+            srv6_ll = ll.ll_calc(src_id, dst_id, dst, user, pw, dbname, intf, route)  
         if service == "ds":
-            srv6_ds = ds.ds_calc(st, dt, user, pw, dbname, ctr, intf, route)
+            srv6_ds = ds.ds_calc(src_id, dst_id, dst, user, pw, dbname, ctr, intf, route)
         if service == "gp":
-            srv6_gp = gp.gp_calc(st, dt, user, pw, dbname)
+            srv6_gp = gp.gp_calc(src_id, dst_id, user, pw, dbname)
         
         else:
             print(""" 
@@ -57,13 +62,13 @@ def main():
             """)
     if encap == "sr":
         if service == "lu":
-            sr_lu = lu.lu_calc(st, dt, user, pw, dbname, intf, route)
+            sr_lu = lu.lu_calc(src_id, dst_id, dst, user, pw, dbname, intf, route)
         if service == "ll":
-            sr_ll = ll.ll_calc(st, dt, user, pw, dbname, intf, route)  
+            sr_ll = ll.ll_calc(src_id, dst_id, dst, user, pw, dbname, intf, route)  
         if service == "ds":
-            sr_ds = ds.ds_calc(st, dt, user, pw, dbname, ctr, intf, route)
+            sr_ds = ds.ds_calc(src_id, dst_id, dst, user, pw, dbname, ctr, intf, route)
         if service == "gp":
-            sr_gp = gp.sr_gp_calc(st, dt, user, pw, dbname)
+            sr_gp = gp.sr_gp_calc(src_id, dst_id, dst, user, pw, dbname)
         
         else:
             print(""" 
