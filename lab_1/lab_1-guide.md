@@ -191,7 +191,10 @@ __Rome__
     ```
 
 ### Connect to Routers
-1. Starting from the XRD VM log into each routers instance 1-7 consulting the management topology diagram above
+1. Starting from the XRD VM log into each routers instance 1-7 consulting the management topology diagram above. Example:
+```
+ssh cisco@xrd01
+```
 
 2. Confirm that the configured interfaces are in an `UP | UP` state
     ```
@@ -361,7 +364,14 @@ For a deeper dive into SR-MPLS please [LINK](/SR-MPLS.md)
 In Lab 1 we will add some basic SR-MPLS commands to xrd01 -> xrd07. 
 For documentation on SR-MPLS configuration in IOS-XR see [LINK](https://www.cisco.com/c/en/us/td/docs/iosxr/cisco8000/segment-routing/75x/b-segment-routing-cg-cisco8000-75x/configuring-segment-routing-for-is-is-protocol.html)
 
-1. Enable SR-MPLS for ISIS Procotol. 
+1. Enable SR-MPLS globally and define an SRGB (we use 100000 - 163999 for easy reading)
+```
+segment-routing 
+ global-block 100000 163999
+ commit
+```
+
+2. Enable SR-MPLS for ISIS Procotol. 
     ```
     RP/0/RP0/CPU0:xrd01(config)#router isis 100    
     RP/0/RP0/CPU0:xrd01(config-isis)#address-family ipv4
