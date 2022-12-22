@@ -277,24 +277,24 @@ For full size image see [LINK](/topo_drawings/bgp-topology-large.png)
     fc00:0:5::1       0 65000 iBGPv6 to xrd05 RR                   00:22:02 Established 
     fc00:0:6::1       0 65000 iBGPv6 to xrd06 RR                   00:21:16 Established 
     ``` 
-2. Verify that router xrd01 is advertising the attached network 10.101.1.0/24
+2. Verify that router xrd01 is advertising the attached network ```10.101.1.0/24```
     ```
     RP/0/RP0/CPU0:xrd01#show ip bgp advertised summary
     Network            Next Hop        From            Advertised to
     10.0.0.1/32        10.0.0.1        Local           10.0.0.5
-                                    Local           10.0.0.6
+                                       Local           10.0.0.6
     10.101.1.0/24      10.0.0.1        Local           10.0.0.5
-                                    Local           10.0.0.6
+                                       Local           10.0.0.6
     ```
-3. Verify that router xrd07 is advertising the attached network 10.107.1.0/24
+3. Verify that router xrd07 is advertising the attached network ```10.107.1.0/24```
     ```
     RP/0/RP0/CPU0:xrd07#show ip bgp advertised summary
     Thu Dec 22 17:53:57.114 UTC
     Network            Next Hop        From            Advertised to
     10.0.0.7/32        10.0.0.7        Local           10.0.0.5
-                                    Local           10.0.0.6
+                                       Local           10.0.0.6
     10.107.1.0/24      10.0.0.7        Local           10.0.0.5
-                                    Local           10.0.0.6
+                                       Local           10.0.0.6
     ```
 4. Verify that router xrd01 has received route ```10.107.1.0/24``` from the route reflectors xrd05 and xrd07. Look for ```Paths: (2 available)```
     ```
