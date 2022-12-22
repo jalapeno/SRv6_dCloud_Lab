@@ -15,8 +15,8 @@ confirm PE and P roles. Last you will create basic SRv6 configuration on routers
     - [Connect to Routers](#connect-to-routers)
 3. [Validate ISIS Topology](#validate-isis-topology)
 4. [Validate BGP Topology](#validate-bgp-topology)
-5. Configure and validate SR-MPLS
-6. Configure and validate SRv6
+5. [Configure and validate SR-MPLS](#sr-mpls)
+6. [Configure and validate SRv6](#srv6)
 
 
 ## 1. Lab Objectives
@@ -252,3 +252,8 @@ In this lab we are using BGP for SRv6 route/community exchange. In the lab we ar
 ![BGP Topology](/topo_drawings/bgp-topology-medium.png)
 
 For full size image see [LINK](/topo_drawings/bgp-topology-large.png)
+
+## SR-MPLS
+
+
+## SRv6
