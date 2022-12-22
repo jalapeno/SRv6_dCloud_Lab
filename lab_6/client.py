@@ -1,5 +1,6 @@
 import argparse
 import json
+import sys
 from netservice import src_dst, lu, ll, ds, gp
 
 def main():
@@ -47,19 +48,26 @@ def main():
     src_id = sd_tuple[0]
     dst_id = sd_tuple[1]
     if encap == "srv6":
-        if service == "lu":
-            srv6_lu = lu.lu_calc(src_id, dst_id, dst, user, pw, dbname, intf, route)
-        if service == "ll":
-            srv6_ll = ll.ll_calc(src_id, dst_id, dst, user, pw, dbname, intf, route)  
         if service == "ds":
             srv6_ds = ds.ds_calc(src_id, dst_id, dst, user, pw, dbname, ctr, intf, route)
+        with open('netservice/log/srv6_data_sovereignty.json', 'w') as f:
+            sys.stdout = f 
+            print(srv6_ds)
+
         if service == "gp":
-            srv6_gp = gp.gp_calc(src_id, dst_id, user, pw, dbname)
+            srv6_gp = gp.gp_calc(src_id, dst_id, user, pw, dbname)            
+            
+        if service == "ll":
+            srv6_ll = ll.ll_calc(src_id, dst_id, dst, user, pw, dbname, intf, route)  
+
+        if service == "lu":
+            srv6_lu = lu.lu_calc(src_id, dst_id, dst, user, pw, dbname, intf, route)
+
         
-        else:
-            print(""" 
-            Please specify a service: ll, lu, ds, or gp
-            """)
+        # else:
+        #     print(""" 
+        #     Please specify a service: ll, lu, ds, or gp
+        #     """)
     if encap == "sr":
         if service == "lu":
             sr_lu = lu.lu_calc(src_id, dst_id, dst, user, pw, dbname, intf, route)
