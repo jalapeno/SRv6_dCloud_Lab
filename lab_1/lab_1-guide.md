@@ -286,8 +286,7 @@ For full size image see [LINK](/topo_drawings/bgp-topology-large.png)
     10.101.1.0/24      10.0.0.1        Local           10.0.0.5
                                        Local           10.0.0.6
     ```
-3. Verify that router xrd07 is advertising the attached network ```10.107.1.0/24```
-    
+3. Verify that router xrd07 is advertising the attached network ```10.107.1.0/24```   
     ```
     RP/0/RP0/CPU0:xrd07#show ip bgp advertised summary
     Thu Dec 22 17:53:57.114 UTC
@@ -297,8 +296,7 @@ For full size image see [LINK](/topo_drawings/bgp-topology-large.png)
     10.107.1.0/24      10.0.0.7        Local           10.0.0.5
                                        Local           10.0.0.6
     ```
-4. Verify that router xrd01 has received route ```10.107.1.0/24``` from the route reflectors xrd05 and xrd07.
-Look for ```Paths: (2 available)```
+4. Verify that router xrd01 has received route ```10.107.1.0/24``` from the route reflectors xrd05 and xrd07. Look for ```Paths: (2 available)```
     ```
     RP/0/RP0/CPU0:xrd01#show ip bgp 10.107.1.0/24
     BGP routing table entry for 10.107.1.0/24
@@ -326,8 +324,7 @@ Look for ```Paths: (2 available)```
         Received Path ID 0, Local Path ID 0, version 0
         Originator: 10.0.0.7, Cluster list: 10.0.0.6
     ```
-5. Verify that router xrd07 has received route ```10.101.1.0/24``` from the route reflectors xrd05 and xrd07.
-   Look for ```Paths: (2 available)```
+5. Verify that router xrd07 has received route ```10.101.1.0/24``` from the route reflectors xrd05 and xrd07. Look for ```Paths: (2 available)```
     ```
     RP/0/RP0/CPU0:xrd07#show ip bgp 10.101.1.0/24
     Thu Dec 22 17:59:31.604 UTC
@@ -361,6 +358,46 @@ Segment Routing (SR) is a source-based routing architecture. A node chooses a pa
 
 For a deeper dive into SR-MPLS please [LINK](/SR-MPLS.md)
 
-In Lab 1 we will add some basic SR-MPLS commands to xrd01 -> xrd07
+In Lab 1 we will add some basic SR-MPLS commands to xrd01 -> xrd07. 
+For documentation on SR-MPLS configuration in IOS-XR see [LINK](https://www.cisco.com/c/en/us/td/docs/iosxr/cisco8000/segment-routing/75x/b-segment-routing-cg-cisco8000-75x/configuring-segment-routing-for-is-is-protocol.html)
+
+1. Enable SR-MPLS for ISIS Procotol. 
+    ```
+    RP/0/RP0/CPU0:xrd01(config)#router isis 100    
+    RP/0/RP0/CPU0:xrd01(config-isis)#address-family ipv4
+    RP/0/RP0/CPU0:xrd01(config-isis-af)#segment-routing mpls
+    RP/0/RP0/CPU0:xrd01(config-isis)#commit
+    ```
+2. Configure a Prefix-SID on ISIS Loopback Interface
+    A prefix segment identifier (SID) is associated with an IP prefix. The prefix SID is manually configured from the segment routing global block. A prefix SID is configured under the loopback interface with the loopback address of the node as the prefix. The prefix segment steers the traffic along the shortest path to its destination. Consult the table below then configure the prefix SID on routes xrd01 -> xrd07
+
+    | Router Name | Loopback Int| Prefix-SID |                                           
+    |:------------|:-----------:|:----------:|                          
+    | xrd01       | loopback 0  | 1          |
+    | xrd02       | loopback 0  | 2          |
+    | xrd03       | loopback 0  | 3          |
+    | xrd04       | loopback 0  | 4          |
+    | xrd05       | loopback 0  | 5          |
+    | xrd06       | loopback 0  | 6          |
+    | xrd07       | loopback 0  | 7          |
+
+    ```
+    RP/0/RP0/CPU0:xrd01(config)#router isis 100
+    RP/0/RP0/CPU0:xrd01(config-isis)#interface loopback 0
+    RP/0/RP0/CPU0:xrd01(config-isis-if)#address-family ipv4 unicast 
+    RP/0/RP0/CPU0:xrd01(config-isis-if-af)#prefix-sid index 1
+    RP/0/RP0/CPU0:xrd01(config-isis-if-af)#commit
+    ```
+
+3. Verify that ISIS Prefix-SID configuartion. As example for xrd01 look for ```Prefix-SID Index: 1```
+    ```
+    RP/0/RP0/CPU0:xrd01#show isis database verbose | i Prefix-SID
+        Prefix-SID Index: 1, Algorithm:0, R:0 N:1 P:0 E:0 V:0 L:0
+        Prefix-SID Index: 1, Algorithm:0, R:0 N:1 P:0 E:0 V:0 L:0
+    RP/0/RP0/CPU0:xrd01#
+    ```
+
+
+
 
 ## SRv6
