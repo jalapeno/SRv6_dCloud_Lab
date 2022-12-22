@@ -227,7 +227,8 @@ In this lab we are using ISIS as the underlying IGP to establish link connectivi
 For full size image see [LINK](/topo_drawings/isis-topology-large.png)
 
 1. Log into each router and verify that ISIS is up and running on interfaces as identified in the ISIS topology diagram.
-    ```RP/0/RP0/CPU0:xrd03#show isis interface brief
+    ```
+    RP/0/RP0/CPU0:xrd03#show isis interface brief
     Thu Dec 22 17:45:24.348 UTC
 
     IS-IS 100 Interfaces
@@ -237,7 +238,7 @@ For full size image see [LINK](/topo_drawings/isis-topology-large.png)
     Lo0                Yes    -    -      0/0        2/2     No       -    -    - 
     Gi0/0/0/0          Yes    -    1      2/2        2/2     Up    1497    -    - 
     Gi0/0/0/1          Yes    -    1      2/2        2/2     Up    1497    -    - 
-```
+    ```
 
 2. The ISIS topology can be validated from any router. The command output will vary slightly based on router used.
     ```
