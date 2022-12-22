@@ -381,7 +381,21 @@ For documentation on SR-MPLS configuration in IOS-XR see [LINK](https://www.cisc
     | xrd06       | loopback 0  | 6          |
     | xrd07       | loopback 0  | 7          |
 
-    
+    ```
+    RP/0/RP0/CPU0:xrd01(config)#router isis 100
+    RP/0/RP0/CPU0:xrd01(config-isis)#interface loopback 0
+    RP/0/RP0/CPU0:xrd01(config-isis-if)#address-family ipv4 unicast 
+    RP/0/RP0/CPU0:xrd01(config-isis-if-af)#prefix-sid index 1
+    RP/0/RP0/CPU0:xrd01(config-isis-if-af)#commit
+    ```
+
+3. Verify that ISIS Prefix-SID configuartion. As example for xrd01 look for ```Prefix-SID Index: 1```
+    ```
+    RP/0/RP0/CPU0:xrd01#show isis database verbose | i Prefix-SID
+        Prefix-SID Index: 1, Algorithm:0, R:0 N:1 P:0 E:0 V:0 L:0
+        Prefix-SID Index: 1, Algorithm:0, R:0 N:1 P:0 E:0 V:0 L:0
+    RP/0/RP0/CPU0:xrd01#
+    ```
 
 
 
