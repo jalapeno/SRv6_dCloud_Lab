@@ -105,6 +105,4 @@ def sr_gp_calc(src, dst, user, pw, dbname):
         }
 
     pathobj = json.dumps(pathdict, indent=4)
-    with open('netservice/log/sr_get_paths.json', 'w') as f:
-        sys.stdout = f 
-        print(pathobj)
+    return(pathobj)

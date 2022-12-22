@@ -61,9 +61,6 @@ def ll_calc(src_id, dst_id, dst, user, pw, dbname, intf, route):
         }
 
     print("route_add parameters = sid: ", srv6_sid, "dest: ", dst, "intf: ", intf, "route type: ", route)
-    pathobj = json.dumps(pathdict, indent=4)
-    with open('netservice/log/srv6_low_latency.json', 'w') as f:
-        sys.stdout = f 
-        print(pathobj)
-
     route_add = add_route.add_linux_route(dst, srv6_sid, intf, route)
+    pathobj = json.dumps(pathdict, indent=4)
+    return pathobj

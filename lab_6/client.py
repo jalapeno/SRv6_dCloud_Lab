@@ -50,19 +50,24 @@ def main():
     if encap == "srv6":
         if service == "ds":
             srv6_ds = ds.ds_calc(src_id, dst_id, dst, user, pw, dbname, ctr, intf, route)
-        with open('netservice/log/srv6_data_sovereignty.json', 'w') as f:
-            sys.stdout = f 
-            print(srv6_ds)
-
+            with open('netservice/log/srv6_data_sovereignty.json', 'w') as f:
+                sys.stdout = f 
+                print(srv6_ds)
         if service == "gp":
-            srv6_gp = gp.gp_calc(src_id, dst_id, user, pw, dbname)            
-            
+            srv6_gp = gp.gp_calc(src_id, dst_id, user, pw, dbname)  
+            with open('netservice/log/srv6_get_paths.json', 'w') as f:
+                sys.stdout = f 
+                print(srv6_gp)                 
         if service == "ll":
-            srv6_ll = ll.ll_calc(src_id, dst_id, dst, user, pw, dbname, intf, route)  
-
+            srv6_ll = ll.ll_calc(src_id, dst_id, dst, user, pw, dbname, intf, route) 
+            with open('netservice/log/srv6_low_latency.json', 'w') as f:
+                sys.stdout = f 
+                print(srv6_ll) 
         if service == "lu":
             srv6_lu = lu.lu_calc(src_id, dst_id, dst, user, pw, dbname, intf, route)
-
+            with open('netservice/log/srv6_least_util.json', 'w') as f:
+                sys.stdout = f 
+                print(srv6_lu)
         
         # else:
         #     print(""" 

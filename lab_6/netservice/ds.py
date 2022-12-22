@@ -61,12 +61,9 @@ def ds_calc(src_id, dst_id, dst, user, pw, dbname, ctr, intf, route):
             'sid': srv6_sid,
             'path': path
         }
-
+        
+    print("route_add parameters: sid: ", srv6_sid, "dest: ", dst, "intf: ", intf, "route type: ", route)
     route_add = add_route.add_linux_route(dst, srv6_sid, intf, route)
-    print("route_add parameters: ", route_add, "sid: ", srv6_sid, "dest: ", dst, "intf: ", intf, "route type: ", route)
     pathobj = json.dumps(pathdict, indent=4)
     return pathobj
-    with open('netservice/log/srv6_data_sovereignty.json', 'w') as f:
-        sys.stdout = f 
-        print(pathobj)
 
