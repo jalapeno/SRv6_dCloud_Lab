@@ -67,8 +67,9 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     cisco@xrd:~/SRv6_dCloud_Lab$ cd lab_0
     cisco@xrd:~/SRv6_dCloud_Lab/lab_0$
     ```
+    - run setup script
     ``` 
-    run sudo ./setup-lab_0.sh
+    sudo ./setup-lab_0.sh
     ```
     - Look for the below output from the end of the script confirming XRD instances 1-7 were created
     ```
