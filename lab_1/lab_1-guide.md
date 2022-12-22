@@ -15,8 +15,8 @@ confirm PE and P roles. Last you will create basic SRv6 configuration on routers
     - [Connect to Routers](#connect-to-routers)
 3. [Validate ISIS Topology](#validate-isis-topology)
 4. [Validate BGP Topology](#validate-bgp-topology)
-5. Configure and validate SR-MPLS
-6. Configure and validate SRv6
+5. [Configure and validate SR-MPLS](#sr-mpls)
+6. [Configure and validate SRv6](#srv6)
 
 
 ## 1. Lab Objectives
@@ -226,7 +226,21 @@ In this lab we are using ISIS as the underlying IGP to establish link connectivi
 
 For full size image see [LINK](/topo_drawings/isis-topology-large.png)
 
-The ISIS topology can be validated from any router. The command output will vary slightly based on router used.
+1. Log into each router and verify that ISIS is up and running on interfaces as identified in the ISIS topology diagram.
+    ```
+    RP/0/RP0/CPU0:xrd03#show isis interface brief
+    Thu Dec 22 17:45:24.348 UTC
+
+    IS-IS 100 Interfaces
+        Interface      All     Adjs    Adj Topos  Adv Topos  CLNS   MTU    Prio  
+                    OK    L1   L2    Run/Cfg    Run/Cfg                L1   L2
+    -----------------  ---  ---------  ---------  ---------  ----  ----  --------
+    Lo0                Yes    -    -      0/0        2/2     No       -    -    - 
+    Gi0/0/0/0          Yes    -    1      2/2        2/2     Up    1497    -    - 
+    Gi0/0/0/1          Yes    -    1      2/2        2/2     Up    1497    -    - 
+    ```
+
+2. The ISIS topology can be validated from any router. The command output will vary slightly based on router used.
     ```
     RP/0/RP0/CPU0:xrd03#show isis topology
 
@@ -252,3 +266,101 @@ In this lab we are using BGP for SRv6 route/community exchange. In the lab we ar
 ![BGP Topology](/topo_drawings/bgp-topology-medium.png)
 
 For full size image see [LINK](/topo_drawings/bgp-topology-large.png)
+
+1. Log into each router listed in the BGP topology diagram and verify neighbors
+    ```
+    RP/0/RP0/CPU0:xrd01#show ip bgp neighbors brief
+
+    Neighbor        Spk    AS Description                          Up/Down  NBRState
+    10.0.0.5          0 65000 iBGP to xrd05 RR                     00:18:07 Established 
+    10.0.0.6          0 65000 iBGP to xrd06 RR                     00:18:24 Established 
+    fc00:0:5::1       0 65000 iBGPv6 to xrd05 RR                   00:22:02 Established 
+    fc00:0:6::1       0 65000 iBGPv6 to xrd06 RR                   00:21:16 Established 
+    ``` 
+2. Verify that router xrd01 is advertising the attached network ```10.101.1.0/24```
+    ```
+    RP/0/RP0/CPU0:xrd01#show ip bgp advertised summary
+    Network            Next Hop        From            Advertised to
+    10.0.0.1/32        10.0.0.1        Local           10.0.0.5
+                                       Local           10.0.0.6
+    10.101.1.0/24      10.0.0.1        Local           10.0.0.5
+                                       Local           10.0.0.6
+    ```
+3. Verify that router xrd07 is advertising the attached network ```10.107.1.0/24```
+    
+    ```
+    RP/0/RP0/CPU0:xrd07#show ip bgp advertised summary
+    Thu Dec 22 17:53:57.114 UTC
+    Network            Next Hop        From            Advertised to
+    10.0.0.7/32        10.0.0.7        Local           10.0.0.5
+                                       Local           10.0.0.6
+    10.107.1.0/24      10.0.0.7        Local           10.0.0.5
+                                       Local           10.0.0.6
+    ```
+4. Verify that router xrd01 has received route ```10.107.1.0/24``` from the route reflectors xrd05 and xrd07.
+Look for ```Paths: (2 available)```
+    ```
+    RP/0/RP0/CPU0:xrd01#show ip bgp 10.107.1.0/24
+    BGP routing table entry for 10.107.1.0/24
+    Versions:
+    Process           bRIB/RIB  SendTblVer
+    Speaker                  16           16
+        Local Label: 24003
+    Last Modified: Dec 22 17:31:37.792 for 00:24:38
+    Paths: (2 available, best #1)
+    Not advertised to any peer
+    Path #1: Received by speaker 0
+    Not advertised to any peer
+    Local
+        10.0.0.7 (metric 3) from 10.0.0.5 (10.0.0.7)
+        Received Label 3 
+        Origin IGP, metric 0, localpref 100, valid, internal, best, group-best, labeled-unicast
+        Received Path ID 0, Local Path ID 1, version 16
+        Originator: 10.0.0.7, Cluster list: 10.0.0.5
+    Path #2: Received by speaker 0
+    Not advertised to any peer
+    Local
+        10.0.0.7 (metric 3) from 10.0.0.6 (10.0.0.7)
+        Received Label 3 
+        Origin IGP, metric 0, localpref 100, valid, internal, labeled-unicast
+        Received Path ID 0, Local Path ID 0, version 0
+        Originator: 10.0.0.7, Cluster list: 10.0.0.6
+    ```
+5. Verify that router xrd07 has received route ```10.101.1.0/24``` from the route reflectors xrd05 and xrd07.
+   Look for ```Paths: (2 available)```
+    ```
+    RP/0/RP0/CPU0:xrd07#show ip bgp 10.101.1.0/24
+    Thu Dec 22 17:59:31.604 UTC
+    BGP routing table entry for 10.101.1.0/24
+    Versions:
+    Process           bRIB/RIB  SendTblVer
+    Speaker                  15           15
+    Last Modified: Dec 22 17:31:37.792 for 00:27:53
+    Paths: (2 available, best #1)
+    Not advertised to any peer
+    Path #1: Received by speaker 0
+    Not advertised to any peer
+    Local
+        10.0.0.1 (metric 3) from 10.0.0.5 (10.0.0.1)
+        Origin IGP, metric 0, localpref 100, valid, internal, best, group-best
+        Received Path ID 0, Local Path ID 1, version 15
+        Originator: 10.0.0.1, Cluster list: 10.0.0.5
+    Path #2: Received by speaker 0
+    Not advertised to any peer
+    Local
+        10.0.0.1 (metric 3) from 10.0.0.6 (10.0.0.1)
+        Received Label 3 
+        Origin IGP, metric 0, localpref 100, valid, internal, labeled-unicast
+        Received Path ID 0, Local Path ID 0, version 0
+        Originator: 10.0.0.1, Cluster list: 10.0.0.6
+    ```
+
+## SR-MPLS
+
+Segment Routing (SR) is a source-based routing architecture. A node chooses a path and steers a packet through the network via that path by inserting an ordered list of the segment, instructing how subsequent nodes in the path, that receive the packet, should process it. This simplifies operations and reduces resource requirements in the network by removing network state information from intermediary nodes and path information is encoded as an ordered list of segments in label stack at the ingress node. In addition to this, because the shortest-path segment includes all Equal-Cost Multi-Path (ECMP) paths to the related node, SR supports the ECMP nature of IP by design.
+
+For a deeper dive into SR-MPLS please [LINK](/SR-MPLS.md)
+
+In Lab 1 we will add some basic SR-MPLS commands to xrd01 -> xrd07
+
+## SRv6
