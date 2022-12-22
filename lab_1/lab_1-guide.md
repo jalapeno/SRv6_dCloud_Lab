@@ -287,6 +287,7 @@ For full size image see [LINK](/topo_drawings/bgp-topology-large.png)
                                        Local           10.0.0.6
     ```
 3. Verify that router xrd07 is advertising the attached network ```10.107.1.0/24```
+    
     ```
     RP/0/RP0/CPU0:xrd07#show ip bgp advertised summary
     Thu Dec 22 17:53:57.114 UTC
@@ -296,7 +297,8 @@ For full size image see [LINK](/topo_drawings/bgp-topology-large.png)
     10.107.1.0/24      10.0.0.7        Local           10.0.0.5
                                        Local           10.0.0.6
     ```
-4. Verify that router xrd01 has received route ```10.107.1.0/24``` from the route reflectors xrd05 and xrd07. Look for ```Paths: (2 available)```
+4. Verify that router xrd01 has received route ```10.107.1.0/24``` from the route reflectors xrd05 and xrd07.
+Look for ```Paths: (2 available)```
     ```
     RP/0/RP0/CPU0:xrd01#show ip bgp 10.107.1.0/24
     BGP routing table entry for 10.107.1.0/24
@@ -324,7 +326,8 @@ For full size image see [LINK](/topo_drawings/bgp-topology-large.png)
         Received Path ID 0, Local Path ID 0, version 0
         Originator: 10.0.0.7, Cluster list: 10.0.0.6
     ```
-5. 4. Verify that router xrd07 has received route ```10.101.1.0/24``` from the route reflectors xrd05 and xrd07. Look for ```Paths: (2 available)```
+5. Verify that router xrd07 has received route ```10.101.1.0/24``` from the route reflectors xrd05 and xrd07.
+   Look for ```Paths: (2 available)```
     ```
     RP/0/RP0/CPU0:xrd07#show ip bgp 10.101.1.0/24
     Thu Dec 22 17:59:31.604 UTC
