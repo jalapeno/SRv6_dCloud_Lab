@@ -6,7 +6,7 @@ def main():
     parser = argparse.ArgumentParser(
         prog = 'Jalapeno client',
         description = 'takes command line input and calls path calculator functions',
-        epilog = 'client.py -f <json file> -e <sr or srv6> -s <sr, lu, ds, or gp> ')
+        epilog = 'client.py -f <json file> -e <sr or srv6> -s <ll, lu, ds, or gp> ')
     parser.add_argument("-e", help="encapsulation type <sr> <srv6>", default="a string")
     parser.add_argument("-f", help="json file with src, dst, parameters", default="a string")  
     parser.add_argument("-s", help="requested network service: sr = low_latency, lu = least_utilized, ds = data_sovereignty, gp = get_paths)", default="a string")
@@ -53,12 +53,12 @@ def main():
         
         else:
             print(""" 
-            Please specify a service: sr, lu, ll, ds, or vpn
+            Please specify a service: ll, lu, ds, or gp
             """)
     if encap == "sr":
         if service == "lu":
             sr_lu = lu.lu_calc(st, dt, user, pw, dbname, intf, route)
-        if service == "sr":
+        if service == "ll":
             sr_ll = ll.ll_calc(st, dt, user, pw, dbname, intf, route)  
         if service == "ds":
             sr_ds = ds.ds_calc(st, dt, user, pw, dbname, ctr, intf, route)
@@ -67,7 +67,7 @@ def main():
         
         else:
             print(""" 
-            Please specify a service: sr, lu, ll, ds, or vpn
+            Please specify a service: ll, lu, ds, or gp
             """)
     # else:
     #     print(""" 

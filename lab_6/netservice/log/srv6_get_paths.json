@@ -46,44 +46,6 @@
             "path": [
                 null,
                 "xrd06",
-                "xrd02",
-                "xrd01",
-                null
-            ],
-            "sid": [
-                "fc00:0:6::",
-                "fc00:0:2::",
-                "fc00:0:1::",
-                {
-                    "srv6_sid": "fc00:0:6:2:1::"
-                }
-            ],
-            "latency": 60,
-            "percent_util_out": 26.666666666666668
-        },
-        {
-            "path": [
-                null,
-                "xrd06",
-                "xrd02",
-                "xrd01",
-                null
-            ],
-            "sid": [
-                "fc00:0:6::",
-                "fc00:0:2::",
-                "fc00:0:1::",
-                {
-                    "srv6_sid": "fc00:0:6:2:1::"
-                }
-            ],
-            "latency": 60,
-            "percent_util_out": 26.666666666666668
-        },
-        {
-            "path": [
-                null,
-                "xrd06",
                 "xrd05",
                 "xrd01",
                 null
@@ -117,6 +79,44 @@
             ],
             "latency": 40,
             "percent_util_out": 43.333333333333336
+        },
+        {
+            "path": [
+                null,
+                "xrd06",
+                "xrd02",
+                "xrd01",
+                null
+            ],
+            "sid": [
+                "fc00:0:6::",
+                "fc00:0:2::",
+                "fc00:0:1::",
+                {
+                    "srv6_sid": "fc00:0:6:2:1::"
+                }
+            ],
+            "latency": 60,
+            "percent_util_out": 26.666666666666668
+        },
+        {
+            "path": [
+                null,
+                "xrd06",
+                "xrd02",
+                "xrd01",
+                null
+            ],
+            "sid": [
+                "fc00:0:6::",
+                "fc00:0:2::",
+                "fc00:0:1::",
+                {
+                    "srv6_sid": "fc00:0:6:2:1::"
+                }
+            ],
+            "latency": 60,
+            "percent_util_out": 26.666666666666668
         },
         {
             "path": [
