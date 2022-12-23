@@ -369,7 +369,7 @@ For documentation on SR-MPLS configuration in IOS-XR see [LINK](https://www.cisc
     RP/0/RP0/CPU0:xrd01(config-isis)#commit
     ```
 2. Configure a Prefix-SID on ISIS Loopback Interface
-    A prefix segment identifier (SID) is associated with an IP prefix. The prefix SID is manually configured from the segment routing global block. A prefix SID is configured under the loopback interface with the loopback address of the node as the prefix. The prefix segment steers the traffic along the shortest path to its destination. Consult the table below then configure the prefix SID on routes xrd01 -> xrd07
+    A prefix segment identifier (SID) is associated with an IP prefix. The prefix SID is manually configured from the segment routing global block. A prefix SID is configured under the loopback interface with the loopback address of the node as the prefix. The prefix segment steers the traffic along the shortest path to its destination. Consult the table below then configure the prefix SID on routes xrd01 -> xrd07.
 
     | Router Name | Loopback Int| Prefix-SID |                                           
     |:------------|:-----------:|:----------:|                          
