@@ -1,8 +1,31 @@
-## Build a POC host-based/cloud-native SRv6 SDN 
+## POC host-based SRv6 and SR-MPLS SDN 
 
 Todo:
 1. Build and test this lab
 2. Writeup lab guide
+
+### Enable MPLS forwarding on xrd host-facing interfaces:
+```
+RP/0/RP0/CPU0:xrd07(config)#
+```
+```
+mpls static
+ int gigabitEthernet 0/0/0/0
+ commit
+```
+validate:
+```
+show mpls interface
+```
+Expected output:
+```
+Fri Dec 23 23:24:11.146 UTC
+Interface                  LDP      Tunnel   Static   Enabled 
+-------------------------- -------- -------- -------- --------
+GigabitEthernet0/0/0/0     No       No       Yes      Yes
+GigabitEthernet0/0/0/1     No       No       No       Yes
+GigabitEthernet0/0/0/2     No       No       No       Yes
+```
 
 ### Login to the Rome VM
 ```
@@ -42,7 +65,11 @@ A host or endpoint with this client can request a network service (low latency, 
 
 Example:
 ```
-./client.py -f amsterdam.json -e srv6 -s lu
+python3 client.py -f amsterdam.json -e srv6 -s lu
+
+client help:
+
+python3 client.py -h
 ```
 The user or application specifies the desired service (-s) and encapsulation(-e) and inputs a json file which contains source and destination info and a few other items. 
 
@@ -50,37 +77,56 @@ Currently supported netservices: ds = data_sovereignty, gp = get_all_paths, ll =
 
 The client's service modules are located in the netservice directory. When invoked the client first calls the src_dst.py module, which queries the graphDB and returns database ID info for the source and destination prefixes. The client then runs the selected service module (ds, gp, ll, or lu) and calculates an SRv6 uSID or SR label stack, which will satisfy the netservice request. The netservice module then calls the add_route.py module to create the local SR or SRv6 route/policy.
 
-### Operate the client:
+### Netservices: Get All Paths
 
-1. client help:
-```
-python3 client.py -h
-```
-
-2. Get All Paths service:
- - No need to specify encapsulation type:
+No need to specify encapsulation type:
 ``` 
 python3 client.py -f rome.json -s gp
 ```
  - check log output:
- ```
+```
 more log/get_paths.json
 ```
  - we expect to see a json file with source, destination, and path data which includes srv6 sids and sr label stack info
 
-3. Data Sovereignty service:
+### Netservices: Data Sovereignty 
+1. DS and Segment Routing:
 ``` 
 python3 client.py -f rome.json -e sr -s ds
-```
-```
-python3 client.py -f rome.json -e srv6 -s ds
 ```
  - check log output:
  ```
 cat log/data_sovereignty.json
 ```
+2. Ping test 
+ - Open up a second ssh session to Rome VM
+ - Start tcpdump:
+```
+sudo tcpdump -ni ens192
+```
+ - Start ping on first Rome ssh session:
+```
+ping 10.0.0.1 -i .4
+```
+ - Validate traffic is encapsulated in the SR label stack. Expected output:
+```
+cisco@rome:~$ sudo tcpdump -ni ens192
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on ens192, link-type EN10MB (Ethernet), capture size 262144 bytes
+23:30:45.565960 MPLS (label 100004, exp 0, ttl 64) (label 100005, exp 0, ttl 64) (label 100001, exp 0, [S], ttl 64) IP 10.107.1.1 > 10.0.0.1: ICMP echo request, id 3, seq 1, length 64
+23:30:45.571246 IP 10.0.0.1 > 10.107.1.1: ICMP echo reply, id 3, seq 1, length 64
+23:30:45.966843 MPLS (label 100004, exp 0, ttl 64) (label 100005, exp 0, ttl 64) (label 100001, exp 0, [S], ttl 64) IP 10.107.1.1 > 10.0.0.1: ICMP echo request, id 3, seq 2, length 64
+23:30:45.971546 IP 10.0.0.1 > 10.107.1.1: ICMP echo reply, id 3, seq 2, length 64
+23:30:46.368126 MPLS (label 100004, exp 0, ttl 64) (label 100005, exp 0, ttl 64) (label 100001, exp 0, [S], ttl 64) IP 10.107.1.1 > 10.0.0.1: ICMP echo request, id 3, seq 3, length 64
+23:30:46.372139 IP 10.0.0.1 > 10.107.1.1: ICMP echo reply, id 3, seq 3, length 64
+```
+2. DS and SRv6: 
+```
+python3 client.py -f rome.json -e srv6 -s ds
+```
+ - rerun the ping/tcpdump test 
 
-4. Low Latency service:
+### Netservices: Low Latency service
 ``` 
 python3 client.py -f rome.json -e sr -s ll
 ```
