@@ -474,9 +474,9 @@ For documentation on SR-MPLS configuration in IOS-XR see [LINK](https://www.cisc
    - locator should match the first 48-bits of the router's loopback0
     ```
     segment-routing
-    srv6
-    encapsulation
-    source-address fc00:0:1::1
+      srv6
+        encapsulation
+          source-address fc00:0:1::1
 
     locators
     locator MAIN
@@ -487,9 +487,9 @@ For documentation on SR-MPLS configuration in IOS-XR see [LINK](https://www.cisc
 2. Enable SRv6 for ISIS Procotol. 
     ```
     router isis 100
-    address-family ipv6 unicast
-    segment-routing srv6
-    locator MAIN
+      address-family ipv6 unicast
+         segment-routing srv6
+           locator MAIN
     ```
  3. Validation SRv6 configuration and reachability
     ```
@@ -507,7 +507,7 @@ For documentation on SR-MPLS configuration in IOS-XR see [LINK](https://www.cisc
     fc00:0:1:e004::             uDT4              'carrots'                         bgp-65000           InUse  Y 
     RP/0/RP0/CPU0:xrd01#
     ```
-   - other validations:
+   - Validate the SRv6 prefix-SID configuration. As example for xrd01 look for ``` SID value: fc00:0:1::```
     ```
     RP/0/RP0/CPU0:xrd01#show isis segment-routing srv6 locators detail 
 
@@ -521,4 +521,4 @@ For documentation on SR-MPLS configuration in IOS-XR see [LINK](https://www.cisc
     SID behavior: uN (PSP/USD)
     SID value:    fc00:0:1::
     Block Length: 32, Node Length: 16, Func Length: 0, Args Length: 80
-  ```
+    ```
