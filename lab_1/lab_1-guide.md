@@ -236,6 +236,7 @@ For full size image see [LINK](/topo_drawings/isis-topology-large.png)
 
 The Cisco IOS-XR 7.5 Configuration guide for SR and ISIS can be found here: [LINK](https://www.cisco.com/c/en/us/td/docs/iosxr/cisco8000/segment-routing/75x/b-segment-routing-cg-cisco8000-75x/configuring-segment-routing-for-is-is-protocol.html)
 
+### Configuration Steps
 1. Log into each router and verify that ISIS is up and running on interfaces as identified in the ISIS topology diagram.
     ```
     RP/0/RP0/CPU0:xrd03#show isis interface brief
@@ -284,6 +285,7 @@ For full size image see [LINK](/topo_drawings/bgp-topology-large.png)
 
 The Cisco IOS-XR 7.5 Configuration guide for SR and BGP can be found here: [LINK](https://www.cisco.com/c/en/us/td/docs/iosxr/cisco8000/segment-routing/75x/b-segment-routing-cg-cisco8000-75x/configuring-segment-routing-for-bgp.html)
 
+### Configuration Steps
 1. Log into each router listed in the BGP topology diagram and verify neighbors
     ```
     RP/0/RP0/CPU0:xrd01#show ip bgp neighbors brief
@@ -376,6 +378,7 @@ Segment Routing (SR) is a source-based routing architecture. A node chooses a pa
 For a full overview of SR-MPLS please see the Wiki here: [LINK](/SR-MPLS.md)  
 The Cisco IOS-XR 7.5 Configuration guide for SR-MPLS can be found here: [LINK](https://www.cisco.com/c/en/us/td/docs/iosxr/cisco8000/segment-routing/75x/b-segment-routing-cg-cisco8000-75x/configuring-segment-routing-for-is-is-protocol.html)
 
+### Configuration Steps
 1. Enable SR-MPLS globally and define an SRGB (we use 100000 - 163999 for easy reading)
     ```
     segment-routing 
@@ -470,7 +473,16 @@ The Cisco IOS-XR 7.5 Configuration guide for SR-MPLS can be found here: [LINK](h
     ```   
 
 ## SRv6
+Segment Routing over IPv6 (SRv6) extends Segment Routing support with IPv6 data plane.
 
+SRv6 introduces the Network Programming framework that enables a network operator or an application to specify a packet processing program by encoding a sequence of instructions in the IPv6 packet header. Each instruction is implemented on one or several nodes in the network and identified by an SRv6 Segment Identifier (SID) in the packet. In this lab we are implementing SRv6 on the following routers: xrd01, xrd05, xrd06, xrd07
+
+In SRv6, an IPv6 address represents an instruction. SRv6 uses a new type of IPv6 Routing Extension Header, called the Segment Routing Header (SRH), in order to encode an ordered list of instructions. The active segment is indicated by the destination address of the packet, and the next segment is indicated by a pointer in the SRH.
+
+For a full overview of SRv6 please see the Wiki here: [LINK](/SRv6.md)  
+The Cisco IOS-XR 7.5 Configuration guide for SRv6 can be found here: [LINK](https://www.cisco.com/c/en/us/td/docs/iosxr/cisco8000/segment-routing/75x/b-segment-routing-cg-cisco8000-75x/configuring-segment-routing-over-ipv6-srv6-micro-sids.html)
+
+### Configuration Steps
 1. Enable SRv6 globally and define SRv6 locator and source address for outbound encapsulation 
    - the source address should match the router's loopback0 ipv6 address
    - locator should match the first 48-bits of the router's loopback0
