@@ -234,6 +234,8 @@ In this lab we are using ISIS as the underlying IGP to establish link connectivi
 
 For full size image see [LINK](/topo_drawings/isis-topology-large.png)
 
+The Cisco IOS-XR 7.5 Configuration guide for SR and ISIS can be found here: [LINK](https://www.cisco.com/c/en/us/td/docs/iosxr/cisco8000/segment-routing/75x/b-segment-routing-cg-cisco8000-75x/configuring-segment-routing-for-is-is-protocol.html)
+
 1. Log into each router and verify that ISIS is up and running on interfaces as identified in the ISIS topology diagram.
     ```
     RP/0/RP0/CPU0:xrd03#show isis interface brief
@@ -279,6 +281,8 @@ In this lab we are using BGP for SRv6 route/community exchange. In the lab we ar
 ![BGP Topology](/topo_drawings/bgp-topology-medium.png)
 
 For full size image see [LINK](/topo_drawings/bgp-topology-large.png)
+
+The Cisco IOS-XR 7.5 Configuration guide for SR and BGP can be found here: [LINK](https://www.cisco.com/c/en/us/td/docs/iosxr/cisco8000/segment-routing/75x/b-segment-routing-cg-cisco8000-75x/configuring-segment-routing-for-bgp.html)
 
 1. Log into each router listed in the BGP topology diagram and verify neighbors
     ```
