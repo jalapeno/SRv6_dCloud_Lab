@@ -507,7 +507,9 @@ For documentation on SR-MPLS configuration in IOS-XR see [LINK](https://www.cisc
     fc00:0:1:e004::             uDT4              'carrots'                         bgp-65000           InUse  Y 
     RP/0/RP0/CPU0:xrd01#
     ```
-   - Validate the SRv6 prefix-SID configuration. As example for xrd01 look for ``` SID value: fc00:0:1::```
+    
+    Validate the SRv6 prefix-SID configuration. As example for xrd01 look for ```SID value: fc00:0:1::```
+
     ```
     RP/0/RP0/CPU0:xrd01#show isis segment-routing srv6 locators detail 
 
