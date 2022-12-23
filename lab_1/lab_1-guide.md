@@ -8,7 +8,7 @@ confirm PE and P roles. Last you will create basic SRv6 configuration on routers
 
 ## Contents
 1. [Lab Objectives](#1_-_lab-objectives)
-2. [Validate Device Access](#2.-validate-device-access)
+2. [Validate Device Access](#validate-device-access)
     - [Validate XRD VM](#validate-xrd)
     - [Validate Jalapeno VM](#validate-jalapeno)
     - [Validate Client VMs](#validate-client-vms)
@@ -28,7 +28,7 @@ The student upon completion of Lab 1 should have achieved the following objectiv
 * Understanding of basic configuration for SRv6
    
 
-## 2. Validate Device Access
+## Validate Device Access
 
 Device access for this lab is primarly through SSH. All of the VMs within this toplogy can be accessed once you connect through Cisco AnyConnect VPN to the dCloud environment. Please see the management topology network diagram below. In addition their are seven instances of XR routers running in containers on the VM host XRD. The XRD VM acts as a jumpbox for these router containers. For router access you will need to SSH into the XRD VM and then initiate a separate SSH session to each of the routers. The XRD VM is configured for DNS resolution for each router name to save time.
 
