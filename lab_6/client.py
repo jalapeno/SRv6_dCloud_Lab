@@ -50,7 +50,7 @@ def main():
     # if encap == "srv6":
     if service == "ds":
         print("invoke data sovereignty service")
-        srv6_ds = ds.ds_calc(src_id, dst_id, dst, user, pw, dbname, ctr, intf, dataplane)
+        srv6_ds = ds.ds_calc(src_id, dst_id, dst, user, pw, dbname, ctr, intf, dataplane, encap)
         with open('netservice/log/data_sovereignty.json', 'w') as f:
             sys.stdout = f 
             print(srv6_ds)
@@ -62,13 +62,13 @@ def main():
             print(srv6_gp)                 
     if service == "ll":
         print("invoke low latency service")
-        srv6_ll = ll.ll_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane) 
+        srv6_ll = ll.ll_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane, encap) 
         with open('netservice/log/low_latency.json', 'w') as f:
             sys.stdout = f 
             print(srv6_ll) 
     if service == "lu":
         print("invoke least utilized service")
-        srv6_lu = lu.lu_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane)
+        srv6_lu = lu.lu_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane, encap)
         with open('netservice/log/least_util.json', 'w') as f:
             sys.stdout = f 
             print(srv6_lu)
