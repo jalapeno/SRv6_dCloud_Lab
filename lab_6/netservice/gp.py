@@ -38,7 +38,7 @@ def gp_calc(src, dst, user, pw, dbname):
                 for sid in list(locators):
                     if sid == None:
                         locators.remove(sid)
-                print("locators: ", locators)
+                #print("locators: ", locators)
                 usid = []
                 for s in locators:
                     if s != None and usid_block in s:
@@ -69,11 +69,9 @@ def gp_calc(src, dst, user, pw, dbname):
             'statusCode': 200,
             'source': src,
             'destination': dst,
-            'srv6_sid': srv6_sid,
-            'sr_label_stack': prefix_sid,
             'path': path
         }
-
+    print("All paths data from", src, "to", dst, "logged to netservice/log/get_paths.json" )
     pathobj = json.dumps(pathdict, indent=4)
     #print(pathobj)
     return(pathobj)

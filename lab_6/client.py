@@ -3,6 +3,8 @@ import json
 import sys
 from netservice import src_dst, lu, ll, ds, gp
 
+### Jalapeno/SDN client ###
+
 def main():
     parser = argparse.ArgumentParser(
         prog = 'Jalapeno client',
@@ -51,55 +53,26 @@ def main():
     if service == "ds":
         print("invoke data sovereignty service")
         srv6_ds = ds.ds_calc(src_id, dst_id, dst, user, pw, dbname, ctr, intf, dataplane, encap)
-        with open('netservice/log/data_sovereignty.json', 'w') as f:
+        with open('log/data_sovereignty.json', 'a') as f:
             sys.stdout = f 
             print(srv6_ds)
     if service == "gp":
-        print("invoke get paths service")
         srv6_gp = gp.gp_calc(src_id, dst_id, user, pw, dbname)  
-        with open('netservice/log/get_paths.json', 'w') as f:
+        with open('log/get_paths.json', 'a') as f:
             sys.stdout = f 
             print(srv6_gp)                 
     if service == "ll":
         print("invoke low latency service")
         srv6_ll = ll.ll_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane, encap) 
-        with open('netservice/log/low_latency.json', 'w') as f:
+        with open('log/low_latency.json', 'a') as f:
             sys.stdout = f 
             print(srv6_ll) 
     if service == "lu":
         print("invoke least utilized service")
         srv6_lu = lu.lu_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane, encap)
-        with open('netservice/log/least_util.json', 'w') as f:
+        with open('log/least_util.json', 'a') as f:
             sys.stdout = f 
             print(srv6_lu)
-        
-    # if encap == "sr":
-    #     if service == "ds":
-    #         sr_ds = ds.ds_calc(src_id, dst_id, dst, user, pw, dbname, ctr, intf, dataplane)
-    #         with open('netservice/log/data_sovereignty.json', 'w') as f:
-    #             sys.stdout = f 
-    #             print(sr_ds) 
-    #     if service == "gp":
-    #         print("invoke get paths service")
-    #         sr_gp = gp.gp_calc(src_id, dst_id, user, pw, dbname)
-    #         with open('netservice/log/get_paths.json', 'w') as f:
-    #             sys.stdout = f 
-    #             print(sr_gp) 
-    #     if service == "ll":
-    #         sr_ll = ll.ll_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane) 
-    #         with open('netservice/log/low_latency.json', 'w') as f:
-    #             sys.stdout = f 
-    #             print(sr_ll)  
-    #     if service == "lu":
-    #         sr_lu = lu.lu_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane)
-    #         with open('netservice/log/least_utilized.json', 'w') as f:
-    #             sys.stdout = f 
-    #             print(sr_lu) 
-        
-    # else:
-    #     print(""" 
-    #     Please specify an encapsulation type (sr, srv6)
-    #     """)
 
 if __name__ == '__main__':
     main()
