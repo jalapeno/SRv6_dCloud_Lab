@@ -377,7 +377,7 @@ For documentation on SR-MPLS configuration in IOS-XR see [LINK](https://www.cisc
 1. Enable SR-MPLS globally and define an SRGB (we use 100000 - 163999 for easy reading)
     ```
     segment-routing 
-    global-block 100000 163999
+      global-block 100000 163999
     commit
     ```
 
@@ -403,6 +403,7 @@ For documentation on SR-MPLS configuration in IOS-XR see [LINK](https://www.cisc
     | xrd06       | loopback 0  | 6          |
     | xrd07       | loopback 0  | 7          |
 
+    Configuration example:
     ```
     router isis 100
       interface loopback 0
@@ -464,8 +465,7 @@ For documentation on SR-MPLS configuration in IOS-XR see [LINK](https://www.cisc
     100006 Pop         SR Pfx (idx 6)     Gi0/0/0/2    10.1.1.16       939         
            100005      SR Pfx (idx 6)     Gi0/0/0/1    10.1.1.6        0            (!)
     100007 Aggregate   SR Pfx (idx 7)     default                      0           
-
-```   
+    ```   
 
 ## SRv6
 
