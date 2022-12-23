@@ -7,8 +7,8 @@ seeing the correct topology. Third, there will be lite SR-MPLS configuration on 
 confirm PE and P roles. Last you will create basic SRv6 configuration on routers 1-7 and confirm connectivity. 
 
 ## Contents
-1. [Lab Objectives](#lab-objectives)
-2. [Validate Device Access](#validate-device-access)
+1. [Lab Objectives](#1_lab-objectives)
+2. [Validate Device Access](#2.-validate-device-access)
     - [Validate XRD VM](#validate-xrd)
     - [Validate Jalapeno VM](#validate-jalapeno)
     - [Validate Client VMs](#validate-client-vms)
