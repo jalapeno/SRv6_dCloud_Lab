@@ -7,7 +7,7 @@ seeing the correct topology. Third, there will be lite SR-MPLS configuration on 
 confirm PE and P roles. Last you will create basic SRv6 configuration on routers 1-7 and confirm connectivity. 
 
 ## Contents
-1. [Lab Objectives](#1_-_lab-objectives)
+1. [Lab Objectives](#lab-objectives)
 2. [Validate Device Access](#validate-device-access)
     - [Validate XRD VM](#validate-xrd)
     - [Validate Jalapeno VM](#validate-jalapeno)
@@ -19,7 +19,7 @@ confirm PE and P roles. Last you will create basic SRv6 configuration on routers
 6. [Configure and validate SRv6](#srv6)
   
 
-## 1 - Lab Objectives
+## Lab Objectives
 The student upon completion of Lab 1 should have achieved the following objectives
 
 * Access to all devices in the lab
@@ -226,7 +226,7 @@ ping fc00:0:101:1::1
     xrd06           Gi0/0/0/2        124     R          XRd Contr Gi0/0/0/2  
     ```
 
-## 3. Validate ISIS Topology
+## Validate ISIS Topology
 
 In this lab we are using ISIS as the underlying IGP to establish link connectivity across routers xrd01 -> xrd07. ISIS has a basic configuration pre-configured setup starting in lab 1. The student will want to confirm that they see a full ISIS topology.
 
@@ -274,7 +274,7 @@ ping 10.0.0.7 source lo0
 ping fc00:0:7::1 source lo0
 ```
 
-## 4. Validate BGP Topology
+## Validate BGP Topology
 
 In this lab we are using BGP for SRv6 route/community exchange. In the lab we are running as single AS 65000 with BGP running on xrd01, xrd05, xrd06, xrd07.  Routers xrd05 and xrd06 are functioning as route reflectors for the lab. The student will want to confirm that they see a full BGP topology.
 
@@ -369,7 +369,7 @@ The Cisco IOS-XR 7.5 Configuration guide for SR and BGP can be found here: [LINK
         Originator: 10.0.0.1, Cluster list: 10.0.0.6
     ```
 
-## 5. SR-MPLS
+## SR-MPLS
 
 Segment Routing (SR) is a source-based routing architecture. A node chooses a path and steers a packet through the network via that path by inserting an ordered list of the segment, instructing how subsequent nodes in the path, that receive the packet, should process it. This simplifies operations and reduces resource requirements in the network by removing network state information from intermediary nodes and path information is encoded as an ordered list of segments in label stack at the ingress node. In addition to this, because the shortest-path segment includes all Equal-Cost Multi-Path (ECMP) paths to the related node, SR supports the ECMP nature of IP by design. In Lab 1 we will add some basic SR-MPLS commands to xrd01 -> xrd07. 
 
@@ -470,7 +470,7 @@ The Cisco IOS-XR 7.5 Configuration guide for SR-MPLS can be found here: [LINK](h
     100007 Aggregate   SR Pfx (idx 7)     default                      0           
     ```   
 
-## 6. SRv6
+## SRv6
 Segment Routing over IPv6 (SRv6) extends Segment Routing support with IPv6 data plane.
 
 SRv6 introduces the Network Programming framework that enables a network operator or an application to specify a packet processing program by encoding a sequence of instructions in the IPv6 packet header. Each instruction is implemented on one or several nodes in the network and identified by an SRv6 Segment Identifier (SID) in the packet. In this lab we are implementing SRv6 on the following routers: xrd01, xrd05, xrd06, xrd07
