@@ -7,7 +7,7 @@ def add_linux_route(dst, srv6_sid, prefix_sid, intf, encap):
         subprocess.call(['ip', 'route'])
 
     if encap == "sr":
-        label_stack = ' '.join([str(elem) for elem in prefix_sid])
+        label_stack = '/'.join([str(elem) for elem in prefix_sid])
         print("command: sudo ip route add", dst, "encap mpls", label_stack, "via 10.107.1.2 dev", intf)
         p = subprocess.call(['sudo', 'ip', 'route', 'add', dst, 'encap', 'mpls', label_stack, 'via', '10.107.1.2', 'dev', intf])
         subprocess.call(['ip', 'route'])
