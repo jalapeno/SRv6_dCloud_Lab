@@ -1,7 +1,2 @@
-### Begin the lab here
-This directory contains the starting configurations for the lab
-
-Run setup script to launch the topology
-```
-./setup-lab_0.sh
-```
+### Lab initialization directory
+This directory contains the starting configurations for the lab. Please proceed to the lab_1 directory and follow the guide at https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_1/lab_1-guide.md

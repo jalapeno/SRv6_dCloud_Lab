@@ -1,20 +1,17 @@
 import json
 from arango import ArangoClient
 from math import ceil
-import sys
 from . import add_route
 
 # Query DB for low latency path parameters and return srv6 SID
-def ll_calc(src, dst, user, pw, dbname, intf, route):
+def ll_calc(src_id, dst_id, dst, user, pw, dbname, intf, route):
 
     client = ArangoClient(hosts='http://198.18.1.101:30852')
     db = client.db(dbname, username=user, password=pw)
-
-    aql = db.aql
-    cursor = db.aql.execute("""for v, e in outbound shortest_path """ + '"%s"' % src +  """ \
-        TO """ + '"%s"' % dst +  """ sr_topology \
-            OPTIONS {weightAttribute: 'latency' } \
-                return  { node: v._key, name: v.name, sid: e.srv6_sid, latency: e.latency } """)
+    cursor = db.aql.execute("""for v, e in outbound shortest_path """ + '"%s"' % src_id + """ \
+        TO """ + '"%s"' % dst_id + """ sr_topology \
+            OPTIONS { weightAttribute: 'latency' } \
+                return { node: v._key, name: v.name, sid: e.srv6_sid, latency: e.latency } """)
     path = [doc for doc in cursor]
     #print("path: ", path)
     hopcount = len(path)
@@ -54,16 +51,13 @@ def ll_calc(src, dst, user, pw, dbname, intf, route):
 
     pathdict = {
             'statusCode': 200,
-            'source': src,
-            'destination': dst,
+            'source': src_id,
+            'destination': dst_id,
             'sid': srv6_sid,
             'path': path
         }
 
-    pathobj = json.dumps(pathdict, indent=4)
-    with open('netservice/log/srv6_low_latency.json', 'w') as f:
-        sys.stdout = f 
-        print(pathobj)
-
+    print("route_add parameters = sid: ", srv6_sid, "dest: ", dst, "intf: ", intf, "route type: ", route)
     route_add = add_route.add_linux_route(dst, srv6_sid, intf, route)
-    #print("adding linux route: ", route_add)
+    pathobj = json.dumps(pathdict, indent=4)
+    return pathobj

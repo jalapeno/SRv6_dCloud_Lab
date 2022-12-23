@@ -112,7 +112,6 @@ router bgp 65000
 Validate changes:
 ```
 
-show mpls forwarding
 show segment-routing srv6 sid
 show bgp vpnv4 unicast rd 10.0.0.1:0 10.9.1.0/24
 ping 10.0.128.5 source lo128
@@ -120,34 +119,7 @@ ping fc00:0:8005::1 source lo128
 ```
 
 Expected output:
-```
-RP/0/RP0/CPU0:xrd01#show mpls for                
-Tue Dec 13 18:48:52.581 UTC
-Local  Outgoing    Prefix             Outgoing     Next Hop        Bytes       
-Label  Label       or ID              Interface                    Switched    
------- ----------- ------------------ ------------ --------------- ------------
-24000  Pop         SR Adj (idx 1)     Gi0/0/0/1    10.1.1.1        0           
-       100006      SR Adj (idx 1)     Gi0/0/0/2    10.1.1.9        0            (!)
-24001  Pop         SR Adj (idx 3)     Gi0/0/0/1    10.1.1.1        0           
-24002  Pop         SR Adj (idx 1)     Gi0/0/0/2    10.1.1.9        0           
-       100006      SR Adj (idx 1)     Gi0/0/0/1    10.1.1.1        0            (!)
-24003  Pop         SR Adj (idx 3)     Gi0/0/0/2    10.1.1.9        0           
-24004  Unlabelled  10.1.1.2/31        Gi0/0/0/1    10.1.1.1        0           
-       100006      10.1.1.2/31        Gi0/0/0/2    10.1.1.9        0            (!)
-24005  Unlabelled  10.1.1.12/31       Gi0/0/0/2    10.1.1.9        0           
-       100006      10.1.1.12/31       Gi0/0/0/1    10.1.1.1        0            (!)
-100002 Pop         SR Pfx (idx 2)     Gi0/0/0/1    10.1.1.1        0           
-       100006      SR Pfx (idx 2)     Gi0/0/0/2    10.1.1.9        0            (!)
-100003 100003      SR Pfx (idx 3)     Gi0/0/0/1    10.1.1.1        0           
-       100003      SR Pfx (idx 3)     Gi0/0/0/2    10.1.1.9        0            (!)
-100004 100004      SR Pfx (idx 4)     Gi0/0/0/2    10.1.1.9        0           
-       100004      SR Pfx (idx 4)     Gi0/0/0/1    10.1.1.1        0            (!)
-100005 Pop         SR Pfx (idx 5)     Gi0/0/0/2    10.1.1.9        21113       
-       100006      SR Pfx (idx 5)     Gi0/0/0/1    10.1.1.1        0            (!)
-100006 100006      SR Pfx (idx 6)     Gi0/0/0/1    10.1.1.1        0           
-       100006      SR Pfx (idx 6)     Gi0/0/0/2    10.1.1.9        21222       
-100007 100007      SR Pfx (idx 7)     Gi0/0/0/1    10.1.1.1        0           
-       100007      SR Pfx (idx 7)     Gi0/0/0/2    10.1.1.9        1040        
+```     
 RP/0/RP0/CPU0:xrd01#show segment-routing srv6 sid
 Tue Dec 13 18:49:00.104 UTC
 

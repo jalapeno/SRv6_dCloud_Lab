@@ -67,8 +67,9 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     cisco@xrd:~/SRv6_dCloud_Lab$ cd lab_0
     cisco@xrd:~/SRv6_dCloud_Lab/lab_0$
     ```
+    - run setup script
     ``` 
-    run sudo ./setup-lab_0.sh
+    sudo ./setup-lab_0.sh
     ```
     - Look for the below output from the end of the script confirming XRD instances 1-7 were created
     ```
@@ -142,7 +143,7 @@ For full size image see [LINK](/topo_drawings/management-network.png)
 ### Validate Client VMs
 __Amsterdam__
 1. SSH to Amsterdam Client VM from your laptop. 
-2. Check that the interface to router xrd01 is `UP` and has the assigned IP `10.101.1.1/24`
+2. Check that the interface to router xrd01 is `UP` and has the assigned IP `10.101.1.1/24` 
     ```
     cisco@amsterdam:~$ ip address show ens192
     3: ens192: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
@@ -191,7 +192,10 @@ __Rome__
     ```
 
 ### Connect to Routers
-1. Starting from the XRD VM log into each routers instance 1-7 consulting the management topology diagram above
+1. Starting from the XRD VM log into each routers instance 1-7 consulting the management topology diagram above. Example:
+```
+ssh cisco@xrd01
+```
 
 2. Confirm that the configured interfaces are in an `UP | UP` state
     ```
@@ -205,7 +209,11 @@ __Rome__
     GigabitEthernet0/0/0/2         10.1.1.8        Up              Up       default 
     GigabitEthernet0/0/0/3         unassigned      Shutdown        Down     default
     ```
-3. Validate adjacencies and traffic passing on each router. Use the topology diagram to determine neighbors. The client devices Amsterdam and Rome are not running CDP.
+3. Validate IPv6 connectivity from xrd01 to Amsterdam VM: 
+```
+ping fc00:0:101:1::1
+```
+4. Validate adjacencies and traffic passing on each router. Use the topology diagram to determine neighbors. The client devices Amsterdam and Rome are not running CDP.
     ```
     RP/0/RP0/CPU0:xrd05#show cdp neighbors 
     Wed Dec 21 18:16:57.657 UTC
@@ -258,6 +266,11 @@ For full size image see [LINK](/topo_drawings/isis-topology-large.png)
     xrd06              2         xrd02              Gi0/0/0/0       *PtoP*        
     xrd07              2         xrd04              Gi0/0/0/1       *PtoP* 
     ```
+3. Validate end-to-end ISIS reachability:
+```
+ping 10.0.0.7 source lo0
+ping fc00:0:7::1 source lo0
+```
 
 ## Validate BGP Topology
 
@@ -361,15 +374,27 @@ For a deeper dive into SR-MPLS please [LINK](/SR-MPLS.md)
 In Lab 1 we will add some basic SR-MPLS commands to xrd01 -> xrd07. 
 For documentation on SR-MPLS configuration in IOS-XR see [LINK](https://www.cisco.com/c/en/us/td/docs/iosxr/cisco8000/segment-routing/75x/b-segment-routing-cg-cisco8000-75x/configuring-segment-routing-for-is-is-protocol.html)
 
-1. Enable SR-MPLS for ISIS Procotol. 
+1. Enable SR-MPLS globally and define an SRGB (we use 100000 - 163999 for easy reading)
+```
+segment-routing 
+ global-block 100000 163999
+ commit
+```
+
+2. Enable SR-MPLS for ISIS Procotol. 
     ```
     RP/0/RP0/CPU0:xrd01(config)#router isis 100    
     RP/0/RP0/CPU0:xrd01(config-isis)#address-family ipv4
     RP/0/RP0/CPU0:xrd01(config-isis-af)#segment-routing mpls
     RP/0/RP0/CPU0:xrd01(config-isis)#commit
     ```
+<<<<<<< HEAD
 2. Configure a Prefix-SID on ISIS Loopback Interface
     A prefix segment identifier (SID) is associated with an IP prefix. The prefix SID is manually configured from the segment routing global block. A prefix SID is configured under the loopback interface with the loopback address of the node as the prefix. The prefix segment steers the traffic along the shortest path to its destination. Consult the table below then configure the prefix SID on routes xrd01 -> xrd07.
+=======
+3. Configure a Prefix-SID on ISIS Loopback Interface
+    A prefix segment identifier (SID) is associated with an IP prefix. The prefix SID is manually configured from the segment routing global block. A prefix SID is configured under the loopback interface with the loopback address of the node as the prefix. The prefix segment steers the traffic along the shortest path to its destination. Consult the table below then configure the prefix SID on routes xrd01 -> xrd07
+>>>>>>> b48b77e5f3118ab9240852e36c86fd27bd50d563
 
     | Router Name | Loopback Int| Prefix-SID |                                           
     |:------------|:-----------:|:----------:|                          
@@ -389,15 +414,123 @@ For documentation on SR-MPLS configuration in IOS-XR see [LINK](https://www.cisc
     RP/0/RP0/CPU0:xrd01(config-isis-if-af)#commit
     ```
 
-3. Verify that ISIS Prefix-SID configuartion. As example for xrd01 look for ```Prefix-SID Index: 1```
+4. Verify that ISIS Prefix-SID configuartion. As example for xrd01 look for ```Prefix-SID Index: 1```
     ```
     RP/0/RP0/CPU0:xrd01#show isis database verbose | i Prefix-SID
         Prefix-SID Index: 1, Algorithm:0, R:0 N:1 P:0 E:0 V:0 L:0
         Prefix-SID Index: 1, Algorithm:0, R:0 N:1 P:0 E:0 V:0 L:0
     RP/0/RP0/CPU0:xrd01#
     ```
+   - other validations
+```
+RP/0/RP0/CPU0:xrd07#show isis segment-routing label table                
+Wed Dec 21 20:09:51.478 UTC
 
+IS-IS 100 IS Label Table
+Label         Prefix                   Interface
+----------    ----------------         ---------
+100001        10.0.0.1/32              
+100002        10.0.0.2/32              
+100003        10.0.0.3/32              
+100004        10.0.0.4/32              
+100005        10.0.0.5/32              
+100006        10.0.0.6/32              
+100007        10.0.0.7/32              Loopback0
+RP/0/RP0/CPU0:xrd07#
 
-
+RP/0/RP0/CPU0:xrd07#show mpls forwarding 
+Wed Dec 21 20:05:16.531 UTC
+Local  Outgoing    Prefix             Outgoing     Next Hop        Bytes       
+Label  Label       or ID              Interface                    Switched    
+------ ----------- ------------------ ------------ --------------- ------------
+24002  Pop         10.101.1.0/24                   10.0.0.1        0           
+24003  Unlabelled  10.1.1.4/31        Gi0/0/0/1    10.1.1.6        0           
+       100005      10.1.1.4/31        Gi0/0/0/2    10.1.1.16       0            (!)
+24004  Unlabelled  10.1.1.10/31       Gi0/0/0/2    10.1.1.16       0           
+       100005      10.1.1.10/31       Gi0/0/0/1    10.1.1.6        0            (!)
+24005  Pop         SR Adj (idx 1)     Gi0/0/0/1    10.1.1.6        0           
+       100005      SR Adj (idx 1)     Gi0/0/0/2    10.1.1.16       0            (!)
+24006  Pop         SR Adj (idx 3)     Gi0/0/0/1    10.1.1.6        0           
+24007  Pop         SR Adj (idx 1)     Gi0/0/0/2    10.1.1.16       0           
+       100005      SR Adj (idx 1)     Gi0/0/0/1    10.1.1.6        0            (!)
+24008  Pop         SR Adj (idx 3)     Gi0/0/0/2    10.1.1.16       0           
+100001 100001      SR Pfx (idx 1)     Gi0/0/0/1    10.1.1.6        0           
+       100001      SR Pfx (idx 1)     Gi0/0/0/2    10.1.1.16       0           
+100002 100002      SR Pfx (idx 2)     Gi0/0/0/2    10.1.1.16       0           
+       100002      SR Pfx (idx 2)     Gi0/0/0/1    10.1.1.6        0            (!)
+100003 100003      SR Pfx (idx 3)     Gi0/0/0/1    10.1.1.6        0           
+       100003      SR Pfx (idx 3)     Gi0/0/0/2    10.1.1.16       0            (!)
+100004 Pop         SR Pfx (idx 4)     Gi0/0/0/1    10.1.1.6        0           
+       100005      SR Pfx (idx 4)     Gi0/0/0/2    10.1.1.16       0            (!)
+100005 100005      SR Pfx (idx 5)     Gi0/0/0/1    10.1.1.6        0           
+       100005      SR Pfx (idx 5)     Gi0/0/0/2    10.1.1.16       1119        
+100006 Pop         SR Pfx (idx 6)     Gi0/0/0/2    10.1.1.16       939         
+       100005      SR Pfx (idx 6)     Gi0/0/0/1    10.1.1.6        0            (!)
+100007 Aggregate   SR Pfx (idx 7)     default                      0           
+RP/0/RP0/CPU0:xrd07#
+```   
 
 ## SRv6
+
+1. Enable SRv6 globally and define SRv6 locator and source address for outbound encapsulation 
+   - the source address should match the router's loopback0 ipv6 address
+   - locator should match the first 48-bits of the router's loopback0
+```
+segment-routing
+ srv6
+  encapsulation
+   source-address fc00:0:1::1
+  !
+  locators
+   locator MAIN
+    micro-segment behavior unode psp-usd
+    prefix fc00:0:1::/48
+   !
+  !
+ !
+!
+```
+
+2. Enable SRv6 for ISIS Procotol. 
+```
+router isis 100
+ address-family ipv6 unicast
+  segment-routing srv6
+   locator MAIN
+   !
+  !
+ !
+ ```
+ 3. Validation SRv6 configuration and reachability
+ ```
+ RP/0/RP0/CPU0:xrd01#show segment-routing srv6 sid
+Thu Dec 22 23:47:34.800 UTC
+
+*** Locator: 'MAIN' *** 
+
+SID                         Behavior          Context                           Owner               State  RW
+--------------------------  ----------------  --------------------------------  ------------------  -----  --
+fc00:0:1::                  uN (PSP/USD)      'default':1                       sidmgr              InUse  Y 
+fc00:0:1:e000::             uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0:P       isis-100            InUse  Y 
+fc00:0:1:e001::             uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0         isis-100            InUse  Y 
+fc00:0:1:e002::             uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0:P       isis-100            InUse  Y 
+fc00:0:1:e003::             uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0         isis-100            InUse  Y 
+fc00:0:1:e004::             uDT4              'carrots'                         bgp-65000           InUse  Y 
+RP/0/RP0/CPU0:xrd01#
+```
+   - other validations:
+```
+RP/0/RP0/CPU0:xrd01#show isis segment-routing srv6 locators detail 
+Thu Dec 22 23:48:21.496 UTC
+
+IS-IS 100 SRv6 Locators
+Name                  ID       Algo  Prefix                    Status
+------                ----     ----  ------                    ------
+MAIN                  1        0     fc00:0:1::/48             Active
+  Advertised Level: level-1-2   
+  Level: level-1      Metric: 1        Administrative Tag: 0         
+  Level: level-2-only Metric: 1        Administrative Tag: 0         
+  SID behavior: uN (PSP/USD)
+  SID value:    fc00:0:1::
+  Block Length: 32, Node Length: 16, Func Length: 0, Args Length: 80
+  ```

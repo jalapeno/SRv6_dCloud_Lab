@@ -1,5 +1,4 @@
 import json
-import sys
 from arango import ArangoClient
 
 # Query DB for least utilized path parameters and return srv6 SID
@@ -7,8 +6,6 @@ def gp_calc(src, dst, user, pw, dbname):
 
     client = ArangoClient(hosts='http://198.18.1.101:30852')
     db = client.db(dbname, username=user, password=pw)
-
-    aql = db.aql
     cursor = db.aql.execute("""for v, e, p in 1..6 outbound """ + '"%s"' % src + """ \
             sr_topology OPTIONS {uniqueVertices: "path", bfs: true} \
                 filter v._id == """ + '"%s"' % dst + """ \
@@ -63,9 +60,7 @@ def gp_calc(src, dst, user, pw, dbname):
         }
 
     pathobj = json.dumps(pathdict, indent=4)
-    with open('netservice/log/srv6_get_paths.json', 'w') as f:
-        sys.stdout = f 
-        print(pathobj)
+    return(pathobj)
 
 def sr_gp_calc(src, dst, user, pw, dbname):
 
@@ -105,6 +100,4 @@ def sr_gp_calc(src, dst, user, pw, dbname):
         }
 
     pathobj = json.dumps(pathdict, indent=4)
-    with open('netservice/log/sr_get_paths.json', 'w') as f:
-        sys.stdout = f 
-        print(pathobj)
+    return(pathobj)
