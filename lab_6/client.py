@@ -23,7 +23,7 @@ def main():
     source = "source"
     destination = "destination"
     interface = "interface"
-    route = "route"
+    dataplane = "dataplane"
     country = "country"
 
     f = open(file)
@@ -35,7 +35,7 @@ def main():
     src = sd[source]
     dst = sd[destination]
     intf = sd[interface]
-    route = sd[route]
+    dataplane = sd[dataplane]
     ctr = sd[country]
 
     srcpfxsplit = list(src.split('/'))
@@ -49,44 +49,36 @@ def main():
     dst_id = sd_tuple[1]
     if encap == "srv6":
         if service == "ds":
-            srv6_ds = ds.ds_calc(src_id, dst_id, dst, user, pw, dbname, ctr, intf, route)
+            srv6_ds = ds.srv6_ds_calc(src_id, dst_id, dst, user, pw, dbname, ctr, intf, dataplane)
             with open('netservice/log/srv6_data_sovereignty.json', 'w') as f:
                 sys.stdout = f 
                 print(srv6_ds)
         if service == "gp":
-            srv6_gp = gp.gp_calc(src_id, dst_id, user, pw, dbname)  
+            srv6_gp = gp.srv6_gp_calc(src_id, dst_id, user, pw, dbname)  
             with open('netservice/log/srv6_get_paths.json', 'w') as f:
                 sys.stdout = f 
                 print(srv6_gp)                 
         if service == "ll":
-            srv6_ll = ll.ll_calc(src_id, dst_id, dst, user, pw, dbname, intf, route) 
+            srv6_ll = ll.srv6_ll_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane) 
             with open('netservice/log/srv6_low_latency.json', 'w') as f:
                 sys.stdout = f 
                 print(srv6_ll) 
         if service == "lu":
-            srv6_lu = lu.lu_calc(src_id, dst_id, dst, user, pw, dbname, intf, route)
+            srv6_lu = lu.srv6_lu_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane)
             with open('netservice/log/srv6_least_util.json', 'w') as f:
                 sys.stdout = f 
                 print(srv6_lu)
         
-        # else:
-        #     print(""" 
-        #     Please specify a service: ll, lu, ds, or gp
-        #     """)
     if encap == "sr":
-        if service == "lu":
-            sr_lu = lu.lu_calc(src_id, dst_id, dst, user, pw, dbname, intf, route)
-        if service == "ll":
-            sr_ll = ll.ll_calc(src_id, dst_id, dst, user, pw, dbname, intf, route)  
         if service == "ds":
-            sr_ds = ds.ds_calc(src_id, dst_id, dst, user, pw, dbname, ctr, intf, route)
+            sr_ds = ds.sr_ds_calc(src_id, dst_id, dst, user, pw, dbname, ctr, intf, dataplane)
         if service == "gp":
-            sr_gp = gp.sr_gp_calc(src_id, dst_id, dst, user, pw, dbname)
+            sr_gp = gp.sr_gp_calc(src_id, dst_id, user, pw, dbname)
+        if service == "ll":
+            sr_ll = ll.sr_ll_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane)  
+        if service == "lu":
+            sr_lu = lu.sr_lu_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane)
         
-        else:
-            print(""" 
-            Please specify a service: ll, lu, ds, or gp
-            """)
     # else:
     #     print(""" 
     #     Please specify an encapsulation type (sr, srv6)
