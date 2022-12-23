@@ -2,7 +2,7 @@ import json
 from arango import ArangoClient
 
 # Query DB for least utilized path parameters and return srv6 SID
-def srv6_gp_calc(src, dst, user, pw, dbname):
+def gp_calc(src, dst, user, pw, dbname):
 
     client = ArangoClient(hosts='http://198.18.1.101:30852')
     db = client.db(dbname, username=user, password=pw)
@@ -10,13 +10,26 @@ def srv6_gp_calc(src, dst, user, pw, dbname):
             sr_topology OPTIONS {uniqueVertices: "path", bfs: true} \
                 filter v._id == """ + '"%s"' % dst + """ \
                     return { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, \
-                        latency: sum(p.edges[*].latency), \
+                        prefix_sid: p.edges[*].prefix_sid, latency: sum(p.edges[*].latency), \
                             percent_util_out: avg(p.edges[*].percent_util_out)} """)
 
     path = [doc for doc in cursor]
+    #print("path: ", path)
     for index in range(len(path)):
         for key in path[index]:
             #print(key, ":", path[index][key])
+            ### process SR prefix sids
+            if key == "prefix_sid":
+                prefix_sid = path[index][key]
+                for pfxsid in list(prefix_sid):
+                    if pfxsid == None:
+                        prefix_sid.remove(pfxsid)
+                for pfxsidlast in list(prefix_sid):
+                    if pfxsidlast == None:
+                        prefix_sid.remove(pfxsidlast)
+                    #print("prefix_sids: ", prefix_sid)
+
+            ### process SRv6 sids
             if key == "sid":
                 #print("sid: ", path[index][key])
                 locators = path[index][key]
@@ -44,60 +57,23 @@ def srv6_gp_calc(src, dst, user, pw, dbname):
                 #print(sidlist)
 
                 srv6_sid = usid_block + sidlist + ipv6_separator
-                print("srv6 sid: ", srv6_sid)
+                #print("srv6 sid: ", srv6_sid)
                 siddict = {}
                 siddict['srv6_sid'] = srv6_sid
                 path[index][key].append(siddict)
 
     pathdict = path
+    #print("path: ", pathdict)
         
     pathdict = {
             'statusCode': 200,
             'source': src,
             'destination': dst,
-            'sid': srv6_sid,
+            'srv6_sid': srv6_sid,
+            'sr_label_stack': prefix_sid,
             'path': path
         }
 
     pathobj = json.dumps(pathdict, indent=4)
-    return(pathobj)
-
-def sr_gp_calc(src, dst, user, pw, dbname):
-
-    client = ArangoClient(hosts='http://198.18.1.101:30852')
-    db = client.db(dbname, username=user, password=pw)
-
-    aql = db.aql
-    cursor = db.aql.execute("""for v, e, p in 1..6 outbound """ + '"%s"' % src + """ \
-            sr_topology OPTIONS {uniqueVertices: "path", bfs: true} \
-                filter v._id == """ + '"%s"' % dst + """ \
-                    return { path: p.edges[*].remote_node_name, sid: p.vertices[*].prefix_sid, \
-                        latency: sum(p.edges[*].latency), \
-                            percent_util_out: avg(p.edges[*].percent_util_out)} """)
-
-    path = [doc for doc in cursor]
-    for index in range(len(path)):
-        for key in path[index]:
-            #print(key, ":", path[index][key])
-            if key == "sid":
-                print("sid: ", path[index][key])
-                prefix_sids = path[index][key]
-                usid_block = 'fc00:0:'
-                #print("prefix_sids: ", prefix_sids)
-                for sid in list(prefix_sids):
-                    if sid == None:
-                        prefix_sids.remove(sid)
-                print("prefix sids: ", prefix_sids)
-
-    pathdict = path
-        
-    pathdict = {
-            'statusCode': 200,
-            'source': src,
-            'destination': dst,
-            'sid': prefix_sids,
-            'path': path
-        }
-
-    pathobj = json.dumps(pathdict, indent=4)
+    #print(pathobj)
     return(pathobj)

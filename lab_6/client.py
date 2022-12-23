@@ -47,37 +47,54 @@ def main():
     print(sd_tuple)
     src_id = sd_tuple[0]
     dst_id = sd_tuple[1]
-    if encap == "srv6":
-        if service == "ds":
-            srv6_ds = ds.srv6_ds_calc(src_id, dst_id, dst, user, pw, dbname, ctr, intf, dataplane)
-            with open('netservice/log/srv6_data_sovereignty.json', 'w') as f:
-                sys.stdout = f 
-                print(srv6_ds)
-        if service == "gp":
-            srv6_gp = gp.srv6_gp_calc(src_id, dst_id, user, pw, dbname)  
-            with open('netservice/log/srv6_get_paths.json', 'w') as f:
-                sys.stdout = f 
-                print(srv6_gp)                 
-        if service == "ll":
-            srv6_ll = ll.srv6_ll_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane) 
-            with open('netservice/log/srv6_low_latency.json', 'w') as f:
-                sys.stdout = f 
-                print(srv6_ll) 
-        if service == "lu":
-            srv6_lu = lu.srv6_lu_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane)
-            with open('netservice/log/srv6_least_util.json', 'w') as f:
-                sys.stdout = f 
-                print(srv6_lu)
+    # if encap == "srv6":
+    if service == "ds":
+        print("invoke data sovereignty service")
+        srv6_ds = ds.ds_calc(src_id, dst_id, dst, user, pw, dbname, ctr, intf, dataplane)
+        with open('netservice/log/data_sovereignty.json', 'w') as f:
+            sys.stdout = f 
+            print(srv6_ds)
+    if service == "gp":
+        print("invoke get paths service")
+        srv6_gp = gp.gp_calc(src_id, dst_id, user, pw, dbname)  
+        with open('netservice/log/get_paths.json', 'w') as f:
+            sys.stdout = f 
+            print(srv6_gp)                 
+    if service == "ll":
+        print("invoke low latency service")
+        srv6_ll = ll.ll_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane) 
+        with open('netservice/log/low_latency.json', 'w') as f:
+            sys.stdout = f 
+            print(srv6_ll) 
+    if service == "lu":
+        print("invoke least utilized service")
+        srv6_lu = lu.lu_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane)
+        with open('netservice/log/least_util.json', 'w') as f:
+            sys.stdout = f 
+            print(srv6_lu)
         
-    if encap == "sr":
-        if service == "ds":
-            sr_ds = ds.sr_ds_calc(src_id, dst_id, dst, user, pw, dbname, ctr, intf, dataplane)
-        if service == "gp":
-            sr_gp = gp.sr_gp_calc(src_id, dst_id, user, pw, dbname)
-        if service == "ll":
-            sr_ll = ll.sr_ll_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane)  
-        if service == "lu":
-            sr_lu = lu.sr_lu_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane)
+    # if encap == "sr":
+    #     if service == "ds":
+    #         sr_ds = ds.ds_calc(src_id, dst_id, dst, user, pw, dbname, ctr, intf, dataplane)
+    #         with open('netservice/log/data_sovereignty.json', 'w') as f:
+    #             sys.stdout = f 
+    #             print(sr_ds) 
+    #     if service == "gp":
+    #         print("invoke get paths service")
+    #         sr_gp = gp.gp_calc(src_id, dst_id, user, pw, dbname)
+    #         with open('netservice/log/get_paths.json', 'w') as f:
+    #             sys.stdout = f 
+    #             print(sr_gp) 
+    #     if service == "ll":
+    #         sr_ll = ll.ll_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane) 
+    #         with open('netservice/log/low_latency.json', 'w') as f:
+    #             sys.stdout = f 
+    #             print(sr_ll)  
+    #     if service == "lu":
+    #         sr_lu = lu.lu_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane)
+    #         with open('netservice/log/least_utilized.json', 'w') as f:
+    #             sys.stdout = f 
+    #             print(sr_lu) 
         
     # else:
     #     print(""" 

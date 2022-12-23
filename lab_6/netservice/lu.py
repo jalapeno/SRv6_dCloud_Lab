@@ -3,26 +3,30 @@ from arango import ArangoClient
 from . import add_route
 
 # Query DB for least utilized path parameters and return srv6 SID
-def srv6_lu_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane):
+def lu_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane):
 
     client = ArangoClient(hosts='http://198.18.1.101:30852')
     db = client.db(dbname, username=user, password=pw)
     cursor = db.aql.execute("""for v, e in outbound shortest_path """ + '"%s"' % src_id + """ \
         TO """ + '"%s"' % dst_id + """ sr_topology \
             OPTIONS { weightAttribute: 'percent_util_out' } filter e.mt_id != 2 \
-                return { node: v._key, name: v.name, sid: e.srv6_sid, util: e.percent_util_out } """)
+                return { node: v._key, name: v.name, sid: e.srv6_sid, prefix_sid: e.prefix_sid, util: e.percent_util_out } """)
     path = [doc for doc in cursor]
 
     sid = 'sid'
     usid_block = 'fc00:0:'
-
     locators = [a_dict[sid] for a_dict in path]
-    #print(sids)
-
     for sid in list(locators):
         if sid == None:
             locators.remove(sid)
     print("locators: ", locators)
+
+    prefix_sid = 'prefix_sid'
+    prefix_sid = [a_dict[prefix_sid] for a_dict in path]
+    for ps in list(prefix_sid):
+        if ps == None:
+            prefix_sid.remove(ps)
+    print("prefix_sids: ", prefix_sid)
 
     usid = []
     for s in locators:
@@ -51,7 +55,7 @@ def srv6_lu_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane):
             'path': path
         }
 
-    print("route_add parameters = sid: ", srv6_sid, "dest: ", dst, "intf: ", intf, "dataplane: ", dataplane)
+    print("route_add parameters = sid: ", srv6_sid, "sr_label_stack: ", prefix_sid, "dest: ", dst, "intf: ", intf, "dataplane: ", dataplane)
     if dataplane == "linux":
         route_add = add_route.add_linux_route(dst, srv6_sid, intf)
     if dataplane == "vpp":
