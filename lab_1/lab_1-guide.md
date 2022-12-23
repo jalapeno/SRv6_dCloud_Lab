@@ -373,7 +373,7 @@ The Cisco IOS-XR 7.5 Configuration guide for SR and BGP can be found here: [LINK
 
 Segment Routing (SR) is a source-based routing architecture. A node chooses a path and steers a packet through the network via that path by inserting an ordered list of the segment, instructing how subsequent nodes in the path, that receive the packet, should process it. This simplifies operations and reduces resource requirements in the network by removing network state information from intermediary nodes and path information is encoded as an ordered list of segments in label stack at the ingress node. In addition to this, because the shortest-path segment includes all Equal-Cost Multi-Path (ECMP) paths to the related node, SR supports the ECMP nature of IP by design. In Lab 1 we will add some basic SR-MPLS commands to xrd01 -> xrd07. 
 
-For a full overview of SR-MPLS please see the Wiki here: [LINK](/SR-MPLS.md)
+For a full overview of SR-MPLS please see the Wiki here: [LINK](/SR-MPLS.md)  
 The Cisco IOS-XR 7.5 Configuration guide for SR-MPLS can be found here: [LINK](https://www.cisco.com/c/en/us/td/docs/iosxr/cisco8000/segment-routing/75x/b-segment-routing-cg-cisco8000-75x/configuring-segment-routing-for-is-is-protocol.html)
 
 1. Enable SR-MPLS globally and define an SRGB (we use 100000 - 163999 for easy reading)
