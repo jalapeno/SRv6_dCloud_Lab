@@ -375,26 +375,23 @@ In Lab 1 we will add some basic SR-MPLS commands to xrd01 -> xrd07.
 For documentation on SR-MPLS configuration in IOS-XR see [LINK](https://www.cisco.com/c/en/us/td/docs/iosxr/cisco8000/segment-routing/75x/b-segment-routing-cg-cisco8000-75x/configuring-segment-routing-for-is-is-protocol.html)
 
 1. Enable SR-MPLS globally and define an SRGB (we use 100000 - 163999 for easy reading)
-```
-segment-routing 
- global-block 100000 163999
- commit
-```
+    ```
+    segment-routing 
+    global-block 100000 163999
+    commit
+    ```
 
 2. Enable SR-MPLS for ISIS Procotol. 
     ```
-    RP/0/RP0/CPU0:xrd01(config)#router isis 100    
-    RP/0/RP0/CPU0:xrd01(config-isis)#address-family ipv4
-    RP/0/RP0/CPU0:xrd01(config-isis-af)#segment-routing mpls
-    RP/0/RP0/CPU0:xrd01(config-isis)#commit
+    router isis 100    
+      address-family ipv4
+        segment-routing mpls
+    commit
     ```
-<<<<<<< HEAD
-2. Configure a Prefix-SID on ISIS Loopback Interface
-    A prefix segment identifier (SID) is associated with an IP prefix. The prefix SID is manually configured from the segment routing global block. A prefix SID is configured under the loopback interface with the loopback address of the node as the prefix. The prefix segment steers the traffic along the shortest path to its destination. Consult the table below then configure the prefix SID on routes xrd01 -> xrd07.
-=======
+
 3. Configure a Prefix-SID on ISIS Loopback Interface
     A prefix segment identifier (SID) is associated with an IP prefix. The prefix SID is manually configured from the segment routing global block. A prefix SID is configured under the loopback interface with the loopback address of the node as the prefix. The prefix segment steers the traffic along the shortest path to its destination. Consult the table below then configure the prefix SID on routes xrd01 -> xrd07
->>>>>>> b48b77e5f3118ab9240852e36c86fd27bd50d563
+
 
     | Router Name | Loopback Int| Prefix-SID |                                           
     |:------------|:-----------:|:----------:|                          
@@ -407,11 +404,11 @@ segment-routing
     | xrd07       | loopback 0  | 7          |
 
     ```
-    RP/0/RP0/CPU0:xrd01(config)#router isis 100
-    RP/0/RP0/CPU0:xrd01(config-isis)#interface loopback 0
-    RP/0/RP0/CPU0:xrd01(config-isis-if)#address-family ipv4 unicast 
-    RP/0/RP0/CPU0:xrd01(config-isis-if-af)#prefix-sid index 1
-    RP/0/RP0/CPU0:xrd01(config-isis-if-af)#commit
+    router isis 100
+      interface loopback 0
+        address-family ipv4 unicast 
+        prefix-sid index 1
+    commit
     ```
 
 4. Verify that ISIS Prefix-SID configuartion. As example for xrd01 look for ```Prefix-SID Index: 1```
@@ -422,52 +419,52 @@ segment-routing
     RP/0/RP0/CPU0:xrd01#
     ```
    - other validations
-```
-RP/0/RP0/CPU0:xrd07#show isis segment-routing label table                
-Wed Dec 21 20:09:51.478 UTC
+    ```
+    RP/0/RP0/CPU0:xrd07#show isis segment-routing label table                
 
-IS-IS 100 IS Label Table
-Label         Prefix                   Interface
-----------    ----------------         ---------
-100001        10.0.0.1/32              
-100002        10.0.0.2/32              
-100003        10.0.0.3/32              
-100004        10.0.0.4/32              
-100005        10.0.0.5/32              
-100006        10.0.0.6/32              
-100007        10.0.0.7/32              Loopback0
-RP/0/RP0/CPU0:xrd07#
+    IS-IS 100 IS Label Table
+    Label         Prefix                   Interface
+    ----------    ----------------         ---------
+    100001        10.0.0.1/32              
+    100002        10.0.0.2/32              
+    100003        10.0.0.3/32              
+    100004        10.0.0.4/32              
+    100005        10.0.0.5/32              
+    100006        10.0.0.6/32              
+    100007        10.0.0.7/32              Loopback0
+    ```
+    Validate the mpls forwarding table
+    ```
+    RP/0/RP0/CPU0:xrd07#show mpls forwarding 
 
-RP/0/RP0/CPU0:xrd07#show mpls forwarding 
-Wed Dec 21 20:05:16.531 UTC
-Local  Outgoing    Prefix             Outgoing     Next Hop        Bytes       
-Label  Label       or ID              Interface                    Switched    
------- ----------- ------------------ ------------ --------------- ------------
-24002  Pop         10.101.1.0/24                   10.0.0.1        0           
-24003  Unlabelled  10.1.1.4/31        Gi0/0/0/1    10.1.1.6        0           
-       100005      10.1.1.4/31        Gi0/0/0/2    10.1.1.16       0            (!)
-24004  Unlabelled  10.1.1.10/31       Gi0/0/0/2    10.1.1.16       0           
-       100005      10.1.1.10/31       Gi0/0/0/1    10.1.1.6        0            (!)
-24005  Pop         SR Adj (idx 1)     Gi0/0/0/1    10.1.1.6        0           
-       100005      SR Adj (idx 1)     Gi0/0/0/2    10.1.1.16       0            (!)
-24006  Pop         SR Adj (idx 3)     Gi0/0/0/1    10.1.1.6        0           
-24007  Pop         SR Adj (idx 1)     Gi0/0/0/2    10.1.1.16       0           
-       100005      SR Adj (idx 1)     Gi0/0/0/1    10.1.1.6        0            (!)
-24008  Pop         SR Adj (idx 3)     Gi0/0/0/2    10.1.1.16       0           
-100001 100001      SR Pfx (idx 1)     Gi0/0/0/1    10.1.1.6        0           
-       100001      SR Pfx (idx 1)     Gi0/0/0/2    10.1.1.16       0           
-100002 100002      SR Pfx (idx 2)     Gi0/0/0/2    10.1.1.16       0           
-       100002      SR Pfx (idx 2)     Gi0/0/0/1    10.1.1.6        0            (!)
-100003 100003      SR Pfx (idx 3)     Gi0/0/0/1    10.1.1.6        0           
-       100003      SR Pfx (idx 3)     Gi0/0/0/2    10.1.1.16       0            (!)
-100004 Pop         SR Pfx (idx 4)     Gi0/0/0/1    10.1.1.6        0           
-       100005      SR Pfx (idx 4)     Gi0/0/0/2    10.1.1.16       0            (!)
-100005 100005      SR Pfx (idx 5)     Gi0/0/0/1    10.1.1.6        0           
-       100005      SR Pfx (idx 5)     Gi0/0/0/2    10.1.1.16       1119        
-100006 Pop         SR Pfx (idx 6)     Gi0/0/0/2    10.1.1.16       939         
-       100005      SR Pfx (idx 6)     Gi0/0/0/1    10.1.1.6        0            (!)
-100007 Aggregate   SR Pfx (idx 7)     default                      0           
-RP/0/RP0/CPU0:xrd07#
+    Local  Outgoing    Prefix             Outgoing     Next Hop        Bytes       
+    Label  Label       or ID              Interface                    Switched    
+    ------ ----------- ------------------ ------------ --------------- ------------
+    24002  Pop         10.101.1.0/24                   10.0.0.1        0           
+    24003  Unlabelled  10.1.1.4/31        Gi0/0/0/1    10.1.1.6        0           
+           100005      10.1.1.4/31        Gi0/0/0/2    10.1.1.16       0            (!)
+    24004  Unlabelled  10.1.1.10/31       Gi0/0/0/2    10.1.1.16       0           
+           100005      10.1.1.10/31       Gi0/0/0/1    10.1.1.6        0            (!)
+    24005  Pop         SR Adj (idx 1)     Gi0/0/0/1    10.1.1.6        0           
+           100005      SR Adj (idx 1)     Gi0/0/0/2    10.1.1.16       0            (!)
+    24006  Pop         SR Adj (idx 3)     Gi0/0/0/1    10.1.1.6        0           
+    24007  Pop         SR Adj (idx 1)     Gi0/0/0/2    10.1.1.16       0           
+           100005      SR Adj (idx 1)     Gi0/0/0/1    10.1.1.6        0            (!)
+    24008  Pop         SR Adj (idx 3)     Gi0/0/0/2    10.1.1.16       0           
+    100001 100001      SR Pfx (idx 1)     Gi0/0/0/1    10.1.1.6        0           
+           100001      SR Pfx (idx 1)     Gi0/0/0/2    10.1.1.16       0           
+    100002 100002      SR Pfx (idx 2)     Gi0/0/0/2    10.1.1.16       0           
+           100002      SR Pfx (idx 2)     Gi0/0/0/1    10.1.1.6        0            (!)
+    100003 100003      SR Pfx (idx 3)     Gi0/0/0/1    10.1.1.6        0           
+           100003      SR Pfx (idx 3)     Gi0/0/0/2    10.1.1.16       0            (!)
+    100004 Pop         SR Pfx (idx 4)     Gi0/0/0/1    10.1.1.6        0           
+           100005      SR Pfx (idx 4)     Gi0/0/0/2    10.1.1.16       0            (!)
+    100005 100005      SR Pfx (idx 5)     Gi0/0/0/1    10.1.1.6        0           
+           100005      SR Pfx (idx 5)     Gi0/0/0/2    10.1.1.16       1119        
+    100006 Pop         SR Pfx (idx 6)     Gi0/0/0/2    10.1.1.16       939         
+           100005      SR Pfx (idx 6)     Gi0/0/0/1    10.1.1.6        0            (!)
+    100007 Aggregate   SR Pfx (idx 7)     default                      0           
+
 ```   
 
 ## SRv6
@@ -475,62 +472,53 @@ RP/0/RP0/CPU0:xrd07#
 1. Enable SRv6 globally and define SRv6 locator and source address for outbound encapsulation 
    - the source address should match the router's loopback0 ipv6 address
    - locator should match the first 48-bits of the router's loopback0
-```
-segment-routing
- srv6
-  encapsulation
-   source-address fc00:0:1::1
-  !
-  locators
-   locator MAIN
-    micro-segment behavior unode psp-usd
-    prefix fc00:0:1::/48
-   !
-  !
- !
-!
-```
+    ```
+    segment-routing
+    srv6
+    encapsulation
+    source-address fc00:0:1::1
+
+    locators
+    locator MAIN
+        micro-segment behavior unode psp-usd
+        prefix fc00:0:1::/48
+    ```
 
 2. Enable SRv6 for ISIS Procotol. 
-```
-router isis 100
- address-family ipv6 unicast
-  segment-routing srv6
-   locator MAIN
-   !
-  !
- !
- ```
+    ```
+    router isis 100
+    address-family ipv6 unicast
+    segment-routing srv6
+    locator MAIN
+    ```
  3. Validation SRv6 configuration and reachability
- ```
- RP/0/RP0/CPU0:xrd01#show segment-routing srv6 sid
-Thu Dec 22 23:47:34.800 UTC
+    ```
+    RP/0/RP0/CPU0:xrd01#show segment-routing srv6 sid
 
-*** Locator: 'MAIN' *** 
+    *** Locator: 'MAIN' *** 
 
-SID                         Behavior          Context                           Owner               State  RW
---------------------------  ----------------  --------------------------------  ------------------  -----  --
-fc00:0:1::                  uN (PSP/USD)      'default':1                       sidmgr              InUse  Y 
-fc00:0:1:e000::             uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0:P       isis-100            InUse  Y 
-fc00:0:1:e001::             uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0         isis-100            InUse  Y 
-fc00:0:1:e002::             uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0:P       isis-100            InUse  Y 
-fc00:0:1:e003::             uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0         isis-100            InUse  Y 
-fc00:0:1:e004::             uDT4              'carrots'                         bgp-65000           InUse  Y 
-RP/0/RP0/CPU0:xrd01#
-```
+    SID                         Behavior          Context                           Owner               State  RW
+    --------------------------  ----------------  --------------------------------  ------------------  -----  --
+    fc00:0:1::                  uN (PSP/USD)      'default':1                       sidmgr              InUse  Y 
+    fc00:0:1:e000::             uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0:P       isis-100            InUse  Y 
+    fc00:0:1:e001::             uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0         isis-100            InUse  Y 
+    fc00:0:1:e002::             uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0:P       isis-100            InUse  Y 
+    fc00:0:1:e003::             uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0         isis-100            InUse  Y 
+    fc00:0:1:e004::             uDT4              'carrots'                         bgp-65000           InUse  Y 
+    RP/0/RP0/CPU0:xrd01#
+    ```
    - other validations:
-```
-RP/0/RP0/CPU0:xrd01#show isis segment-routing srv6 locators detail 
-Thu Dec 22 23:48:21.496 UTC
+    ```
+    RP/0/RP0/CPU0:xrd01#show isis segment-routing srv6 locators detail 
 
-IS-IS 100 SRv6 Locators
-Name                  ID       Algo  Prefix                    Status
-------                ----     ----  ------                    ------
-MAIN                  1        0     fc00:0:1::/48             Active
-  Advertised Level: level-1-2   
-  Level: level-1      Metric: 1        Administrative Tag: 0         
-  Level: level-2-only Metric: 1        Administrative Tag: 0         
-  SID behavior: uN (PSP/USD)
-  SID value:    fc00:0:1::
-  Block Length: 32, Node Length: 16, Func Length: 0, Args Length: 80
+    IS-IS 100 SRv6 Locators
+    Name                  ID       Algo  Prefix                    Status
+    ------                ----     ----  ------                    ------
+    MAIN                  1        0     fc00:0:1::/48             Active
+    Advertised Level: level-1-2   
+    Level: level-1      Metric: 1        Administrative Tag: 0         
+    Level: level-2-only Metric: 1        Administrative Tag: 0         
+    SID behavior: uN (PSP/USD)
+    SID value:    fc00:0:1::
+    Block Length: 32, Node Length: 16, Func Length: 0, Args Length: 80
   ```
