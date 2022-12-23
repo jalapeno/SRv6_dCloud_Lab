@@ -9,7 +9,7 @@ This VM has a client script that will query Jalapeno and create a linux ip route
 
 Linux SRv6 route reference: https://segment-routing.org/index.php/Implementation/Configuration
 
-1. cd into the lab_0 directory on Rome VM:
+1. cd into the lab_6 directory on Rome VM:
 ```
 cd ~/SRv6_dCloud_Lab/lab_6
 ```
