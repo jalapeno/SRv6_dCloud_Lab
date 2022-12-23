@@ -3,7 +3,7 @@ from arango import ArangoClient
 from . import add_route
 
 # Query DB for least utilized path parameters and return srv6 SID
-def lu_calc(src_id, dst_id, dst, user, pw, dbname, intf, route):
+def srv6_lu_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane):
 
     client = ArangoClient(hosts='http://198.18.1.101:30852')
     db = client.db(dbname, username=user, password=pw)
@@ -51,8 +51,11 @@ def lu_calc(src_id, dst_id, dst, user, pw, dbname, intf, route):
             'path': path
         }
 
-    print("route_add parameters = sid: ", srv6_sid, "dest: ", dst, "intf: ", intf, "route type: ", route)
-    route_add = add_route.add_linux_route(dst, srv6_sid, intf, route)
+    print("route_add parameters = sid: ", srv6_sid, "dest: ", dst, "intf: ", intf, "dataplane: ", dataplane)
+    if dataplane == "linux":
+        route_add = add_route.add_linux_route(dst, srv6_sid, intf)
+    if dataplane == "vpp":
+        route_add = add_route.add_vpp_route(dst, srv6_sid)
     pathobj = json.dumps(pathdict, indent=4)
     return(pathobj)
 

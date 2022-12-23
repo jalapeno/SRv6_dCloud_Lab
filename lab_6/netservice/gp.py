@@ -2,7 +2,7 @@ import json
 from arango import ArangoClient
 
 # Query DB for least utilized path parameters and return srv6 SID
-def gp_calc(src, dst, user, pw, dbname):
+def srv6_gp_calc(src, dst, user, pw, dbname):
 
     client = ArangoClient(hosts='http://198.18.1.101:30852')
     db = client.db(dbname, username=user, password=pw)
@@ -78,7 +78,7 @@ def sr_gp_calc(src, dst, user, pw, dbname):
     path = [doc for doc in cursor]
     for index in range(len(path)):
         for key in path[index]:
-            print(key, ":", path[index][key])
+            #print(key, ":", path[index][key])
             if key == "sid":
                 print("sid: ", path[index][key])
                 prefix_sids = path[index][key]
