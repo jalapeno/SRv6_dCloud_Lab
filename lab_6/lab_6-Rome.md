@@ -139,7 +139,7 @@ ip route
 ```
 3. Run a ping test 
  - Open up a second ssh session to the Rome VM
- - Start tcpdump on 2nd ssh session:
+ - Start tcpdump on 2nd ssh session. This will capture packets outbound from Rome VM going toward xrd07:
 ```
 sudo tcpdump -ni ens192
 ```
@@ -152,19 +152,43 @@ ping 10.0.0.1 -i .4
 cisco@rome:~$ sudo tcpdump -ni ens192
 tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
 listening on ens192, link-type EN10MB (Ethernet), capture size 262144 bytes
-23:30:45.565960 MPLS (label 100004, exp 0, ttl 64) (label 100005, exp 0, ttl 64) (label 100001, exp 0, [S], ttl 64) IP 10.107.1.1 > 10.0.0.1: ICMP echo request, id 3, seq 1, length 64
-23:30:45.571246 IP 10.0.0.1 > 10.107.1.1: ICMP echo reply, id 3, seq 1, length 64
-23:30:45.966843 MPLS (label 100004, exp 0, ttl 64) (label 100005, exp 0, ttl 64) (label 100001, exp 0, [S], ttl 64) IP 10.107.1.1 > 10.0.0.1: ICMP echo request, id 3, seq 2, length 64
-23:30:45.971546 IP 10.0.0.1 > 10.107.1.1: ICMP echo reply, id 3, seq 2, length 64
-23:30:46.368126 MPLS (label 100004, exp 0, ttl 64) (label 100005, exp 0, ttl 64) (label 100001, exp 0, [S], ttl 64) IP 10.107.1.1 > 10.0.0.1: ICMP echo request, id 3, seq 3, length 64
-23:30:46.372139 IP 10.0.0.1 > 10.107.1.1: ICMP echo reply, id 3, seq 3, length 64
+21:58:07.770724 MPLS (label 100006, exp 0, ttl 64) (label 100005, exp 0, ttl 64) (label 100001, exp 0, [S], ttl 64) IP 10.107.1.1 > 10.101.1.1: ICMP echo request, id 27, seq 1, length 64
+21:58:07.775269 IP 10.101.1.1 > 10.107.1.1: ICMP echo reply, id 27, seq 1, length 64
 ```
-3. Use tcpdump on the xrd VM to trace labeled packets through the network
- - On the xrd VM cd into the lab_6 directory
- - run the dockernets.sh shell script, which will write the appropriate linux bridge names to a file
+5. Open an ssh session to the xrd VM and run tcpdump to trace labeled packets through the network
+ - Docker's bridge naming logic is such that the actual bridge instance names are not predictable. Rather than go through some renaming process we built a script that'll resolve the bridge name and trigger the appropriate tcpdump.
+ - On the xrd VM cd into the project's 'util' directory:
 ```
-# ingress to xrd07
-sudo tcpdump -ni ens192
+cd SRv6_dCloud_Lab/util/
+```
+6. Run the nets.sh shell script, which will write the appropriate linux bridge names to files in the util directory:
+```
+./nets.sh 
+```
+ - after the script runs the directory should look like this:
+```
+cisco@xrd:~/SRv6_dCloud_Lab/util$ ls
+nets.sh     xrd01-xrd02  xrd02-xrd03  xrd03-xrd04  xrd04-xrd07  xrd06-xrd07
+tcpdump.sh  xrd01-xrd05  xrd02-xrd06  xrd04-xrd05  xrd05-xrd06
+```
+7. We can now use "tcpdump.sh <xrd0x-xrd0y>" to capture packets along the path from Rome VM to Amsterdam VM. Given the label stack seen above, we'll monitor the linux bridges linking xrd07 and xrd06, xrd06 and xrd05, then xrd05 and xrd01:
+ - restart the ping if it is stopped
+```
+./tcpdump.sh xrd06-xrd07
+./tcpdump.sh xrd05-xrd06
+./tcpdump.sh xrd01-xrd05
+```
+ - We expect to see SR-MPLS PHP behavior as xrd nodes pop outer labels as the traffic traverses the network. Example output:
+```
+cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd05-xrd06
+sudo tcpdump -ni br-a844eef82eca
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on br-a844eef82eca, link-type EN10MB (Ethernet), capture size 262144 bytes
+17:11:32.523122 MPLS (label 100001, exp 0, [S], ttl 62) IP 10.107.1.1 > 10.101.1.1: ICMP echo request, id 28, seq 325, length 64
+```
+1. Cleanup Rome's routes and execute the least utilized path service with SR encapsulation
+```
+
 
 ### Low Latency Path
 
