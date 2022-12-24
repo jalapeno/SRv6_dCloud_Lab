@@ -20,6 +20,5 @@ cmd = ['sudo', 'tcpdump', '-ni', bridge, '&']
 print(cmd)
 subprocess.run(cmd, capture_output=True, text=True)
 
-# print(r.stdout)
-# with open('command.txt','w') as c:
-#     c.write(r.stdout)
+cmd2 = ['ls']
+subprocess.run(cmd)
