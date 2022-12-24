@@ -4,91 +4,115 @@ Todo:
 1. Build and test this lab
 2. Writeup lab guide
 
-### Enable MPLS forwarding on xrd host-facing interfaces:
+### Login to the Amsterdam VM
 ```
-RP/0/RP0/CPU0:xrd07(config)#
+ssh cisco@198.18.128.102
 ```
-```
-mpls static
- int gigabitEthernet 0/0/0/0
- commit
-```
-validate:
-```
-show mpls interface
-```
-Expected output:
-```
-Fri Dec 23 23:24:11.146 UTC
-Interface                  LDP      Tunnel   Static   Enabled 
--------------------------- -------- -------- -------- --------
-GigabitEthernet0/0/0/0     No       No       Yes      Yes
-GigabitEthernet0/0/0/1     No       No       No       Yes
-GigabitEthernet0/0/0/2     No       No       No       Yes
-```
+The Amsterdam VM has VPP pre-installed. VPP (also known as fd.io) is a very flexible and high performance open source software dataplane. In our lab the Amsterdam VM represents a content server whose application owners wish to provide optimal user experience, while balancing out the need for bulk content replication.  They've chose VPP as their host-based SR/SRv6 forwarding engine, and have subscribed to the network services made available by our Jalapeno system.
 
-### Login to the Rome VM
-```
-ssh cisco@198.18.128.103
-```
-This VM has a client script that will query Jalapeno and create a linux ip route with SRv6 encapsulation
+Like the Rom VM, Amsterdam has the same client script that will query Jalapeno for SR/SRv6 path data, and then program its local VPP dataplane with ip route with SR/SRv6 encapsulation
 
-Linux SRv6 route reference: https://segment-routing.org/index.php/Implementation/Configuration
+For more information on VPP/fd.io: https://fd.io/
 
-1. cd into the lab_6 directory on Rome VM:
+1. On the Amsterdam VM cd into the lab_6 directory:
 ```
 cd ~/SRv6_dCloud_Lab/lab_6
 ```
-2. Get familiar with files in the directory
+2. Everything is the same as on the Rome VM. Note the 
 ```
 cat amsterdam.json
-cat rome.json
-cat cleanup_rome_routes.sh
 ls netservice
 cat client.py
 
 ```
-3. Set your localsid source address:
+3. Amsterdam has a Linux veth pair connecting kernel forwarding to its onboard VPP instance. The VM has preconfigured ip routes (see /etc/netplan/00-installer-config.yaml) pointing to VPP via its "ams-out" interface:
+```
+cisco@amsterdam:~/SRv6_dCloud_Lab/lab_6$ ip link | grep ams-out
+4: vpp-in@ams-out: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+5: ams-out@vpp-in: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
 
+cisco@amsterdam:~/SRv6_dCloud_Lab/lab_6$ ip route
+default via 198.18.128.1 dev ens160 proto static 
+default via 198.18.128.1 dev ens160 proto static metric 100 
+10.0.0.0/24 via 10.101.2.2 dev ams-out proto static 
+10.101.2.0/24 dev ams-out proto kernel scope link src 10.101.2.1 
+10.107.0.0/20 via 10.101.2.2 dev ams-out proto static 
+198.18.128.0/18 dev ens160 proto kernel scope link src 198.18.128.102 
 ```
-sudo ip sr tunsrc set fc00:0:107:1::1
+4. VPP has been given a startup config which establishes IP connectivity to the network as a whole on bootup.
 ```
-4. Ensure Rome VM is setup to support SR/MPLS:
+cat /etc/vpp/startup.conf
 ```
-modprobe mpls_router
-modprobe mpls_iptunnel
-lsmod | grep mpls
+ - Note the 'unix' and 'dpdk' sections of the config:
+```
+unix {
+  nodaemon
+  log /var/log/vpp/vpp.log
+  full-coredump
+  cli-listen /run/vpp/cli.sock
+  gid vpp
+  startup-config /home/cisco/SRv6_dCloud_Lab/lab_0/config/vpp.conf
+}
+dpdk {
+  dev 0000:0b:00.0
+}
+```
+ - VPP startup-config file: https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_0/config/vpp.conf
+
+5. VPP's CLI may be invoked directly:
+```
+cisco@amsterdam:~/SRv6_dCloud_Lab/lab_6$ sudo vppctl
+    _______    _        _   _____  ___ 
+ __/ __/ _ \  (_)__    | | / / _ \/ _ \
+ _/ _// // / / / _ \   | |/ / ___/ ___/
+ /_/ /____(_)_/\___/   |___/_/  /_/    
+
+vpp# show interface address
+GigabitEthernetb/0/0 (up):
+  L3 10.101.1.1/24
+  L3 fc00:0:101:1::1/64
+host-vpp-in (up):
+  L3 10.101.2.2/24
+local0 (dn):
+vpp# 
+```
+6. Or driven from the Linux command line:
+```
+cisco@amsterdam:~/SRv6_dCloud_Lab/lab_6$ sudo vppctl show interface address
+GigabitEthernetb/0/0 (up):
+  L3 10.101.1.1/24
+  L3 fc00:0:101:1::1/64
+host-vpp-in (up):
+  L3 10.101.2.2/24
+local0 (dn):
+```
+7. Other handy VPP commands:
+```
+quit                     # exit VPP CLI
+show ip fib              # show VPP's forwarding table, which will include SR and SRv6 policy/encap info later
+sudo vppctl show ip fib  # same command but executed from Linux
+show interface           # interface status and stats
 ```
 
 ### Jalapeno SDN client:
-A host or endpoint with this client can request a network service (low latency, least utilized, data sovereignty, etc.) between a given source and destination, and based on the parameters passed to the client. Upon completing its path calculation the client will automatically construct a local SR or SRv6 route/policy.
+The client operates on Amsterdam the same way it operates on the Rome VM. amsterdam.json specifies to the use of a VPP dataplane, therefore the client construct a VPP SR or SRv6 route/policy upon completing its path calculation.
 
-Example:
+Client help:
 ```
-python3 client.py -f amsterdam.json -e srv6 -s lu
-
-client help:
-
 python3 client.py -h
 ```
-The user or application specifies the desired service (-s) and encapsulation(-e) and inputs a json file which contains source and destination info and a few other items. 
 
-Currently supported netservices: ds = data_sovereignty, gp = get_all_paths, ll = low_latency, lu = least_utilized
-
-The client's service modules are located in the netservice directory. When invoked the client first calls the src_dst.py module, which queries the graphDB and returns database ID info for the source and destination prefixes. The client then runs the selected service module (ds, gp, ll, or lu) and calculates an SRv6 uSID or SR label stack, which will satisfy the netservice request. The netservice module then calls the add_route.py module to create the local SR or SRv6 route/policy.
-
+## Network Services
 ### Get All Paths Service 
 
 No need to specify encapsulation type:
 ``` 
-python3 client.py -f rome.json -s gp
+python3 client.py -f amsterdam.json -s gp
 ```
- - check log output:
+ - log output will be appended to log/get_paths.json. SR/SRv6 label stacks and SIDs should be roughly the reverse of those generated by the Rome VM:
 ```
-more log/get_paths.json
+cat log/get_paths.json
 ```
- - we expect to see a json file with source, destination, and path data which includes srv6 sids and sr label stack info
-
 ### Data Sovereignty Service 
 #### DS and Segment Routing
 1. Run the client

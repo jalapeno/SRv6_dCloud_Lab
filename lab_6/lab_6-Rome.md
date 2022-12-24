@@ -1,10 +1,9 @@
 ## POC host-based SRv6 and SR-MPLS SDN 
 
 Todo:
-1. Build and test this lab
-2. Writeup lab guide
+1. Finish writeup
 
-### Enable MPLS forwarding on xrd host-facing interfaces:
+### Enable MPLS forwarding on xrd01 and xrd07 host-facing interfaces:
 ```
 RP/0/RP0/CPU0:xrd07(config)#
 ```
@@ -31,17 +30,18 @@ GigabitEthernet0/0/0/2     No       No       No       Yes
 ```
 ssh cisco@198.18.128.103
 ```
-This VM has a client script that will query Jalapeno and create a linux ip route with SRv6 encapsulation
+This VM has a client script that will query Jalapeno and create linux ip routes with SR or SRv6 encapsulations.
 
 Linux SRv6 route reference: https://segment-routing.org/index.php/Implementation/Configuration
 
-1. cd into the lab_6 directory on Rome VM:
+For host-based SR we'll simply use Linux's iproute2 MPLS implemenation. There are a number of decent references to be found; this one is very straightforward: https://liuhangbin.netlify.app/post/mpls-on-linux/
+
+1. On the Rome VM cd into the lab_6 directory:
 ```
 cd ~/SRv6_dCloud_Lab/lab_6
 ```
-2. Get familiar with files in the directory
+2. Get familiar with files in the directory; specifically:
 ```
-cat amsterdam.json
 cat rome.json
 cat cleanup_rome_routes.sh
 ls netservice
@@ -65,7 +65,7 @@ A host or endpoint with this client can request a network service (low latency, 
 
 Example:
 ```
-python3 client.py -f amsterdam.json -e srv6 -s lu
+python3 client.py -f rome.json -e srv6 -s lu
 
 client help:
 
@@ -77,8 +77,9 @@ Currently supported netservices: ds = data_sovereignty, gp = get_all_paths, ll =
 
 The client's service modules are located in the netservice directory. When invoked the client first calls the src_dst.py module, which queries the graphDB and returns database ID info for the source and destination prefixes. The client then runs the selected service module (ds, gp, ll, or lu) and calculates an SRv6 uSID or SR label stack, which will satisfy the netservice request. The netservice module then calls the add_route.py module to create the local SR or SRv6 route/policy.
 
+## Network Services
 ### Get All Paths Service 
-
+The 'gp' service 
 No need to specify encapsulation type:
 ``` 
 python3 client.py -f rome.json -s gp
@@ -88,6 +89,7 @@ python3 client.py -f rome.json -s gp
 more log/get_paths.json
 ```
  - we expect to see a json file with source, destination, and path data which includes srv6 sids and sr label stack info
+ - the script will print several pieces of data out to the command line as it performs its logic. Notably
 
 ### Data Sovereignty Service 
 #### DS and Segment Routing

@@ -9,7 +9,7 @@ def gp_calc(src, dst, user, pw, dbname):
     cursor = db.aql.execute("""for v, e, p in 1..6 outbound """ + '"%s"' % src + """ \
             sr_topology OPTIONS {uniqueVertices: "path", bfs: true} \
                 filter v._id == """ + '"%s"' % dst + """ \
-                    return { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, \
+                    return DISTINCT { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, \
                         prefix_sid: p.edges[*].prefix_sid, latency: sum(p.edges[*].latency), \
                             percent_util_out: avg(p.edges[*].percent_util_out)} """)
 
@@ -34,7 +34,7 @@ def gp_calc(src, dst, user, pw, dbname):
                 #print("sid: ", path[index][key])
                 locators = path[index][key]
                 usid_block = 'fc00:0:'
-                #print("locators: ", locators)
+                print("locators: ", locators)
                 for sid in list(locators):
                     if sid == None:
                         locators.remove(sid)
