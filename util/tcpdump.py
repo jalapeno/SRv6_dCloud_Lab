@@ -12,6 +12,8 @@ args = parser.parse_args()
 
 file = args.f
 
-f = open(file)
+with open(file,"r") as f:
+    bridge = f.read()
+    print(bridge)
 
-subprocess.call(['sudo', 'tcpdump', '-ni', f])
+subprocess.call(['sudo', 'tcpdump', '-ni', bridge])
