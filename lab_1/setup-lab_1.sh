@@ -15,6 +15,9 @@
 echo "launching topology"
 docker-compose -f docker-compose-lab_1.yml up --detach
 
+echo "generate docker bridge files for tcpdump utility"
+../util/nets.sh
+
 ### reset sysctl to allow routing over docker bridge instances
 
 echo "sudo sysctl -p"
