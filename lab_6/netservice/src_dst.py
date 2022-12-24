@@ -1,7 +1,6 @@
 from arango import ArangoClient
 
 def get_src_dst(src, prefix, user, pw, dbname):
-    print("src_dst prefix: ", prefix)
     client = ArangoClient(hosts='http://198.18.1.101:30852')
     db = client.db(dbname, username=user, password=pw)
 
@@ -9,14 +8,14 @@ def get_src_dst(src, prefix, user, pw, dbname):
     cursor = db.aql.execute("""for u in unicast_prefix_v4 filter u.prefix == """  + '"%s"' % src +  """ \
         return { id: u._id, src_peer: u.peer_ip } """)
     src_dict = [doc for doc in cursor]
-    print("src_dict: ", src_dict)
+    #print("src_dict: ", src_dict)
 
     # Get destination prefix ID to end graph traversal
     aql = db.aql
     cursor = db.aql.execute("""for u in unicast_prefix_v4 filter u.prefix == """  + '"%s"' % prefix +  """ \
         return { id: u._id, dst_peer: u.peer_ip } """)
     dst_dict = [doc for doc in cursor]
-    print("dst_dict: ", dst_dict)
+    #print("dst_dict: ", dst_dict)
 
     id = "id"
     src_peer = "src_peer"

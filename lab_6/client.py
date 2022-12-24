@@ -46,29 +46,29 @@ def main():
     dstprefix = dstpfxsplit[0]
 
     sd_tuple = src_dst.get_src_dst(srcprefix, dstprefix, user, pw, dbname)
-    print(sd_tuple)
+    #print(sd_tuple)
     src_id = sd_tuple[0]
     dst_id = sd_tuple[1]
-    # if encap == "srv6":
     if service == "ds":
-        print("invoke data sovereignty service")
+        print("Data Sovereignty Service")
         srv6_ds = ds.ds_calc(src_id, dst_id, dst, user, pw, dbname, ctr, intf, dataplane, encap)
         with open('log/data_sovereignty.json', 'a') as f:
             sys.stdout = f 
             print(srv6_ds)
     if service == "gp":
+        print("Get All Paths Service")
         srv6_gp = gp.gp_calc(src_id, dst_id, user, pw, dbname)  
         with open('log/get_paths.json', 'a') as f:
             sys.stdout = f 
             print(srv6_gp)                 
     if service == "ll":
-        print("invoke low latency service")
+        print("Low Latency Service")
         srv6_ll = ll.ll_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane, encap) 
         with open('log/low_latency.json', 'a') as f:
             sys.stdout = f 
             print(srv6_ll) 
     if service == "lu":
-        print("invoke least utilized service")
+        print("Least Utilized Service")
         srv6_lu = lu.lu_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane, encap)
         with open('log/least_util.json', 'a') as f:
             sys.stdout = f 
