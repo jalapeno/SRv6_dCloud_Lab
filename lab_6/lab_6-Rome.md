@@ -79,7 +79,8 @@ The client's service modules are located in the netservice directory. When invok
 
 ## Network Services
 ### Get All Paths Service 
-The 'gp' service 
+
+1. Run the 'gp' service 
 No need to specify encapsulation type:
 ``` 
 python3 client.py -f rome.json -s gp
@@ -89,7 +90,24 @@ python3 client.py -f rome.json -s gp
 more log/get_paths.json
 ```
  - we expect to see a json file with source, destination, and path data which includes srv6 sids and sr label stack info
- - the script will print several pieces of data out to the command line as it performs its logic. Notably
+ - the script will print several pieces of data out to the command line as it performs its logic. Notably this line which provides a summary of the relevants paths by outputing the SRv6 locators along each path:
+
+ https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_6/netservice/gp.py#L37
+
+You can also experiment with the script's graph traversal parameters to limit or expand the number of vertex 'hops' the query will search for. Note: ArangoDB considers the source and destination vertices as 'hops' when doing the traversal.
+
+2. Change the 'gp' service's hopcount parameters. Open the netservice/gp.py file in a text editor (vi, vim) and change parameters in line 9. https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_6/netservice/gp.py#L9
+
+```
+for v, e, p in 6..6 outbound
+```
+Save the file and re-run the script.
+
+3. Another example:
+
+ ```
+ for v, e, p in 1..8 outbound
+ ```
 
 ### Data Sovereignty Service 
 #### DS and Segment Routing
