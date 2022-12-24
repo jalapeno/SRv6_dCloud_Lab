@@ -16,4 +16,8 @@ with open(file,"r") as f:
     bridge = f.read()
     print("bridge: ", bridge)
 
-subprocess.call(['sudo', 'tcpdump', '-ni', bridge], capture_output=True, text=True)
+r = subprocess.run(['sudo', 'tcpdump', '-ni', bridge], capture_output=True, text=True)
+
+print(r.stdout)
+with open('command.txt','w') as c:
+    c.write(r.stdout)
