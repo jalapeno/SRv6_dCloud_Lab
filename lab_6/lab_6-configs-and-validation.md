@@ -77,7 +77,7 @@ Currently supported netservices: ds = data_sovereignty, gp = get_all_paths, ll =
 
 The client's service modules are located in the netservice directory. When invoked the client first calls the src_dst.py module, which queries the graphDB and returns database ID info for the source and destination prefixes. The client then runs the selected service module (ds, gp, ll, or lu) and calculates an SRv6 uSID or SR label stack, which will satisfy the netservice request. The netservice module then calls the add_route.py module to create the local SR or SRv6 route/policy.
 
-### Netservices: Get All Paths
+### Get All Paths Service 
 
 No need to specify encapsulation type:
 ``` 
@@ -89,8 +89,9 @@ more log/get_paths.json
 ```
  - we expect to see a json file with source, destination, and path data which includes srv6 sids and sr label stack info
 
-### Netservices: Data Sovereignty 
-1. DS and Segment Routing:
+### Data Sovereignty Service 
+#### DS and Segment Routing
+1. Run the client
 ``` 
 python3 client.py -f rome.json -e sr -s ds
 ```
@@ -120,13 +121,43 @@ listening on ens192, link-type EN10MB (Ethernet), capture size 262144 bytes
 23:30:46.368126 MPLS (label 100004, exp 0, ttl 64) (label 100005, exp 0, ttl 64) (label 100001, exp 0, [S], ttl 64) IP 10.107.1.1 > 10.0.0.1: ICMP echo request, id 3, seq 3, length 64
 23:30:46.372139 IP 10.0.0.1 > 10.107.1.1: ICMP echo reply, id 3, seq 3, length 64
 ```
-2. DS and SRv6: 
+3. Use tcpdump on the xrd VM to trace labeled packets through the network
+ - On the xrd VM cd into the lab_6 directory
+ - run the dockernets.sh shell script, which will write the appropriate linux bridge names to a file
+```
+# ingress to xrd07
+sudo tcpdump -ni ens192
+
+
+
+
+#### DS and SRv6
+1. cleanup any old routes:
+```
+./cleanup_rome_routes.sh
+```
+2. re-run the client with SRv6 encap:
 ```
 python3 client.py -f rome.json -e srv6 -s ds
 ```
- - rerun the ping/tcpdump test 
+4. IPv6 ND may not have worked. Login to xrd07 and ping Rome vm
+```
+ping fc00:0:107:1::1
+```
+5. re-run the ping/tcpdump test. Expected output:
+```
+cisco@rome:~$ sudo tcpdump -ni ens192
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on ens192, link-type EN10MB (Ethernet), capture size 262144 bytes
+23:40:41.614862 IP6 fe80::250:56ff:fe86:8789 > fc00:0:107:1::2: ICMP6, neighbor solicitation, who has fc00:0:107:1::2, length 32
+23:40:41.615999 IP6 fc00:0:107:1::2 > fe80::250:56ff:fe86:8789: ICMP6, neighbor advertisement, tgt is fc00:0:107:1::2, length 32
+23:40:42.665521 IP6 fc00:0:107:1::1 > fc00:0:4:5:1::: srcrt (len=2, type=4, segleft=0[|srcrt]
+23:40:43.086871 IP6 fc00:0:107:1::1 > fc00:0:4:5:1::: srcrt (len=2, type=4, segleft=0[|srcrt]
+23:40:43.502868 IP6 fc00:0:107:1::1 > fc00:0:4:5:1::: srcrt (len=2, type=4, segleft=0[|srcrt]
+23:40:43.918911 IP6 fc00:0:107:1::1 > fc00:0:4:5:1::: srcrt (len=2, type=4, segleft=0[|srcrt]
+```
 
-### Netservices: Low Latency service
+### Low Latency Service
 ``` 
 python3 client.py -f rome.json -e sr -s ll
 ```
@@ -138,7 +169,7 @@ python3 client.py -f rome.json -e srv6 -s ll
 cat log/low_latency.json
 ```
 
-5. Least Utilized service:
+### Least Utilized service:
 ``` 
 python3 client.py -f rome.json -e sr -s lu
 ```
