@@ -123,13 +123,16 @@ Save the file and re-run the script. You should see more path options in the com
 ### Least Utilized Path
 Many segment routing and SDN solutions focus on the low latency path as their primary use case. We absolutely feel low latency is an important network service, especially for real time applications. However, we believe one of the use cases which deliver the most bang for the buck is "Least Utilized Path". The idea behind this use case is that the routing protocol's chosen best path is usually the Best Path. Thus this service looks to steer lower priority traffic (backups, content replication, etc.) to lesser used paths and preserve the routing protocol's best path for higher priority traffic.
 
-1. Execute the least utilized path service with SR encapsulation
+1. Cleanup and stale routes and execute the least utilized path service with SR encapsulation
 ``` 
+./cleanup_rome_routes.sh 
 python3 client.py -f rome.json -e sr -s lu
 ```
+ - The client's command line output should display the new route in the routing table:
 ```
-python3 client.py -f rome.json -e srv6 -s lu
+10.101.1.0/24  encap mpls  100006/100002/100001 via 10.107.1.2 dev ens192 
 ```
+
 2. Check log output and linux ip route:
  ```
 cat log/least_utilized.json
@@ -137,6 +140,7 @@ cat log/least_utilized.json
 ip route
 
 ```
+
 3. Run a ping test 
  - Open up a second ssh session to the Rome VM
  - Start tcpdump on 2nd ssh session. This will capture packets outbound from Rome VM going toward xrd07:
@@ -145,22 +149,25 @@ sudo tcpdump -ni ens192
 ```
  - Return to the first Rome ssh session and ping
 ```
-ping 10.0.0.1 -i .4
+ping 10.101.1.1 -i .4
 ```
+
 4. Validate traffic is encapsulated in the SR label stack. Expected output will be something like:
 ```
 cisco@rome:~$ sudo tcpdump -ni ens192
 tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
 listening on ens192, link-type EN10MB (Ethernet), capture size 262144 bytes
-21:58:07.770724 MPLS (label 100006, exp 0, ttl 64) (label 100005, exp 0, ttl 64) (label 100001, exp 0, [S], ttl 64) IP 10.107.1.1 > 10.101.1.1: ICMP echo request, id 27, seq 1, length 64
-21:58:07.775269 IP 10.101.1.1 > 10.107.1.1: ICMP echo reply, id 27, seq 1, length 64
+22:17:16.770622 MPLS (label 100006, exp 0, ttl 64) (label 100002, exp 0, ttl 64) (label 100001, exp 0, [S], ttl 64) IP 10.107.1.1 > 10.101.1.1: ICMP echo request, id 30, seq 9, length 64
+22:17:16.775121 IP 10.101.1.1 > 10.107.1.1: ICMP echo reply, id 30, seq 9, length 64
 ```
+
 5. Open an ssh session to the xrd VM and run tcpdump to trace labeled packets through the network
  - Docker's bridge naming logic is such that the actual bridge instance names are not predictable. Rather than go through some renaming process we built a script that'll resolve the bridge name and trigger the appropriate tcpdump.
  - On the xrd VM cd into the project's 'util' directory:
 ```
 cd SRv6_dCloud_Lab/util/
 ```
+
 6. Run the nets.sh shell script, which will write the appropriate linux bridge names to files in the util directory:
 ```
 ./nets.sh 
@@ -171,102 +178,80 @@ cisco@xrd:~/SRv6_dCloud_Lab/util$ ls
 nets.sh     xrd01-xrd02  xrd02-xrd03  xrd03-xrd04  xrd04-xrd07  xrd06-xrd07
 tcpdump.sh  xrd01-xrd05  xrd02-xrd06  xrd04-xrd05  xrd05-xrd06
 ```
+
 7. We can now use "tcpdump.sh <xrd0x-xrd0y>" to capture packets along the path from Rome VM to Amsterdam VM. Given the label stack seen above, we'll monitor the linux bridges linking xrd07 and xrd06, xrd06 and xrd05, then xrd05 and xrd01:
  - restart the ping if it is stopped
 ```
 ./tcpdump.sh xrd06-xrd07
-./tcpdump.sh xrd05-xrd06
-./tcpdump.sh xrd01-xrd05
+./tcpdump.sh xrd02-xrd06
+./tcpdump.sh xrd01-xrd02
 ```
  - We expect to see SR-MPLS PHP behavior as xrd nodes pop outer labels as the traffic traverses the network. Example output:
 ```
-cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd05-xrd06
-sudo tcpdump -ni br-a844eef82eca
+cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd02-xrd06
+sudo tcpdump -ni br-9695b2ce572e
 tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
-listening on br-a844eef82eca, link-type EN10MB (Ethernet), capture size 262144 bytes
-17:11:32.523122 MPLS (label 100001, exp 0, [S], ttl 62) IP 10.107.1.1 > 10.101.1.1: ICMP echo request, id 28, seq 325, length 64
-```
-1. Cleanup Rome's routes and execute the least utilized path service with SR encapsulation
+listening on br-9695b2ce572e, link-type EN10MB (Ethernet), capture size 262144 bytes
+17:17:55.352668 MPLS (label 100001, exp 0, [S], ttl 62) IP 10.107.1.1 > 10.101.1.1: ICMP echo request, id 30, seq 86, length 64
+17:17:55.354834 MPLS (label 100007, exp 0, [S], ttl 62) IP 10.101.1.1 > 10.107.1.1: ICMP echo reply, id 30, seq 86, length 64
+17:17:55.821760 IS-IS, p2p IIH, src-id 0000.0000.0002, length 1497
+17:17:55.854029 MPLS (label 100001, exp 0, [S], ttl 62) IP 10.107.1.1 > 10.101.1.1: ICMP echo request, id 30, seq 87, length 64
+17:17:55.856079 MPLS (label 100007, exp 0, [S], ttl 62) IP 10.101.1.1 > 10.107.1.1: ICMP echo reply, id 30, seq 87, length 64
 ```
 
-
-### Low Latency Path
-
-``` 
-python3 client.py -f rome.json -e sr -s ll
+8. Cleanup Rome's routes and execute the least utilized path service with SRv6 encapsulation
 ```
-```
+./cleanup_rome_routes.sh 
 python3 client.py -f rome.json -e srv6 -s ll
 ```
- - check log output:
- ```
-cat log/low_latency.json
-```
 
-### Data Sovereignty Path 
-#### DS and Segment Routing
-1. Run the client
-``` 
-python3 client.py -f rome.json -e sr -s ds
-```
- - check log output:
- ```
-cat log/data_sovereignty.json
-```
-2. Ping test 
- - Open up a second ssh session to Rome VM
- - Start tcpdump:
-```
-sudo tcpdump -ni ens192
-```
- - Start ping on first Rome ssh session:
-```
-ping 10.0.0.1 -i .4
-```
- - Validate traffic is encapsulated in the SR label stack. Expected output:
-```
-cisco@rome:~$ sudo tcpdump -ni ens192
-tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
-listening on ens192, link-type EN10MB (Ethernet), capture size 262144 bytes
-23:30:45.565960 MPLS (label 100004, exp 0, ttl 64) (label 100005, exp 0, ttl 64) (label 100001, exp 0, [S], ttl 64) IP 10.107.1.1 > 10.0.0.1: ICMP echo request, id 3, seq 1, length 64
-23:30:45.571246 IP 10.0.0.1 > 10.107.1.1: ICMP echo reply, id 3, seq 1, length 64
-23:30:45.966843 MPLS (label 100004, exp 0, ttl 64) (label 100005, exp 0, ttl 64) (label 100001, exp 0, [S], ttl 64) IP 10.107.1.1 > 10.0.0.1: ICMP echo request, id 3, seq 2, length 64
-23:30:45.971546 IP 10.0.0.1 > 10.107.1.1: ICMP echo reply, id 3, seq 2, length 64
-23:30:46.368126 MPLS (label 100004, exp 0, ttl 64) (label 100005, exp 0, ttl 64) (label 100001, exp 0, [S], ttl 64) IP 10.107.1.1 > 10.0.0.1: ICMP echo request, id 3, seq 3, length 64
-23:30:46.372139 IP 10.0.0.1 > 10.107.1.1: ICMP echo reply, id 3, seq 3, length 64
-```
-3. Use tcpdump on the xrd VM to trace labeled packets through the network
- - On the xrd VM cd into the lab_6 directory
- - run the dockernets.sh shell script, which will write the appropriate linux bridge names to a file
-```
-# ingress to xrd07
-sudo tcpdump -ni ens192
+9. Repeat (or just spot-check steps 2 - 7)
 
-
-
-
-#### DS and SRv6
-1. cleanup any old routes:
-```
-./cleanup_rome_routes.sh
-```
-2. re-run the client with SRv6 encap:
-```
-python3 client.py -f rome.json -e srv6 -s ds
-```
-4. IPv6 ND may not have worked. Login to xrd07 and ping Rome vm
+## uSID USD issue or ipv6 nd issue?
+- Note: IPv6 ND may not have worked. Login to xrd07 and ping Rome vm
 ```
 ping fc00:0:107:1::1
 ```
-5. re-run the ping/tcpdump test. Expected output:
+
+### Low Latency Path
+The procedure is the same as Least Utilized Path
+``` 
+SR on Rome VM:
+
+./cleanup_rome_routes.sh 
+python3 client.py -f rome.json -e sr -s ll
+ping 10.101.1.1 -i .4
+
+SRv6 on Rome VM:
+
+./cleanup_rome_routes.sh 
+python3 client.py -f rome.json -e srv6 -s ll
+ping 10.101.1.1 -i .4
+
+On XRD VM:
+./tcpdump.sh xrd06-xrd07
+./tcpdump.sh xrd05-xrd06
+./tcpdump.sh xrd01-xrd05
 ```
-cisco@rome:~$ sudo tcpdump -ni ens192
-tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
-listening on ens192, link-type EN10MB (Ethernet), capture size 262144 bytes
-23:40:41.614862 IP6 fe80::250:56ff:fe86:8789 > fc00:0:107:1::2: ICMP6, neighbor solicitation, who has fc00:0:107:1::2, length 32
-23:40:41.615999 IP6 fc00:0:107:1::2 > fe80::250:56ff:fe86:8789: ICMP6, neighbor advertisement, tgt is fc00:0:107:1::2, length 32
-23:40:42.665521 IP6 fc00:0:107:1::1 > fc00:0:4:5:1::: srcrt (len=2, type=4, segleft=0[|srcrt]
-23:40:43.086871 IP6 fc00:0:107:1::1 > fc00:0:4:5:1::: srcrt (len=2, type=4, segleft=0[|srcrt]
-23:40:43.502868 IP6 fc00:0:107:1::1 > fc00:0:4:5:1::: srcrt (len=2, type=4, segleft=0[|srcrt]
-23:40:43.918911 IP6 fc00:0:107:1::1 > fc00:0:4:5:1::: srcrt (len=2, type=4, segleft=0[|srcrt]
+
+### Data Sovereignty Path 
+
+The procedure is the same as Least Utilized Path
+``` 
+SR on Rome VM:
+
+./cleanup_rome_routes.sh 
+python3 client.py -f rome.json -e sr -s ll
+ping 10.101.1.1 -i .4
+
+SRv6 on Rome VM:
+
+./cleanup_rome_routes.sh 
+python3 client.py -f rome.json -e srv6 -s ll
+ping 10.101.1.1 -i .4
+
+On XRD VM:
+./tcpdump.sh xrd06-xrd07
+./tcpdump.sh xrd05-xrd06
+./tcpdump.sh xrd01-xrd05
 ```
