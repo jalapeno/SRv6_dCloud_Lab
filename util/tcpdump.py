@@ -21,4 +21,4 @@ print(cmd)
 subprocess.run(cmd, capture_output=True, text=True)
 
 cmd2 = ['ls']
-subprocess.run(cmd)
+subprocess.run(cmd2)
