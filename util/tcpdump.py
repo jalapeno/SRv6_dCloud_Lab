@@ -14,6 +14,6 @@ file = args.f
 
 with open(file,"r") as f:
     bridge = f.read()
-    print(bridge)
+    print("bridge: ", bridge)
 
-subprocess.call(['sudo', 'tcpdump', '-ni', bridge])
+subprocess.call(['sudo', 'tcpdump', '-ni', bridge], capture_output=True, text=True)
