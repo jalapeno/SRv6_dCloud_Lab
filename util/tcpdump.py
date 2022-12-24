@@ -16,7 +16,7 @@ with open(file,"r") as f:
     bridge = f.read()
     print("bridge: ", bridge)
 
-cmd = ['sudo', 'tcpdump', '-ni', bridge]
+cmd = ['sudo', 'tcpdump', '-ni', bridge, '&']
 print(cmd)
 subprocess.run(cmd, capture_output=True, text=True)
 
