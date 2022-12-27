@@ -599,11 +599,13 @@ SRv6 uSID locator and source address information for nodes in the lab:
     ```
 ## End-to-End Connectivity
 
+We'll use the tcpdump.sh in the SRv6_dCloud_Lab/util/ directory to monitor traffic as it traverses the XRd network. Traffic through the network may travel via one or more ECMP paths, so we may need to try tcpdump.sh on different links before we see anything meaningful in the output
+
 1. Open a new ssh session on the XRD VM and cd into the lab's util directory:
 ```
 cd ~/SRv6_dCloud_Lab/util/
 ```
-2. Pings to/from xrd01 and xrd07 will travel via one of three ECMP paths in the network. Using the lab's tcpdump.sh script start a tcpdump session on the link between xrd05 and xrd06:
+2. Start the tcpdump.sh script to monitor traffic on a link:
 ```
 ./tcpdump.sh xrd05-xrd06
 ```
@@ -612,12 +614,12 @@ cd ~/SRv6_dCloud_Lab/util/
 ping 10.0.0.7 source lo0
 ping fc00:0:7::1 source lo0
 ```
-If nothing shows up on the tcpdump output try tcpdumping on xrd02-xrd06 or xrd04-xrd05 link:
+If nothing shows up on the tcpdump output try tcpdumping on the xrd02-xrd06 or xrd04-xrd05 link:
 ```
 ./tcpdump.sh xrd02-xrd06
 ./tcpdump.sh xrd04-xrd05
 ```
-Eventually pings should show up as tcpdump output. We should see SR-MPLS labels on IPv4 pings something like this:
+Eventually pings should show up as tcpdump output. We should see SR-MPLS labels on IPv4 pings, something like this:
 ```
 cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd04-xrd05 
 sudo tcpdump -ni br-1be0f9f81cbd
@@ -645,4 +647,6 @@ listening on br-1be0f9f81cbd, link-type EN10MB (Ethernet), capture size 262144 b
 21:59:08.129554 IP6 fc00:0:7::1 > fc00:0:1::1: ICMP6, echo reply, seq 1, length 60
 
 ```
+Feel free to experiment with the tcpdump script on other links while pinging to/from different nodes in the network.
+
 ### End of lab 1. Please proceed to lab 2.
