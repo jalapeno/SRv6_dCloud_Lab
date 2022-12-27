@@ -16,6 +16,7 @@ confirm PE and P roles. Last you will create basic SRv6 configuration on routers
 4. [Validate BGP Topology](#validate-bgp-topology)
 5. [Configure and validate SR-MPLS](#sr-mpls)
 6. [Configure and validate SRv6](#srv6)
+7. [Validate end to end connectivity for both SR and SRv6](#end-to-end-connectivity)
   
 
 ## Lab Objectives
@@ -596,3 +597,52 @@ SRv6 uSID locator and source address information for nodes in the lab:
     SID value:    fc00:0:1::
     Block Length: 32, Node Length: 16, Func Length: 0, Args Length: 80
     ```
+## End-to-End Connectivity
+
+1. Open a new ssh session on the XRD VM and cd into the lab's util directory:
+```
+cd ~/SRv6_dCloud_Lab/util/
+```
+2. Pings to/from xrd01 and xrd07 will travel via one of three ECMP paths in the network. Using the lab's tcpdump.sh script start a tcpdump session on the link between xrd05 and xrd06:
+```
+./tcpdump.sh xrd05-xrd06
+```
+3. Run some pings from xrd01 to xrd07:
+```
+ping 10.0.0.7 source lo0
+ping fc00:0:7::1 source lo0
+```
+If nothing shows up on the tcpdump output try tcpdumping on xrd02-xrd06 or xrd04-xrd05 link:
+```
+./tcpdump.sh xrd02-xrd06
+./tcpdump.sh xrd04-xrd05
+```
+Eventually pings should show up as tcpdump output. We should see SR-MPLS labels on IPv4 pings something like this:
+```
+cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd04-xrd05 
+sudo tcpdump -ni br-1be0f9f81cbd
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on br-1be0f9f81cbd, link-type EN10MB (Ethernet), capture size 262144 bytes
+21:56:27.732243 IS-IS, p2p IIH, src-id 0000.0000.0005, length 1497
+21:56:29.539521 MPLS (label 100007, exp 0, [S], ttl 254) IP 10.0.0.1 > 10.0.0.7: ICMP echo request, id 5699, seq 0, length 80
+21:56:29.541126 MPLS (label 100001, exp 0, [S], ttl 254) IP 10.0.0.7 > 10.0.0.1: ICMP echo reply, id 5699, seq 0, length 80
+```
+IPv6 pings will not invoke SRv6 encapsulation at this time:
+```
+cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd02-xrd06 
+sudo tcpdump -ni br-b50c608fd524
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on br-b50c608fd524, link-type EN10MB (Ethernet), capture size 262144 bytes
+21:59:25.626912 IS-IS, p2p IIH, src-id 0000.0000.0006, length 1497
+21:59:28.110163 IP6 fc00:0:1::1 > fc00:0:7::1: ICMP6, echo request, seq 0, length 60
+21:59:28.114200 IP6 fc00:0:1::1 > fc00:0:7::1: ICMP6, echo request, seq 1, length 60
+
+cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd04-xrd05 
+sudo tcpdump -ni br-1be0f9f81cbd
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on br-1be0f9f81cbd, link-type EN10MB (Ethernet), capture size 262144 bytes
+21:59:08.125911 IP6 fc00:0:7::1 > fc00:0:1::1: ICMP6, echo reply, seq 0, length 60
+21:59:08.129554 IP6 fc00:0:7::1 > fc00:0:1::1: ICMP6, echo reply, seq 1, length 60
+
+```
+### End of lab 1. Please proceed to lab 2.
