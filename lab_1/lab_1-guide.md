@@ -207,22 +207,17 @@ In our lab the Rome VM represents a standard linux host or endpoint, and is esse
 
 __Amsterdam__
 
-The Amsterdam VM represents a server belonging to a cloud, CDN, or gaming company that serves content to end users (such as the Rome VM) or customer applications over our network. The Amsterdam VM comes with VPP pre-installed. VPP (also known as fd.io) is a very flexible and high performance open source software dataplane. 
+The Amsterdam VM represents a server belonging to a cloud, CDN, or gaming company that serves content to end users (such as the Rome VM) or customer applications over our network. The Amsterdam VM comes with VPP pre-installed. VPP (also known as https://fd.io/) is a very flexible and high performance open source software dataplane. 
 
 1. SSH to Amsterdam Client VM from your laptop. 
-2. Check that the interface to router xrd01 is `UP` and has the assigned IP `10.101.1.1/24` 
+2. Check that the VPP interface facing Ubuntu (host-vpp-in) and the interface facing router xrd01 (GigabitEthernetb/0/0) are `UP` and have their assigned IP addresses. GigabitEthernetb/0/0: `10.101.1.1/24`, and host-vpp-in: `10.101.1.1/24` 
     ```
-    cisco@amsterdam:~$ ip address show ens192
-    3: ens192: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
-        link/ether 00:50:56:aa:a0:3f brd ff:ff:ff:ff:ff:ff
-        inet 10.101.1.1/24 brd 10.101.1.255 scope global ens192
-        valid_lft forever preferred_lft forever
-        inet6 fc00:0:101:1:250:56ff:feaa:a03f/64 scope global dynamic mngtmpaddr noprefixroute 
-        valid_lft 2591850sec preferred_lft 604650sec
-        inet6 fc00:0:101:1::1/64 scope global 
-        valid_lft forever preferred_lft forever
-        inet6 fe80::250:56ff:feaa:a03f/64 scope link 
-        valid_lft forever preferred_lft forever
+cisco@amsterdam:~$ sudo vppctl show interface address
+GigabitEthernetb/0/0 (up):
+  L3 10.101.1.1/24
+  L3 fc00:0:101:1::1/64
+host-vpp-in (up):
+  L3 10.101.2.2/24
     ```
 3. Check connectivity from Amsterdam to xrd01 - we'll issue a ping from VPP itself:
     ```
@@ -519,7 +514,7 @@ The Cisco IOS-XR 7.5 Configuration guide for SR-MPLS can be found here: [LINK](h
 ## SRv6
 Segment Routing over IPv6 (SRv6) extends Segment Routing support with IPv6 data plane.
 
-SRv6 introduces the Network Programming framework that enables a network operator or an application to specify a packet processing program by encoding a sequence of instructions in the IPv6 packet header. Each instruction is implemented on one or several nodes in the network and identified by an SRv6 Segment Identifier (SID) in the packet. In this lab we are implementing SRv6 on all 7 routers.
+SRv6 introduces the Network Programming framework that enables a network operator or an application to specify a packet processing program by encoding a sequence of instructions in the IPv6 packet header. Each instruction is implemented on one or several nodes in the network and identified by an SRv6 Segment Identifier (SID) in the packet. 
 
 In SRv6, an IPv6 address represents an instruction. SRv6 uses a new type of IPv6 Routing Extension Header, called the Segment Routing Header (SRH), in order to encode an ordered list of instructions. The active segment is indicated by the destination address of the packet, and the next segment is indicated by a pointer in the SRH.
 
@@ -532,6 +527,18 @@ In our lab we will be working with SRv6 "micro segment" (SRv6 uSID or uSID for s
 
 For a full overview of SRv6 please see the Wiki here: [LINK](/SRv6.md)  
 The Cisco IOS-XR 7.5 Configuration guide for SRv6 can be found here: [LINK](https://www.cisco.com/c/en/us/td/docs/iosxr/cisco8000/segment-routing/75x/b-segment-routing-cg-cisco8000-75x/configuring-segment-routing-over-ipv6-srv6-micro-sids.html)
+
+SRv6 uSID locator and source address information for nodes in the lab:
+
+    | Router Name | Loopback Int| Locator Prefix | Source-address |                                           
+    |:------------|:-----------:|:--------------:|:--------------:|                          
+    | xrd01       | loopback 0  | fc00:0:1::/48  | fc00:0:1::1    |
+    | xrd02       | loopback 0  | fc00:0:2::/48  | fc00:0:2::1    |
+    | xrd03       | loopback 0  | fc00:0:3::/48  | fc00:0:3::1    |
+    | xrd04       | loopback 0  | fc00:0:4::/48  | fc00:0:4::1    |
+    | xrd05       | loopback 0  | fc00:0:5::/48  | fc00:0:5::1    |
+    | xrd06       | loopback 0  | fc00:0:6::/48  | fc00:0:6::1    |
+    | xrd07       | loopback 0  | fc00:0:7::/48  | fc00:0:7::1    |
 
 ### Configuration Steps SRv6
 1. Enable SRv6 globally and define SRv6 locator and source address for outbound encapsulation 
