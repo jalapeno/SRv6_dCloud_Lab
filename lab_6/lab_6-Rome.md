@@ -168,7 +168,7 @@ nets.sh     xrd01-xrd02  xrd02-xrd03  xrd03-xrd04  xrd04-xrd07  xrd06-xrd07
 tcpdump.sh  xrd01-xrd05  xrd02-xrd06  xrd04-xrd05  xrd05-xrd06
 ```
 
-7. Use tcpdump.sh <xrd0x-xrd0y>" to capture packets along the path from Rome VM to Amsterdam VM. Given the label stack seen above, we'll monitor the linux bridges linking xrd07 and xrd06, xrd06 and xrd05, then xrd05 and xrd01:
+6. Use tcpdump.sh <xrd0x-xrd0y>" to capture packets along the path from Rome VM to Amsterdam VM. Given the label stack seen above, we'll monitor the linux bridges linking xrd07 and xrd06, xrd06 and xrd05, then xrd05 and xrd01:
  - restart the ping if it is stopped
 ```
 ./tcpdump.sh xrd06-xrd07
@@ -188,13 +188,13 @@ listening on br-9695b2ce572e, link-type EN10MB (Ethernet), capture size 262144 b
 17:17:55.856079 MPLS (label 100007, exp 0, [S], ttl 62) IP 10.101.1.1 > 10.107.1.1: ICMP echo reply, id 30, seq 87, length 64
 ```
 
-8. Cleanup Rome's routes and execute the least utilized path service with SRv6 encapsulation
+7. Cleanup Rome's routes and execute the least utilized path service with SRv6 encapsulation
 ```
 ./cleanup_rome_routes.sh 
-python3 client.py -f rome.json -e srv6 -s ll
+python3 client.py -f rome.json -e srv6 -s lu
 ```
 
-9. Repeat, or just spot-check, steps 2 - 7
+8. Repeat, or just spot-check, steps 2 - 6
 
 ### Low Latency Path
 The procedure is the same as Least Utilized Path
