@@ -1,0 +1,106 @@
+{
+    "statusCode": 200,
+    "source": "unicast_prefix_v4/10.101.1.0_24_10.0.0.1",
+    "destination": "unicast_prefix_v4/10.107.1.0_24_10.0.0.7",
+    "path": [
+        {
+            "path": [
+                null,
+                "xrd05",
+                "xrd06",
+                "xrd07",
+                null
+            ],
+            "sid": [
+                "fc00:0:5::",
+                "fc00:0:6::",
+                "fc00:0:7::",
+                {
+                    "srv6_sid": "fc00:0:5:6:7::"
+                }
+            ],
+            "prefix_sid": [
+                100005,
+                100006,
+                100007
+            ],
+            "latency": 40,
+            "percent_util_out": 48.333333333333336
+        },
+        {
+            "path": [
+                null,
+                "xrd05",
+                "xrd04",
+                "xrd07",
+                null
+            ],
+            "sid": [
+                "fc00:0:5::",
+                "fc00:0:4::",
+                "fc00:0:7::",
+                {
+                    "srv6_sid": "fc00:0:5:4:7::"
+                }
+            ],
+            "prefix_sid": [
+                100005,
+                100004,
+                100007
+            ],
+            "latency": 95,
+            "percent_util_out": 33.333333333333336
+        },
+        {
+            "path": [
+                null,
+                "xrd02",
+                "xrd06",
+                "xrd07",
+                null
+            ],
+            "sid": [
+                "fc00:0:2::",
+                "fc00:0:6::",
+                "fc00:0:7::",
+                {
+                    "srv6_sid": "fc00:0:2:6:7::"
+                }
+            ],
+            "prefix_sid": [
+                100002,
+                100006,
+                100007
+            ],
+            "latency": 60,
+            "percent_util_out": 36.666666666666664
+        },
+        {
+            "path": [
+                null,
+                "xrd02",
+                "xrd03",
+                "xrd04",
+                "xrd07",
+                null
+            ],
+            "sid": [
+                "fc00:0:2::",
+                "fc00:0:3::",
+                "fc00:0:4::",
+                "fc00:0:7::",
+                {
+                    "srv6_sid": "fc00:0:2:3:4:7::"
+                }
+            ],
+            "prefix_sid": [
+                100002,
+                100003,
+                100004,
+                100007
+            ],
+            "latency": 110,
+            "percent_util_out": 25
+        }
+    ]
+}
