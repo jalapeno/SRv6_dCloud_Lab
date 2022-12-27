@@ -99,10 +99,10 @@ more log/get_paths.json
 
   - Sample command line output:
 ```
-locators:  [None, 'fc00:0:5::', 'fc00:0:6::', 'fc00:0:7::', None]
-locators:  [None, 'fc00:0:5::', 'fc00:0:4::', 'fc00:0:7::', None]
-locators:  [None, 'fc00:0:2::', 'fc00:0:6::', 'fc00:0:7::', None]
-locators:  [None, 'fc00:0:2::', 'fc00:0:3::', 'fc00:0:4::', 'fc00:0:7::', None]
+locators:  [None, 'fc00:0:6::', 'fc00:0:2::', 'fc00:0:1::', None]
+locators:  [None, 'fc00:0:6::', 'fc00:0:5::', 'fc00:0:1::', None]
+locators:  [None, 'fc00:0:4::', 'fc00:0:5::', 'fc00:0:1::', None]
+locators:  [None, 'fc00:0:4::', 'fc00:0:3::', 'fc00:0:2::', 'fc00:0:1::', None]
 ```
 You can also experiment with the script's graph traversal parameters to limit or expand the number of vertex 'hops' the query will search for. Note: ArangoDB considers the source and destination vertices as 'hops' when doing its graph traversal.
 
@@ -161,25 +161,14 @@ listening on ens192, link-type EN10MB (Ethernet), capture size 262144 bytes
 22:17:16.775121 IP 10.101.1.1 > 10.107.1.1: ICMP echo reply, id 30, seq 9, length 64
 ```
 
-5. Open an ssh session to the xrd VM and run tcpdump to trace labeled packets through the network
- - Docker's bridge naming logic is such that the actual bridge instance names are not predictable. Rather than go through some renaming process we built a script that'll resolve the bridge name and trigger the appropriate tcpdump.
- - On the xrd VM cd into the project's 'util' directory:
-```
-cd SRv6_dCloud_Lab/util/
-```
-
-6. Run the nets.sh shell script, which will write the appropriate linux bridge names to files in the util directory:
-```
-./nets.sh 
-```
- - after the script runs the directory should look like this:
+5. Open an ssh session to the xrd VM and verify the nets.sh script in the util directory has run. The directory should look like this: 
 ```
 cisco@xrd:~/SRv6_dCloud_Lab/util$ ls
 nets.sh     xrd01-xrd02  xrd02-xrd03  xrd03-xrd04  xrd04-xrd07  xrd06-xrd07
 tcpdump.sh  xrd01-xrd05  xrd02-xrd06  xrd04-xrd05  xrd05-xrd06
 ```
 
-7. We can now use "tcpdump.sh <xrd0x-xrd0y>" to capture packets along the path from Rome VM to Amsterdam VM. Given the label stack seen above, we'll monitor the linux bridges linking xrd07 and xrd06, xrd06 and xrd05, then xrd05 and xrd01:
+7. Use tcpdump.sh <xrd0x-xrd0y>" to capture packets along the path from Rome VM to Amsterdam VM. Given the label stack seen above, we'll monitor the linux bridges linking xrd07 and xrd06, xrd06 and xrd05, then xrd05 and xrd01:
  - restart the ping if it is stopped
 ```
 ./tcpdump.sh xrd06-xrd07
@@ -205,30 +194,25 @@ listening on br-9695b2ce572e, link-type EN10MB (Ethernet), capture size 262144 b
 python3 client.py -f rome.json -e srv6 -s ll
 ```
 
-9. Repeat (or just spot-check steps 2 - 7)
-
-## uSID USD issue or ipv6 nd issue?
-- Note: IPv6 ND may not have worked. Login to xrd07 and ping Rome vm
-```
-ping fc00:0:107:1::1
-```
+9. Repeat, or just spot-check, steps 2 - 7
 
 ### Low Latency Path
 The procedure is the same as Least Utilized Path
-``` 
-SR on Rome VM:
 
+1. SR on Rome VM:
+```
 ./cleanup_rome_routes.sh 
 python3 client.py -f rome.json -e sr -s ll
 ping 10.101.1.1 -i .4
-
-SRv6 on Rome VM:
-
+```
+2. SRv6 on Rome VM:
+```
 ./cleanup_rome_routes.sh 
 python3 client.py -f rome.json -e srv6 -s ll
 ping 10.101.1.1 -i .4
-
-On XRD VM:
+```
+3. tcpdump script On XRD VM:
+```
 ./tcpdump.sh xrd06-xrd07
 ./tcpdump.sh xrd05-xrd06
 ./tcpdump.sh xrd01-xrd05
@@ -237,20 +221,21 @@ On XRD VM:
 ### Data Sovereignty Path 
 
 The procedure is the same as Least Utilized Path
-``` 
-SR on Rome VM:
-
+ 
+1. SR on Rome VM:
+```
 ./cleanup_rome_routes.sh 
 python3 client.py -f rome.json -e sr -s ll
 ping 10.101.1.1 -i .4
-
-SRv6 on Rome VM:
-
+```
+2. SRv6 on Rome VM:
+```
 ./cleanup_rome_routes.sh 
 python3 client.py -f rome.json -e srv6 -s ll
 ping 10.101.1.1 -i .4
-
-On XRD VM:
+```
+3. tcpdump on XRD VM:
+```
 ./tcpdump.sh xrd06-xrd07
 ./tcpdump.sh xrd05-xrd06
 ./tcpdump.sh xrd01-xrd05
