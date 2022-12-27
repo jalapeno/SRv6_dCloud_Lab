@@ -25,5 +25,7 @@ def add_vpp_route(dst, srv6_sid, prefix_sid, encap):
         subprocess.call(['sudo', 'vppctl', 'show', 'ip', 'fib', dst])
 
     if encap == "sr":
+        label_stack = '/'.join([str(elem) for elem in prefix_sid])
         subprocess.call(['sudo', 'vppctl', 'ip route del', dst])
         subprocess.call(['sudo', 'vppctl', 'ip route add', dst, 'via 10.101.1.2 GigabitEthernetb/0/0 out-labels', prefix_sid])
+        subprocess.call(['show', 'ip', 'fib', dst])
