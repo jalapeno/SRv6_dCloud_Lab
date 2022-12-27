@@ -2,8 +2,7 @@
 
 ### Description: 
 In Lab 1 the student will validate that the supplied topology is up and running and that all baseline 
-connectivity is working. Second, they will validate that the pre-configured ISIS and BGP routing protocols are running and 
-seeing the correct topology. Third, there will be lite SR-MPLS configuration on routers 1-7 and 
+connectivity is working. Second, they will validate that the pre-configured ISIS and BGP routing protocols are running and seeing the correct topology. Third, there will be lite SR-MPLS configuration on routers 1-7 and 
 confirm PE and P roles. Last you will create basic SRv6 configuration on routers 1-7 and confirm connectivity. 
 
 ## Contents
@@ -30,12 +29,12 @@ The student upon completion of Lab 1 should have achieved the following objectiv
 
 ## Validate Device Access
 
-Device access for this lab is primarly through SSH. All of the VMs within this toplogy can be accessed once you connect through Cisco AnyConnect VPN to the dCloud environment. Please see the management topology network diagram below. In addition their are seven instances of XR routers running in containers on the VM host XRD. The XRD VM acts as a jumpbox for these router containers. For router access you will need to SSH into the XRD VM and then initiate a separate SSH session to each of the routers. The XRD VM is configured for DNS resolution for each router name to save time.
+Device access for this lab is primarly through SSH. All of the VMs within this toplogy can be accessed once you connect through Cisco AnyConnect VPN to the dCloud environment. Please see the management topology network diagram below. In addition their are seven instances of XR routers running as containers on the VM host XRD. The XRD VM acts as a jumpbox for these containerized routers. For router access you will need to SSH into the XRD VM and then initiate a separate SSH session to each of the routers. The XRD VM is configured for DNS resolution for each router name to save time.
 
 ### User Credentials
 For all instances you will use the same user credentials:
 ```
-User: cisco Password: cisco123
+User: cisco, Password: cisco123
 ```
 
 ### Management Network Topology
@@ -46,6 +45,9 @@ For full size image see [LINK](/topo_drawings/management-network.png)
 
 ### Validate XRD
 1. SSH to the Ubuntu VM XRD which is using Docker to host the XRD application
+```
+ssh cisco@198.18.128.100
+```
 
 2. Change to the Git repository directory
     - The lab repository folder is found in the home directory ~/SRv6_dCloud_Lab/
@@ -95,7 +97,7 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     c48dc39398ef   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd04
     7d0436c26cc8   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd06
     ```
-6. Confirm the docker networks were created. The Network ID are unique on creation
+6. Confirm the docker networks were created. 
     ```
     cisco@xrd:~/SRv6_dCloud_Lab/lab_0$ docker network ls
     NETWORK ID     NAME                  DRIVER    SCOPE
@@ -123,9 +125,20 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     b48429454f4c   xrd06-gi0-xrd07-gi2   bridge    local
     84b7ddd7e018   xrd07-gi3             bridge    local
     ```
+Note the docker Network IDs are unique on creation. Docker's network/bridge naming logic is such that the actual bridge instance names are not predictable. Rather than go through some renaming process the lab setup script calls another small script that resolves the bridge name and writes it to a file that we'll use later for running tcpdump on the virtual links between routers in our topology.
+
+ - The scripts and files reside in the lab 'util' directory:
+```
+cisco@xrd:~/SRv6_dCloud_Lab$ ls ~/SRv6_dCloud_Lab/util/
+nets.sh     xrd01-xrd02  xrd02-xrd03  xrd03-xrd04  xrd04-xrd07  xrd06-xrd07
+tcpdump.sh  xrd01-xrd05  xrd02-xrd06  xrd04-xrd05  xrd05-xrd06
+cisco@xrd:~/SRv6_dCloud_Lab$ 
+```
+Later we'll use "tcpdump.sh <xrd0x-xrd0y>" to capture packets along the path through the network. 
+
 7. The XRD router instances should be available for access 2 minutes after spin up.
 
-### Validate Jalaepno
+### Validate Jalapeno VM
 1. SSH to the Ubuntu VM Jalapeno which is using Kubernetes to host the Jalapeno application
 2. Check that the interface to routers xrd05 and xrd06 is up and has assigned IP 198.18.1.101
 ```
@@ -138,35 +151,36 @@ For full size image see [LINK](/topo_drawings/management-network.png)
         inet6 fe80::250:56ff:fe97:15aa/64 scope link 
         valid_lft forever preferred_lft forever
 ```
-3. 
+3. Connect to xrd05 and xrd06 and validate reachability to the Jalapeno VM:
+```
+cisco@xrd:~/SRv6_dCloud_Lab$ ssh xrd05
+Warning: Permanently added 'xrd05,10.254.254.105' (ECDSA) to the list of known hosts.
+Password: 
+Last login: Mon Dec 26 20:57:32 2022 from 10.254.254.1
+
+RP/0/RP0/CPU0:xrd05#sho run int gi0/0/0/3
+Mon Dec 26 20:58:10.227 UTC
+interface GigabitEthernet0/0/0/3
+ description to Internet
+ cdp
+ ipv4 address 198.18.1.2 255.255.255.0
+ ipv6 address 2001:1:1:1::1a/125
+!
+RP/0/RP0/CPU0:xrd05#ping 198.18.1.101
+Mon Dec 26 20:58:14.751 UTC
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 198.18.1.101 timeout is 2 seconds:
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 1/1/1 ms
+RP/0/RP0/CPU0:xrd05#
+```
 
 ### Validate Client VMs
-__Amsterdam__
-1. SSH to Amsterdam Client VM from your laptop. 
-2. Check that the interface to router xrd01 is `UP` and has the assigned IP `10.101.1.1/24` 
-    ```
-    cisco@amsterdam:~$ ip address show ens192
-    3: ens192: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
-        link/ether 00:50:56:aa:a0:3f brd ff:ff:ff:ff:ff:ff
-        inet 10.101.1.1/24 brd 10.101.1.255 scope global ens192
-        valid_lft forever preferred_lft forever
-        inet6 fc00:0:101:1:250:56ff:feaa:a03f/64 scope global dynamic mngtmpaddr noprefixroute 
-        valid_lft 2591850sec preferred_lft 604650sec
-        inet6 fc00:0:101:1::1/64 scope global 
-        valid_lft forever preferred_lft forever
-        inet6 fe80::250:56ff:feaa:a03f/64 scope link 
-        valid_lft forever preferred_lft forever
-    ```
-3. Check connectivity from Amsterdam to xrd01
-    ```
-    cisco@amsterdam:~$ ping -c 3 10.101.1.2
-    PING 10.101.1.2 (10.101.1.2) 56(84) bytes of data.
-    64 bytes from 10.101.1.2: icmp_seq=1 ttl=255 time=1.18 ms
-    64 bytes from 10.101.1.2: icmp_seq=2 ttl=255 time=1.18 ms
-    64 bytes from 10.101.1.2: icmp_seq=3 ttl=255 time=1.37 ms
-    ```
 
 __Rome__
+
+In our lab the Rome VM represents a standard linux host or endpoint, and is essentially a customer/user of our network.
+
 1. SSH to Rome Client VM from your laptop. 
 2. Check that the interface to router xrd07 is `UP` and has the assigned IP `10.107.1.1/24`
     ```
@@ -191,8 +205,40 @@ __Rome__
     64 bytes from 10.107.1.2: icmp_seq=3 ttl=255 time=1.30 ms
     ```
 
+__Amsterdam__
+
+The Amsterdam VM represents a server belonging to a cloud, CDN, or gaming company that serves content to end users (such as the Rome VM) or customer applications over our network. The Amsterdam VM comes with VPP pre-installed. VPP (also known as fd.io) is a very flexible and high performance open source software dataplane. 
+
+1. SSH to Amsterdam Client VM from your laptop. 
+2. Check that the interface to router xrd01 is `UP` and has the assigned IP `10.101.1.1/24` 
+    ```
+    cisco@amsterdam:~$ ip address show ens192
+    3: ens192: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+        link/ether 00:50:56:aa:a0:3f brd ff:ff:ff:ff:ff:ff
+        inet 10.101.1.1/24 brd 10.101.1.255 scope global ens192
+        valid_lft forever preferred_lft forever
+        inet6 fc00:0:101:1:250:56ff:feaa:a03f/64 scope global dynamic mngtmpaddr noprefixroute 
+        valid_lft 2591850sec preferred_lft 604650sec
+        inet6 fc00:0:101:1::1/64 scope global 
+        valid_lft forever preferred_lft forever
+        inet6 fe80::250:56ff:feaa:a03f/64 scope link 
+        valid_lft forever preferred_lft forever
+    ```
+3. Check connectivity from Amsterdam to xrd01 - we'll issue a ping from VPP itself:
+    ```
+cisco@amsterdam:~$ sudo vppctl ping 10.101.1.2
+116 bytes from 10.101.1.2: icmp_seq=1 ttl=255 time=2.7229 ms
+116 bytes from 10.101.1.2: icmp_seq=2 ttl=255 time=1.1550 ms
+116 bytes from 10.101.1.2: icmp_seq=3 ttl=255 time=1.1341 ms
+116 bytes from 10.101.1.2: icmp_seq=4 ttl=255 time=1.2277 ms
+116 bytes from 10.101.1.2: icmp_seq=5 ttl=255 time=.8838 ms
+
+Statistics: 5 sent, 5 received, 0% packet loss
+cisco@amsterdam:~$ 
+    ```
+
 ### Connect to Routers
-1. Starting from the XRD VM log into each routers instance 1-7 consulting the management topology diagram above. Example:
+1. Starting from the XRD VM log into each router instance 1-7 per the management topology diagram above. Example:
 ```
 ssh cisco@xrd01
 ```
@@ -228,7 +274,7 @@ ping fc00:0:101:1::1
 
 ## Validate ISIS Topology
 
-In this lab we are using ISIS as the underlying IGP to establish link connectivity across routers xrd01 -> xrd07. ISIS has a basic configuration pre-configured setup starting in lab 1. The student will want to confirm that they see a full ISIS topology.
+In this lab we are using ISIS as the underlying IGP to establish link connectivity across routers xrd01 -> xrd07. ISIS has basic settings pre-configured at startup in lab 1. The student will want to confirm that they see a full ISIS topology.
 
 ![ISIS Topology](/topo_drawings/isis-topology-medium.png)
 
@@ -276,7 +322,7 @@ ping fc00:0:7::1 source lo0
 
 ## Validate BGP Topology
 
-In this lab we are using BGP for SRv6 route/community exchange. In the lab we are running as single AS 65000 with BGP running on xrd01, xrd05, xrd06, xrd07.  Routers xrd05 and xrd06 are functioning as route reflectors for the lab. The student will want to confirm that they see a full BGP topology.
+In this lab we are using BGP for SRv6 route/community exchange. In the lab we are running a single AS 65000 with BGP running on xrd01, xrd05, xrd06, xrd07.  Routers xrd05 and xrd06 are functioning as route reflectors and xrd01 and xrd07 are clients. The student will want to confirm that they see a full BGP topology.
 
 ![BGP Topology](/topo_drawings/bgp-topology-medium.png)
 
@@ -371,7 +417,7 @@ The Cisco IOS-XR 7.5 Configuration guide for SR and BGP can be found here: [LINK
 
 ## SR-MPLS
 
-Segment Routing (SR) is a source-based routing architecture. A node chooses a path and steers a packet through the network via that path by inserting an ordered list of the segment, instructing how subsequent nodes in the path, that receive the packet, should process it. This simplifies operations and reduces resource requirements in the network by removing network state information from intermediary nodes and path information is encoded as an ordered list of segments in label stack at the ingress node. In addition to this, because the shortest-path segment includes all Equal-Cost Multi-Path (ECMP) paths to the related node, SR supports the ECMP nature of IP by design. In Lab 1 we will add some basic SR-MPLS commands to xrd01 -> xrd07. 
+Segment Routing (SR) is a source-based routing architecture. A node chooses a path and steers a packet through the network via that path by inserting an ordered list of segments, instructing how subsequent nodes in the path that receive the packet should process it. This simplifies operations and reduces resource requirements in the network by removing network state information from intermediary nodes as path information is encoded as an ordered list of segments in label stack at the ingress node. In addition to this, because the shortest-path segment includes all Equal-Cost Multi-Path (ECMP) paths to the related node, SR supports the ECMP nature of IP by design. In Lab 1 we will add some basic SR-MPLS commands to xrd01 -> xrd07. 
 
 For a full overview of SR-MPLS please see the Wiki here: [LINK](/SR-MPLS.md)  
 The Cisco IOS-XR 7.5 Configuration guide for SR-MPLS can be found here: [LINK](https://www.cisco.com/c/en/us/td/docs/iosxr/cisco8000/segment-routing/75x/b-segment-routing-cg-cisco8000-75x/configuring-segment-routing-for-is-is-protocol.html)
@@ -393,7 +439,7 @@ The Cisco IOS-XR 7.5 Configuration guide for SR-MPLS can be found here: [LINK](h
     ```
 
 3. Configure a Prefix-SID on ISIS Loopback Interface
-    A prefix segment identifier (SID) is associated with an IP prefix. The prefix SID is manually configured from the segment routing global block. A prefix SID is configured under the loopback interface with the loopback address of the node as the prefix. The prefix segment steers the traffic along the shortest path to its destination. Consult the table below then configure the prefix SID on routes xrd01 -> xrd07
+    A prefix segment identifier (SID) is associated with an IP prefix. The prefix SID is manually configured from the segment routing global block. A prefix SID is configured under the loopback interface with the loopback address of the node as the prefix. The prefix segment steers the traffic along the shortest path to its destination. In our lab configurations we will be using Prefix SID Indexes. Consult the table below then configure the prefix SID on routes xrd01 -> xrd07
 
 
     | Router Name | Loopback Int| Prefix-SID |                                           
@@ -473,9 +519,16 @@ The Cisco IOS-XR 7.5 Configuration guide for SR-MPLS can be found here: [LINK](h
 ## SRv6
 Segment Routing over IPv6 (SRv6) extends Segment Routing support with IPv6 data plane.
 
-SRv6 introduces the Network Programming framework that enables a network operator or an application to specify a packet processing program by encoding a sequence of instructions in the IPv6 packet header. Each instruction is implemented on one or several nodes in the network and identified by an SRv6 Segment Identifier (SID) in the packet. In this lab we are implementing SRv6 on the following routers: xrd01, xrd05, xrd06, xrd07
+SRv6 introduces the Network Programming framework that enables a network operator or an application to specify a packet processing program by encoding a sequence of instructions in the IPv6 packet header. Each instruction is implemented on one or several nodes in the network and identified by an SRv6 Segment Identifier (SID) in the packet. In this lab we are implementing SRv6 on all 7 routers.
 
 In SRv6, an IPv6 address represents an instruction. SRv6 uses a new type of IPv6 Routing Extension Header, called the Segment Routing Header (SRH), in order to encode an ordered list of instructions. The active segment is indicated by the destination address of the packet, and the next segment is indicated by a pointer in the SRH.
+
+In our lab we will be working with SRv6 "micro segment" (SRv6 uSID or uSID for short) instruction. SRv6 uSID is a straightforward extension of the SRv6 Network Programming model:
+
+ - The SRv6 Control Plane is leveraged without any change
+ - The SRH dataplane encapsulation is leveraged without any change
+ - Any SID in the SID list can carry micro segments
+ - Based on the Compressed SRv6 Segment List Encoding in SRH [I-D.ietf-spring-srv6-srh-compression] framework
 
 For a full overview of SRv6 please see the Wiki here: [LINK](/SRv6.md)  
 The Cisco IOS-XR 7.5 Configuration guide for SRv6 can be found here: [LINK](https://www.cisco.com/c/en/us/td/docs/iosxr/cisco8000/segment-routing/75x/b-segment-routing-cg-cisco8000-75x/configuring-segment-routing-over-ipv6-srv6-micro-sids.html)
