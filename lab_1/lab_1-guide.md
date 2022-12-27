@@ -531,6 +531,7 @@ The Cisco IOS-XR 7.5 Configuration guide for SRv6 can be found here: [LINK](http
 
 SRv6 uSID locator and source address information for nodes in the lab:
 
+
     | Router Name | Loopback Int| Locator Prefix | Source-address |                                           
     |:------------|:-----------:|:--------------:|:--------------:|                          
     | xrd01       | loopback 0  | fc00:0:1::/48  | fc00:0:1::1    |
@@ -647,15 +648,17 @@ listening on br-1be0f9f81cbd, link-type EN10MB (Ethernet), capture size 262144 b
 21:59:08.129554 IP6 fc00:0:7::1 > fc00:0:1::1: ICMP6, echo reply, seq 1, length 60
 ```
 4. Run some pings to/from Amsterdam and Rome VMs:
-```
-Amsterdam ping Rome (using VPP):
-sudo vppctl ping 10.107.1.1
+ - Amsterdam ping Rome (using VPP):
 
-Rome ping Amsterdam: 
+```
+sudo vppctl ping 10.107.1.1
+```
+ - Rome ping Amsterdam: 
+```
 ping 10.101.1.1
 ```
 Tcpdump.sh output should show SR-MPLS encapsulation of traffic on some set of links through the network. We'll see SRv6 encapsulated traffic in labs 2 - 6.
 
 Feel free to experiment with the tcpdump script on other links while pinging to/from different nodes in the network.
 
-### End of lab 1. Please proceed to lab 2.
+### End of lab 1. Please proceed to [lab_2]https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_2
