@@ -17,9 +17,17 @@ In Lab 2 the student will
   
 
 ## 1. Lab Objectives
-The student upon completion of Lab 1 should have achieved the following objectives
+The student upon completion of Lab 2 should have achieved the following objectives
 
 * Access to all devices in the lab
 * Understanding of the lab topology and components
 * Understanding of basic configuration for SR-MPLS
 * Understanding of basic configuration for SRv6
+
+
+
+
+
+
+### End of lab 2
+Please proceed to [lab_3](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_3)

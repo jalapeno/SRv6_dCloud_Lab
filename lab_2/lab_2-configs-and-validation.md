@@ -21,6 +21,7 @@ route-policy SID($SID)
 end-policy
 !
 router bgp 65000
+ address-family ipv4 unicast
   segment-routing srv6
    locator MAIN
  !
@@ -55,6 +56,7 @@ interface Loopback9
  ipv4 address 10.9.6.1 255.255.255.0
 !
 router bgp 65000
+ address-family ipv4 unicast
   segment-routing srv6
    locator MAIN
  !
@@ -93,6 +95,7 @@ route-policy SID($SID)
 end-policy
 !
 router bgp 65000
+ address-family ipv4 unicast
   segment-routing srv6
    locator MAIN
  !
