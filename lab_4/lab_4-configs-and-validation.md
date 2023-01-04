@@ -144,7 +144,7 @@ example: kubectl describe pod -n jalapeno topology-678ddb8bb4-rt9jg
 ```
 6. Install Jalapeno SR-Processors
 ```
-cd ~/SRv6_dCloud_Lab/lab_4/
+cd ~/SRv6_dCloud_Lab/lab_4/sr-processors
 kubectl apply -f sr-node.yaml 
 kubectl apply -f sr-topology.yaml 
 
