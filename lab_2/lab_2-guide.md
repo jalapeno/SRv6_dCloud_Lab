@@ -4,16 +4,16 @@
 In Lab 2 the student will 
 
 ## Contents
-1. [Lab Objectives](#lab-objectives)
-2. [Validate Device Access](#validate-device-access)
-    - [Validate XRD VM](#validate-xrd)
-    - [Validate Jalapeno VM](#validate-jalapeno)
-    - [Validate Client VMs](#validate-client-vms)
-    - [Connect to Routers](#connect-to-routers)
-3. [Validate ISIS Topology](#validate-isis-topology)
-4. [Validate BGP Topology](#validate-bgp-topology)
-5. [Configure and validate SR-MPLS](#sr-mpls)
-6. [Configure and validate SRv6](#srv6)
+1. [Lab Objectives](#1.-lab-objectives)
+2. [Learn Default ISIS Path]
+3. [Configure Explicit Path]
+    - [Configure Remote Networks]
+    - [Add networks to ISIS]
+    - [Validate ISIS reachability]
+4. [Configure SRv6 Steering Policy]
+    - [Slow Path Policy]
+    - [Fast Path Policy]
+5. [Validate TE from Amsterdam to Rome]
   
 
 ## 1. Lab Objectives
