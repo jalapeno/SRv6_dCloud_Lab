@@ -20,7 +20,7 @@ confirm PE and P roles. Last you will create basic SRv6 configuration on routers
   
 
 ## Lab Objectives
-The student upon completion of Lab 1 should have achieved the following objectives
+The student upon completion of Lab 1 should have achieved the following objectives:
 
 * Access to all devices in the lab
 * Understanding of the lab topology and components
