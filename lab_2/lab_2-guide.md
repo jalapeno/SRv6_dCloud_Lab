@@ -30,7 +30,7 @@ Before starting down the path of creating SRv6 steering policy you need to under
 
 In referencing the ISIS topology diagram below we will check examine the routing table on xrd01.
 
-![ISIS Topology](/topo_drawings/isis-topology-medium.png)
+![ISIS Topology](/topo_drawings/isis-ecmp-medium.png)
 
 What we are looking for is xrd07 route 10.0.0.7/32 (Lo0) advertised through ISIS. Seeing the routing table below you will see that xrd01 has two ECMP equal cost paths to both next hops xrd02 and xrd05. So for normal flows traffic passing through xrd01 for networks sourced from xrd07 will get ECMP hashed. In the below command output you can see the two next hop routes installed into the routing table.
 
