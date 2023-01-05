@@ -1,4 +1,28 @@
-### configure SR, SRv6, and SRv6-L3VPN for BGP
+### BGP global table prefixes over SR/SRv6
+
+1. advertise 20.0.0.0 via BGP IPv4 Labeled Unicast, resolving to SR-MPLS next hop
+2. advertise 30.0.0.0 via BGP IPv6 Unicast, resolving to SRv6/IPv6 next hop
+
+xrd07 config:
+```
+route-policy drop-20-net
+  if destination in (20.0.0.0/24) then
+    drop
+  else
+    pass
+  endif
+end-policy
+!
+route-policy drop-30-net
+  if destination in (30.0.0.0/24) then
+    drop
+  else
+    pass
+  endif
+end-policy
+!
+
+```
 
 R01 
 ```
