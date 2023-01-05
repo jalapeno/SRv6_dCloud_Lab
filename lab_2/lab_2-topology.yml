@@ -101,6 +101,13 @@ networks:
     ipam:
       config:
         - subnet: 10.107.1.0/24
+  macvlan2:
+    driver: macvlan
+    driver_opts:
+      parent: ens161
+    ipam:
+      config:
+        - subnet: 10.107.2.0/24
   mgmt:
     xr_interfaces:
       - xrd01:Mg0/RP0/CPU0/0
