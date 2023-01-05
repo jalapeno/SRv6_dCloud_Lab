@@ -16,14 +16,14 @@ router bgp 65000
  neighbor 10.0.0.1
   bmp-activate server 1
  !
- neighbor fc00:0:1::1
+ neighbor fc00:0000:1111::1
   bmp-activate server 1
   !
  !
  neighbor 10.0.0.7
   bmp-activate server 1
  !
- neighbor fc00:0:7::1
+ neighbor fc00:0000:7777::1
   bmp-activate server 1
   !
  !
@@ -46,14 +46,14 @@ router bgp 65000
  neighbor 10.0.0.1
   bmp-activate server 1
  !
- neighbor fc00:0:1::1
+ neighbor fc00:0000:1111::1
   bmp-activate server 1
   !
  !
  neighbor 10.0.0.7
   bmp-activate server 1
  !
- neighbor fc00:0:7::1
+ neighbor fc00:0000:7777::1
   bmp-activate server 1
   !
  !

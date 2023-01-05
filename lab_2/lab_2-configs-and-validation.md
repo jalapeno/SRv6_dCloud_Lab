@@ -137,7 +137,7 @@ fc00:0:8001:e006::          uDT6              'default'                         
 
 *** Locator: 'MAIN' *** 
 
-fc00:0:1::                  uN (PSP/USD)      'default':1                       sidmgr              InUse  Y 
+fc00:0000:1111::                  uN (PSP/USD)      'default':1                       sidmgr              InUse  Y 
 fc00:0:1:e000::             uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0:P       isis-100            InUse  Y 
 fc00:0:1:e001::             uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0         isis-100            InUse  Y 
 fc00:0:1:e002::             uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0:P       isis-100            InUse  Y 

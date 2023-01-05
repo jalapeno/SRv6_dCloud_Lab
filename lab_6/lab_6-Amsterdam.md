@@ -120,10 +120,10 @@ more log/get_paths.json
  - The client will also output data to the command line. Example:
 
 ```
-locators:  [None, 'fc00:0:5::', 'fc00:0:6::', 'fc00:0:7::', None]
-locators:  [None, 'fc00:0:5::', 'fc00:0:4::', 'fc00:0:7::', None]
-locators:  [None, 'fc00:0:2::', 'fc00:0:6::', 'fc00:0:7::', None]
-locators:  [None, 'fc00:0:2::', 'fc00:0:3::', 'fc00:0:4::', 'fc00:0:7::', None]
+locators:  [None, 'fc00:0000:5555::', 'fc00:0000:6666::', 'fc00:0000:7777::', None]
+locators:  [None, 'fc00:0000:5555::', 'fc00:0000:4444::', 'fc00:0000:7777::', None]
+locators:  [None, 'fc00:0000:2222::', 'fc00:0000:6666::', 'fc00:0000:7777::', None]
+locators:  [None, 'fc00:0000:2222::', 'fc00:0000:3333::', 'fc00:0000:4444::', 'fc00:0000:7777::', None]
 ```
 
 ### Least Utilized Path

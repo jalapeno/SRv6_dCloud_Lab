@@ -313,7 +313,7 @@ The Cisco IOS-XR 7.5 Configuration guide for SR and ISIS can be found here: [LIN
 3. Validate end-to-end ISIS reachability:
 ```
 ping 10.0.0.7 source lo0
-ping fc00:0:7::1 source lo0
+ping fc00:0000:7777::1 source lo0
 ```
 
 ## Validate BGP Topology
@@ -333,8 +333,8 @@ The Cisco IOS-XR 7.5 Configuration guide for SR and BGP can be found here: [LINK
     Neighbor        Spk    AS Description                          Up/Down  NBRState
     10.0.0.5          0 65000 iBGP to xrd05 RR                     00:18:07 Established 
     10.0.0.6          0 65000 iBGP to xrd06 RR                     00:18:24 Established 
-    fc00:0:5::1       0 65000 iBGPv6 to xrd05 RR                   00:22:02 Established 
-    fc00:0:6::1       0 65000 iBGPv6 to xrd06 RR                   00:21:16 Established 
+    fc00:0000:5555::1       0 65000 iBGPv6 to xrd05 RR                   00:22:02 Established 
+    fc00:0000:6666::1       0 65000 iBGPv6 to xrd06 RR                   00:21:16 Established 
     ``` 
 2. Verify that router xrd01 is advertising the attached network ```10.101.1.0/24```
     ```
@@ -534,13 +534,13 @@ SRv6 uSID locator and source address information for nodes in the lab:
 
     | Router Name | Loopback Int| Locator Prefix | Source-address |                                           
     |:------------|:-----------:|:--------------:|:--------------:|                          
-    | xrd01       | loopback 0  | fc00:0:1::/48  | fc00:0:1::1    |
-    | xrd02       | loopback 0  | fc00:0:2::/48  | fc00:0:2::1    |
-    | xrd03       | loopback 0  | fc00:0:3::/48  | fc00:0:3::1    |
-    | xrd04       | loopback 0  | fc00:0:4::/48  | fc00:0:4::1    |
-    | xrd05       | loopback 0  | fc00:0:5::/48  | fc00:0:5::1    |
-    | xrd06       | loopback 0  | fc00:0:6::/48  | fc00:0:6::1    |
-    | xrd07       | loopback 0  | fc00:0:7::/48  | fc00:0:7::1    |
+    | xrd01       | loopback 0  | fc00:0000:1111::/48  | fc00:0000:1111::1    |
+    | xrd02       | loopback 0  | fc00:0000:2222::/48  | fc00:0000:2222::1    |
+    | xrd03       | loopback 0  | fc00:0000:3333::/48  | fc00:0000:3333::1    |
+    | xrd04       | loopback 0  | fc00:0000:4444::/48  | fc00:0000:4444::1    |
+    | xrd05       | loopback 0  | fc00:0000:5555::/48  | fc00:0000:5555::1    |
+    | xrd06       | loopback 0  | fc00:0000:6666::/48  | fc00:0000:6666::1    |
+    | xrd07       | loopback 0  | fc00:0000:7777::/48  | fc00:0000:7777::1    |
 
 ### Configuration Steps SRv6
 1. Enable SRv6 globally and define SRv6 locator and source address for outbound encapsulation 
@@ -550,12 +550,12 @@ SRv6 uSID locator and source address information for nodes in the lab:
     segment-routing
       srv6
         encapsulation
-          source-address fc00:0:1::1
+          source-address fc00:0000:1111::1
 
     locators
     locator MAIN
         micro-segment behavior unode psp-usd
-        prefix fc00:0:1::/48
+        prefix fc00:0000:1111::/48
     ```
 
 2. Enable SRv6 for ISIS Procotol. 
@@ -573,7 +573,7 @@ SRv6 uSID locator and source address information for nodes in the lab:
 
     SID                         Behavior          Context                           Owner               State  RW
     --------------------------  ----------------  --------------------------------  ------------------  -----  --
-    fc00:0:1::                  uN (PSP/USD)      'default':1                       sidmgr              InUse  Y 
+    fc00:0000:1111::                  uN (PSP/USD)      'default':1                       sidmgr              InUse  Y 
     fc00:0:1:e000::             uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0:P       isis-100            InUse  Y 
     fc00:0:1:e001::             uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0         isis-100            InUse  Y 
     fc00:0:1:e002::             uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0:P       isis-100            InUse  Y 
@@ -582,7 +582,7 @@ SRv6 uSID locator and source address information for nodes in the lab:
     RP/0/RP0/CPU0:xrd01#
     ```
 
-    - Validate the SRv6 prefix-SID configuration. As example for xrd01 look for ```SID value: fc00:0:1::```
+    - Validate the SRv6 prefix-SID configuration. As example for xrd01 look for ```SID value: fc00:0000:1111::```
 
     ```
     RP/0/RP0/CPU0:xrd01#show isis segment-routing srv6 locators detail 
@@ -590,12 +590,12 @@ SRv6 uSID locator and source address information for nodes in the lab:
     IS-IS 100 SRv6 Locators
     Name                  ID       Algo  Prefix                    Status
     ------                ----     ----  ------                    ------
-    MAIN                  1        0     fc00:0:1::/48             Active
+    MAIN                  1        0     fc00:0000:1111::/48             Active
     Advertised Level: level-1-2   
     Level: level-1      Metric: 1        Administrative Tag: 0         
     Level: level-2-only Metric: 1        Administrative Tag: 0         
     SID behavior: uN (PSP/USD)
-    SID value:    fc00:0:1::
+    SID value:    fc00:0000:1111::
     Block Length: 32, Node Length: 16, Func Length: 0, Args Length: 80
     ```
 ## End-to-End Connectivity
@@ -613,7 +613,7 @@ cd ~/SRv6_dCloud_Lab/util/
 3. Run some pings from xrd01 to xrd07:
 ```
 ping 10.0.0.7 source lo0
-ping fc00:0:7::1 source lo0
+ping fc00:0000:7777::1 source lo0
 ```
 If nothing shows up on the tcpdump output try tcpdumping on the xrd02-xrd06 or xrd04-xrd05 link:
 ```
@@ -637,15 +637,15 @@ sudo tcpdump -ni br-b50c608fd524
 tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
 listening on br-b50c608fd524, link-type EN10MB (Ethernet), capture size 262144 bytes
 21:59:25.626912 IS-IS, p2p IIH, src-id 0000.0000.0006, length 1497
-21:59:28.110163 IP6 fc00:0:1::1 > fc00:0:7::1: ICMP6, echo request, seq 0, length 60
-21:59:28.114200 IP6 fc00:0:1::1 > fc00:0:7::1: ICMP6, echo request, seq 1, length 60
+21:59:28.110163 IP6 fc00:0000:1111::1 > fc00:0000:7777::1: ICMP6, echo request, seq 0, length 60
+21:59:28.114200 IP6 fc00:0000:1111::1 > fc00:0000:7777::1: ICMP6, echo request, seq 1, length 60
 
 cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd04-xrd05 
 sudo tcpdump -ni br-1be0f9f81cbd
 tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
 listening on br-1be0f9f81cbd, link-type EN10MB (Ethernet), capture size 262144 bytes
-21:59:08.125911 IP6 fc00:0:7::1 > fc00:0:1::1: ICMP6, echo reply, seq 0, length 60
-21:59:08.129554 IP6 fc00:0:7::1 > fc00:0:1::1: ICMP6, echo reply, seq 1, length 60
+21:59:08.125911 IP6 fc00:0000:7777::1 > fc00:0000:1111::1: ICMP6, echo reply, seq 0, length 60
+21:59:08.129554 IP6 fc00:0000:7777::1 > fc00:0000:1111::1: ICMP6, echo reply, seq 1, length 60
 ```
 4. Run some pings to/from Amsterdam and Rome VMs:
  - Amsterdam ping Rome (using VPP):

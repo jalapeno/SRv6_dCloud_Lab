@@ -99,10 +99,10 @@ more log/get_paths.json
 
   - Sample command line output:
 ```
-locators:  [None, 'fc00:0:6::', 'fc00:0:2::', 'fc00:0:1::', None]
-locators:  [None, 'fc00:0:6::', 'fc00:0:5::', 'fc00:0:1::', None]
-locators:  [None, 'fc00:0:4::', 'fc00:0:5::', 'fc00:0:1::', None]
-locators:  [None, 'fc00:0:4::', 'fc00:0:3::', 'fc00:0:2::', 'fc00:0:1::', None]
+locators:  [None, 'fc00:0000:6666::', 'fc00:0000:2222::', 'fc00:0000:1111::', None]
+locators:  [None, 'fc00:0000:6666::', 'fc00:0000:5555::', 'fc00:0000:1111::', None]
+locators:  [None, 'fc00:0000:4444::', 'fc00:0000:5555::', 'fc00:0000:1111::', None]
+locators:  [None, 'fc00:0000:4444::', 'fc00:0000:3333::', 'fc00:0000:2222::', 'fc00:0000:1111::', None]
 ```
 You can also experiment with the script's graph traversal parameters to limit or expand the number of vertex 'hops' the query will search for. Note: ArangoDB considers the source and destination vertices as 'hops' when doing its graph traversal.
 
