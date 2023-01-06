@@ -16,10 +16,10 @@ networks:
   macvlan2:
     driver: macvlan
     driver_opts:
-      parent: ens192
+      parent: ens161
     ipam:
       config:
-      - subnet: 198.18.1.0/24
+      - subnet: 10.107.2.0/24
   mgmt:
     driver_opts:
       com.docker.network.container_iface_prefix: xr-9
@@ -371,12 +371,11 @@ services:
     - /dev/net/tun
     environment:
       XR_EVERY_BOOT_CONFIG: /etc/xrd/startup.cfg
-      XR_INTERFACES: linux:xr-10,xr_name=Gi0/0/0/0;linux:xr-60,xr_name=Gi0/0/0/1;linux:xr-70,xr_name=Gi0/0/0/2;linux:eth0,xr_name=Gi0/0/0/3
+      XR_INTERFACES: linux:xr-10,xr_name=Gi0/0/0/0;linux:xr-60,xr_name=Gi0/0/0/1;linux:xr-70,xr_name=Gi0/0/0/2;linux:xr-100,xr_name=Gi0/0/0/3,chksum
       XR_MGMT_INTERFACES: linux:xr-90,xr_name=Mg0/RP0/CPU0/0,chksum
     image: ios-xr/xrd-control-plane:7.8.1
     networks:
       mgmt: null
-      macvlan2: null
       xrd01-gi2-xrd05-gi0: null
       xrd04-gi2-xrd05-gi1: null
       xrd05-gi2-xrd06-gi2: null
@@ -426,12 +425,11 @@ services:
     - /dev/net/tun
     environment:
       XR_EVERY_BOOT_CONFIG: /etc/xrd/startup.cfg
-      XR_INTERFACES: linux:xr-80,xr_name=Gi0/0/0/0;linux:xr-30,xr_name=Gi0/0/0/1;linux:xr-70,xr_name=Gi0/0/0/2;linux:eth0,xr_name=Gi0/0/0/3
+      XR_INTERFACES: linux:xr-80,xr_name=Gi0/0/0/0;linux:xr-30,xr_name=Gi0/0/0/1;linux:xr-70,xr_name=Gi0/0/0/2;linux:xr-110,xr_name=Gi0/0/0/3,chksum
       XR_MGMT_INTERFACES: linux:xr-90,xr_name=Mg0/RP0/CPU0/0,chksum
     image: ios-xr/xrd-control-plane:7.8.1
     networks:
       mgmt: null
-      macvlan2: null
       xrd02-gi2-xrd06-gi1: null
       xrd05-gi2-xrd06-gi2: null
       xrd06-gi0-xrd07-gi2: null
@@ -481,7 +479,7 @@ services:
     - /dev/net/tun
     environment:
       XR_EVERY_BOOT_CONFIG: /etc/xrd/startup.cfg
-      XR_INTERFACES: linux:eth0,xr_name=Gi0/0/0/0;linux:xr-50,xr_name=Gi0/0/0/1;linux:xr-80,xr_name=Gi0/0/0/2;linux:xr-190,xr_name=Gi0/0/0/3
+      XR_INTERFACES: linux:eth0,xr_name=Gi0/0/0/0;linux:xr-50,xr_name=Gi0/0/0/1;linux:xr-80,xr_name=Gi0/0/0/2;linux:eth1,xr_name=Gi0/0/0/3
       XR_MGMT_INTERFACES: linux:xr-90,xr_name=Mg0/RP0/CPU0/0,chksum
     image: ios-xr/xrd-control-plane:7.8.1
     networks:
@@ -489,6 +487,7 @@ services:
       xrd04-gi1-xrd07-gi1: null
       xrd06-gi0-xrd07-gi2: null
       macvlan1: null
+      macvlan2: null
       xrd07-gi3: null
     security_opt:
     - apparmor:unconfined

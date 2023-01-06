@@ -2,19 +2,6 @@
 # ../xr-compose -f docker-compose-lab_0.yml -i ios-xr/xrd-control-plane:7.8.1
 
 services:
-# Ubuntu containers
-  # source:
-  #   non_xr: true
-  #   image: alpine:3.15
-  #   container_name: source
-  #   stdin_open: true
-  #   tty: true
-  #   cap_add:
-  #     - NET_ADMIN
-  #   command: /bin/sh -c "ip route add 10.0.0.0/8 via 10.0.95.1 && /bin/sh"
-  #   networks:
-  #     xrd01-host:
-  #       ipv4_address: 10.101.1.99
 
 # XRd containers
   xrd01:
@@ -103,11 +90,11 @@ networks:
         - subnet: 10.107.1.0/24
   macvlan2:
     driver: macvlan
-    driver_opts: 
-      parent: ens192
+    driver_opts:
+      parent: ens161
     ipam:
       config:
-        - subnet: 198.18.1.0/24
+        - subnet: 10.107.2.0/24
   mgmt:
     xr_interfaces:
       - xrd01:Mg0/RP0/CPU0/0
