@@ -1,9 +1,12 @@
-### BGP global table prefixes over SR/SRv6
+### Transport BGP global table prefixes over SR/SRv6 and apply manual SR/SRv6 steering policies
 
 1. advertise 20.0.0.0 via BGP IPv4 Labeled Unicast, resolving to SR-MPLS next hop
+```
+
+```
 2. advertise 30.0.0.0 via BGP IPv6 Unicast, resolving to SRv6/IPv6 next hop
 
-xrd07 config:
+xrd07 config - first we'll need to exchange a v4 prefix
 ```
 route-policy drop-20-net
   if destination in (20.0.0.0/24) then
@@ -21,6 +24,19 @@ route-policy drop-30-net
   endif
 end-policy
 !
+router bgp 65000
+ neighbor 10.0.0.5
+  address-family ipv4 unicast
+   route-policy drop-30-net out
+  !
+ !
+ neighbor 10.0.0.6
+  address-family ipv4 unicast
+   route-policy drop-30-net out
+  !
+ !
+!
+
 
 ```
 
