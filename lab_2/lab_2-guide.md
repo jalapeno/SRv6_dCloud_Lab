@@ -212,6 +212,7 @@ tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
 listening on br-613d9944c678, link-type EN10MB (Ethernet), capture size 262144 bytes
 16:36:44.950483 IP 20.0.0.1 > 10.101.2.1: ICMP echo reply, id 11, seq 1, length 64
 16:36:45.949596 IP 20.0.0.1 > 10.101.2.1: ICMP echo reply, id 11, seq 2, length 64
+```
 
 
 ### End of lab 2
