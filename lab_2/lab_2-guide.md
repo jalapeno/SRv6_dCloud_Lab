@@ -1,12 +1,13 @@
-# SRv6 Lab 2 Guide
+# Extend Topology + SR-MPLS Lab 2 Guide
 
 ### Description: 
-In Lab 2 the student will baseline the  IPv4 and IPv6 routing behaviour as configured by the ISIS routing protocol. The student will see that the topology supports multiple ECMP paths across the topology. Next the student will using SRv6 to create two policy paths through the network: a slow-path and fast-path. We will add some new additional networks to the topology for testing. Finally we will link through SRv6 policy remote test network reachability to SRv6 paths and thereby create a deterministic data plane.
+In Lab 2 the student will extend the routing topology to include sites Amsterdam and Rome. In addition SR-MPLS will be used to create a baseline end to end routing between the two locations. With SR-MPLS the student will then use show commands and tools like TCPDump to validate how traffic is routed through the neetwork. This is important as Lab 3 will override this behaviour when the student implements SRv6 L3VPN with path selection.
+
 
 ## Contents
 1. [Lab Objectives](#lab-objectives)
 2. [Learn Default ISIS Path](#learn-default-isis-path)
-3. [Configure Explicit Path](#create-srv6-paths)
+3. [SR-MPLS Network Routing](#sr-mpls-network-routing)
     - [Configure Remote Networks](#configure-remote-test-networks)
     - [Add networks to ISIS](#add-networks-to-isis)
     - [Validate ISIS reachability](#validate-isis-reachability)
@@ -20,13 +21,14 @@ In Lab 2 the student will baseline the  IPv4 and IPv6 routing behaviour as confi
 The student upon completion of Lab 2 should have achieved the following objectives:
 
 * Understanding of ISIS routing policy
-* How to create a SRv6 path policy
-* How to create a SRv6 steering policy and link to a path policy
-* How to test and validate SRv6 traffic flows
+* Enable network routing for SR-MPLS
+* End to end routing between Amsterdam and Rome
+* Diagnostic tools to validate path routing
+
 
 ## Learn Default ISIS Path
 
-Before starting down the path of creating SRv6 steering policy you need to understand the baseline routing within the lab to determine if your configurations later in Lab 2 are performing as configured. Throughout this lab we will be creating traffic flows. For easy of understand flows will be generated from the Amsterdam  and traveling to networks in Rome. 
+ISIS is the underlying IGP in this lab and you validated in Lab 1 reachability between xrd routers. Now we want you to work on validate traffic routing behavior for the default ISIS and SR-MPLS so that we can compare and contrast with SRv6 when implemented in Lab 3. Throughout this lab we will be creating traffic flows. For easy of understand flows will be generated from the Amsterdam  and traveling to networks in Rome. 
 
 In referencing the ISIS topology diagram below we will check examine the routing table on xrd01.
 
@@ -47,11 +49,14 @@ What we are looking for is xrd07 route 10.0.0.7/32 (Lo0) advertised through ISIS
         Route metric is 3
 ```
 
-## Create SRv6 Paths
-
+## SR-MPLS Network Routing
+First we are going to need networks that are advertised through SR-MPLS over the top of ISIS. In the next few steps you will quickly bring up and add in network 20.0.0./24 to the topology and validate end to end connectivity. This will be our baseline path to compare and contrast with SRv6
 
 ### Configure Remote Test Networks
+The location Rome has the network 20.0.0.0/24 which we will advertise into SR-MPLS on router xrd07. First 
 
+
+![SR-MPLS Topology](/topo_drawings/sr-mpls-medium.png)
 
 ### Add Networks to ISIS
 
