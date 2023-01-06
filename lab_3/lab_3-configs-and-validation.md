@@ -1,4 +1,6 @@
-### configure SR, SRv6, and SRv6-L3VPN for BGP
+### configure SRv6-L3VPN and SRv6-TE for L3VPN prefixes
+
+1. In lab 3 we will add a L3VPN customer named "carrots" to the network:
 
 R01 
 ```
@@ -15,15 +17,16 @@ vrf carrots
 interface Loopback9
  vrf carrots
  ipv4 address 10.9.1.1 255.255.255.0
-!
-route-policy SID($SID)
-  set label-index $SID
-end-policy
+ ipv6 address 10:9:1::1/64
 !
 router bgp 65000
- address-family ipv4 unicast
-  segment-routing srv6
-   locator MAIN
+ neighbor-group ibgp-v6
+  address-family vpnv4 unicast
+   next-hop-self
+  !
+  address-family vpnv6 unicast
+   next-hop-self
+  !
  !
  vrf carrots
   rd auto
@@ -34,12 +37,19 @@ router bgp 65000
    !
    redistribute connected
   !
+  address-family ipv6 unicast
+   segment-routing srv6
+    locator MAIN
+    alloc mode per-vrf
+   !
+   redistribute connected
  !
 !
 
 ```
 
-R06
+We'll include xrd06 just for kicks
+xrd06
 ```
 vrf carrots
  address-family ipv4 unicast
@@ -54,6 +64,7 @@ vrf carrots
 interface Loopback9
  vrf carrots
  ipv4 address 10.9.6.1 255.255.255.0
+ ipv6 address 10:9:6::1/64
 !
 router bgp 65000
  address-family ipv4 unicast
@@ -69,12 +80,19 @@ router bgp 65000
    !
    redistribute connected
   !
+  address-family ipv6 unicast
+   segment-routing srv6
+    locator MAIN
+    alloc mode per-vrf
+   !
+   redistribute connected
+  !
  !
 !
 
 ```
 
-R07
+xrd07
 ```
 vrf carrots
  address-family ipv4 unicast
@@ -89,6 +107,7 @@ vrf carrots
 interface Loopback9
  vrf carrots
  ipv4 address 10.9.7.1 255.255.255.0
+ ipv6 address 10:9:7::1/64
 !
 route-policy SID($SID)
   set label-index $SID
@@ -108,16 +127,24 @@ router bgp 65000
    !
    redistribute connected
   !
+  address-family ipv4 unicast
+   segment-routing srv6
+    locator MAIN
+    alloc mode per-vrf
+   !
+   redistribute connected
+  !
  !
 !
 ```
 
-Validate changes:
+Validate changes from xrd01:
 ```
 
 show segment-routing srv6 sid
+show bgp vpnv4 unicast
 show bgp vpnv4 unicast rd 10.0.0.1:0 10.9.1.0/24
-ping 10.0.128.5 source lo128
+ping 10.
 ping fc00:0:8005::1 source lo128
 ```
 
