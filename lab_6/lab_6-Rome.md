@@ -240,3 +240,4 @@ ping 10.101.1.1 -i .4
 ./tcpdump.sh xrd05-xrd06
 ./tcpdump.sh xrd01-xrd05
 ```
+Please proceed to [lab_6-Amsterdam.md](https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_6/lab_6-Amsterdam.md)
