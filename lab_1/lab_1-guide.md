@@ -411,7 +411,7 @@ The Cisco IOS-XR 7.5 Configuration guide for SR and BGP can be found here: [LINK
         Originator: 10.0.0.1, Cluster list: 10.0.0.6
     ```
 
-## SR-MPLS
+## SR-MPLS 
 
 Segment Routing (SR) is a source-based routing architecture. A node chooses a path and steers a packet through the network via that path by inserting an ordered list of segments, instructing how subsequent nodes in the path that receive the packet should process it. This simplifies operations and reduces resource requirements in the network by removing network state information from intermediary nodes as path information is encoded as an ordered list of segments in label stack at the ingress node. In addition to this, because the shortest-path segment includes all Equal-Cost Multi-Path (ECMP) paths to the related node, SR supports the ECMP nature of IP by design. In Lab 1 we will add some basic SR-MPLS commands to xrd01 -> xrd07. 
 
@@ -648,10 +648,10 @@ listening on br-1be0f9f81cbd, link-type EN10MB (Ethernet), capture size 262144 b
 21:59:08.129554 IP6 fc00:0000:7777::1 > fc00:0000:1111::1: ICMP6, echo reply, seq 1, length 60
 ```
 4. Run some pings to/from Amsterdam and Rome VMs:
- - Amsterdam ping Rome (using VPP):
+ - Amsterdam ping Rome:
 
 ```
-sudo vppctl ping 10.107.1.1
+ping 10.107.1.1
 ```
  - Rome ping Amsterdam: 
 ```
