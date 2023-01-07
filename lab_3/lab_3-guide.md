@@ -47,7 +47,7 @@ interface Loopback9
 ```
 
 #### xrd07
-In addition to configuring gi 0/0/0/3 to be a member of VRF carrots, xrd07 will need a pair of static routes to get to Rome's 40.0.0.0/24 and 50.0.0.0/24 prefixes:
+In addition to configuring gi 0/0/0/3 to be a member of VRF carrots, xrd07 will need a pair of static routes to get to Rome's "40" and "50" prefixes:
 ```
 interface GigabitEthernet0/0/0/3
  vrf carrots
@@ -70,12 +70,15 @@ router static
 ping vrf carrots 10.107.2.1
 ping vrf carrots 40.0.0.1
 ping vrf carrots 50.0.0.1
+ping vrf carrots fc00:0:107:2::1
+ping vrf carrots fc00:0:40::1
+ping vrf carrots fc00:0:50::1
 ```
 
 4. Configure BGP vpnv4 under the IPv6 peering sessions, and the BGP VRF instance on PE routers xrd01 and xrd07:
 
 #### xrd01
-We'll redistribute the VRF's connected loopback routes into BGP:
+We'll redistribute the VRF's connected loopback routes into BGP vpnv4 and vpnv6:
 ```
 router bgp 65000
  neighbor-group ibgp-v6
@@ -107,6 +110,7 @@ router bgp 65000
 ```
 
 #### xrd05
+Just needs RR config:
 ```
 router bgp 65000
  neighbor-group ibgp-v6
@@ -120,7 +124,8 @@ router bgp 65000
 ```
 
 #### xrd06
-We'll redistribute the VRF's connected loopback routes into BGP:
+Needs RR config, and has a loopback that'll participate in the L3VPN.
+We'll redistribute the VRF's connected loopback routes into BGP vpnv4 and vpnv6:
 ```
 router bgp 65000
  neighbor-group ibgp-v6
@@ -154,7 +159,16 @@ router bgp 65000
 #### xrd07
 On xrd07 we'll redistribute the VRF's static routes into BGP:
 ```
-vrf carrots
+router bgp 65000
+ neighbor-group ibgp-v6
+  address-family vpnv4 unicast
+   next-hop-self
+  !
+  address-family vpnv6 unicast
+   next-hop-self
+  !
+ !
+ vrf carrots
   rd auto
   address-family ipv4 unicast
    segment-routing srv6
@@ -350,7 +364,7 @@ segment-routing
 ```
 ### Validate SRv6-TE steering of L3VPN traffic
 #### Validate bulk traffic takes the non-shortest path: xrd01 -> 02 -> 03 -> 04 -> 07 
-1. Run the tcpdump.sh script in the util directory against xrd01's outbound interfaces:
+1. Run the tcpdump.sh script in the util directory on the following links in the network
 ```
 ./tcpdump.sh xrd01-xrd02
 ./tcpdump.sh xrd02-xrd03
@@ -363,7 +377,7 @@ segment-routing
 ping vrf carrots 40.0.0.1 count 3
 ping vrf carrots fc00:0:40::1 count 3
 ```
-Example: tcpdump.sh output should look something like below on the xrd02-xrd03 link. Note in this case the outbound traffic is taking a non-shortest path.  We don't have a specific policy for return traffic so it will take one of the ECMP shortest paths, and thus we do not see replies in the tcpdump output:
+Example: tcpdump.sh output should look something like below on the xrd02-xrd03 link with both outer SRv6 uSID header and inner IPv4/6 headers. Note in this case the outbound traffic is taking a non-shortest path.  We don't have a specific policy for return traffic so it will take one of the ECMP shortest paths; thus we do not see replies in the tcpdump output:
 ```
 16:37:30.292761 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e004::: IP 10.9.1.1 > 40.0.0.1: ICMP echo request, id 56816, seq 0, length 80
 16:37:30.298145 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e004::: IP 10.9.1.1 > 40.0.0.1: ICMP echo request, id 56816, seq 1, length 80
@@ -379,7 +393,7 @@ Example: tcpdump.sh output should look something like below on the xrd02-xrd03 l
 1. Run the tcpdump.sh script in the util directory against xrd01's outbound interfaces:
 ```
 ./tcpdump.sh xrd01-xrd05
-./tcpdump.sh xrd06-xrd06
+./tcpdump.sh xrd05-xrd06
 ./tcpdump.sh xrd06-xrd07
 ```
 
@@ -388,7 +402,7 @@ Example: tcpdump.sh output should look something like below on the xrd02-xrd03 l
 ping vrf carrots 50.0.0.1 count 3
 ping vrf carrots fc00:0:50::1 count 3
 ```
-Example: tcpdump.sh output should look something like below on the xrd05-xrd06 link. In this case outbound traffic is taking one of the IGP shortest paths. The v4 flow's replies are taking the same return path, however the v6 flow's replies have been hashed onto one of the other ECMP paths:
+Example: tcpdump.sh output should look something like below on the xrd05-xrd06 link. In this case xrd05 -> 06 -> 07 is one of the IGP shortest paths. The v4 flow's replies are taking the same return path, however the v6 flow's replies have been hashed onto one of the other ECMP paths:
 ```
 16:50:26.667875 IP6 fc00:0:1111::1 > fc00:0:6666:7777:e004::: IP 10.9.1.1 > 50.0.0.1: ICMP echo request, id 59290, seq 0, length 80
 16:50:26.670199 IP6 fc00:0:7777::1 > fc00:0:1111:e004::: IP 50.0.0.1 > 10.9.1.1: ICMP echo reply, id 59290, seq 0, length 80
@@ -418,4 +432,4 @@ listening on br-9c9433e006cf, link-type EN10MB (Ethernet), capture size 262144 b
 
 
 ### End of lab 3
-Please proceed to [Lab 4](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_4)
+Please proceed to [Lab 4](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_4/lab_4-guide.md)
