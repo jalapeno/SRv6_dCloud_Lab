@@ -322,7 +322,6 @@ segment-routing
     srv6
      index 10 sid fc00:0:3333::
      index 20 sid fc00:0:4444::
-     index 30 sid fc00:0:7777::
     !
    !
   !
@@ -330,7 +329,6 @@ segment-routing
     srv6
      index 10 sid fc00:0:5555::
      index 20 sid fc00:0:6666::
-     index 30 sid fc00:0:7777::
     !
    !
   ! 
