@@ -215,6 +215,138 @@ In our lab instance we saw the following output of TCPDump when we intiated the 
   16:36:45.949596 IP 20.0.0.1 > 10.101.2.1: ICMP echo reply, id 11, seq 2, length 64
   ```
 
+### Amsterdam to Rome Test
+An alternate quick way to look for the flow of traffic through the network topology is for the router in question to clear counters on a the potential egress interfaces and then run a measurable amount of traffic through the router and see which interface packet counters increment. To continue in our validation from the previous step we will go to router xrd02 and determine if our packet flow next-hops to router xrd03 or xrd05.
+
+Lets get our test setup ready. For this test we will be using a tool called iPerf3 which allows us to do various types of traffic generation. 
+  1. Log into the Rome VM with ssh.
+  2. Run the following cli command to start iPerf3 and run it as a service *iperf3 -s -D*
+  3. Log into xrd02 with ssh.
+  4. On xrd02 run the command *clear counter interface gi x/x/x/x* on the interface facing xrd03 and xrd05
+  5. Log into the Amsterdam VM with ssh.
+  6. Run the following cli command to start iPerf3 test: *iperf3 -c 20.0.0.1*
+  7. Go back to xrd02 and now look at the interface counters and see which incremented by several hundred packets
+  8. You can repeat this hop by hop through the network to determine the flow path.
+
+See the command output that demonstartes this test below. Some output truncated for brevity:
+
+Rome VM
+  ```
+  cisco@rome:~$ iperf3 -s -D
+  ```
+
+Amsterdam VM
+  ```
+  cisco@amsterdam:~$ iperf3 -c 20.0.0.1
+  Connecting to host 20.0.0.1, port 5201
+  [  5] local 10.101.2.1 port 41106 connected to 20.0.0.1 port 5201
+  [ ID] Interval           Transfer     Bitrate         Retr  Cwnd
+  [  5]   0.00-1.00   sec   107 KBytes   877 Kbits/sec   15   2.82 KBytes       
+  [  5]   1.00-2.00   sec  0.00 Bytes  0.00 bits/sec   15   2.82 KBytes       
+  [  5]   2.00-3.00   sec  93.1 KBytes   763 Kbits/sec   32   2.82 KBytes       
+  [  5]   3.00-4.00   sec   124 KBytes  1.02 Mbits/sec   30   2.82 KBytes       
+  [  5]   4.00-5.00   sec   124 KBytes  1.02 Mbits/sec   30   2.82 KBytes       
+  [  5]   5.00-6.00   sec  93.1 KBytes   762 Kbits/sec   28   2.82 KBytes       
+  [  5]   6.00-7.00   sec   124 KBytes  1.02 Mbits/sec   30   2.82 KBytes       
+  [  5]   7.00-8.00   sec   124 KBytes  1.02 Mbits/sec   30   2.82 KBytes       
+  [  5]   8.00-9.00   sec  93.1 KBytes   762 Kbits/sec   30   2.82 KBytes       
+  [  5]   9.00-10.00  sec   124 KBytes  1.02 Mbits/sec   30   2.82 KBytes       
+  - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ ID] Interval           Transfer     Bitrate         Retr
+  [  5]   0.00-10.00  sec  1007 KBytes   825 Kbits/sec  270             sender
+  [  5]   0.00-10.01  sec   948 KBytes   776 Kbits/sec                  receiver
+
+  iperf Done.
+  ```
+
+The command output below demonstrate that our iPerf traffic was forward from xrd02 out interface gi0/0/0/2 to xrd05
+
+xrd02 
+  ```
+  RP/0/RP0/CPU0:xrd02#clear counter int gi 0/0/0/1
+  Clear "show interface" counters on this interface [confirm] 
+
+  RP/0/RP0/CPU0:xrd02#clear counter int gi 0/0/0/2
+  Clear "show interface" counters on this interface [confirm] 
+
+  RP/0/RP0/CPU0:xrd02#show int gi 0/0/0/1
+  Sat Jan  7 17:04:10.888 UTC
+  GigabitEthernet0/0/0/1 is up, line protocol is up 
+    <<<<<<<<<<<>>>>>>>>>>>
+    5 minute input rate 0 bits/sec, 0 packets/sec
+    5 minute output rate 0 bits/sec, 0 packets/sec
+      3 packets input, 3198 bytes, 0 total input drops
+      0 drops for unrecognized upper-level protocol
+      Received 0 broadcast packets, 3 multicast packets
+                0 runts, 0 giants, 0 throttles, 0 parity
+      0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored, 0 abort
+      3 packets output, 3198 bytes, 0 total output drops
+      Output 0 broadcast packets, 3 multicast packets
+      0 output errors, 0 underruns, 0 applique, 0 resets
+      0 output buffer failures, 0 output buffers swapped out
+      0 carrier transitions
+
+
+  RP/0/RP0/CPU0:xrd02#show int gi 0/0/0/2
+  Sat Jan  7 17:04:12.647 UTC
+  GigabitEthernet0/0/0/2 is up, line protocol is up 
+    <<<<<<<<<<<>>>>>>>>>>>
+    Last input never, output never
+    Last clearing of "show interface" counters 00:00:14
+    5 minute input rate 0 bits/sec, 0 packets/sec
+    5 minute output rate 0 bits/sec, 0 packets/sec
+      2 packets input, 1684 bytes, 0 total input drops
+      0 drops for unrecognized upper-level protocol
+      Received 0 broadcast packets, 2 multicast packets
+                0 runts, 0 giants, 0 throttles, 0 parity
+      0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored, 0 abort
+      3 packets output, 3198 bytes, 0 total output drops
+      Output 0 broadcast packets, 3 multicast packets
+      0 output errors, 0 underruns, 0 applique, 0 resets
+      0 output buffer failures, 0 output buffers swapped out
+      0 carrier transitions
+
+
+  RP/0/RP0/CPU0:xrd02#show int gi 0/0/0/1
+  Sat Jan  7 17:04:36.707 UTC
+  GigabitEthernet0/0/0/1 is up, line protocol is up 
+   <<<<<<<<<<<>>>>>>>>>>>
+    Last clearing of "show interface" counters 00:00:42
+    5 minute input rate 0 bits/sec, 0 packets/sec
+    5 minute output rate 0 bits/sec, 0 packets/sec
+      8 packets input, 7878 bytes, 0 total input drops
+      0 drops for unrecognized upper-level protocol
+      Received 0 broadcast packets, 7 multicast packets
+                0 runts, 0 giants, 0 throttles, 0 parity
+      0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored, 0 abort
+      8 packets output, 8724 bytes, 0 total output drops
+      Output 0 broadcast packets, 7 multicast packets
+      0 output errors, 0 underruns, 0 applique, 0 resets
+      0 output buffer failures, 0 output buffers swapped out
+      0 carrier transitions
+
+
+  RP/0/RP0/CPU0:xrd02#show int gi 0/0/0/2
+  Sat Jan  7 17:04:40.084 UTC
+  GigabitEthernet0/0/0/2 is up, line protocol is up 
+    <<<<<<<<<<<>>>>>>>>>>>
+    Last clearing of "show interface" counters 00:00:42
+    5 minute input rate 0 bits/sec, 0 packets/sec
+    5 minute output rate 0 bits/sec, 0 packets/sec
+      691 packets input, 73245 bytes, 0 total input drops
+      0 drops for unrecognized upper-level protocol
+      Received 0 broadcast packets, 6 multicast packets
+                0 runts, 0 giants, 0 throttles, 0 parity
+      0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored, 0 abort
+      841 packets output, 1059352 bytes, 0 total output drops
+      Output 0 broadcast packets, 7 multicast packets
+      0 output errors, 0 underruns, 0 applique, 0 resets
+      0 output buffer failures, 0 output buffers swapped out
+      0 carrier transitions
+  ```
+
+Log into router xrd02 and run the command *clear counter interface gi x/x/x/x* on the interface facing xrd03 and xrd05.
+
 
 ### End of lab 2
 Please proceed to [lab_3](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_3)
