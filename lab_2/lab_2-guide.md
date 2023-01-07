@@ -10,7 +10,7 @@ In Lab 2 the student will extend the routing topology to include sites Amsterdam
 3. [SR-MPLS Network Routing](#sr-mpls-network-routing)
     - [Validate Local Network](#validate-local-networks)
     - [Enable BGP Labelled Unicast](#enable-bgp-label-unicast)
-    - [Add network routes to BGP-LP](#add-network-routes-to-bgp-lp)
+    - [Add network routes to BGP-LU](#add-network-routes-to-bgp-lp)
     - [Validate BGP routes](#validate-bgp-routes)
 4. [Validate End to End Connectivity](#validate-end-to-end-connectivity)
   
@@ -19,16 +19,16 @@ In Lab 2 the student will extend the routing topology to include sites Amsterdam
 The student upon completion of Lab 2 should have achieved the following objectives:
 
 * Understanding of ISIS routing policy
-* Enable network routing for SR-MPLS
+* Enable BGP Labeled Unicast network routing over the SR-MPLS underlay
 * End to end routing between Amsterdam and Rome
 * Diagnostic tools to validate path routing
 
 
 ## Learn Default ISIS Path
 
-ISIS is the underlying IGP in this lab and you validated in Lab 1 reachability between xrd routers. Now we want you to work on validate traffic routing behavior for the default ISIS and SR-MPLS so that we can compare and contrast with SRv6 when implemented in Lab 3. Throughout this lab we will be creating traffic flows. For easy of understand flows will be generated from the Amsterdam  and traveling to networks in Rome. 
+ISIS is the underlying IGP in this lab and you validated in Lab 1 reachability between xrd routers. Now we want you to work on validate traffic routing behavior for the default ISIS and SR-MPLS so that we can compare and contrast with SRv6 when implemented in Lab 3. Throughout this lab we will be creating traffic flows generated from the Amsterdam VM and traveling to networks in Rome and vice-versa. 
 
-In referencing the ISIS topology diagram below we will check examine the routing table on xrd01.
+In referencing the ISIS topology diagram below we will examine the routing table on xrd01.
 
 ![ISIS Topology](/topo_drawings/isis-ecmp-medium.png)
 
@@ -49,18 +49,18 @@ What we are looking for is xrd07 route 10.0.0.7/32 (Lo0) advertised through ISIS
         Route metric is 3
   ```
 
-## SR-MPLS Network Routing
-First we are going to need networks that are advertised through SR-MPLS over the top of ISIS. In the next few steps you will quickly bring up and add in network 20.0.0./24 to the topology and validate end to end connectivity. This will be our baseline path to compare and contrast with SRv6
+## BGP Labeled Unicast (BGP-LU) over SR-MPLS Network Routing
+First we are going to need networks that are advertised through BGP-LU over the top of ISIS. In the next few steps you will quickly bring up and add in network 20.0.0./24 to the topology and validate end to end connectivity. This will be our baseline path to compare and contrast with SRv6
 
 ### Configure Remote Test Networks
-The location Rome has the network 20.0.0.0/24 which we will advertise into SR-MPLS on router xrd07. First log into xrd07 and validate that you can reach network 20.0.0.0/24 by pinging the ip address 20.0.0.1/24 in Rome. Once you have confirmed connectivity across the Rome metro link xrd07 gi 0/0/0/0 head to the next step.
+The location Rome has the network 20.0.0.0/24 which we will advertise via BGP-LU on router xrd07. First log into xrd07 and validate that you can reach network 20.0.0.0/24 by pinging the ip address 20.0.0.1/24 in Rome. Once you have confirmed connectivity across the Rome metro link xrd07 gi 0/0/0/0 head to the next step.
 
 
 ![SR-MPLS Topology](/topo_drawings/sr-mpls-medium.png)
 For full size image see [LINK](/topo_drawings/sr-mpls-large.png)
 
 ### Enable BGP Label Unicast
-BGP Label Unicast (BGP-LU) is needed to advertise the label information we will need to enable SR-MPLS routing of our desired network traffic 20.0.0.0/24. First lets enable BGP-LU on our PE routers xrd01 and xrd07 plus our BGP route reflectors xrd05 and xrd06. The command *allocate-label all* under the ipv4 unicast which instructs bgp to advertise the networks in the global ipv4 table as labeled routes. Next you will add enable label unicast with the command *address-family ipv4 labeled-unicast* under neighbor-group ibgp-v4 group.
+BGP Label Unicast (BGP-LU) is needed to advertise the label information we will need to enable SR-MPLS routing of our desired network traffic 20.0.0.0/24. First lets enable BGP-LU on our PE routers xrd01 and xrd07 plus our BGP route reflectors xrd05 and xrd06. The command *allocate-label all* under the ipv4 unicast which instructs bgp to advertise the networks in the global ipv4 table as labeled routes. Next you will add enable labeled unicast with the command *address-family ipv4 labeled-unicast* under neighbor-group ibgp-v4 group.
 
 xrd01 and xrd07
   ```
@@ -105,7 +105,7 @@ xrd07 - Routes for Rome
     network 20.0.0.0/24
   commit
   ```
-
+* hopefully we can remove the following line: 
 Log into the BGP route reflectors xrd05 and xrd06 and reset the bgp neighbor connections using _clear bgp *_
 
 ### Validate BGP routes
@@ -115,8 +115,13 @@ You should now see BGP update the new route being installed in xrd01 and xrd07. 
   ipv4_rib[1154]: RIB Routing: Vrf: "default", Tbl: "default" IPv4 Unicast, Add active route 20.0.0.0/24 via 10.0.0.7 interface None, metric [200/0] weight 0 (fl: 0x10008/0x2600) label 24007, by client bgp
   ipv4_rib[1154]: RIB Routing: Vrf: "default", Tbl: "default" IPv4 Unicast, Add local-label 24007 (1) to 20.0.0.0/24 by proto bgp client bgp
   ```
-
-Now examine the bgp label table to confirm. See the truncated output below.
+#### Validation commands:
+```
+show bgp ipv4 labeled-unicast labels
+show bgp ipv4 labeled-unicast 20.0.0.0/24
+show cef 20.0.0.0/24
+```
+1. Now examine the bgp label table to confirm. See the truncated output below.
 
   ```
   RP/0/RP0/CPU0:xrd01#show bgp ipv4 labeled-unicast labels 
@@ -134,8 +139,7 @@ Now examine the bgp label table to confirm. See the truncated output below.
   *>i10.107.1.0/24      10.0.0.7        3               24010
   *>i20.0.0.0/24        10.0.0.7        24007           24007
   ```
-
-Last we will look at the CEF table to validate that we received the route from both BGP route reflectors xrd05(10.0.0.5) and xrd06(10.0.0.6) and again you will see that it is associated with local label *24007*
+2. Next on xrd01 we can look at BGP-LU prefix specific attributes to validate that we received the route from both BGP route reflectors xrd05(10.0.0.5) and xrd06(10.0.0.6) and again you will see that it is associated with local label *24007*
 
   ```
   RP/0/RP0/CPU0:xrd01#show bgp ipv4 labeled-unicast 20.0.0.0/24    
@@ -165,7 +169,7 @@ Last we will look at the CEF table to validate that we received the route from b
         Originator: 10.0.0.7, Cluster list: 10.0.0.6
   ```
 
-Now do the same on XRD07 for the routes
+3. We can do the same on XRD07 for the routes
 
   ```
   RP/0/RP0/CPU0:xrd07#show bgp ipv4 labeled-unicast labels 
@@ -191,29 +195,85 @@ Now do the same on XRD07 for the routes
   Processed 8 prefixes, 13 paths
   ```
 
+4. Last we will look at the CEF table on xrd01 to verify the prefix is installed for labeled forwarding:
+
+```
+RP/0/RP0/CPU0:xrd01#sho cef 20.0.0.0/24
+Sat Jan  7 18:11:21.229 UTC
+20.0.0.0/24, version 175, internal 0x5000001 0x40 (ptr 0x87303a80) [1], 0x600 (0x879794a0), 0xa08 (0x89d5e648)
+ Updated Jan  7 17:55:22.234
+ Prefix Len 24, traffic index 0, precedence n/a, priority 4
+  gateway array (0x877e1b40) reference count 6, flags 0x78, source rib (7), 0 backups
+                [3 type 5 flags 0x8441 (0x89ddd7c8) ext 0x0 (0x0)]
+  LW-LDI[type=5, refc=3, ptr=0x879794a0, sh-ldi=0x89ddd7c8]
+  gateway array update type-time 1 Jan  7 17:55:22.234
+ LDI Update time Jan  7 17:55:22.234
+ LW-LDI-TS Jan  7 17:55:22.234
+   via 10.0.0.7/32, 3 dependencies, recursive [flags 0x6000]
+    path-idx 0 NHID 0x0 [0x87348230 0x0]
+    recursion-via-/32
+    next hop 10.0.0.7/32 via 100007/0/21
+     local label 24010 
+     next hop 10.1.1.1/32 Gi0/0/0/1    labels imposed {100007 24007}
+     next hop 10.1.1.9/32 Gi0/0/0/2    labels imposed {100007 24007}
+
+    Load distribution: 0 (refcount 3)
+
+    Hash  OK  Interface                 Address
+    0     Y   recursive                 100007/0       
+RP/0/RP0/CPU0:xrd01#
+```
+
 ### Validate end to end connectivity
-Lets next use what we learned in step one of the lab guide about how xrd01 will use ECMP to load balance flows towards xrd07. We will test connectivity by initiate a ping from xrd01 to the address in Rome 20.0.0.1. What we don't know is which path it will take as the next-hop: xrd02 or xrd05. In addition, we want to confirm that the path is using SR-MPLS
+Let's next use what we learned in step one of the lab guide about how xrd01 will use ECMP to load balance flows towards xrd07. We will test connectivity by initiating a ping from xrd01 to the address 20.0.0.1 in Rome. What we don't know is which path it will take as the next-hop: xrd02 or xrd05. In addition, we want to confirm that the path is using SR-MPLS
 
-Lets use TCPDump to validate our configuration:
-Open up two new ssh sessions to the XRD VM and change to the *~/SRv6_dCloud_Lab/util* directory. XRD emulates network links between routers by masking the underlying docker networking. Each link between a router. In this directory we have created text files which contain the linux/docker-container network name that maps to the xrd network link. As an example link "A" in the topology has a mapped file called xrd01-xrd02 which contains the linux network id we need. 
+Lets use TCPDump to validate our configuration and SR-MPLS forwarding:
+1. Open up two new ssh sessions to the XRD VM and change to the *~/SRv6_dCloud_Lab/util* directory. 
+```
+cd ~/SRv6_dCloud_Lab/util
+```
+The XRd nodes in our topology are linked by underlying docker network instances. Each time the topology is spun up docker-compose generates these networks instances and runs a hash to assign their names/IDs. When we ran the topology setup script earlier it called the 'nets.sh' subscript in util directory directory which greps the docker network IDs and writes them to text files in this directory. As an example link "A" in the topology has a mapped file called xrd01-xrd02 which contains the linux network id we need. 
 
-With that understanding we will now use the TCPdump utility to monitor the traffic exiting xrd01 toward xrd02/xrd05 to prove our configuration valid.
+With that understanding the util directory also contains a shell script called 'tcpdump.sh'. Running "./tcpdump.sh <file>"will execute Linux TCPdump to monitor the traffic exiting xrd01 toward xrd02/xrd05 to prove our configuration valid.
 
 
+2. In terminal window-1 run the command *./tcpdump.sh xrd01-xrd02*
 
-Terminal window-1 run the command *./tcpdump.sh xrd01-xrd02*
-Terminal window-1 run the command *./tcpdump.sh xrd01-xrd05*
+3. In terminal window-2 run the command *./tcpdump.sh xrd01-xrd05*
+
+```
+./tcpdump.sh xrd01-xrd02
+./tcpdump.sh xrd01-xrd05
+```
 
 In our lab instance we saw the following output of TCPDump when we intiated the following command on xrd01: *ping 20.0.0.1 count 2*
 
   ```
-  cisco@xrd:~/SRv6_dCloud_Lab/util$sudo  ./tcpdump.sh xrd01-xrd02
-  sudo tcpdump -ni br-613d9944c678
-  tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
-  listening on br-613d9944c678, link-type EN10MB (Ethernet), capture size 262144 bytes
-  16:36:44.950483 IP 20.0.0.1 > 10.101.2.1: ICMP echo reply, id 11, seq 1, length 64
-  16:36:45.949596 IP 20.0.0.1 > 10.101.2.1: ICMP echo reply, id 11, seq 2, length 64
+cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd01-xrd02 
+sudo tcpdump -ni br-613d9944c678
+[sudo] password for cisco: 
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on br-613d9944c678, link-type EN10MB (Ethernet), capture size 262144 bytes
+13:26:32.704104 MPLS (label 100007, exp 0, ttl 62) (label 24007, exp 0, [S], ttl 62) IP 10.101.2.1 > 20.0.0.1: ICMP echo request, id 20, seq 39, length 64
+13:26:32.706566 MPLS (label 24008, exp 0, [S], ttl 61) IP 20.0.0.1 > 10.101.2.1: ICMP echo reply, id 20, seq 39, length 64
+13:26:32.903937 MPLS (label 100007, exp 0, ttl 62) (label 24007, exp 0, [S], ttl 62) IP 10.101.2.1 > 20.0.0.1: ICMP echo request, id 20, seq 40, length 64
+13:26:32.906271 MPLS (label 24008, exp 0, [S], ttl 61) IP 20.0.0.1 > 10.101.2.1: ICMP echo reply, id 20, seq 40, length 64
   ```
+3. We can run the tcpdump.sh script against any of the underlying links in the network:
+
+```
+./tcpdump.sh xrd02-xrd06
+./tcpdump.sh xrd06-xrd07
+```
+Example output
+```
+cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd02-xrd06
+sudo tcpdump -ni br-65c7870958c4
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on br-65c7870958c4, link-type EN10MB (Ethernet), capture size 262144 bytes
+13:28:02.047690 MPLS (label 100007, exp 0, ttl 61) (label 24007, exp 0, [S], ttl 62) IP 10.101.2.1 > 20.0.0.1: ICMP echo request, id 20, seq 484, length 64
+13:28:02.050055 MPLS (label 100001, exp 0, ttl 62) (label 24008, exp 0, [S], ttl 63) IP 20.0.0.1 > 10.101.2.1: ICMP echo reply, id 20, seq 484, length 64
+```
 
 ### Amsterdam to Rome Test
 An alternate quick way to look for the flow of traffic through the network topology is for the router in question to clear counters on a the potential egress interfaces and then run a measurable amount of traffic through the router and see which interface packet counters increment. To continue in our validation from the previous step we will go to router xrd02 and determine if our packet flow next-hops to router xrd03 or xrd05.
@@ -344,7 +404,18 @@ xrd02
       0 output buffer failures, 0 output buffers swapped out
       0 carrier transitions
   ```
-
+Note: the tcpdump.sh script can also be active while running iperf:
+```
+cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd02-xrd06
+sudo tcpdump -ni br-65c7870958c4
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on br-65c7870958c4, link-type EN10MB (Ethernet), capture size 262144 bytes
+13:30:17.006509 MPLS (label 100007, exp 0, ttl 61) (label 24007, exp 0, [S], ttl 62) IP 10.101.2.1.43938 > 20.0.0.1.5201: Flags [S], seq 3759648417, win 64240, options [mss 1460,sackOK,TS val 1262297038 ecr 0,nop,wscale 7], length 0
+13:30:17.008579 MPLS (label 100001, exp 0, ttl 62) (label 24008, exp 0, [S], ttl 63) IP 20.0.0.1.5201 > 10.101.2.1.43938: Flags [S.], seq 399849138, ack 3759648418, win 65160, options [mss 1460,sackOK,TS val 1943388697 ecr 1262297038,nop,wscale 7], length 0
+13:30:17.014429 MPLS (label 100007, exp 0, ttl 61) (label 24007, exp 0, [S], ttl 62) IP 10.101.2.1.43938 > 20.0.0.1.5201: Flags [.], ack 1, win 502, options [nop,nop,TS val 1262297045 ecr 1943388697], length 0
+13:30:17.014448 MPLS (label 100007, exp 0, ttl 61) (label 24007, exp 0, [S], ttl 62) IP 10.101.2.1.43938 > 20.0.0.1.5201: Flags [P.], seq 1:38, ack 1, win 502, options [nop,nop,TS val 1262297045 ecr 1943388697], length 37
+13:30:17.016005 MPLS (label 100001, exp 0, ttl 62) (label 24008, exp 0, [S], ttl 63) IP 20.0.0.1.5201 > 10.101.2.1.43938: Flags [.], ack 38, win 509, options [nop,nop,TS val 1943388705 ecr 1262297045], length 0
+```
 
 ### End of lab 2
 Please proceed to [Lab 3](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_3)
