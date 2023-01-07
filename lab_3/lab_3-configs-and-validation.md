@@ -357,7 +357,7 @@ segment-routing
    !
   ! 
 
-  ```
+```
 
 #### BGP L3VPN validation output should look something like:
 ```     
