@@ -281,7 +281,7 @@ listening on br-65c7870958c4, link-type EN10MB (Ethernet), capture size 262144 b
 13:28:02.050055 MPLS (label 100001, exp 0, ttl 62) (label 24008, exp 0, [S], ttl 63) IP 20.0.0.1 > 10.101.2.1: ICMP echo reply, id 20, seq 484, length 64
 ```
 
-### Amsterdam to Rome Test
+### Amsterdam to Rome Test using iPerf
 An alternate quick way to look for the flow of traffic through the network is to clear counters on the router's potential egress interfaces and then run a measurable amount of traffic and see which interface packet counters increment. To continue in our validation from the previous step we will go to router xrd02 and determine if our packet flow next-hops to router xrd03 or xrd06.
 
 Lets get our test setup ready. For this test we will be using a tool called iPerf3 which allows us to do various types of traffic generation. 
@@ -328,7 +328,7 @@ Amsterdam VM
 
 The command output below demonstrates that our iPerf traffic was forward from xrd02 out interface gi0/0/0/2 to xrd06
 
-xrd02 
+On xrd02: 
   ```
   RP/0/RP0/CPU0:xrd02#clear counter int gi 0/0/0/1
   Clear "show interface" counters on this interface [confirm] 
@@ -400,12 +400,12 @@ xrd02
     Last clearing of "show interface" counters 00:00:42
     5 minute input rate 0 bits/sec, 0 packets/sec
     5 minute output rate 0 bits/sec, 0 packets/sec
-      691 packets input, 73245 bytes, 0 total input drops        <-------
+      691 packets input, 73245 bytes, 0 total input drops        <---------------
       0 drops for unrecognized upper-level protocol
       Received 0 broadcast packets, 6 multicast packets
                 0 runts, 0 giants, 0 throttles, 0 parity
       0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored, 0 abort
-      841 packets output, 1059352 bytes, 0 total output drops    <-------
+      841 packets output, 1059352 bytes, 0 total output drops    <---------------
       Output 0 broadcast packets, 7 multicast packets
       0 output errors, 0 underruns, 0 applique, 0 resets
       0 output buffer failures, 0 output buffers swapped out
