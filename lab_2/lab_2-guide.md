@@ -233,7 +233,7 @@ Lets use TCPDump to validate our configuration and SR-MPLS forwarding:
 ```
 cd ~/SRv6_dCloud_Lab/util
 ```
-The XRd nodes in our topology are linked by underlying docker network instances. Each time the topology is spun up docker-compose generates these network instances and runs a hash to assign their names/IDs. When we ran the topology setup script earlier it called the 'nets.sh' subscript in the ~/SRv6_dCloud_Lab/util directory which greps the docker network IDs writes them to text files in this directory. As an example link "A" in the topology has a mapped file called xrd01-xrd02 which contains the linux network id we need. 
+In lab_1 When we ran the XRd topology setup script it called the 'nets.sh' subscript in the ~/SRv6_dCloud_Lab/util directory. The nets.sh resolved the underlying docker network IDs wrote them to text files in this directory. As an example link "A" in the topology has a mapped file called xrd01-xrd02 which contains the linux network id we need. 
 
 With that understanding the *util* directory also contains a shell script called 'tcpdump.sh'. Running "./tcpdump.sh <filename>" will execute Linux TCPdump allowing us to monitor the traffic exiting xrd01 along the path to its destination and back.
 
