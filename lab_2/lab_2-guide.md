@@ -116,7 +116,7 @@ You should now see BGP update the new route being installed in xrd01 and xrd07. 
   ipv4_rib[1154]: RIB Routing: Vrf: "default", Tbl: "default" IPv4 Unicast, Add local-label 24007 (1) to 20.0.0.0/24 by proto bgp client bgp
   ```
 
-Now examine the bgp label table to confirm to confirm. See the truncated output below.
+Now examine the bgp label table to confirm. See the truncated output below.
 
   ```
   RP/0/RP0/CPU0:xrd01#show bgp ipv4 labeled-unicast labels 
