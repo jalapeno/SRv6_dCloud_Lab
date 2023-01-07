@@ -2,12 +2,16 @@
 
 #### BGP-LU and SR-MPLS
 
+#### We'll also configure SRv6 transport for BGP, however, we won't use it till later in the lab
+
 1. Configure BGP-LU and advertise client prefixes via BGP IPv4 Labeled Unicast, resolving to SR-MPLS next hop
 
 xrd01
 ```
 router bgp 65000
  address-family ipv4 unicast
+  segment-routing srv6
+   locator MAIN
   network 10.101.1.0/24
   network 10.101.2.0/24
   allocate-label all
@@ -33,6 +37,8 @@ xrd07
 ```
 router bgp 65000
  address-family ipv4 unicast
+  segment-routing srv6
+   locator MAIN
   network 10.107.1.0/24
   network 20.0.0.0/24
   network 30.0.0.0/24
@@ -104,13 +110,18 @@ Fri Jan  6 16:21:40.962 UTC
 ```
  - Note the labels imposed: 100007 prefix SID for remote node, then label 24xxx for the BGP-LU prefix
 
-4. Setup tcpdump to monitor traffic: on the XRD VM cd into the util directory and run the tcpdump.sh script
+4. Validate we have a BGP SRv6 SID
+```
+
+```
+
+5. Setup tcpdump to monitor traffic: on the XRD VM cd into the util directory and run the tcpdump.sh script
 ```
 cd ~/SRv6_dCloud_Lab/util/
 
 ./tcpdump.sh xrd01-xrd02
 ```
-5. Ping from Amsterdam VM to Rome VM:
+6. Ping from Amsterdam VM to Rome VM:
 ```
 cisco@amsterdam:~/SRv6_dCloud_Lab$ ping 20.0.0.1 -i .4
 PING 20.0.0.1 (20.0.0.1) 56(84) bytes of data.
@@ -132,7 +143,7 @@ listening on br-5a3eaa9b7732, link-type EN10MB (Ethernet), capture size 262144 b
 11:58:25.336681 IP 20.0.0.1 > 10.101.2.1: ICMP echo reply, id 9, seq 24, length 64
 ```
 
-6. tcpdump other links in the network with ping still running
+7. tcpdump other links in the network with ping still running
 ```
 ./tcpdump.sh xrd02-xrd06
 ./tcpdump.sh xrd07-xrd07

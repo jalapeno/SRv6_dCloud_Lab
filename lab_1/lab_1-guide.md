@@ -140,40 +140,24 @@ Later we'll use "tcpdump.sh <xrd0x-xrd0y>" to capture packets along the path thr
 7. The XRD router instances should be available for access 2 minutes after spin up.
 
 ### Validate Jalapeno VM
-1. SSH to the Ubuntu VM Jalapeno which is using Kubernetes to host the Jalapeno application
-2. Check that the interface to routers xrd05 and xrd06 is up and has assigned IP 198.18.1.101
-```
-    cisco@jalapeno:~$ ip address show ens192
-    3: ens192: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
-        link/ether 00:50:56:97:15:aa brd ff:ff:ff:ff:ff:ff
-        altname enp11s0
-        inet 198.18.1.101/24 brd 198.18.1.255 scope global noprefixroute ens192
-        valid_lft forever preferred_lft forever
-        inet6 fe80::250:56ff:fe97:15aa/64 scope link 
-        valid_lft forever preferred_lft forever
-```
-3. Connect to xrd05 and xrd06 and validate reachability to the Jalapeno VM:
-```
-cisco@xrd:~/SRv6_dCloud_Lab$ ssh xrd05
-Warning: Permanently added 'xrd05,10.254.254.105' (ECDSA) to the list of known hosts.
-Password: 
-Last login: Mon Dec 26 20:57:32 2022 from 10.254.254.1
+The Ubuntu VM Jalapeno which is running Kubernetes and later in lab exercise 4 we will install the open-source Jalapeno application.
+Jalapeno will collect BGP Monitoring Protocol (BMP) and streaming telemetry data from the routers, and will serve as a data repository for the SDN clients we'll have running on the Amsterdam and Rome VMs.
 
-RP/0/RP0/CPU0:xrd05#sho run int gi0/0/0/3
-Mon Dec 26 20:58:10.227 UTC
-interface GigabitEthernet0/0/0/3
- description to Internet
- cdp
- ipv4 address 198.18.1.2 255.255.255.0
- ipv6 address 2001:1:1:1::1a/125
-!
-RP/0/RP0/CPU0:xrd05#ping 198.18.1.101
-Mon Dec 26 20:58:14.751 UTC
+1. Validate router reachability to Jalapeno VM (no need to check all routers, but will be good to validate xrd01, 05, 06, and 07):
+```
+cisco@xrd:~$ ssh xrd01
+Warning: Permanently added 'xrd01,10.254.254.101' (ECDSA) to the list of known hosts.
+Password: 
+Last login: Fri Jan  6 21:45:12 2023 from 10.254.254.1
+
+RP/0/RP0/CPU0:xrd01#ping 198.18.128.101
+Fri Jan  6 22:25:45.006 UTC
 Type escape sequence to abort.
-Sending 5, 100-byte ICMP Echos to 198.18.1.101 timeout is 2 seconds:
+Sending 5, 100-byte ICMP Echos to 198.18.128.101 timeout is 2 seconds:
 !!!!!
-Success rate is 100 percent (5/5), round-trip min/avg/max = 1/1/1 ms
-RP/0/RP0/CPU0:xrd05#
+Success rate is 100 percent (5/5), round-trip min/avg/max = 1/1/2 ms
+RP/0/RP0/CPU0:xrd01#
+
 ```
 
 ### Validate Client VMs
@@ -205,6 +189,12 @@ In our lab the Rome VM represents a standard linux host or endpoint, and is esse
     64 bytes from 10.107.1.2: icmp_seq=2 ttl=255 time=1.38 ms
     64 bytes from 10.107.1.2: icmp_seq=3 ttl=255 time=1.30 ms
     ```
+4. Check connectivity from Rome to Jalapeno VM
+```
+cisco@rome:~$ ping -c 1 198.18.128.101
+PING 198.18.128.101 (198.18.128.101) 56(84) bytes of data.
+64 bytes from 198.18.128.101: icmp_seq=1 ttl=64 time=0.428 ms
+```
 
 __Amsterdam__
 
@@ -232,6 +222,12 @@ cisco@amsterdam:~$ sudo vppctl ping 10.101.1.2
 Statistics: 5 sent, 5 received, 0% packet loss
 cisco@amsterdam:~$ 
     ```
+4. Check connectivity from Amsterday to Jalapeno VM
+```
+cisco@rome:~$ ping -c 1 198.18.128.101
+PING 198.18.128.101 (198.18.128.101) 56(84) bytes of data.
+64 bytes from 198.18.128.101: icmp_seq=1 ttl=64 time=0.428 ms
+```
 
 ### Connect to Routers
 1. Starting from the XRD VM log into each router instance 1-7 per the management topology diagram above. Example:
@@ -578,7 +574,6 @@ SRv6 uSID locator and source address information for nodes in the lab:
     fc00:0:1:e001::             uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0         isis-100            InUse  Y 
     fc00:0:1:e002::             uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0:P       isis-100            InUse  Y 
     fc00:0:1:e003::             uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0         isis-100            InUse  Y 
-    fc00:0:1:e004::             uDT4              'carrots'                         bgp-65000           InUse  Y 
     RP/0/RP0/CPU0:xrd01#
     ```
 

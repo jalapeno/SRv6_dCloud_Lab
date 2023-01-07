@@ -1,7 +1,15 @@
 ## Intro to Jalapeno
-### Configure BGP Monitoring Protocol (BMP), Streaming Telemetry, and install open-source Jalapeno package
+### Configure a BGP SRv6 locator, BGP Monitoring Protocol (BMP), Streaming Telemetry, and install the open-source Jalapeno package
 
-R05
+xrd01
+```
+router bgp 65000
+ address-family ipv4 unicast
+  segment-routing srv6
+   locator MAIN
+```
+
+xrd05
 ```
 bmp server 1
  host 198.18.128.101 port 30511
@@ -31,7 +39,7 @@ router bgp 65000
 
 ```
 
-R06
+xrd06
 ```
 bmp server 1
  host 198.18.128.101 port 30511
@@ -59,6 +67,14 @@ router bgp 65000
  !
 ! 
 
+```
+
+xrd07
+```
+router bgp 65000
+ address-family ipv4 unicast
+  segment-routing srv6
+   locator MAIN
 ```
 
 Validate changes:
