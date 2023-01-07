@@ -1,8 +1,8 @@
 # SRv6 Lab 1 Guide
 
 ### Description: 
-In Lab 1 the student will validate that the supplied topology is up and running and that all baseline 
-connectivity is working. Second, they will validate that the pre-configured ISIS and BGP routing protocols are running and seeing the correct topology. Third, there will be lite SR-MPLS configuration on routers 1-7 and 
+In Lab 1 the student will launch the XRd topology validate it is up and running and that all baseline 
+connectivity is working. Second, they will validate that the pre-configured ISIS routing protocol is running and seeing the correct topology. Third, there will be lite SR-MPLS configuration on routers 1-7 and 
 confirm PE and P roles. Last you will create basic SRv6 configuration on routers 1-7 and confirm connectivity. 
 
 ## Contents
@@ -30,7 +30,7 @@ The student upon completion of Lab 1 should have achieved the following objectiv
 
 ## Validate Device Access
 
-Device access for this lab is primarly through SSH. All of the VMs within this toplogy can be accessed once you connect through Cisco AnyConnect VPN to the dCloud environment. Please see the management topology network diagram below. In addition their are seven instances of XR routers running as containers on the VM host XRD. The XRD VM acts as a jumpbox for these containerized routers. For router access you will need to SSH into the XRD VM and then initiate a separate SSH session to each of the routers. The XRD VM is configured for DNS resolution for each router name to save time.
+Device access for this lab is primarly through SSH. All of the VMs within this toplogy can be accessed once you connect through Cisco AnyConnect VPN to the dCloud environment. Please see the management topology network diagram below. In addition we will launch seven instances of XR routers running as containers on the VM host "XRD". The XRD VM acts as a jumpbox for these containerized routers, thus we will SSH into the XRD VM and then initiate a separate SSH session to each of the routers. The XRD VM is configured for DNS resolution for each router name to save time.
 
 ### User Credentials
 For all instances you will use the same user credentials:
@@ -44,7 +44,7 @@ User: cisco, Password: cisco123
 
 For full size image see [LINK](/topo_drawings/management-network.png)
 
-### Validate XRD
+### Launch and Validate XRD Topology
 1. SSH to the Ubuntu VM XRD which is using Docker to host the XRD application
 ```
 ssh cisco@198.18.128.100
