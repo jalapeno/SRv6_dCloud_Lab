@@ -3,7 +3,13 @@
 ### Description
 In lab 3 we will establish a Layer-3 VPN named "carrots" which will use SRv6 transport and will have endpoints on xrd01, xrd06, and xrd07. xrd01 and xrd06 will only have loopback interfaces participating in the L3VPN. xrd07's gi 0/0/0/3 interface connects to a secondary NIC on the Rome VM and will also be attached to the L3VPN. Once the L3VPN is established and has run some test traffic we will then setup SRv6-TE traffic steering to specific Rome prefixes.
 
-### Establish SRv6 L3VPN peering and prefix exchange
+## Contents
+1. [Configure SRv6 L3VPN](#configure-srv6-l3vpn)
+2. [Validate SRv6 L3VPN](#validate-srv6-l3vpn)
+3. [Configure SRv6-TE steering for L3VPN](#configure-srv6-te-steering-for-l3vpn)
+4. [Validate SRv6-TE steering of L3VPN traffic](#validate-srv6-te-steering-of-l3vpn-traffic)
+
+### Configure SRv6 L3VPN
 
 1. Configure the VRF on xrd01, 06, and 07:
 
@@ -188,7 +194,7 @@ router bgp 65000
 !
 ```
 
-### Validate SRv6 L3VPN forwarding
+### Validate SRv6 L3VPN
 
 From xrd01 run the following set of validation commands:
  - Validation command output examples can be found [here](https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_3/validation-cmd-output.md)

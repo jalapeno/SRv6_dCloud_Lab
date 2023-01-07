@@ -1,5 +1,15 @@
 ## Lab 5: Exploring Jalapeno, Kafka, and ArangoDB
 
+### Description
+In lab 5 we will install explore the Jalapeno system running on Kubernetes. We will log into the Kafka container and monitor topics for data coming in from Jalapeno's data collectors. We will spend some time getting familiar with the Arango graphDB, its data collections, its topology graphs, etc. Lastly we will populate the graphDB with some synthetic data and run a number of complex queries including graph traversals.
+
+## Contents
+1. [Kafka](#kafka
+2. [Arango GraphDB](#arango-graphdb)
+3. [BGP Monitoring Protocol](#bgp-monitoring-protocol-bmp)
+4. [Streaming Telemetry](#streaming-telemetry)
+5. [BGP SRv6 Locator](#configure-a-bgp-srv6-locator)
+
 #### Continue on the Jalapeno VM
 
 ### Kafka:
@@ -161,3 +171,6 @@ for p in outbound k_shortest_paths  'sr_node/2_0_0_0000.0000.0001' TO 'unicast_p
     sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency),
     percent_util_out: avg(p.edges[*].percent_util_out)}
 ```
+
+### End of lab 5
+Please proceed to [Lab 6](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_6/lab_6-guide.md)
