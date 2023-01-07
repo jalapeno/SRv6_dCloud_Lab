@@ -345,8 +345,6 @@ xrd02
       0 carrier transitions
   ```
 
-Log into router xrd02 and run the command *clear counter interface gi x/x/x/x* on the interface facing xrd03 and xrd05.
-
 
 ### End of lab 2
-Please proceed to [lab_3](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_3)
+Please proceed to [Lab 3](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_3)
