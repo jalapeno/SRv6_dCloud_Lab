@@ -206,7 +206,7 @@ Terminal window-1 run the command *./tcpdump.sh xrd01-xrd05*
 
 In our lab instance we saw the following output of TCPDump when we intiated the following command on xrd01: *ping 20.0.0.1 count 2*
 
-  '''
+  ```
   cisco@xrd:~/SRv6_dCloud_Lab/util$sudo  ./tcpdump.sh xrd01-xrd02
   sudo tcpdump -ni br-613d9944c678
   tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
