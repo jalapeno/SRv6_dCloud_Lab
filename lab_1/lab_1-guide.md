@@ -657,4 +657,4 @@ Tcpdump.sh output should show SR-MPLS encapsulation of traffic on some set of li
 Feel free to experiment with the tcpdump script on other links while pinging to/from different nodes in the network.
 
 ### End of lab 1
-Please proceed to [lab_2](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_2)
+Please proceed to [lab_2](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_2/lab_2-guide.md)
