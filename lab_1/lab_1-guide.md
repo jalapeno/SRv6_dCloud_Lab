@@ -8,7 +8,7 @@ confirm PE and P roles. Last you will create basic SRv6 configuration on routers
 ## Contents
 1. [Lab Objectives](#lab-objectives)
 2. [Validate Device Access](#validate-device-access)
-    - [Validate XRD VM](#validate-xrd)
+    - [Launch and Validate XRD Topology](#validate-xrd)
     - [Validate Jalapeno VM](#validate-jalapeno)
     - [Validate Client VMs](#validate-client-vms)
     - [Connect to Routers](#connect-to-routers)
