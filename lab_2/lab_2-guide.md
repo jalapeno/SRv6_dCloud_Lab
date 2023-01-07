@@ -9,7 +9,7 @@ In Lab 2 the student will extend the routing topology to include sites Amsterdam
 2. [Learn Default ISIS Path](#learn-default-isis-path)
 3. [SR-MPLS Network Routing](#sr-mpls-network-routing)
     - [Validate Local Network](#validate-local-networks)
-    - [Enable BGP Labelled Unicast](#enable-bgp-label-unicast)
+    - [Enable BGP Labeled Unicast](#enable-bgp-label-unicast)
     - [Add network routes to BGP-LU](#add-network-routes-to-bgp-lp)
     - [Validate BGP routes](#validate-bgp-routes)
 4. [Validate End to End Connectivity](#validate-end-to-end-connectivity)
@@ -59,8 +59,8 @@ The location Rome has the network 20.0.0.0/24 which we will advertise via BGP-LU
 ![SR-MPLS Topology](/topo_drawings/sr-mpls-medium.png)
 For full size image see [LINK](/topo_drawings/sr-mpls-large.png)
 
-### Enable BGP Label Unicast
-BGP Label Unicast (BGP-LU) is needed to advertise the label information we will need to enable SR-MPLS routing of our desired network traffic 20.0.0.0/24. First lets enable BGP-LU on our PE routers xrd01 and xrd07 plus our BGP route reflectors xrd05 and xrd06. The command *allocate-label all* under the ipv4 unicast which instructs bgp to advertise the networks in the global ipv4 table as labeled routes. Next you will add enable labeled unicast with the command *address-family ipv4 labeled-unicast* under neighbor-group ibgp-v4 group.
+### Enable BGP Labeled Unicast
+BGP Labeled Unicast (BGP-LU) is needed to advertise the label information we will need to enable SR-MPLS routing of our desired network traffic 20.0.0.0/24. First lets enable BGP-LU on our PE routers xrd01 and xrd07 plus our BGP route reflectors xrd05 and xrd06. The command *allocate-label all* under the ipv4 unicast which instructs bgp to advertise the networks in the global ipv4 table as labeled routes. Next you will add enable labeled unicast with the command *address-family ipv4 labeled-unicast* under neighbor-group ibgp-v4 group.
 
 xrd01 and xrd07
   ```
@@ -88,7 +88,7 @@ Now lets get network 20.0.0.0/24 advertised across our routing topology. First l
   RP/0/RP0/CPU0:xrd01#terminal monitor
   RP/0/RP0/CPU0:xrd01#debug ip routing 
   ```
-### Add network routes to BGP-LP
+### Add network routes to BGP-LU
 xrd01 - Routes for Amsterdam
   ```
   router bgp 65000            
@@ -106,6 +106,7 @@ xrd07 - Routes for Rome
   commit
   ```
 * hopefully we can remove the following line: 
+
 Log into the BGP route reflectors xrd05 and xrd06 and reset the bgp neighbor connections using _clear bgp *_
 
 ### Validate BGP routes
@@ -115,13 +116,13 @@ You should now see BGP update the new route being installed in xrd01 and xrd07. 
   ipv4_rib[1154]: RIB Routing: Vrf: "default", Tbl: "default" IPv4 Unicast, Add active route 20.0.0.0/24 via 10.0.0.7 interface None, metric [200/0] weight 0 (fl: 0x10008/0x2600) label 24007, by client bgp
   ipv4_rib[1154]: RIB Routing: Vrf: "default", Tbl: "default" IPv4 Unicast, Add local-label 24007 (1) to 20.0.0.0/24 by proto bgp client bgp
   ```
-#### Validation commands:
+#### The next section uses the following validation commands:
 ```
 show bgp ipv4 labeled-unicast labels
 show bgp ipv4 labeled-unicast 20.0.0.0/24
 show cef 20.0.0.0/24
 ```
-1. Now examine the bgp label table to confirm. See the truncated output below.
+1. Examine the bgp label table to confirm prefixes and label allocation. See the truncated example output below.
 
   ```
   RP/0/RP0/CPU0:xrd01#show bgp ipv4 labeled-unicast labels 
@@ -225,16 +226,16 @@ RP/0/RP0/CPU0:xrd01#
 ```
 
 ### Validate end to end connectivity
-Let's next use what we learned in step one of the lab guide about how xrd01 will use ECMP to load balance flows towards xrd07. We will test connectivity by initiating a ping from xrd01 to the address 20.0.0.1 in Rome. What we don't know is which path it will take as the next-hop: xrd02 or xrd05. In addition, we want to confirm that the path is using SR-MPLS
+Let's next use what we learned in step one of the lab guide about how xrd01 will use ECMP to load balance flows towards xrd07. We will test connectivity by initiating a ping from xrd01 to the address 20.0.0.1 in Rome. What we don't know is which path it will take as the next-hop could be either xrd02 or xrd05. In addition, we want to confirm that the path is using SR-MPLS forwarding.
 
 Lets use TCPDump to validate our configuration and SR-MPLS forwarding:
 1. Open up two new ssh sessions to the XRD VM and change to the *~/SRv6_dCloud_Lab/util* directory. 
 ```
 cd ~/SRv6_dCloud_Lab/util
 ```
-The XRd nodes in our topology are linked by underlying docker network instances. Each time the topology is spun up docker-compose generates these networks instances and runs a hash to assign their names/IDs. When we ran the topology setup script earlier it called the 'nets.sh' subscript in util directory directory which greps the docker network IDs and writes them to text files in this directory. As an example link "A" in the topology has a mapped file called xrd01-xrd02 which contains the linux network id we need. 
+The XRd nodes in our topology are linked by underlying docker network instances. Each time the topology is spun up docker-compose generates these network instances and runs a hash to assign their names/IDs. When we ran the topology setup script earlier it called the 'nets.sh' subscript in the ~/SRv6_dCloud_Lab/util directory which greps the docker network IDs writes them to text files in this directory. As an example link "A" in the topology has a mapped file called xrd01-xrd02 which contains the linux network id we need. 
 
-With that understanding the util directory also contains a shell script called 'tcpdump.sh'. Running "./tcpdump.sh <file>"will execute Linux TCPdump to monitor the traffic exiting xrd01 toward xrd02/xrd05 to prove our configuration valid.
+With that understanding the *util* directory also contains a shell script called 'tcpdump.sh'. Running "./tcpdump.sh <filename>" will execute Linux TCPdump allowing us to monitor the traffic exiting xrd01 along the path to its destination and back.
 
 
 2. In terminal window-1 run the command *./tcpdump.sh xrd01-xrd02*
@@ -246,7 +247,12 @@ With that understanding the util directory also contains a shell script called '
 ./tcpdump.sh xrd01-xrd05
 ```
 
-In our lab instance we saw the following output of TCPDump when we intiated the following command on xrd01: *ping 20.0.0.1 count 2*
+4. Initiate a ping from Amsterdam to Rome 20.0.0.1 (or from xrd01 to Rome)
+```
+cisco@amsterdam:~$ ping 20.0.0.1 -i .4
+```
+
+We should see TCPDump output something like this:
 
   ```
 cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd01-xrd02 
@@ -276,19 +282,20 @@ listening on br-65c7870958c4, link-type EN10MB (Ethernet), capture size 262144 b
 ```
 
 ### Amsterdam to Rome Test
-An alternate quick way to look for the flow of traffic through the network topology is for the router in question to clear counters on a the potential egress interfaces and then run a measurable amount of traffic through the router and see which interface packet counters increment. To continue in our validation from the previous step we will go to router xrd02 and determine if our packet flow next-hops to router xrd03 or xrd05.
+An alternate quick way to look for the flow of traffic through the network is to clear counters on the router's potential egress interfaces and then run a measurable amount of traffic and see which interface packet counters increment. To continue in our validation from the previous step we will go to router xrd02 and determine if our packet flow next-hops to router xrd03 or xrd06.
 
 Lets get our test setup ready. For this test we will be using a tool called iPerf3 which allows us to do various types of traffic generation. 
+
   1. Log into the Rome VM with ssh.
   2. Run the following cli command to start iPerf3 and run it as a service *iperf3 -s -D*
   3. Log into xrd02 with ssh.
-  4. On xrd02 run the command *clear counter interface gi x/x/x/x* on the interface facing xrd03 and xrd05
+  4. On xrd02 run the command *clear counter interface gi x/x/x/x* on the interface facing xrd03 and xrd06
   5. Log into the Amsterdam VM with ssh.
   6. Run the following cli command to start iPerf3 test: *iperf3 -c 20.0.0.1*
   7. Go back to xrd02 and now look at the interface counters and see which incremented by several hundred packets
   8. You can repeat this hop by hop through the network to determine the flow path.
 
-See the command output that demonstartes this test below. Some output truncated for brevity:
+See the command output that demonstrates this test below. Some output truncated for brevity:
 
 Rome VM
   ```
@@ -319,7 +326,7 @@ Amsterdam VM
   iperf Done.
   ```
 
-The command output below demonstrate that our iPerf traffic was forward from xrd02 out interface gi0/0/0/2 to xrd05
+The command output below demonstrates that our iPerf traffic was forward from xrd02 out interface gi0/0/0/2 to xrd06
 
 xrd02 
   ```
@@ -393,12 +400,12 @@ xrd02
     Last clearing of "show interface" counters 00:00:42
     5 minute input rate 0 bits/sec, 0 packets/sec
     5 minute output rate 0 bits/sec, 0 packets/sec
-      691 packets input, 73245 bytes, 0 total input drops
+      691 packets input, 73245 bytes, 0 total input drops        <-------
       0 drops for unrecognized upper-level protocol
       Received 0 broadcast packets, 6 multicast packets
                 0 runts, 0 giants, 0 throttles, 0 parity
       0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored, 0 abort
-      841 packets output, 1059352 bytes, 0 total output drops
+      841 packets output, 1059352 bytes, 0 total output drops    <-------
       Output 0 broadcast packets, 7 multicast packets
       0 output errors, 0 underruns, 0 applique, 0 resets
       0 output buffer failures, 0 output buffers swapped out
