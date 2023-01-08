@@ -17,25 +17,28 @@ https://github.com/cisco-open/jalapeno/blob/main/README.md
 
 Jalapeno breaks the data collection and warehousing problem down into a series of components and services:
 - Data collector services such as GoBMP and Telegraf collect network topology and statistics and publish to Kafka
-- Data processor services such as "Topology" (and other future services), which subscribe to Kafka topics and write the data they receive to databases
+- Data processor services such as "Topology" (and other future services) subscribe to Kafka topics and write the data they receive to databases
 - Arango GraphDB for modeling topology data
 - Influx TSDB for warehousing statistical time-series data
+- API-Gateway: under construction
 
 #### Jalapeno Architecture and Data Flow
 ![jalapeno_architecture](https://github.com/cisco-open/jalapeno/blob/main/docs/diagrams/jalapeno_architecture.png)
+
+One of the primary goals of the Jalapeno project is to be flexible and extensible. In the future we expect Jalapeno might support any number of data collectors and processors (LLDP Topology, pmacct, etc.). Or an operator might integrate Jalapeno's GoBMP/Topology/GraphDB modules into an existing environment running Kafka. We also envision future integrations with other API-driven data warehouses such as ThousandEyes: https://www.thousandeyes.com/
 
 1. In a separate terminal session ssh to the Jalapeno VM 
 ```
 cisco@198.18.128.101
 pw = cisco123
 ```
-2. Clone the Jalapeno repository at https://github.com/cisco-open/jalapeno, then cd into the repo and switch to the cleu-srv6-lab code branch:
+2. Clone the Jalapeno repository at https://github.com/cisco-open/jalapeno, then cd into the repo and switch to the "cleu-srv6-lab" code branch:
 ```
 git clone https://github.com/cisco-open/jalapeno.git
 cd jalapeno
 git checkout cleu-srv6-lab
 ```
-Example outpute:
+Example output:
 ```
 cisco@jalapeno:~/test$ git clone https://github.com/cisco-open/jalapeno.git
 Cloning into 'jalapeno'...
@@ -87,7 +90,7 @@ kube-system           kube-controller-manager-jalapeno               1/1     Run
 kube-system           kube-proxy-pmwft                               1/1     Running   5 (16m ago)     14d
 kube-system           kube-scheduler-jalapeno                        1/1     Running   6 (16m ago)     14d
 ```
-5. Additional k8s commands:
+5. Here are some additional k8s commands to try. Note the different outputs when specifying a particular namespace (-n option) vs. all namespaces (-A option):
 ```
 kubectl get pods -n jalapeno
 kubectl get pods -n jalapeno-collectors
@@ -99,7 +102,7 @@ kubectl describe pod -n <namespace> <pod name>
 example: kubectl describe pod -n jalapeno topology-678ddb8bb4-rt9jg
 ```
 ### Install Jalapeno SR-Processors
-The SR-Processors are a pair of POC data processors that mine Jalapeno's graphDB and create a pair of new data collections. The sr-node processor loops through various link-state data collections and gathers relevant SR/SRv6 data for each node in the network. The sr-topology processor generates a graph of the entire network topology (internal and external) and populates relevant SR/SRv6 data within the graph collection.
+The SR-Processors are a pair of POC data processors that mine Jalapeno's graphDB and create a pair of new data collections. The sr-node processor loops through various link-state data collections and gathers relevant SR/SRv6 data for each node in the network. The sr-topology processor generates a graph of the entire network topology (internal and external links, nodes, peers, prefixes, etc.) and populates relevant SR/SRv6 data within the graph collection.
 
 1. Install SR-Processors:
 ```
@@ -107,7 +110,7 @@ cd ~/SRv6_dCloud_Lab/lab_4/sr-processors
 kubectl apply -f sr-node.yaml 
 kubectl apply -f sr-topology.yaml 
 ```
-2. Validate pods are up and running:
+2. Validate the pods are up and running:
 ```
 kubectl get pods -n jalapeno
 ```
@@ -129,9 +132,9 @@ zookeeper-0                                   1/1     Running   0             12
 
 ### BGP Monitoring Protocol (BMP)
 
-Most transport SDN systems use BGP-LS to gather and model the underlying IGP topology. Jalapeno is intended to be a more generalized data platform to support use cases beyond internal transport such as VPNs or service chains. Because of this, Jalapeno's primary method of capturing topology data is via BMP. BMP supplies Jalapeno with all BGP AFI/SAFI info, and thus Jalapeno is able to model many different kinds of topology, including the topology of the Internet (at least from the perspective of one of our peering routers).
+Most transport SDN systems use BGP-LS to gather and model the underlying IGP topology. Jalapeno is intended to be a more generalized data platform to support use cases beyond internal transport such as VPNs or service chains. Because of this, Jalapeno's primary method of capturing topology data is via BMP. BMP supplies Jalapeno with all BGP AFI/SAFI info, and thus Jalapeno is able to model many different kinds of topology, including the topology of the Internet (at least from the perspective of our peering routers).
 
-We'll first establish a BMP session between our route-reflectors and the open-source GoBMP collector (https://github.com/sbezverk/gobmp), which comes pre-packaged with the Jalapeno install. We'll then enable BMP on the RRs' BGP peering sessions with our PE routers xrd01 and xrd07. Once established, the RRs' will stream all BGP NLRI info they receive from the PE routers to the GoBMP collector, which will in turn publish the data to Kafka. We'll get more into the Jalapeno data flow later in this lab.
+We'll first establish a BMP session between our route-reflectors and the open-source GoBMP collector (https://github.com/sbezverk/gobmp), which comes pre-packaged with the Jalapeno install. We'll then enable BMP on the RRs' BGP peering sessions with our PE routers xrd01 and xrd07. Once established, the RRs' will stream all BGP NLRI info they receive from the PE routers to the GoBMP collector, which will in turn publish the data to Kafka. We'll get more into the Jalapeno data flow in Lab 5.
 
 1. BMP configuration on xrd05 and xrd06:
 ```

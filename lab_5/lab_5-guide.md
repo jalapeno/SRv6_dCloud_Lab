@@ -1,7 +1,7 @@
 ## Lab 5: Exploring Jalapeno, Kafka, and ArangoDB
 
 ### Description
-In lab 5 we will install explore the Jalapeno system running on Kubernetes. We will log into the Kafka container and monitor topics for data coming in from Jalapeno's data collectors. We will spend some time getting familiar with the Arango graphDB, its data collections, its topology graphs, etc. Lastly we will populate the graphDB with some synthetic data and run a number of complex queries including graph traversals.
+In lab 5 we will explore the Jalapeno system running on Kubernetes. We will log into the Kafka container and monitor topics for data coming in from Jalapeno's data collectors, which will then be picked up by Jalapeno processors (topology, lslinknode, sr-node, sr-topology, etc.). We will spend some time getting familiar with the Arango graphDB, its data collections, and run some basic queries. Lastly we will populate the graphDB with some synthetic data and run a number of complex queries including graph traversals.
 
 ## Contents
 1. [Kafka](#kafka)
@@ -10,12 +10,13 @@ In lab 5 we will install explore the Jalapeno system running on Kubernetes. We w
 4. [Populating the DB with meta data](#populating-the-db-with-external-data)
 5. [Graph Traversals](#graph-traversals)
 
-
 #### Continue on the Jalapeno VM
 
-### Kafka:
-1. List Kafka topics
-2. Listen to Kafka topics
+### Kafka
+From the Kafka homepage: Apache Kafka is an open-source distributed event streaming platform used by thousands of companies for high-performance data pipelines, streaming analytics, data integration, and mission-critical applications.
+https://kafka.apache.org/
+
+1. Login to the Kafka container and list topics:
 ```
 kubectl exec -it kafka-0 /bin/bash -n jalapeno
 
@@ -23,24 +24,82 @@ cd bin
 unset JMX_PORT
 
 ./kafka-topics.sh --list  --bootstrap-server localhost:9092
+```
+A few seconds after running the command you should see the following list toward the bottom on the command output:
+```
+gobmp.parsed.evpn
+gobmp.parsed.evpn_events
+gobmp.parsed.flowspec
+gobmp.parsed.flowspec_events
+gobmp.parsed.flowspec_v4
+gobmp.parsed.flowspec_v4_events
+gobmp.parsed.flowspec_v6
+gobmp.parsed.flowspec_v6_events
+gobmp.parsed.l3vpn
+gobmp.parsed.l3vpn_events
+gobmp.parsed.l3vpn_v4
+gobmp.parsed.l3vpn_v4_events
+gobmp.parsed.l3vpn_v6
+gobmp.parsed.l3vpn_v6_events
+gobmp.parsed.ls_link
+gobmp.parsed.ls_link_events
+gobmp.parsed.ls_node
+gobmp.parsed.ls_node_events
+gobmp.parsed.ls_prefix
+gobmp.parsed.ls_prefix_events
+gobmp.parsed.ls_srv6_sid
+gobmp.parsed.ls_srv6_sid_events
+gobmp.parsed.peer
+gobmp.parsed.peer_events
+gobmp.parsed.sr_policy
+gobmp.parsed.sr_policy_events
+gobmp.parsed.sr_policy_v4
+gobmp.parsed.sr_policy_v4_events
+gobmp.parsed.sr_policy_v6
+gobmp.parsed.sr_policy_v6_events
+gobmp.parsed.unicast_prefix
+gobmp.parsed.unicast_prefix_events
+gobmp.parsed.unicast_prefix_v4
+gobmp.parsed.unicast_prefix_v4_events
+gobmp.parsed.unicast_prefix_v6
+gobmp.parsed.unicast_prefix_v6_events
+jalapeno.ls_node_edge_events
+jalapeno.telemetry
+```
+
+2. Monitor a Kafka topic:
+```
 ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_node
 ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_link
 ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.l3vpn_v4
 
 ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic jalapeno.telemetry
+```
+The gobmp topics should be fairly quiet unless BGP updates are happening. Try clearing bgp-ls or bgp-vpnv4 on one of the RRs and see what data comes through on the Kafka topic.
 
 ```
+clear bgp vpnv4 unicast * soft
+clear bgp link-state link-state * soft
+```
+
+Example GoBMP message published to Kafka when monitoring the l3vpn_v4 topic and clearing bgp-vpnv4 on xrd05:
+```
+{"action":"add","router_hash":"0669df0f031fb83e345267a9679bbc6a","router_ip":"10.0.0.5","base_attrs":{"base_attr_hash":"b41cebdba45850cdb7f6994b4675fa4c","origin":"incomplete","local_pref":100,"is_atomic_agg":false,"ext_community_list":["rt=9:9"]},"peer_hash":"e0b24585a43db7cc196f5e42d48e8b5f","peer_ip":"fc00:0:1111::1","peer_asn":65000,"timestamp":"2023-01-08T04:22:14.000588527Z","prefix":"10.9.1.0","prefix_len":24,"is_ipv4":true,"nexthop":"fc00:0:1111::1","is_nexthop_ipv4":false,"labels":[14681088],"is_prepolicy":false,"is_adj_rib_in":false,"vpn_rd":"10.0.0.1:0","vpn_rd_type":1,"prefix_sid":{"srv6_l3_service":{"sub_tlvs":{"1":[{"sid":"fc00:0:1111::","endpoint_behavior":63,"sub_sub_tlvs":{"1":[{"locator_block_length":32,"locator_node_length":16,"function_length":16,"argument_length":0,"transposition_length":16,"transposition_offset":48}]}}]}}}}
+```
+
 ### Arango GraphDB
 
-Switch to web browser and connect to Jalapeno's Arango GraphDB
+1. Switch to a web browser and connect to Jalapeno's Arango GraphDB
 ```
-http://198.18.1.101:30852/
+http://198.18.128.101:30852/
 
 user: root
 password: jalapeno
 DB: jalapeno
 
 ```
+2. Spend some time exploring the data collections in the DB
+
 #### Basic queries to explore data collections 
 
 Run DB Queries:
@@ -70,7 +129,7 @@ for l in sr_node return { node: l.router_id, name: l.name, prefix_sid: l.prefix_
 ### Populating the DB with external data 
 Return to the Jalapeno VM ssh session and add some synthetic meta data to the DB:
 ```
-cd ~/SRv6_dCloud_Lab/lab_4/
+cd ~/SRv6_dCloud_Lab/lab_5/
 python3 add_meta_data.py
 ```
 Validate meta data with ArangoDB query:
