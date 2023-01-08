@@ -4,11 +4,12 @@
 In lab 5 we will install explore the Jalapeno system running on Kubernetes. We will log into the Kafka container and monitor topics for data coming in from Jalapeno's data collectors. We will spend some time getting familiar with the Arango graphDB, its data collections, its topology graphs, etc. Lastly we will populate the graphDB with some synthetic data and run a number of complex queries including graph traversals.
 
 ## Contents
-1. [Kafka](#kafka
+1. [Kafka](#kafka)
 2. [Arango GraphDB](#arango-graphdb)
-3. [BGP Monitoring Protocol](#bgp-monitoring-protocol-bmp)
-4. [Streaming Telemetry](#streaming-telemetry)
-5. [BGP SRv6 Locator](#configure-a-bgp-srv6-locator)
+3. [Basic queries](#basic-queries-to-explore-data-collections)
+4. [Populating the DB with meta data](#populating-the-db-with-external-data)
+5. [Graph Traversals](#graph-traversals)
+
 
 #### Continue on the Jalapeno VM
 
@@ -40,7 +41,7 @@ password: jalapeno
 DB: jalapeno
 
 ```
-#### Explore data collections
+#### Basic queries to explore data collections 
 
 Run DB Queries:
 ```

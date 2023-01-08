@@ -21,28 +21,43 @@ Jalapeno breaks the data collection and warehousing problem down into a series o
 - Arango GraphDB for modeling topology data
 - Influx TSDB for warehousing statistical time-series data
 
-#### Jalapeno data flow
-![jalapeno_architecture](https://github.com/cisco-open/jalapeno/blob/main/docs/diagrams/jalapeno_architecture.png "jalapeno architecture")
-https://github.com/cisco-open/jalapeno/blob/main/docs/diagrams/jalapeno_architecture.png
-
+#### Jalapeno Architecture and Data Flow
+![jalapeno_architecture](https://github.com/cisco-open/jalapeno/blob/main/docs/diagrams/jalapeno_architecture.png)
 
 1. In a separate terminal session ssh to the Jalapeno VM 
 ```
 cisco@198.18.128.101
 pw = cisco123
 ```
-2. Clone the Jalapeno repository at https://github.com/cisco-open/jalapeno and switch to the cleu-srv6-lab code branch:
+2. Clone the Jalapeno repository at https://github.com/cisco-open/jalapeno, then cd into the repo and switch to the cleu-srv6-lab code branch:
 ```
 git clone https://github.com/cisco-open/jalapeno.git
+cd jalapeno
 git checkout cleu-srv6-lab
+```
+Example outpute:
+```
+cisco@jalapeno:~/test$ git clone https://github.com/cisco-open/jalapeno.git
+Cloning into 'jalapeno'...
+remote: Enumerating objects: 4808, done.
+remote: Counting objects: 100% (1468/1468), done.
+remote: Compressing objects: 100% (566/566), done.
+remote: Total 4808 (delta 733), reused 1350 (delta 670), pack-reused 3340
+Receiving objects: 100% (4808/4808), 17.43 MiB | 26.88 MiB/s, done.
+Resolving deltas: 100% (2461/2461), done.
+cisco@jalapeno:~/test$ cd jalapeno/
+cisco@jalapeno:~/test/jalapeno$ git checkout cleu-srv6-lab
+Branch 'cleu-srv6-lab' set up to track remote branch 'cleu-srv6-lab' from 'origin'.
+Switched to a new branch 'cleu-srv6-lab'
+cisco@jalapeno:~/test/jalapeno$ 
 ```
 
 3. Run the Jalapeno install script
 ```
-cd jalapeno/install/
+cd install/
 ./deploy_jalapeno.sh 
 ```
-Don't worry about the 'error validating' errors, they're cosmetic...we'll fix those one of these days
+Don't worry about the 'error validating' messages, they're cosmetic...we'll fix those one of these days
 
 4. Verify k8s pods are running (note, some pods may initially be in a crashloop state. These should resolve after 2-3 minutes):
 ```
@@ -84,7 +99,7 @@ kubectl describe pod -n <namespace> <pod name>
 example: kubectl describe pod -n jalapeno topology-678ddb8bb4-rt9jg
 ```
 ### Install Jalapeno SR-Processors
-The SR-Processors are a pair of POC data processors that mine Jalapeno's graphDB and create a pair of new data collections. The sr-node processor loops through various link-state data collectors and gathers relevant SR/SRv6 data for each node in the network. The sr-topology processor generates a graph of the entire network topology (internal and external) and populates relevant SR/SRv6 data within the collection.
+The SR-Processors are a pair of POC data processors that mine Jalapeno's graphDB and create a pair of new data collections. The sr-node processor loops through various link-state data collections and gathers relevant SR/SRv6 data for each node in the network. The sr-topology processor generates a graph of the entire network topology (internal and external) and populates relevant SR/SRv6 data within the graph collection.
 
 1. Install SR-Processors:
 ```
@@ -111,7 +126,6 @@ telegraf-egress-deployment-5795ffdd9c-t8xrp   1/1     Running   2 (12m ago)   12
 topology-678ddb8bb4-rt9jg                     1/1     Running   3 (11m ago)   12m
 zookeeper-0                                   1/1     Running   0             12m
 ```
-
 
 ### BGP Monitoring Protocol (BMP)
 
@@ -254,7 +268,7 @@ Messages sent   : 57
 
 ### Streaming Telemetry
 
-
+Placeholder - do we bother with config, or simply explore the data in influx/grafana?
 
 
 
