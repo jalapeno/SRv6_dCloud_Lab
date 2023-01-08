@@ -7,10 +7,10 @@ In Lab 2 the student will extend the routing topology to include sites Amsterdam
 ## Contents
 1. [Lab Objectives](#lab-objectives)
 2. [Learn Default ISIS Path](#learn-default-isis-path)
-3. [SR-MPLS Network Routing](#sr-mpls-network-routing)
-    - [Validate Local Network](#validate-local-networks)
-    - [Enable BGP Labeled Unicast](#enable-bgp-label-unicast)
-    - [Add network routes to BGP-LU](#add-network-routes-to-bgp-lp)
+3. [BGP-LU over SR-MPLS](#bgp-labeled-unicast-bgp-lu-over-sr-mpls-network-routing)
+    - [Validate Local Network](#configure-remote-test-networks)
+    - [Enable BGP Labeled Unicast](#enable-bgp-labeled-unicast)
+    - [Advertise BGP-LU Prefixes](#advertise-bgp-lu-prefixes)
     - [Validate BGP routes](#validate-bgp-routes)
 4. [Validate End to End Connectivity](#validate-end-to-end-connectivity)
   
@@ -88,7 +88,7 @@ Now lets get network 20.0.0.0/24 advertised across our routing topology. First l
   RP/0/RP0/CPU0:xrd01#terminal monitor
   RP/0/RP0/CPU0:xrd01#debug ip routing 
   ```
-### Add network routes to BGP-LU
+### Advertise BGP-LU prefixes
 xrd01 - Routes for Amsterdam
   ```
   router bgp 65000            

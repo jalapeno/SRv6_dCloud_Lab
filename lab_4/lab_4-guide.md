@@ -22,6 +22,7 @@ Jalapeno breaks the data collection and warehousing problem down into a series o
 - Influx TSDB for warehousing statistical time-series data
 
 #### Jalapeno data flow
+![jalapeno_architecture](https://github.com/cisco-open/jalapeno/blob/main/docs/diagrams/jalapeno_architecture.png "jalapeno architecture")
 https://github.com/cisco-open/jalapeno/blob/main/docs/diagrams/jalapeno_architecture.png
 
 
