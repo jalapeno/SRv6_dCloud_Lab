@@ -62,8 +62,9 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
       ipv6 address fc00:0:107:2::2/64
     ```
 
-  2. Add VRF static routes
-  
+
+ 2. Add VRF static routes
+
     **xrd07**
     ```
     router static
