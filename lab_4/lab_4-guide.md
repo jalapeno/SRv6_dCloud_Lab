@@ -44,40 +44,40 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
   ### Add VRF to router interfaces for L3VPN
   Now that our vrf *carrot* has been created lets get the vrf added to the applicable interfaces. For xrd01 we will use  interface *GigabitEthernet0/0/0/3* which connects to Amsterdam over link *M*. For xrd07 we will use interface *GigabitEthernet0/0/0/3* which connects to Rome over link *K*.
 
-  1. Add VRF to interfaces
-    Router **xrd01**
-      ```
-      interface GigabitEthernet0/0/0/3
-        vrf carrots
-        ipv4 address 10.101.3.2 255.255.255.0
-        ipv6 address 10:9:1::1/64
-      ```
-
-    Router **xrd07**
+Add VRF to interfaces
+  Router **xrd01**
     ```
-      interface GigabitEthernet0/0/0/3
-        vrf carrots
-        ipv4 address 10.107.2.2 255.255.255.0
-        ipv6 address fc00:0:107:2::2/64
-    ```
-  
-  2. Add VRF static routes
-    **xrd07** 
-    In addition to configuring *GigabitEthernet0/0/0/3* to be a member of VRF carrots, xrd07 will need a pair of static routes for reachability to Rome's "40" and "50" network prefixes:
-
-    ```
-    router static
-    vrf carrots
-      address-family ipv4 unicast
-        40.0.0.0/24 10.107.2.1
-        50.0.0.0/24 10.107.2.1
-      
-      address-family ipv6 unicast
-        fc00:0:40::/64 fc00:0:107:2::1
-        fc00:0:50::/64 fc00:0:107:2::1
+    interface GigabitEthernet0/0/0/3
+      vrf carrots
+      ipv4 address 10.101.3.2 255.255.255.0
+      ipv6 address 10:9:1::1/64
     ```
 
-  3. Verify reachability
+  Router **xrd07**
+  ```
+    interface GigabitEthernet0/0/0/3
+      vrf carrots
+      ipv4 address 10.107.2.2 255.255.255.0
+      ipv6 address fc00:0:107:2::2/64
+  ```
+
+Add VRF static routes
+  **xrd07** 
+  In addition to configuring *GigabitEthernet0/0/0/3* to be a member of VRF carrots, xrd07 will need a pair of static routes for reachability to Rome's "40" and "50" network prefixes:
+
+  ```
+  router static
+  vrf carrots
+    address-family ipv4 unicast
+      40.0.0.0/24 10.107.2.1
+      50.0.0.0/24 10.107.2.1
+    
+    address-family ipv6 unicast
+      fc00:0:40::/64 fc00:0:107:2::1
+      fc00:0:50::/64 fc00:0:107:2::1
+  ```
+
+Verify reachability
   Ping check from xrd07 gi 0/0/0/3 to Rome VM 2nd NIC:
   ```
   ping vrf carrots 10.107.2.1
