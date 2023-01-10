@@ -44,10 +44,9 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
   ### Add VRF to router interfaces for L3VPN
   Now that our vrf *carrot* has been created lets get the vrf added to the applicable interfaces. For xrd01 we will use  interface *GigabitEthernet0/0/0/3* which connects to Amsterdam over link *M*. For xrd07 we will use interface *GigabitEthernet0/0/0/3* which connects to Rome over link *K*.
 
-  1. Add VRF to interfaces  
+ 1. Add VRF to interfaces
 
     **xrd01**
-      
     ```
     interface GigabitEthernet0/0/0/3
       vrf carrots
@@ -63,37 +62,36 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
       ipv6 address fc00:0:107:2::2/64
     ```
 
-  2. Add VRF static routes
-  **xrd07** 
-  In addition to configuring *GigabitEthernet0/0/0/3* to be a member of VRF carrots, xrd07 will need a pair of static routes for reachability to Rome's "40" and "50" network prefixes:
 
-  ```
-  router static
-  vrf carrots
-    address-family ipv4 unicast
-      40.0.0.0/24 10.107.2.1
-      50.0.0.0/24 10.107.2.1
-    xx
-    address-family ipv6 unicast
-      fc00:0:40::/64 fc00:0:107:2::1
-      fc00:0:50::/64 fc00:0:107:2::1
-  ```
+ 2. Add VRF static routes  
+     In addition to configuring *GigabitEthernet0/0/0/3* to be a member of VRF carrots, xrd07 will need a pair of static routes for reachability to Rome's "40" and "50" network prefixes:  
+    **xrd07**
+    ```
+    router static
+      vrf carrots
+        address-family ipv4 unicast
+          40.0.0.0/24 10.107.2.1
+          50.0.0.0/24 10.107.2.1
+        address-family ipv6 unicast
+          fc00:0:40::/64 fc00:0:107:2::1
+          fc00:0:50::/64 fc00:0:107:2::1
+    ```
 
-  3. Verify reachability
-  Ping check from xrd07 gi 0/0/0/3 to Rome VM 2nd NIC:
-  ```
-  ping vrf carrots 10.107.2.1
-  ping vrf carrots 40.0.0.1
-  ping vrf carrots 50.0.0.1
-  ping vrf carrots fc00:0:107:2::1
-  ping vrf carrots fc00:0:40::1
-  ping vrf carrots fc00:0:50::1
-  ```
+3. Verify reachability  
+    Ping check from xrd07 gi 0/0/0/3 to Rome VM 2nd NIC:  
+    ```
+    ping vrf carrots 10.107.2.1
+    ping vrf carrots 40.0.0.1
+    ping vrf carrots 50.0.0.1
+    ping vrf carrots fc00:0:107:2::1
+    ping vrf carrots fc00:0:40::1
+    ping vrf carrots fc00:0:50::1
+    ```
 
   ### Configure BGP L3VPN Peering
   The next step is to add the L3VPN configuration into BGP. We will be using separate BGP neighbor groups for v4 and v6 peers. For example for IPv4 neighbors you will enable L3VPN in the neighbor template by issuing the *address-family vpnv4 unicast* command.
   
-  Next you will enable *vrf carrots* to participate in SRv6 by adding the *segment-routing srv6* command and then tieing that to the locator policy ISIS. 
+  Next you will enable vrf *carrots* to participate in SRv6 by adding the *`segment-routing srv6`* command and then tieing that to the locator policy ISIS. 
 
   See below for configuraiton on xrd01 and xrd07
 
