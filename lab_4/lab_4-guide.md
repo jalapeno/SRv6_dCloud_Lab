@@ -47,10 +47,10 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
 Add VRF to interfaces  
   **xrd01**  
     ```
-    interface GigabitEthernet0/0/0/3
-      vrf carrots
-      ipv4 address 10.101.3.2 255.255.255.0
-      ipv6 address 10:9:1::1/64
+      interface GigabitEthernet0/0/0/3
+        vrf carrots
+        ipv4 address 10.101.3.2 255.255.255.0
+        ipv6 address 10:9:1::1/64
     ```
 
   **xrd07**  
