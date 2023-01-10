@@ -4,13 +4,24 @@
 In lab 4 we will establish a Layer-3 VPN named "carrots" which will use SRv6 transport and will have endpoints on xrd01, xrd06, and xrd07. xrd01 and xrd06 will only have loopback interfaces participating in the L3VPN. xrd07's gi 0/0/0/3 interface connects to a secondary NIC on the Rome VM and will also be attached to the L3VPN. Once the L3VPN is established and has run some test traffic we will then setup SRv6-TE traffic steering to specific Rome prefixes.
 
 ## Contents
-1. [Configure SRv6 L3VPN](#configure-srv6-l3vpn)
+1. [SRv6 L3VPN](#configure-srv6-l3vpn)
+    - [Configure VRF](#configure-vrf)
 2. [Validate SRv6 L3VPN](#validate-srv6-l3vpn)
 3. [Configure SRv6-TE steering for L3VPN](#configure-srv6-te-steering-for-l3vpn)
 4. [Validate SRv6-TE steering of L3VPN traffic](#validate-srv6-te-steering-of-l3vpn-traffic)
 
-### Configure SRv6 L3VPN
+## Configure SRv6 L3VPN
+The SRv6-based IPv4/IPv6 L3VPN feature enables deployment of IPv4/IPv6 L3VPN over a SRv6 data plane. Traditionally, it was done over an SR-MPLS based system. SRv6-based L3VPN uses SRv6 Segment IDs (SIDs) for service segments instead of labels. SRv6-based L3VPN functionality interconnects multiple sites to resemble a private network service over public infrastructure. The basic SRv6 configuration was completed in [Lab -2](/lab_2/lab_2-guide.md).
 
+For this feature, BGP allocates an SRv6 SID from the locator space, configured under SRv6-base and VPNv4 address family. For more information on this, refer Segment Routing over IPv6 Overview. The BGP SID can be allocated in the following ways:
+
+Per-VRF mode that provides End.DT4 support. End.DT4 represents the Endpoint with decapsulation and IPv4 table lookup.
+
+Per-CE mode that provides End.DX4 cross connect support. End.DX4 represents the Endpoint with decapsulation and IPv4 cross-connect.
+
+BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4 L3VPN Network Layer Reachability Information (NLRI) and advertises it to IPv6 peering over an SRv6 network. The Ingress PE (provider edge) router encapsulates the VRF IPv4 traffic with the SRv6 VPN SID and sends it over the SRv6 network.
+
+### Configure VRF
 1. Configure the VRF on xrd01, 06, and 07:
 
 ```
