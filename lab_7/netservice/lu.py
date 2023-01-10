@@ -5,7 +5,7 @@ from . import add_route
 # Query DB for least utilized path parameters and return srv6 and sr sid info
 def lu_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane, encap):
 
-    client = ArangoClient(hosts='http://198.18.1.101:30852')
+    client = ArangoClient(hosts='http://198.18.128.101:30852')
     db = client.db(dbname, username=user, password=pw)
     cursor = db.aql.execute("""for v, e in outbound shortest_path """ + '"%s"' % src_id + """ \
         TO """ + '"%s"' % dst_id + """ sr_topology \

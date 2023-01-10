@@ -12,9 +12,9 @@ In our lab the Amsterdam VM represents a content server whose application owners
 
 Like the Rome VM, Amsterdam has the same python client that can query Jalapeno for SR/SRv6 path data, and then program its local VPP dataplane with ip route with SR/SRv6 encapsulation
 
-1. On the Amsterdam VM cd into the lab_6 directory:
+1. On the Amsterdam VM cd into the lab_7 directory:
 ```
-cd ~/SRv6_dCloud_Lab/lab_6
+cd ~/SRv6_dCloud_Lab/lab_7
 ```
 2. Everything is the same as on the Rome VM with some different parameters in amsterdam.json:
 ```
@@ -22,11 +22,11 @@ cat amsterdam.json
 ```
 3. Amsterdam has a Linux veth pair connecting kernel forwarding to its onboard VPP instance. The VM has preconfigured ip routes (see /etc/netplan/00-installer-config.yaml) pointing to VPP via its "ams-out" interface:
 ```
-cisco@amsterdam:~/SRv6_dCloud_Lab/lab_6$ ip link | grep ams-out
+cisco@amsterdam:~/SRv6_dCloud_Lab/lab_7$ ip link | grep ams-out
 4: vpp-in@ams-out: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
 5: ams-out@vpp-in: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
 
-cisco@amsterdam:~/SRv6_dCloud_Lab/lab_6$ ip route
+cisco@amsterdam:~/SRv6_dCloud_Lab/lab_7$ ip route
 default via 198.18.128.1 dev ens160 proto static 
 default via 198.18.128.1 dev ens160 proto static metric 100 
 10.0.0.0/24 via 10.101.2.2 dev ams-out proto static 
@@ -52,11 +52,11 @@ dpdk {
   dev 0000:0b:00.0
 }
 ```
- - VPP startup-config file: https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_0/config/vpp.conf
+ - VPP startup-config file: https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_1/config/vpp.conf
 
 5. VPP's CLI may be invoked directly:
 ```
-cisco@amsterdam:~/SRv6_dCloud_Lab/lab_6$ sudo vppctl
+cisco@amsterdam:~/SRv6_dCloud_Lab/lab_7$ sudo vppctl
     _______    _        _   _____  ___ 
  __/ __/ _ \  (_)__    | | / / _ \/ _ \
  _/ _// // / / / _ \   | |/ / ___/ ___/
@@ -73,7 +73,7 @@ vpp#
 ```
 6. Or driven from the Linux command line:
 ```
-cisco@amsterdam:~/SRv6_dCloud_Lab/lab_6$ sudo vppctl show interface address
+cisco@amsterdam:~/SRv6_dCloud_Lab/lab_7$ sudo vppctl show interface address
 GigabitEthernetb/0/0 (up):
   L3 10.101.1.1/24
   L3 fc00:0:101:1::1/64
@@ -229,3 +229,4 @@ ping 10.107.1.1 -i .4
 ./tcpdump.sh xrd05-xrd04
 ./tcpdump.sh xrd04-xrd07
 ```
+### You have reached the end of LTRSPG-2212, hooray!

@@ -106,7 +106,7 @@ The SR-Processors are a pair of POC data processors that mine Jalapeno's graphDB
 
 1. Install SR-Processors:
 ```
-cd ~/SRv6_dCloud_Lab/lab_5/sr-processors
+cd ~/SRv6_dCloud_Lab/lab_6/sr-processors
 kubectl apply -f sr-node.yaml 
 kubectl apply -f sr-topology.yaml 
 ```

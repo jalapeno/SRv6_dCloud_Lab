@@ -7,7 +7,7 @@ dbname = "jalapeno"
 user = "root"
 pw = "jalapeno"
 
-client = ArangoClient(hosts='http://198.18.1.101:30852')
+client = ArangoClient(hosts='http://198.18.128.101:30852')
 db = client.db(dbname, username=user, password=pw)
 cursor = db.aql.execute("""for l in ls_prefix filter l.prefix == "10.0.0.7" return l.prefix_attr_tlvs.ls_prefix_sid """)
 

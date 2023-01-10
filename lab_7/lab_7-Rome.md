@@ -33,9 +33,9 @@ Both the Rome and Amsterdam VM's are pre-loaded with a python client that can qu
 
  - For host-based SR we'll simply use Linux's iproute2 MPLS implemenation. There are a number of decent references to be found; this one is very straightforward: https://liuhangbin.netlify.app/post/mpls-on-linux/
 
-3. On the Rome VM cd into the lab_6 directory where the client resides:
+3. On the Rome VM cd into the lab_7 directory where the client resides:
 ```
-cd ~/SRv6_dCloud_Lab/lab_6
+cd ~/SRv6_dCloud_Lab/lab_7
 ```
 2. Get familiar with files in the directory; specifically:
 ```
@@ -95,7 +95,7 @@ more log/get_paths.json
  - We can expect to see a json file with source, destination, and path data which includes srv6 sids and sr label stack info
  - The client will also print several pieces of data out to the command line as it performs its logic. Note this line which provides a summary of the relevant paths by outputing the SRv6 locators along each path:
 
- https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_6/netservice/gp.py#L37
+ https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_7/netservice/gp.py#L37
 
   - Sample command line output:
 ```
@@ -106,7 +106,7 @@ locators:  [None, 'fc00:0000:4444::', 'fc00:0000:3333::', 'fc00:0000:2222::', 'f
 ```
 You can also experiment with the script's graph traversal parameters to limit or expand the number of vertex 'hops' the query will search for. Note: ArangoDB considers the source and destination vertices as 'hops' when doing its graph traversal.
 
-2. Change the 'gp' service's hopcount parameters. Open the netservice/gp.py file in a text editor (vi, vim) and change parameters in line 9. https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_6/netservice/gp.py#L9
+2. Change the 'gp' service's hopcount parameters. Open the netservice/gp.py file in a text editor (vi, vim) and change parameters in line 9. https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_7/netservice/gp.py#L9
 
 ```
 for v, e, p in 6..6 outbound
@@ -240,4 +240,4 @@ ping 10.101.1.1 -i .4
 ./tcpdump.sh xrd05-xrd06
 ./tcpdump.sh xrd01-xrd05
 ```
-Please proceed to [lab_6-Amsterdam.md](https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_6/lab_6-Amsterdam.md)
+Please proceed to [lab_7-Amsterdam.md](https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_7/lab_7-Amsterdam.md)

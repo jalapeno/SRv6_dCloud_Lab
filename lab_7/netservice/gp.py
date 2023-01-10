@@ -4,7 +4,7 @@ from arango import ArangoClient
 # Query DB for least utilized path parameters and return srv6 SID
 def gp_calc(src, dst, user, pw, dbname):
 
-    client = ArangoClient(hosts='http://198.18.1.101:30852')
+    client = ArangoClient(hosts='http://198.18.128.101:30852')
     db = client.db(dbname, username=user, password=pw)
     cursor = db.aql.execute("""for v, e, p in 1..6 outbound """ + '"%s"' % src + """ \
             sr_topology OPTIONS {uniqueVertices: "path", bfs: true} \

@@ -129,7 +129,7 @@ for l in sr_node return { node: l.router_id, name: l.name, prefix_sid: l.prefix_
 ### Populating the DB with external data 
 Return to the Jalapeno VM ssh session and add some synthetic meta data to the DB:
 ```
-cd ~/SRv6_dCloud_Lab/lab_5/
+cd ~/SRv6_dCloud_Lab/lab_7/
 python3 add_meta_data.py
 ```
 Validate meta data with ArangoDB query:

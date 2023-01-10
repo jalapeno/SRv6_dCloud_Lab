@@ -1,65 +1,44 @@
+
+
 ### xrd01
 ```
-vrf carrots
+router bgp 65000
  address-family ipv4 unicast
-  import route-target
-   9:9
-  !
-  export route-target
-   9:9
-  !
-  address-family ipv6 unicast
-  import route-target
-   9:9
-  !
-  export route-target
-   9:9
-  !
- !
-!
-
+  segment-routing srv6
+   locator ISIS
+  network 10.101.1.0/24
+  network 10.101.2.0/24
+  allocate-label all
+ neighbor-group xrd-ipv4-peer
+  address-family ipv4 labeled-unicast
+   next-hop-self
 ```
-
+### xrd05
+```
+router bgp 65000
+ neighbor-group xrd-ipv4-peer
+  address-family ipv4 labeled-unicast
+   route-reflector-client
+```
 ### xrd06
 ```
-vrf carrots
- address-family ipv4 unicast
-  import route-target
-   9:9
-  !
-  export route-target
-   9:9
-  !
-  address-family ipv6 unicast
-  import route-target
-   9:9
-  !
-  export route-target
-   9:9
-  !
- !
-!
-
+router bgp 65000
+ neighbor-group xrd-ipv4-peer
+  address-family ipv4 labeled-unicast
+   route-reflector-client
 ```
-
 ### xrd07
 ```
-vrf carrots
+router bgp 65000
  address-family ipv4 unicast
-  import route-target
-   9:9
-  !
-  export route-target
-   9:9
-  !
-  address-family ipv6 unicast
-  import route-target
-   9:9
-  !
-  export route-target
-   9:9
-  !
+  segment-routing srv6
+   locator ISIS
+  network 10.107.1.0/24
+  network 20.0.0.0/24
+  network 30.0.0.0/24
+  allocate-label all
  !
-!
-
+ neighbor-group xrd-ipv4-peer
+  address-family ipv4 labeled-unicast
+   next-hop-self
 ```

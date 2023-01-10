@@ -6,7 +6,7 @@ from . import add_route
 # Query DB for a path that avoids a given country and return srv6 and sr sid info
 def ds_calc(src_id, dst_id, dst, user, pw, dbname, ctr, intf, dataplane, encap):
     print("dst: ", dst)
-    client = ArangoClient(hosts='http://198.18.1.101:30852')
+    client = ArangoClient(hosts='http://198.18.128.101:30852')
     db = client.db(dbname, username=user, password=pw)
     cursor = db.aql.execute("""for p in outbound k_shortest_paths \
         """ + '"%s"' % src_id + """ TO """ + '"%s"' % dst_id + """ sr_topology \

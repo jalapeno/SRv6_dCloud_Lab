@@ -1,5 +1,5 @@
-# Run this script to generate the lab_0 docker-compose-lab_0.yml file
-# ../xr-compose -f docker-compose-lab_0.yml -i ios-xr/xrd-control-plane:7.8.1
+# Run this script to generate the lab_6 docker-compose-lab_6.yml file
+# ../xr-compose -f docker-compose-lab_6.yml -i ios-xr/xrd-control-plane:7.8.1
 
 services:
 

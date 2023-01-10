@@ -49,24 +49,24 @@ ssh cisco@198.18.128.100
 
 3. Validate there are no docker containers running or docker networks for XRD
     ```
-    cisco@xrd:~/SRv6_dCloud_Lab/lab_0$ docker ps
+    cisco@xrd:~/SRv6_dCloud_Lab/lab_1$ docker ps
     CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
     
-    cisco@xrd:~/SRv6_dCloud_Lab/lab_0$ docker network ls
+    cisco@xrd:~/SRv6_dCloud_Lab/lab_1$ docker network ls
     NETWORK ID     NAME      DRIVER    SCOPE
     cfd793a3a770   bridge    bridge    local
     b948b6ba5918   host      host      local
     bdf431ee7377   none      null      local
     ```
 4.  Run the setup script stops any existing XRD docker containers and any XRD docker networks
-    - change to the lab_0 directory
+    - change to the lab_1 directory
     ```
-    cisco@xrd:~/SRv6_dCloud_Lab$ cd lab_0
-    cisco@xrd:~/SRv6_dCloud_Lab/lab_0$
+    cisco@xrd:~/SRv6_dCloud_Lab$ cd lab_1
+    cisco@xrd:~/SRv6_dCloud_Lab/lab_1$
     ```
     - run setup script
     ``` 
-    sudo ./setup-lab_0.sh
+    sudo ./setup-lab_1.sh
     ```
     - Look for the below output from the end of the script confirming XRD instances 1-7 were created
     ```
@@ -82,7 +82,7 @@ ssh cisco@198.18.128.100
 
 5. Check that the docker containers were created and running
     ```
-    cisco@xrd:~/SRv6_dCloud_Lab/lab_0$ docker ps
+    cisco@xrd:~/SRv6_dCloud_Lab/lab_1$ docker ps
     CONTAINER ID   IMAGE                            COMMAND                  CREATED              STATUS              PORTS     NAMES
     37960e0fea97   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd07
     1dd2e4ef748f   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd05
@@ -94,15 +94,15 @@ ssh cisco@198.18.128.100
     ```
 6. Confirm the docker networks were created. 
     ```
-    cisco@xrd:~/SRv6_dCloud_Lab/lab_0$ docker network ls
+    cisco@xrd:~/SRv6_dCloud_Lab/lab_1$ docker network ls
     NETWORK ID     NAME                  DRIVER    SCOPE
     cfd793a3a770   bridge                bridge    local
     b948b6ba5918   host                  host      local
-    8ff8a898b08c   lab_0_macvlan0        macvlan   local
-    62e49899e77a   lab_0_macvlan1        macvlan   local
-    f7f3312f9e29   lab_0_mgmt            bridge    local
-    2d455a6860aa   lab_0_xrd05-host      bridge    local
-    00bae5fdbe48   lab_0_xrd06-host      bridge    local
+    8ff8a898b08c   lab_1_macvlan0        macvlan   local
+    62e49899e77a   lab_1_macvlan1        macvlan   local
+    f7f3312f9e29   lab_1_mgmt            bridge    local
+    2d455a6860aa   lab_1_xrd05-host      bridge    local
+    00bae5fdbe48   lab_1_xrd06-host      bridge    local
     bdf431ee7377   none                  null      local
     336a27055564   xrd01-gi1-xrd02-gi0   bridge    local
     da281230d4b3   xrd01-gi2-xrd05-gi0   bridge    local

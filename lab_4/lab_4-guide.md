@@ -177,7 +177,7 @@ Verify reachability
   ## Validate SRv6 L3VPN
 
   From xrd01 run the following set of validation commands:
-  - Validation command output examples can be found [here](https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_4/validation-cmd-output.md)
+  - Validation command output examples can be found [here](https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_5/validation-cmd-output.md)
   ```
   show segment-routing srv6 sid
   show bgp vpnv4 unicast

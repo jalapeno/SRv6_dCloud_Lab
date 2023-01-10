@@ -20,6 +20,8 @@
 # sed -i 's/linux:xr-190/linux:eth1/g' docker-compose-lab_1.yml
 # sed -i 's/xrd07-gi3: null/macvlan2: null/g' docker-compose-lab_1.yml
 
+### launch topology via docker-compose
+
 echo "launching topology"
 docker-compose -f docker-compose-lab_1.yml up --detach
 
@@ -30,4 +32,5 @@ echo "generate docker bridge files for tcpdump utility"
 
 echo "sudo sysctl -p"
 sudo sysctl -p
-    
+
+echo "XRd containers will take 2 minutes to initialize"

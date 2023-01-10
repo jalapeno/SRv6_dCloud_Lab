@@ -4,7 +4,7 @@
 
 ./cleanup-lab_3.sh
 
-### Uncomment these lines if you need to rebuild lab_5's docker-compose-lab_5.yml file:
+### Uncomment these lines if you need to rebuild lab_3's docker-compose-lab_3.yml file:
 
 # ../xr-compose -f lab_3-topology.yml -o docker-compose-lab_3.yml -i ios-xr/xrd-control-plane:7.8.1
 
