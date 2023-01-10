@@ -1,7 +1,7 @@
-## Lab 5: Exploring Jalapeno, Kafka, and ArangoDB
+## Lab 6: Exploring Jalapeno, Kafka, and ArangoDB
 
 ### Description
-In lab 5 we will explore the Jalapeno system running on Kubernetes. We will log into the Kafka container and monitor topics for data coming in from Jalapeno's data collectors, which will then be picked up by Jalapeno processors (topology, lslinknode, sr-node, sr-topology, etc.). We will spend some time getting familiar with the Arango graphDB, its data collections, and run some basic queries. Lastly we will populate the graphDB with some synthetic data and run a number of complex queries including graph traversals.
+In lab 6 we will explore the Jalapeno system running on Kubernetes. We will log into the Kafka container and monitor topics for data coming in from Jalapeno's data collectors, which will then be picked up by Jalapeno processors (topology, lslinknode, sr-node, sr-topology, etc.). We will spend some time getting familiar with the Arango graphDB, its data collections, and run some basic queries. Lastly we will populate the graphDB with some synthetic data and run a number of complex queries including graph traversals.
 
 ## Contents
 1. [Kafka](#kafka)
@@ -232,5 +232,5 @@ for p in outbound k_shortest_paths  'sr_node/2_0_0_0000.0000.0001' TO 'unicast_p
     percent_util_out: avg(p.edges[*].percent_util_out)}
 ```
 
-### End of lab 5
-Please proceed to [Lab 6](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_6/lab_6-guide.md)
+### End of lab 6
+Please proceed to [Lab 7](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_7/lab_7-guide.md)
