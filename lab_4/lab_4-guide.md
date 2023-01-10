@@ -46,7 +46,8 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
 
   1. Add VRF to interfaces  
 
-    **xrd01**  
+    **xrd01**
+      
     ```
     interface GigabitEthernet0/0/0/3
       vrf carrots
@@ -72,7 +73,7 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
     address-family ipv4 unicast
       40.0.0.0/24 10.107.2.1
       50.0.0.0/24 10.107.2.1
-    
+    xx
     address-family ipv6 unicast
       fc00:0:40::/64 fc00:0:107:2::1
       fc00:0:50::/64 fc00:0:107:2::1
