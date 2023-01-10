@@ -4,13 +4,21 @@
 
 ./cleanup-lab_5.sh
 
-### Uncomment these five lines if you need to rebuild lab_5's docker-compose-lab_5.yml file:
+### Uncomment these lines if you need to rebuild lab_5's docker-compose-lab_5.yml file:
 
-#../xr-compose -f lab_5-topology.yml -o docker-compose-lab_5.yml -i ios-xr/xrd-control-plane:7.8.1
+# ../xr-compose -f lab_5-topology.yml -o docker-compose-lab_5.yml -i ios-xr/xrd-control-plane:7.8.1
+
 # sed -i 's/linux:xr-120/linux:eth0/g' docker-compose-lab_5.yml
 # sed -i 's/xrd01-gi0: null/macvlan0: null/g' docker-compose-lab_5.yml
+
+# sed -i 's/linux:xr-130/linux:eth1/g' docker-compose-lab_5.yml
+# sed -i 's/xrd01-gi3: null/macvlan3: null/g' docker-compose-lab_5.yml
+
 # sed -i 's/linux:xr-180/linux:eth0/g' docker-compose-lab_5.yml
 # sed -i 's/xrd07-gi0: null/macvlan1: null/g' docker-compose-lab_5.yml
+
+# sed -i 's/linux:xr-190/linux:eth1/g' docker-compose-lab_5.yml
+# sed -i 's/xrd07-gi3: null/macvlan2: null/g' docker-compose-lab_5.yml
 
 echo "launching topology"
 docker-compose -f docker-compose-lab_5.yml up --detach
