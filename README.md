@@ -16,12 +16,13 @@ open source project provides ways to see SRv6 created paths through the network.
 * Lab Topology [LINK](#lab-topology)
 * Remote Access [LINK](#remote-access)
 * Jalapeno Stack [LINK](#jalapeno)
-* Lab 1 - Config Baseline SR-MPLS and SRv6 [LINK](/lab_1/lab_1-guide.md)
-* Lab 2 - Config SRv6 with L3VPN [LINK](/lab_2/lab_2-guide.md)
-* Lab 3 - Config SRv6 with TE [LINK](/lab_3/lab_3-guide.md)
-* Lab 4 - Config BMP and install Jalapeno [LINK](/lab_4/lab_4-guide.md)
-* Lab 5 - Config Jalapeno [LINK](/lab_5/lab_5-guide.md)
-* Lab 6 - Build Cloud-Native SDN [LINK](/lab_6/lab_6-guide.md)
+* Lab 1 - Topology Setup and Validation [LINK](/lab_1/lab_1-guide.md)
+* Lab 2 - Config Baseline SR-MPLS and SRv6 [LINK](/lab_2/lab_2-guide.md)
+* Lab 3 - Config SRv6 with L3VPN [LINK](/lab_3/lab_3-guide.md)
+* Lab 4 - Config SRv6 with TE [LINK](/lab_4/lab_4-guide.md)
+* Lab 5 - Config BMP and install Jalapeno [LINK](/lab_5/lab_5-guide.md)
+* Lab 6 - Config Jalapeno [LINK](/lab_6/lab_6-guide.md)
+* Lab 7 - Build Cloud-Native SDN [LINK](/lab_7/lab_7-guide.md)
 
 
 ## Repository Overview

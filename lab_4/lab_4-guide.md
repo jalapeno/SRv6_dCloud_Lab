@@ -1,321 +1,452 @@
-# Install Jalapeno and enable BMP and Streaming Telemetry
+# Lab 4: Configure SRv6-L3VPN and perform SRv6-TE steering of L3VPN prefixes
 
 ### Description
-In lab 4 we will install the open-source Jalapeno data infrastructure platform. We will then configure BGP Monitoring Protocol (BMP) on our route reflectors and streaming telemetry on all routers in the network.
+In lab 4 we will establish a Layer-3 VPN named "carrots" which will use SRv6 transport and will have endpoints on xrd01, xrd06, and xrd07. xrd01 and xrd06 will only have loopback interfaces participating in the L3VPN. xrd07's gi 0/0/0/3 interface connects to a secondary NIC on the Rome VM and will also be attached to the L3VPN. Once the L3VPN is established and has run some test traffic we will then setup SRv6-TE traffic steering to specific Rome prefixes.
 
 ## Contents
-1. [Install Jalapeno](#install-jalapeno)
-2. [Install Jalapeno SR-Processors](#install-jalapeno-sr-processors)
-3. [BGP Monitoring Protocol](#bgp-monitoring-protocol-bmp)
-4. [Streaming Telemetry](#streaming-telemetry)
-5. [BGP SRv6 Locator](#configure-a-bgp-srv6-locator)
+1. [SRv6 L3VPN](#configure-srv6-l3vpn)
+    - [Configure VRF](#configure-vrf)
+2. [Validate SRv6 L3VPN](#validate-srv6-l3vpn)
+3. [Configure SRv6-TE steering for L3VPN](#configure-srv6-te-steering-for-l3vpn)
+4. [Validate SRv6-TE steering of L3VPN traffic](#validate-srv6-te-steering-of-l3vpn-traffic)
 
-### Install Jalapeno 
-Project Jalapeno combines existing open source tools with some new stuff we've developed into an infrastructure platform intended to enable development of "Cloud Native Network Services" (CNNS). Think of it as applying microservices architecture to SDN: give developers the ability to quickly and easily build microservice control planes (CNNS) on top of a common data collection and warehousing infrastructure (Jalapeno).
+## Configure SRv6 L3VPN
+The SRv6-based IPv4/IPv6 L3VPN feature enables deployment of IPv4/IPv6 L3VPN over a SRv6 data plane. Traditionally, it was done over an SR-MPLS based system. SRv6-based L3VPN uses SRv6 Segment IDs (SIDs) for service segments instead of labels. SRv6-based L3VPN functionality interconnects multiple sites to resemble a private network service over public infrastructure. The basic SRv6 configuration was completed in [Lab -2](/lab_2/lab_2-guide.md).
 
-https://github.com/cisco-open/jalapeno/blob/main/README.md
+For this feature, BGP allocates an SRv6 SID from the locator space, configured under SRv6-base and VPNv4 address family. For more information on this, refer Segment Routing over IPv6 Overview. The BGP SID can be allocated in the following ways:
 
-Jalapeno breaks the data collection and warehousing problem down into a series of components and services:
-- Data collector services such as GoBMP and Telegraf collect network topology and statistics and publish to Kafka
-- Data processor services such as "Topology" (and other future services) subscribe to Kafka topics and write the data they receive to databases
-- Arango GraphDB for modeling topology data
-- Influx TSDB for warehousing statistical time-series data
-- API-Gateway: under construction
+Per-VRF mode that provides End.DT4 support. End.DT4 represents the Endpoint with decapsulation and IPv4 table lookup.
 
-#### Jalapeno Architecture and Data Flow
-![jalapeno_architecture](https://github.com/cisco-open/jalapeno/blob/main/docs/diagrams/jalapeno_architecture.png)
+Per-CE mode that provides End.DX4 cross connect support. End.DX4 represents the Endpoint with decapsulation and IPv4 cross-connect.
 
-One of the primary goals of the Jalapeno project is to be flexible and extensible. In the future we expect Jalapeno might support any number of data collectors and processors (LLDP Topology, pmacct, etc.). Or an operator might integrate Jalapeno's GoBMP/Topology/GraphDB modules into an existing environment running Kafka. We also envision future integrations with other API-driven data warehouses such as ThousandEyes: https://www.thousandeyes.com/
+BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4 L3VPN Network Layer Reachability Information (NLRI) and advertises it to IPv6 peering over an SRv6 network. The Ingress PE (provider edge) router encapsulates the VRF IPv4 traffic with the SRv6 VPN SID and sends it over the SRv6 network.
 
-1. In a separate terminal session ssh to the Jalapeno VM 
+### Configure VRF
+1. Configure the VRF on xrd01, 06, and 07:
+
 ```
-cisco@198.18.128.101
-pw = cisco123
-```
-2. Clone the Jalapeno repository at https://github.com/cisco-open/jalapeno, then cd into the repo and switch to the "cleu-srv6-lab" code branch:
-```
-git clone https://github.com/cisco-open/jalapeno.git
-cd jalapeno
-git checkout cleu-srv6-lab
-```
-Example output:
-```
-cisco@jalapeno:~/test$ git clone https://github.com/cisco-open/jalapeno.git
-Cloning into 'jalapeno'...
-remote: Enumerating objects: 4808, done.
-remote: Counting objects: 100% (1468/1468), done.
-remote: Compressing objects: 100% (566/566), done.
-remote: Total 4808 (delta 733), reused 1350 (delta 670), pack-reused 3340
-Receiving objects: 100% (4808/4808), 17.43 MiB | 26.88 MiB/s, done.
-Resolving deltas: 100% (2461/2461), done.
-cisco@jalapeno:~/test$ cd jalapeno/
-cisco@jalapeno:~/test/jalapeno$ git checkout cleu-srv6-lab
-Branch 'cleu-srv6-lab' set up to track remote branch 'cleu-srv6-lab' from 'origin'.
-Switched to a new branch 'cleu-srv6-lab'
-cisco@jalapeno:~/test/jalapeno$ 
-```
-
-3. Run the Jalapeno install script
-```
-cd install/
-./deploy_jalapeno.sh 
-```
-Don't worry about the 'error validating' messages, they're cosmetic...we'll fix those one of these days
-
-4. Verify k8s pods are running (note, some pods may initially be in a crashloop state. These should resolve after 2-3 minutes):
-```
-kubectl get pods -A
-```
-Expected output:
-```
-cisco@jalapeno:~/jalapeno/install$ kubectl get pods -A
-NAMESPACE             NAME                                           READY   STATUS    RESTARTS        AGE
-jalapeno-collectors   gobmp-5db68bd644-hzs82                         1/1     Running   3 (4m5s ago)    4m25s
-jalapeno-collectors   telegraf-ingress-deployment-5b456574dc-wdhjk   1/1     Running   1 (4m2s ago)    4m25s
-jalapeno              arangodb-0                                     1/1     Running   0               4m33s
-jalapeno              grafana-deployment-565756bd74-x2szz            1/1     Running   0               4m32s
-jalapeno              influxdb-0                                     1/1     Running   0               4m32s
-jalapeno              kafka-0                                        1/1     Running   0               4m33s
-jalapeno              lslinknode-edge-b954577f9-k8w6l                1/1     Running   4 (3m35s ago)   4m18s
-jalapeno              telegraf-egress-deployment-5795ffdd9c-t8xrp    1/1     Running   2 (4m11s ago)   4m19s
-jalapeno              topology-678ddb8bb4-rt9jg                      1/1     Running   3 (4m1s ago)    4m19s
-jalapeno              zookeeper-0                                    1/1     Running   0               4m33s
-kube-system           calico-kube-controllers-798cc86c47-d482k       1/1     Running   4 (16m ago)     14d
-kube-system           calico-node-jd7cw                              1/1     Running   4 (16m ago)     14d
-kube-system           coredns-565d847f94-fr8pp                       1/1     Running   4 (16m ago)     14d
-kube-system           coredns-565d847f94-grmtl                       1/1     Running   4 (16m ago)     14d
-kube-system           etcd-jalapeno                                  1/1     Running   5 (16m ago)     14d
-kube-system           kube-apiserver-jalapeno                        1/1     Running   5 (16m ago)     14d
-kube-system           kube-controller-manager-jalapeno               1/1     Running   6 (16m ago)     14d
-kube-system           kube-proxy-pmwft                               1/1     Running   5 (16m ago)     14d
-kube-system           kube-scheduler-jalapeno                        1/1     Running   6 (16m ago)     14d
-```
-5. Here are some additional k8s commands to try. Note the different outputs when specifying a particular namespace (-n option) vs. all namespaces (-A option):
-```
-kubectl get pods -n jalapeno
-kubectl get pods -n jalapeno-collectors
-kubectl get services -A
-kubectl get all -A
-kubectl get nodes
-kubectl describe pod -n <namespace> <pod name>
-
-example: kubectl describe pod -n jalapeno topology-678ddb8bb4-rt9jg
-```
-### Install Jalapeno SR-Processors
-The SR-Processors are a pair of POC data processors that mine Jalapeno's graphDB and create a pair of new data collections. The sr-node processor loops through various link-state data collections and gathers relevant SR/SRv6 data for each node in the network. The sr-topology processor generates a graph of the entire network topology (internal and external links, nodes, peers, prefixes, etc.) and populates relevant SR/SRv6 data within the graph collection.
-
-1. Install SR-Processors:
-```
-cd ~/SRv6_dCloud_Lab/lab_4/sr-processors
-kubectl apply -f sr-node.yaml 
-kubectl apply -f sr-topology.yaml 
-```
-2. Validate the pods are up and running:
-```
-kubectl get pods -n jalapeno
-```
-#### Expected output:
-```
-cisco@jalapeno:~/sr-processors$ kubectl get pods -n jalapeno
-NAME                                          READY   STATUS    RESTARTS      AGE
-arangodb-0                                    1/1     Running   0             12m
-grafana-deployment-565756bd74-x2szz           1/1     Running   0             12m
-influxdb-0                                    1/1     Running   0             12m
-kafka-0                                       1/1     Running   0             12m
-lslinknode-edge-b954577f9-k8w6l               1/1     Running   4 (11m ago)   12m
-sr-node-8487488c9f-ftj59                      1/1     Running   0             40s     <--------
-sr-topology-6b45d48c8-h8zns                   1/1     Running   0             33s     <--------
-telegraf-egress-deployment-5795ffdd9c-t8xrp   1/1     Running   2 (12m ago)   12m
-topology-678ddb8bb4-rt9jg                     1/1     Running   3 (11m ago)   12m
-zookeeper-0                                   1/1     Running   0             12m
-```
-
-### BGP Monitoring Protocol (BMP)
-
-Most transport SDN systems use BGP-LS to gather and model the underlying IGP topology. Jalapeno is intended to be a more generalized data platform to support use cases beyond internal transport such as VPNs or service chains. Because of this, Jalapeno's primary method of capturing topology data is via BMP. BMP supplies Jalapeno with all BGP AFI/SAFI info, and thus Jalapeno is able to model many different kinds of topology, including the topology of the Internet (at least from the perspective of our peering routers).
-
-We'll first establish a BMP session between our route-reflectors and the open-source GoBMP collector (https://github.com/sbezverk/gobmp), which comes pre-packaged with the Jalapeno install. We'll then enable BMP on the RRs' BGP peering sessions with our PE routers xrd01 and xrd07. Once established, the RRs' will stream all BGP NLRI info they receive from the PE routers to the GoBMP collector, which will in turn publish the data to Kafka. We'll get more into the Jalapeno data flow in Lab 5.
-
-1. BMP configuration on xrd05 and xrd06:
-```
-bmp server 1
- host 198.18.128.101 port 30511
- description jalapeno GoBMP  
- update-source MgmtEth0/RP0/CPU0/0
- flapping-delay 60
- initial-delay 5
- stats-reporting-period 60
- initial-refresh delay 25 spread 2
-!
-router bgp 65000
- neighbor 10.0.0.1
-  bmp-activate server 1
- !
- neighbor fc00:0000:1111::1
-  bmp-activate server 1
-  !
- !
- neighbor 10.0.0.7
-  bmp-activate server 1
- !
- neighbor fc00:0000:7777::1
-  bmp-activate server 1
-  !
- !
-! 
-```
-
-2. Validate BMP session establishment and client monitoring:
-```
-show bgp bmp server 1
-```
-
-Expected output:
-```
-RP/0/RP0/CPU0:xrd05#show bgp bmp ser 1
-Sat Jan  7 22:51:03.080 UTC
-BMP server 1
-Host 198.18.128.101 Port 30511
-NOT Connected
-Last Disconnect event received : 00:00:00
-Precedence:  internet
-BGP neighbors: 4
-VRF: - (0x60000000)
-Update Source: (null) (Mg0/RP0/CPU0/0)
-Update Source Vrf ID: 0x0
-
-Queue write pulse sent            : not set, not set (all)
-Queue write pulse received        : not set
-Update Mode : Route Monitoring Pre-Policy
-
-TCP: 
-  Last message sent: not set, Status: Not Connected
-  Last write pulse received: not set, Waiting: FALSE
-
-Message Stats:
-Total msgs dropped   : 0
-Total msgs pending   : 0, Max: 0 at not set
-Total messages sent  : 0
-Total bytes sent     : 0, Time spent: 0.000 secs
-           INITIATION: 0
-          TERMINATION: 0
-         STATS-REPORT: 0
-    PER-PEER messages: 0
-
-ROUTE-MON messages   : 0
-
-RP/0/RP0/CPU0:xrd05#sho bgp bmp ser 1
-Sat Jan  7 23:16:46.761 UTC
-BMP server 1
-Host 198.18.128.101 Port 30511
-Connected for 00:25:35
-Last Disconnect event received : 00:00:00
-Precedence:  internet
-BGP neighbors: 4
-VRF: - (0x60000000)
-Update Source: 10.254.254.105 (Mg0/RP0/CPU0/0)
-Update Source Vrf ID: 0x60000000
-
-Queue write pulse sent            : Jan  7 23:15:58.131, Jan  7 22:51:26.348 (all)
-Queue write pulse received        : Jan  7 23:15:58.131
-Update Mode : Route Monitoring Pre-Policy
-
-TCP: 
-  Last message sent: Jan  7 23:15:58.131, Status: No Pending Data
-  Last write pulse received: Jan  7 23:15:58.132, Waiting: FALSE
-
-Message Stats:
-Total msgs dropped   : 0
-Total msgs pending   : 0, Max: 20 at Jan  7 22:51:26.146
-Total messages sent  : 227
-Total bytes sent     : 50522, Time spent: 0.003 secs
-           INITIATION: 1
-          TERMINATION: 0
-         STATS-REPORT: 100
-    PER-PEER messages: 126
-
-ROUTE-MON messages   : 122
-
-  Neighbor fc00:0:7777::1
-Messages pending: 0
-Messages dropped: 0
-Messages sent   : 8
-      PEER-UP   : 1
-    PEER-DOWN   : 0
-    ROUTE-MON   : 7
-
-  Neighbor fc00:0:1111::1
-Messages pending: 0
-Messages dropped: 0
-Messages sent   : 4
-      PEER-UP   : 1
-    PEER-DOWN   : 0
-    ROUTE-MON   : 3
-
-  Neighbor 10.0.0.7
-Messages pending: 0
-Messages dropped: 0
-Messages sent   : 57
-      PEER-UP   : 1
-    PEER-DOWN   : 0
-    ROUTE-MON   : 56
-
-  Neighbor 10.0.0.1
-Messages pending: 0
-Messages dropped: 0
-Messages sent   : 57
-      PEER-UP   : 1
-    PEER-DOWN   : 0
-    ROUTE-MON   : 56
-```
-
-### Streaming Telemetry
-
-Placeholder - do we bother with config, or simply explore the data in influx/grafana?
-
-
-
-### Configure a BGP SRv6 locator
-When we get to lab 6 we'll be sending SRv6 encapsulated traffic directly to/from Amsterdam and Rome. We'll need an SRv6 end.DT4/6 function at the egress nodes (xrd01 and xrd07) to be able to pop the SRv6 encap and perform a global table lookup on the underlying payload. Configuring an SRv6 locator under BGP will trigger creation of the end.DT4/6 functions:
-
-1. Configure SRv6 locators for BGP on both xrd01 and xrd07:
-```
-router bgp 65000
+vrf carrots
  address-family ipv4 unicast
-  segment-routing srv6
-   locator ISIS
+  import route-target
+   9:9
+  !
+  export route-target
+   9:9
+  !
+  address-family ipv6 unicast
+  import route-target
+   9:9
+  !
+  export route-target
+   9:9
   !
  !
- address-family ipv6 unicast
-  segment-routing srv6
-   locator ISIS
+!
 ```
 
-2. Validate end.DT4/6 SIDs belonging to BGP default table:
+2. Configure interfaces to participate in the L3VPN:
+
+#### xrd01
+```
+interface Loopback9
+ vrf carrots
+ ipv4 address 10.9.1.1 255.255.255.0
+ ipv6 address 10:9:1::1/64
+!
+```
+<<< Remove xrd06 config>>>
+ #### xrd06
+```
+interface Loopback9
+ vrf carrots
+ ipv4 address 10.9.6.1 255.255.255.0
+ ipv6 address 10:9:6::1/64
+```
+
+#### xrd07
+In addition to configuring gi 0/0/0/3 to be a member of VRF carrots, xrd07 will need a pair of static routes to get to Rome's "40" and "50" prefixes:
+```
+interface GigabitEthernet0/0/0/3
+ vrf carrots
+ ipv4 address 10.107.2.2 255.255.255.0
+ ipv6 address fc00:0:107:2::2/64
+!
+router static
+ vrf carrots
+  address-family ipv4 unicast
+   40.0.0.0/24 10.107.2.1
+   50.0.0.0/24 10.107.2.1
+  !
+  address-family ipv6 unicast
+   fc00:0:40::/64 fc00:0:107:2::1
+   fc00:0:50::/64 fc00:0:107:2::1
+```
+
+3. Ping check from xrd07 gi 0/0/0/3 to Rome VM 2nd NIC:
+```
+ping vrf carrots 10.107.2.1
+ping vrf carrots 40.0.0.1
+ping vrf carrots 50.0.0.1
+ping vrf carrots fc00:0:107:2::1
+ping vrf carrots fc00:0:40::1
+ping vrf carrots fc00:0:50::1
+```
+
+4. Configure BGP vpnv4 under the IPv6 peering sessions, and the BGP VRF instance on PE routers xrd01 and xrd07:
+
+#### xrd01
+We'll redistribute the VRF's connected loopback routes into BGP vpnv4 and vpnv6:
+```
+router bgp 65000
+ neighbor-group ibgp-v6
+  address-family vpnv4 unicast
+   next-hop-self
+  !
+  address-family vpnv6 unicast
+   next-hop-self
+  !
+ !
+ vrf carrots
+  rd auto
+  address-family ipv4 unicast
+   segment-routing srv6
+    locator ISIS
+    alloc mode per-vrf
+   !
+   redistribute connected
+  !
+  address-family ipv6 unicast
+   segment-routing srv6
+    locator ISIS
+    alloc mode per-vrf
+   !
+   redistribute connected
+ !
+!
+
+```
+
+#### xrd05
+Just needs RR config:
+```
+router bgp 65000
+ neighbor-group ibgp-v6
+  address-family vpnv4 unicast
+   route-reflector-client
+  !
+  address-family vpnv6 unicast
+   route-reflector-client
+  !
+ !
+```
+
+#### xrd06
+Needs RR config, and has a loopback that'll participate in the L3VPN.
+We'll redistribute the VRF's connected loopback routes into BGP vpnv4 and vpnv6:
+```
+router bgp 65000
+ neighbor-group ibgp-v6
+  address-family vpnv4 unicast
+   route-reflector-client
+  !
+  address-family vpnv6 unicast
+   route-reflector-client
+ !
+ vrf carrots
+  rd auto
+  address-family ipv4 unicast
+   segment-routing srv6
+    locator ISIS
+    alloc mode per-vrf
+   !
+   redistribute connected
+  !
+  address-family ipv6 unicast
+   segment-routing srv6
+    locator ISIS
+    alloc mode per-vrf
+   !
+   redistribute connected
+  !
+ !
+!
+
+```
+
+#### xrd07
+On xrd07 we'll redistribute the VRF's static routes into BGP:
+```
+router bgp 65000
+ neighbor-group ibgp-v6
+  address-family vpnv4 unicast
+   next-hop-self
+  !
+  address-family vpnv6 unicast
+   next-hop-self
+  !
+ !
+ vrf carrots
+  rd auto
+  address-family ipv4 unicast
+   segment-routing srv6
+    locator ISIS
+    alloc mode per-vrf
+   !
+   redistribute static
+  !
+  address-family ipv6 unicast
+   segment-routing srv6
+    locator ISIS
+    alloc mode per-vrf
+   !
+   redistribute static
+  !
+ !
+!
+```
+
+### Validate SRv6 L3VPN
+
+From xrd01 run the following set of validation commands:
+ - Validation command output examples can be found [here](https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_4/validation-cmd-output.md)
 ```
 show segment-routing srv6 sid
+show bgp vpnv4 unicast
+show bgp vpnv4 unicast rd 10.0.0.7:0 10.9.7.0/24
+show bgp vpnv6 unicast
+show bgp vpnv6 unicast rd 10.0.0.7:0 fc00:0:40::/64
+ping vrf carrots 10.9.6.1
+ping vrf carrots 10:9:6::1  
+ping vrf carrots 40.0.0.1
+ping vrf carrots 50.0.0.1
+ping vrf carrots fc00:0:40::1
+ping vrf carrots fc00:0:50::1
 ```
-Expected output on xrd01:
+### Configure SRv6-TE steering for L3VPN
+
+Rome's L3VPN IPv4 and IPv6 prefixes are associated with two classes of traffic. The "40" destinations (40.0.0.0/24 and fc00:0:40::/64) are for Bulk Transport (content replication or data backups) and thus are latency and loss tolerant. The "50" destinations (50.0.0.0/24 and fc00:0:50::/64) are for real time traffic (live video, etc.) and thus require the lowest latency path available.
+
+1. On xrd07 advertise Rome's loopback prefixes with their respective color extended communities:
+#### xrd07
 ```
-RP/0/RP0/CPU0:xrd01#show segment-routing srv6 sid
-Sat Jan  7 22:24:00.280 UTC
+extcommunity-set opaque bulk-transfer
+  40
+end-set
+!
+extcommunity-set opaque low-latency
+  50
+end-set
+!
+route-policy set-color
+  if destination in (40.0.0.0/24) then
+    set extcommunity color bulk-transfer
+  endif
+  if destination in (50.0.0.0/24) then
+    set extcommunity color low-latency
+  endif
+  if destination in (fc00:0:40::/64) then
+    set extcommunity color bulk-transfer
+  endif
+  if destination in (fc00:0:50::/64) then
+    set extcommunity color low-latency
+  endif
+  pass
+end-policy
+!
+router bgp 65000
+ neighbor-group ibgp-v6
+  address-family vpnv4 unicast
+   route-policy set-color out
+  !
+  address-family vpnv6 unicast
+   route-policy set-color out
+ !
+```
 
-*** Locator: 'ISIS' *** 
+2. Validate vpnv4 and v6 prefixes are received at xrd01 and that they have their color extcomms:
+#### xrd01
+```
+show bgp vpnv4 uni vrf carrots 40.0.0.0/24
+show bgp vpnv4 uni vrf carrots 50.0.0.0/24
+show bgp vpnv6 uni vrf carrots fc00:0:40::/64
+show bgp vpnv6 uni vrf carrots fc00:0:50::/64
+```
+Examples:
+```
+RP/0/RP0/CPU0:xrd01#show bgp vpnv4 uni vrf carrots 40.0.0.0/24
+Sat Jan  7 21:27:26.645 UTC
+BGP routing table entry for 40.0.0.0/24, Route Distinguisher: 10.0.0.1:0
+Versions:
+  Process           bRIB/RIB  SendTblVer
+  Speaker                  58           58
+Last Modified: Jan  7 21:27:19.204 for 00:00:07
+Paths: (1 available, best #1)
+  Not advertised to any peer
+  Path #1: Received by speaker 0
+  Not advertised to any peer
+  Local
+    fc00:0:7777::1 (metric 3) from fc00:0:5555::1 (10.0.0.7)
+      Received Label 0xe0040
+      Origin incomplete, metric 0, localpref 100, valid, internal, best, group-best, import-candidate, imported
+      Received Path ID 0, Local Path ID 1, version 30
+      Extended community: Color:40 RT:9:9 
+      Originator: 10.0.0.7, Cluster list: 10.0.0.5
+      PSID-Type:L3, SubTLV Count:1
+       SubTLV:
+        T:1(Sid information), Sid:fc00:0:7777::, Behavior:63, SS-TLV Count:1
+         SubSubTLV:
+          T:1(Sid structure):
+      Source AFI: VPNv4 Unicast, Source VRF: default, Source Route Distinguisher: 10.0.0.7:0
 
-SID                         Behavior          Context                           Owner               State  RW
---------------------------  ----------------  --------------------------------  ------------------  -----  --
-fc00:0:1111::               uN (PSP/USD)      'default':4369                    sidmgr              InUse  Y 
-fc00:0:1111:e000::          uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0:P       isis-100            InUse  Y 
-fc00:0:1111:e001::          uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0         isis-100            InUse  Y 
-fc00:0:1111:e002::          uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0:P       isis-100            InUse  Y 
-fc00:0:1111:e003::          uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0         isis-100            InUse  Y 
-fc00:0:1111:e004::          uDT4              'carrots'                         bgp-65000           InUse  Y 
-fc00:0:1111:e005::          uDT6              'carrots'                         bgp-65000           InUse  Y 
-fc00:0:1111:e006::          uDT4              'default'                         bgp-65000           InUse  Y 
-fc00:0:1111:e007::          uDT6              'default'                         bgp-65000           InUse  Y 
-fc00:0:1111:e008::          uB6 (Insert.Red)  'srte_c_50_ep_fc00:0:7777::1' (50, fc00:0:7777::1)  xtc_srv6            InUse  Y 
-fc00:0:1111:e009::          uB6 (Insert.Red)  'srte_c_40_ep_fc00:0:7777::1' (40, fc00:0:7777::1)  xtc_srv6            InUse  Y 
-``` 
+RP/0/RP0/CPU0:xrd01#show bgp vpnv6 uni vrf carrots fc00:0:50::/64
+Sat Jan  7 21:27:56.050 UTC
+BGP routing table entry for fc00:0:50::/64, Route Distinguisher: 10.0.0.1:0
+Versions:
+  Process           bRIB/RIB  SendTblVer
+  Speaker                  46           46
+Last Modified: Jan  7 21:27:19.204 for 00:00:36
+Paths: (1 available, best #1)
+  Not advertised to any peer
+  Path #1: Received by speaker 0
+  Not advertised to any peer
+  Local
+    fc00:0:7777::1 (metric 3) from fc00:0:5555::1 (10.0.0.7)
+      Received Label 0xe0050
+      Origin incomplete, metric 0, localpref 100, valid, internal, best, group-best, import-candidate, imported
+      Received Path ID 0, Local Path ID 1, version 34
+      Extended community: Color:50 RT:9:9 
+      Originator: 10.0.0.7, Cluster list: 10.0.0.5
+      PSID-Type:L3, SubTLV Count:1
+       SubTLV:
+        T:1(Sid information), Sid:fc00:0:7777::, Behavior:62, SS-TLV Count:1
+         SubSubTLV:
+          T:1(Sid structure):
+      Source AFI: VPNv6 Unicast, Source VRF: default, Source Route Distinguisher: 10.0.0.7:0
+
+```
+
+3. On xrd01 configure a pair of SRv6-TE segment lists for traffic steering: 
+ - xrd2347 will be explicit path: xrd01 -> 02 -> 03 -> 04 -> 07
+ - xrd567 will be explicit path: xrd01 -> 05 -> 06 -> 07
+```
+segment-routing
+ traffic-eng
+  segment-lists
+   srv6
+    sid-format usid-f3216
+   !
+   segment-list xrd2347
+    srv6
+     index 10 sid fc00:0:3333::
+     index 20 sid fc00:0:4444::
+    !
+   !
+  !
+   segment-list xrd567
+    srv6
+     index 10 sid fc00:0:5555::
+     index 20 sid fc00:0:6666::
+    !
+   !
+  ! 
+```
+
+4. On xrd01 configure our bulk transport and low latency SRv6 steering policies:
+```
+  policy bulk-transfer
+   srv6
+    locator ISIS binding-sid dynamic behavior ub6-insert-reduced
+   !
+   color 40 end-point ipv6 fc00:0:7777::1
+   candidate-paths
+    preference 100
+     explicit segment-list xrd2347
+     !
+    !
+   !
+  !
+  policy low-latency
+   srv6
+    locator ISIS binding-sid dynamic behavior ub6-insert-reduced
+   !
+   color 50 end-point ipv6 fc00:0:7777::1
+   candidate-paths
+    preference 100
+     explicit segment-list xrd567
+     !
+    !
+   !
+  ! 
+
+```
+### Validate SRv6-TE steering of L3VPN traffic
+#### Validate bulk traffic takes the non-shortest path: xrd01 -> 02 -> 03 -> 04 -> 07 
+1. Run the tcpdump.sh script in the util directory on the following links in the network
+```
+./tcpdump.sh xrd01-xrd02
+./tcpdump.sh xrd02-xrd03
+./tcpdump.sh xrd03-xrd04
+./tcpdump.sh xrd04-xrd07
+```
+
+2. Ping from xrd01 to Rome's bulk transport destination IPv4 and IPv6 addresses:
+```
+ping vrf carrots 40.0.0.1 count 3
+ping vrf carrots fc00:0:40::1 count 3
+```
+Example: tcpdump.sh output should look something like below on the xrd02-xrd03 link with both outer SRv6 uSID header and inner IPv4/6 headers. Note in this case the outbound traffic is taking a non-shortest path.  We don't have a specific policy for return traffic so it will take one of the ECMP shortest paths; thus we do not see replies in the tcpdump output:
+```
+16:37:30.292761 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e004::: IP 10.9.1.1 > 40.0.0.1: ICMP echo request, id 56816, seq 0, length 80
+16:37:30.298145 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e004::: IP 10.9.1.1 > 40.0.0.1: ICMP echo request, id 56816, seq 1, length 80
+16:37:30.302781 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e004::: IP 10.9.1.1 > 40.0.0.1: ICMP echo request, id 56816, seq 2, length 80
+
+
+16:38:10.502018 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e005::: IP6 10:9:1::1 > fc00:0:40::1: ICMP6, echo request, seq 0, length 60
+16:38:10.506355 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e005::: IP6 10:9:1::1 > fc00:0:40::1: ICMP6, echo request, seq 1, length 60
+16:38:10.510069 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e005::: IP6 10:9:1::1 > fc00:0:40::1: ICMP6, echo request, seq 2, length 60
+```
+
+#### Validate low latency traffic takes the path: xrd01 -> 05 -> 06 -> 07 
+1. Run the tcpdump.sh script in the util directory against xrd01's outbound interfaces:
+```
+./tcpdump.sh xrd01-xrd05
+./tcpdump.sh xrd05-xrd06
+./tcpdump.sh xrd06-xrd07
+```
+
+2. Ping from xrd01 to Rome's low latency destination IPv4 and IPv6 addresses:
+```
+ping vrf carrots 50.0.0.1 count 3
+ping vrf carrots fc00:0:50::1 count 3
+```
+Example: tcpdump.sh output should look something like below on the xrd05-xrd06 link. In this case xrd05 -> 06 -> 07 is one of the IGP shortest paths. The v4 flow's replies are taking the same return path, however the v6 flow's replies have been hashed onto one of the other ECMP paths:
+```
+16:50:26.667875 IP6 fc00:0:1111::1 > fc00:0:6666:7777:e004::: IP 10.9.1.1 > 50.0.0.1: ICMP echo request, id 59290, seq 0, length 80
+16:50:26.670199 IP6 fc00:0:7777::1 > fc00:0:1111:e004::: IP 50.0.0.1 > 10.9.1.1: ICMP echo reply, id 59290, seq 0, length 80
+16:50:26.672654 IP6 fc00:0:1111::1 > fc00:0:6666:7777:e004::: IP 10.9.1.1 > 50.0.0.1: ICMP echo request, id 59290, seq 1, length 80
+16:50:26.674647 IP6 fc00:0:7777::1 > fc00:0:1111:e004::: IP 50.0.0.1 > 10.9.1.1: ICMP echo reply, id 59290, seq 1, length 80
+16:50:26.676429 IP6 fc00:0:1111::1 > fc00:0:6666:7777:e004::: IP 10.9.1.1 > 50.0.0.1: ICMP echo request, id 59290, seq 2, length 80
+16:50:26.677974 IP6 fc00:0:7777::1 > fc00:0:1111:e004::: IP 50.0.0.1 > 10.9.1.1: ICMP echo reply, id 59290, seq 2, length 80
+
+
+16:50:37.953305 IP6 fc00:0:1111::1 > fc00:0:6666:7777:e005::: IP6 10:9:1::1 > fc00:0:50::1: ICMP6, echo request, seq 0, length 60
+16:50:37.958148 IP6 fc00:0:1111::1 > fc00:0:6666:7777:e005::: IP6 10:9:1::1 > fc00:0:50::1: ICMP6, echo request, seq 1, length 60
+16:50:37.961713 IP6 fc00:0:1111::1 > fc00:0:6666:7777:e005::: IP6 10:9:1::1 > fc00:0:50::1: ICMP6, echo request, seq 2, length 60
+16:50:42.047007 IS-IS, p2p IIH, src-id 0000.0000.0006, length 1497
+
+```
+Found the return traffic:
+```
+cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd04-xrd05
+sudo tcpdump -ni br-9c9433e006cf
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on br-9c9433e006cf, link-type EN10MB (Ethernet), capture size 262144 bytes
+16:55:37.491924 IS-IS, p2p IIH, src-id 0000.0000.0005, length 1497
+16:55:38.814093 IP6 fc00:0:7777::1 > fc00:0:1111:e005::: IP6 fc00:0:50::1 > 10:9:1::1: ICMP6, echo reply, seq 0, length 60
+16:55:38.817918 IP6 fc00:0:7777::1 > fc00:0:1111:e005::: IP6 fc00:0:50::1 > 10:9:1::1: ICMP6, echo reply, seq 1, length 60
+16:55:38.821203 IP6 fc00:0:7777::1 > fc00:0:1111:e005::: IP6 fc00:0:50::1 > 10:9:1::1: ICMP6, echo reply, seq 2, length 60
+```
+
 
 ### End of lab 4
 Please proceed to [Lab 5](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_5/lab_5-guide.md)
