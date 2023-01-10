@@ -13,13 +13,11 @@ In lab 4 we will establish a Layer-3 VPN named "carrots" which will use SRv6 tra
 ## Configure SRv6 L3VPN
 The SRv6-based IPv4/IPv6 L3VPN feature enables deployment of IPv4/IPv6 L3VPN over a SRv6 data plane. Traditionally, it was done over an SR-MPLS based system. SRv6-based L3VPN uses SRv6 Segment IDs (SIDs) for service segments instead of labels. SRv6-based L3VPN functionality interconnects multiple sites to resemble a private network service over public infrastructure. The basic SRv6 configuration was completed in [Lab -2](/lab_2/lab_2-guide.md).
 
-For this feature, BGP allocates an SRv6 SID from the locator space, configured under SRv6-base and VPNv4 address family. For more information on this, refer Segment Routing over IPv6 Overview. The BGP SID can be allocated in the following ways:
-
-Per-VRF mode that provides End.DT4 support. End.DT4 represents the Endpoint with decapsulation and IPv4 table lookup.
-
-Per-CE mode that provides End.DX4 cross connect support. End.DX4 represents the Endpoint with decapsulation and IPv4 cross-connect.
+For this feature, BGP allocates an SRv6 SID from the locator space, configured under SRv6-base and VPNv4 address family. For more information on this, refer Segment Routing over IPv6 Overview. In this lab the BGP SID is in the per-VRF mode that provides End.DT4 support. End.DT4 represents the Endpoint with decapsulation and IPv4 table lookup.
 
 BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4 L3VPN Network Layer Reachability Information (NLRI) and advertises it to IPv6 peering over an SRv6 network. The Ingress PE (provider edge) router encapsulates the VRF IPv4 traffic with the SRv6 VPN SID and sends it over the SRv6 network.
+
+For more details on SRv6 please see this [LINK](/SRv6.md)
 
 ### Configure VRF
 1. Configure the VRF on xrd01, 06, and 07:
