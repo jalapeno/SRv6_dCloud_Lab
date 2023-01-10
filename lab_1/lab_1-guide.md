@@ -548,11 +548,10 @@ SRv6 uSID locator and source address information for nodes in the lab:
       srv6
         encapsulation
           source-address fc00:0000:1111::1
-
-    locators
-    locator MAIN
-        micro-segment behavior unode psp-usd
-        prefix fc00:0000:1111::/48
+        locators
+          locator MAIN
+            micro-segment behavior unode psp-usd
+            prefix fc00:0000:1111::/48
     ```
 
 2. Enable SRv6 for ISIS Procotol. 
