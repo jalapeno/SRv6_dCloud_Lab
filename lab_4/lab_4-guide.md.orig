@@ -9,8 +9,8 @@ In lab 4 we will establish a Layer-3 VPN named "carrots" which will use SRv6 tra
     - [Add VRF to Router Interfaces](#add-vrf-to-router-interfaces-for-l3vpn)
     - [Configure BGP L3VPN Peering](#configure-bgp-l3vpn-peering)
     - [Validate SRv6 L3VPN](#validate-srv6-l3vpn)
-3. [Configure SRv6-TE steering for L3VPN](#configure-srv6-te-steering-for-l3vpn)
-4. [Validate SRv6-TE steering of L3VPN traffic](#validate-srv6-te-steering-of-l3vpn-traffic)
+2. [Configure SRv6-TE steering for L3VPN](#configure-srv6-te-steering-for-l3vpn)
+3. [Validate SRv6-TE steering of L3VPN traffic](#validate-srv6-te-steering-of-l3vpn-traffic)
 
 ## Configure SRv6 L3VPN
 The SRv6-based IPv4/IPv6 L3VPN feature enables deployment of IPv4/IPv6 L3VPN over a SRv6 data plane. Traditionally, it was done over an SR-MPLS based system. SRv6-based L3VPN uses SRv6 Segment IDs (SIDs) for service segments instead of labels. SRv6-based L3VPN functionality interconnects multiple sites to resemble a private network service over public infrastructure. The basic SRv6 configuration was completed in [Lab 2](/lab_2/lab_2-guide.md).
@@ -28,23 +28,23 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
 
   ```
   vrf carrots
-    address-family ipv4 unicast
+  address-family ipv4 unicast
+    import route-target
+    9:9
+    export route-target
+    9:9
+    
+  address-family ipv6 unicast
       import route-target
       9:9
       export route-target
       9:9
-    
-    address-family ipv6 unicast
-        import route-target
-        9:9
-        export route-target
-        9:9
   ```
 
   ### Add VRF to router interfaces for L3VPN
   Now that our vrf *carrot* has been created lets get the vrf added to the applicable interfaces. For xrd01 we will use  interface *GigabitEthernet0/0/0/3* which connects to Amsterdam over link *M*. For xrd07 we will use interface *GigabitEthernet0/0/0/3* which connects to Rome over link *K*.
 
-  1. Add VRF to interfaces  
+  1.Add VRF to interfaces  
 
     **xrd01**  
     ```
@@ -62,41 +62,41 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
       ipv6 address fc00:0:107:2::2/64
     ```
 
-  2. Add VRF static routes
-  **xrd07** 
-  In addition to configuring *GigabitEthernet0/0/0/3* to be a member of VRF carrots, xrd07 will need a pair of static routes for reachability to Rome's "40" and "50" network prefixes:
+  2. Add VRF static routes  
+    **xrd07**   
+    In addition to configuring *GigabitEthernet0/0/0/3* to be a member of VRF carrots, xrd07 will need a pair of static routes for reachability to Rome's "40" and "50" network prefixes:
 
-  ```
-  router static
-  vrf carrots
-    address-family ipv4 unicast
-      40.0.0.0/24 10.107.2.1
-      50.0.0.0/24 10.107.2.1
-    
-    address-family ipv6 unicast
-      fc00:0:40::/64 fc00:0:107:2::1
-      fc00:0:50::/64 fc00:0:107:2::1
-  ```
+    ```
+    router static
+      vrf carrots
+        address-family ipv4 unicast
+          40.0.0.0/24 10.107.2.1
+          50.0.0.0/24 10.107.2.1
+      
+        address-family ipv6 unicast
+          fc00:0:40::/64 fc00:0:107:2::1
+          fc00:0:50::/64 fc00:0:107:2::1
+    ```
 
   3. Verify reachability
-  Ping check from xrd07 gi 0/0/0/3 to Rome VM 2nd NIC:
-  ```
-  ping vrf carrots 10.107.2.1
-  ping vrf carrots 40.0.0.1
-  ping vrf carrots 50.0.0.1
-  ping vrf carrots fc00:0:107:2::1
-  ping vrf carrots fc00:0:40::1
-  ping vrf carrots fc00:0:50::1
-  ```
+    Ping check from xrd07 gi 0/0/0/3 to Rome VM 2nd NIC:
+    ```
+    ping vrf carrots 10.107.2.1
+    ping vrf carrots 40.0.0.1
+    ping vrf carrots 50.0.0.1
+    ping vrf carrots fc00:0:107:2::1
+    ping vrf carrots fc00:0:40::1
+    ping vrf carrots fc00:0:50::1
+    ```
 
   ### Configure BGP L3VPN Peering
   The next step is to add the L3VPN configuration into BGP. We will be using separate BGP neighbor groups for v4 and v6 peers. For example for IPv4 neighbors you will enable L3VPN in the neighbor template by issuing the *address-family vpnv4 unicast* command.
   
   Next you will enable *vrf carrots* to participate in SRv6 by adding the *segment-routing srv6* command and then tieing that to the locator policy ISIS. 
 
-  See below for configuraiton on xrd01 and xrd07
+  1. Configuraiton on xrd01 and xrd07
 
-  **xrd01**
+  #### xrd01
   We'll redistribute the VRF's connected loopback routes into BGP vpnv4 and vpnv6:
   ```
   router bgp 65000
@@ -125,15 +125,14 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
     redistribute connected
   ```
 
-  **xrd07**
+  #### xrd07
   On xrd07 we'll redistribute the VRF's static routes into BGP:
   ```
   router bgp 65000
-  neighbor-group xrd-ipv4-peer
+  neighbor-group ibgp-v6
     address-family vpnv4 unicast
     next-hop-self
     
-  neighbor-group xrd-ipv6-peer
     address-family vpnv6 unicast
     next-hop-self
     
@@ -154,23 +153,22 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
     
     redistribute static
   ```
-  ### BGP Route Reflectors xrd05, xrd06
-  The BGP route reflectors will also need to have the L3VPN feature added to their peering group.
+  #### BGP Route Reflectors xrd05, xrd06
+  The BGP route reflectors need to have the L3VPN enabled as well
   ```
   router bgp 65000
-  neighbor-group xrd-ipv4-peer
+  neighbor-group ibgp-v6
     address-family vpnv4 unicast
     route-reflector-client
     
-  neighbor-group xrd-ipv6-peer
     address-family vpnv6 unicast
-    next-hop-self
+    route-reflector-client
   ```
 
-  ## Validate SRv6 L3VPN
+  ### Validate SRv6 L3VPN
 
   From xrd01 run the following set of validation commands:
-  - Validation command output examples can be found at this [LINK](https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_5/validation-cmd-output.md)
+  - Validation command output examples can be found at here. [LINK](https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_4/validation-cmd-output.md)
 
   ```
   show segment-routing srv6 sid
@@ -185,6 +183,7 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
   ping vrf carrots fc00:0:40::1
   ping vrf carrots fc00:0:50::1
   ```
+
 ## Configure SRv6-TE steering for L3VPN
 
 Rome's L3VPN IPv4 and IPv6 prefixes are associated with two classes of traffic. The "40" destinations (40.0.0.0/24 and fc00:0:40::/64) are for Bulk Transport (content replication or data backups) and thus are latency and loss tolerant. The "50" destinations (50.0.0.0/24 and fc00:0:50::/64) are for real time traffic (live video, etc.) and thus require the lowest latency path available.
