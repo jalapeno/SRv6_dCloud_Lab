@@ -60,14 +60,14 @@ The location Rome has the network 20.0.0.0/24 which we will advertise via BGP-LU
 For full size image see [LINK](/topo_drawings/sr-mpls-large.png)
 
 ### Enable BGP Labeled Unicast
-BGP Labeled Unicast (BGP-LU) is needed to advertise the label information we will need to enable SR-MPLS routing of our desired network traffic 20.0.0.0/24. First lets enable BGP-LU on our PE routers xrd01 and xrd07 plus our BGP route reflectors xrd05 and xrd06. The command *allocate-label all* under the ipv4 unicast which instructs bgp to advertise the networks in the global ipv4 table as labeled routes. Next you will add enable labeled unicast with the command *address-family ipv4 labeled-unicast* under neighbor-group ibgp-v4 group.
+BGP Labeled Unicast (BGP-LU) is needed to advertise the label information we will need to enable SR-MPLS routing of our desired network traffic 20.0.0.0/24. First lets enable BGP-LU on our PE routers xrd01 and xrd07 plus our BGP route reflectors xrd05 and xrd06. The command *allocate-label all* under the ipv4 unicast which instructs bgp to advertise the networks in the global ipv4 table as labeled routes. Next you will add enable labeled unicast with the command *address-family ipv4 labeled-unicast* under neighbor-group xrd-ipv4-peer group.
 
 xrd01 and xrd07
   ```
   router bgp 65000
   address-family ipv4 unicast
     allocate-label all
-  neighbor-group ibgp-v4
+  neighbor-group xrd-ipv4-peer
     address-family ipv4 labeled-unicast
     next-hop-self
   commit
@@ -76,7 +76,7 @@ xrd01 and xrd07
 route refelctors xrd05 and xrd07
   ```
   router bgp 65000
-  neighbor-group ibgp-v4
+  neighbor-group xrd-ipv4-peer
     address-family ipv4 labeled-unicast
     route-reflector-client
   commit

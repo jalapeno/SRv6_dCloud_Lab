@@ -99,14 +99,14 @@ router bgp 65000
   rd auto
   address-family ipv4 unicast
    segment-routing srv6
-    locator MAIN
+    locator ISIS
     alloc mode per-vrf
    !
    redistribute connected
   !
   address-family ipv6 unicast
    segment-routing srv6
-    locator MAIN
+    locator ISIS
     alloc mode per-vrf
    !
    redistribute connected
@@ -145,14 +145,14 @@ router bgp 65000
   rd auto
   address-family ipv4 unicast
    segment-routing srv6
-    locator MAIN
+    locator ISIS
     alloc mode per-vrf
    !
    redistribute connected
   !
   address-family ipv6 unicast
    segment-routing srv6
-    locator MAIN
+    locator ISIS
     alloc mode per-vrf
    !
    redistribute connected
@@ -178,14 +178,14 @@ router bgp 65000
   rd auto
   address-family ipv4 unicast
    segment-routing srv6
-    locator MAIN
+    locator ISIS
     alloc mode per-vrf
    !
    redistribute static
   !
   address-family ipv6 unicast
    segment-routing srv6
-    locator MAIN
+    locator ISIS
     alloc mode per-vrf
    !
    redistribute static
@@ -344,7 +344,7 @@ segment-routing
 ```
   policy bulk-transfer
    srv6
-    locator MAIN binding-sid dynamic behavior ub6-insert-reduced
+    locator ISIS binding-sid dynamic behavior ub6-insert-reduced
    !
    color 40 end-point ipv6 fc00:0:7777::1
    candidate-paths
@@ -356,7 +356,7 @@ segment-routing
   !
   policy low-latency
    srv6
-    locator MAIN binding-sid dynamic behavior ub6-insert-reduced
+    locator ISIS binding-sid dynamic behavior ub6-insert-reduced
    !
    color 50 end-point ipv6 fc00:0:7777::1
    candidate-paths

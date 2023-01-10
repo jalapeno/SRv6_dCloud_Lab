@@ -283,12 +283,12 @@ When we get to lab 6 we'll be sending SRv6 encapsulated traffic directly to/from
 router bgp 65000
  address-family ipv4 unicast
   segment-routing srv6
-   locator MAIN
+   locator ISIS
   !
  !
  address-family ipv6 unicast
   segment-routing srv6
-   locator MAIN
+   locator ISIS
 ```
 
 2. Validate end.DT4/6 SIDs belonging to BGP default table:
@@ -300,7 +300,7 @@ Expected output on xrd01:
 RP/0/RP0/CPU0:xrd01#show segment-routing srv6 sid
 Sat Jan  7 22:24:00.280 UTC
 
-*** Locator: 'MAIN' *** 
+*** Locator: 'ISIS' *** 
 
 SID                         Behavior          Context                           Owner               State  RW
 --------------------------  ----------------  --------------------------------  ------------------  -----  --
