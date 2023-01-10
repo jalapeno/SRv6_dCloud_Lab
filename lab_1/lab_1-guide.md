@@ -527,7 +527,7 @@ The Cisco IOS-XR 7.5 Configuration guide for SRv6 can be found here: [LINK](http
 
 SRv6 uSID locator and source address information for nodes in the lab:
 
-
+```
     | Router Name | Loopback Int| Locator Prefix | Source-address |                                           
     |:------------|:-----------:|:--------------:|:--------------:|                          
     | xrd01       | loopback 0  | fc00:0000:1111::/48  | fc00:0000:1111::1    |
@@ -537,7 +537,8 @@ SRv6 uSID locator and source address information for nodes in the lab:
     | xrd05       | loopback 0  | fc00:0000:5555::/48  | fc00:0000:5555::1    |
     | xrd06       | loopback 0  | fc00:0000:6666::/48  | fc00:0000:6666::1    |
     | xrd07       | loopback 0  | fc00:0000:7777::/48  | fc00:0000:7777::1    |
-
+```
+    
 ### Configuration Steps SRv6
 1. Enable SRv6 globally and define SRv6 locator and source address for outbound encapsulation 
    - the source address should match the router's loopback0 ipv6 address
