@@ -52,6 +52,8 @@ What we are looking for is xrd07 route 10.0.0.7/32 (Lo0) advertised through ISIS
 ## BGP Labeled Unicast (BGP-LU) over SR-MPLS Network Routing
 First we are going to need networks that are advertised through BGP-LU over the top of ISIS. In the next few steps you will quickly bring up and add in network 20.0.0./24 to the topology and validate end to end connectivity. This will be our baseline path to compare and contrast with SRv6
 
+For further reference the Cisco IOS-XR 7.5 Configuration guide for SR and BGP can be found here: [LINK](https://www.cisco.com/c/en/us/td/docs/iosxr/cisco8000/segment-routing/75x/b-segment-routing-cg-cisco8000-75x/configuring-segment-routing-for-bgp.html)
+
 ### Configure Remote Test Networks
 The location Rome has the network 20.0.0.0/24 which we will advertise via BGP-LU on router xrd07. First log into xrd07 and validate that you can reach network 20.0.0.0/24 by pinging the ip address 20.0.0.1/24 in Rome. Once you have confirmed connectivity across the Rome metro link xrd07 gi 0/0/0/0 head to the next step.
 

@@ -308,13 +308,11 @@ ping fc00:0000:7777::1 source lo0
 
 ## Validate BGP Topology
 
-In this lab we are using BGP for SRv6 route/community exchange. In the lab we are running a single AS 65000 with BGP running on xrd01, xrd05, xrd06, xrd07.  Routers xrd05 and xrd06 are functioning as route reflectors and xrd01 and xrd07 are clients. The student will want to confirm that they see a full BGP topology.
+In lab 1 we will use BGP for exchange of IPv6 prefixes and BGP-LS (we will setup IPv4 labeled-unicast and SRv6-L3VPN in later lab exercises). In the topology we are running a single AS 65000 with BGP running on xrd01, xrd05, xrd06, xrd07.  Routers xrd05 and xrd06 are functioning as route reflectors and xrd01 and xrd07 are clients. The student will want to confirm that they see a full BGP topology.
 
 ![BGP Topology](/topo_drawings/bgp-topology-medium.png)
 
 For full size image see [LINK](/topo_drawings/bgp-topology-large.png)
-
-The Cisco IOS-XR 7.5 Configuration guide for SR and BGP can be found here: [LINK](https://www.cisco.com/c/en/us/td/docs/iosxr/cisco8000/segment-routing/75x/b-segment-routing-cg-cisco8000-75x/configuring-segment-routing-for-bgp.html)
 
 1. Log into each router listed in the BGP topology diagram and verify neighbors
     ```
@@ -326,81 +324,161 @@ The Cisco IOS-XR 7.5 Configuration guide for SR and BGP can be found here: [LINK
     fc00:0000:5555::1       0 65000 iBGPv6 to xrd05 RR                   00:22:02 Established 
     fc00:0000:6666::1       0 65000 iBGPv6 to xrd06 RR                   00:21:16 Established 
     ``` 
-2. Verify that router xrd01 is advertising the attached network ```10.101.1.0/24```
+2. Verify that router xrd01 is advertising the attached ipv6 network ```fc00:0:101:1::/64``` 
     ```
-    RP/0/RP0/CPU0:xrd01#show ip bgp advertised summary
+    RP/0/RP0/CPU0:xrd01#show bgp ipv6 unicast advertised summary
+    Tue Jan 10 21:40:56.812 UTC
     Network            Next Hop        From            Advertised to
-    10.0.0.1/32        10.0.0.1        Local           10.0.0.5
-                                       Local           10.0.0.6
-    10.101.1.0/24      10.0.0.1        Local           10.0.0.5
-                                       Local           10.0.0.6
+    fc00:0:101:1::/64  fc00:0:1111::1  Local           fc00:0:5555::1
+                                    Local           fc00:0:6666::1
+    fc00:0:1111::1/128 fc00:0:1111::1  Local           fc00:0:5555::1
+                                    Local           fc00:0:6666::1
+
+    Processed 2 prefixes, 4 paths
     ```
-3. Verify that router xrd07 is advertising the attached network ```10.107.1.0/24```   
+3. Verify that router xrd07 is advertising the attached network ```fc00:0:107:1::/64```   
     ```
-    RP/0/RP0/CPU0:xrd07#show ip bgp advertised summary
-    Thu Dec 22 17:53:57.114 UTC
+    RP/0/RP0/CPU0:xrd07#show bgp ipv6 unicast advertised summary
+    Tue Jan 10 21:46:43.311 UTC
     Network            Next Hop        From            Advertised to
-    10.0.0.7/32        10.0.0.7        Local           10.0.0.5
-                                       Local           10.0.0.6
-    10.107.1.0/24      10.0.0.7        Local           10.0.0.5
-                                       Local           10.0.0.6
+    fc00:0:107:1::/64  fc00:0:7777::1  Local           fc00:0:5555::1
+                                    Local           fc00:0:6666::1
+    fc00:0:7777::1/128 fc00:0:7777::1  Local           fc00:0:5555::1
+                                    Local           fc00:0:6666::1
+
+    Processed 2 prefixes, 4 paths
     ```
-4. Verify that router xrd01 has received route ```10.107.1.0/24``` from the route reflectors xrd05 and xrd07. Look for ```Paths: (2 available)```
+4. Verify that router xrd01 has received route ```fc00:0:107:1::/64``` from the route reflectors xrd05 and xrd07. Look for ```Paths: (2 available)```
     ```
-    RP/0/RP0/CPU0:xrd01#show ip bgp 10.107.1.0/24
-    BGP routing table entry for 10.107.1.0/24
+    RP/0/RP0/CPU0:xrd01#show bgp ipv6 unicast fc00:0:107:1::/64
+    Tue Jan 10 21:47:51.153 UTC
+    BGP routing table entry for fc00:0:107:1::/64
     Versions:
     Process           bRIB/RIB  SendTblVer
-    Speaker                  16           16
-        Local Label: 24003
-    Last Modified: Dec 22 17:31:37.792 for 00:24:38
+    Speaker                  17           17
+    Last Modified: Jan 10 21:46:29.402 for 00:01:21
     Paths: (2 available, best #1)
     Not advertised to any peer
     Path #1: Received by speaker 0
     Not advertised to any peer
     Local
-        10.0.0.7 (metric 3) from 10.0.0.5 (10.0.0.7)
-        Received Label 3 
-        Origin IGP, metric 0, localpref 100, valid, internal, best, group-best, labeled-unicast
-        Received Path ID 0, Local Path ID 1, version 16
+        fc00:0:7777::1 (metric 3) from fc00:0:5555::1 (10.0.0.7)
+        Origin IGP, metric 0, localpref 100, valid, internal, best, group-best
+        Received Path ID 0, Local Path ID 1, version 17
         Originator: 10.0.0.7, Cluster list: 10.0.0.5
     Path #2: Received by speaker 0
     Not advertised to any peer
     Local
-        10.0.0.7 (metric 3) from 10.0.0.6 (10.0.0.7)
-        Received Label 3 
-        Origin IGP, metric 0, localpref 100, valid, internal, labeled-unicast
+        fc00:0:7777::1 (metric 3) from fc00:0:6666::1 (10.0.0.7)
+        Origin IGP, metric 0, localpref 100, valid, internal
         Received Path ID 0, Local Path ID 0, version 0
         Originator: 10.0.0.7, Cluster list: 10.0.0.6
     ```
-5. Verify that router xrd07 has received route ```10.101.1.0/24``` from the route reflectors xrd05 and xrd07. Look for ```Paths: (2 available)```
+5. Verify that router xrd07 has received route ```fc00:0:101:1::/64``` from the route reflectors xrd05 and xrd07. Look for ```Paths: (2 available)```
     ```
-    RP/0/RP0/CPU0:xrd07#show ip bgp 10.101.1.0/24
-    Thu Dec 22 17:59:31.604 UTC
-    BGP routing table entry for 10.101.1.0/24
+    RP/0/RP0/CPU0:xrd07#show bgp ipv6 unicast fc00:0:101:1::/64
+    Tue Jan 10 21:48:45.627 UTC
+    BGP routing table entry for fc00:0:101:1::/64
     Versions:
     Process           bRIB/RIB  SendTblVer
-    Speaker                  15           15
-    Last Modified: Dec 22 17:31:37.792 for 00:27:53
+    Speaker                  18           18
+    Last Modified: Jan 10 21:40:29.922 for 00:08:15
     Paths: (2 available, best #1)
     Not advertised to any peer
     Path #1: Received by speaker 0
     Not advertised to any peer
     Local
-        10.0.0.1 (metric 3) from 10.0.0.5 (10.0.0.1)
+        fc00:0:1111::1 (metric 3) from fc00:0:5555::1 (10.0.0.1)
         Origin IGP, metric 0, localpref 100, valid, internal, best, group-best
-        Received Path ID 0, Local Path ID 1, version 15
+        Received Path ID 0, Local Path ID 1, version 18
         Originator: 10.0.0.1, Cluster list: 10.0.0.5
     Path #2: Received by speaker 0
     Not advertised to any peer
     Local
-        10.0.0.1 (metric 3) from 10.0.0.6 (10.0.0.1)
-        Received Label 3 
-        Origin IGP, metric 0, localpref 100, valid, internal, labeled-unicast
+        fc00:0:1111::1 (metric 3) from fc00:0:6666::1 (10.0.0.1)
+        Origin IGP, metric 0, localpref 100, valid, internal
         Received Path ID 0, Local Path ID 0, version 0
         Originator: 10.0.0.1, Cluster list: 10.0.0.6
     ```
 
+6. Verify the route-reflectors have received BGP-LS NLRIs from xrd01 and xrd07:
+    ```
+    RP/0/RP0/CPU0:xrd05#show bgp link-state link-state sum
+    Tue Jan 10 21:49:40.069 UTC
+    BGP router identifier 10.0.0.5, local AS number 65000
+    BGP generic scan interval 60 secs
+    Non-stop routing is enabled
+    BGP table state: Active
+    Table ID: 0x0   RD version: 187
+    BGP main routing table version 187
+    BGP NSR Initial initsync version 1 (Reached)
+    BGP NSR/ISSU Sync-Group versions 0/0
+    BGP scan interval 60 secs
+
+    BGP is operating in STANDALONE mode.
+
+
+    Process       RcvTblVer   bRIB/RIB   LabelVer  ImportVer  SendTblVer  StandbyVer
+    Speaker             187        187        187        187         187           0
+
+    Neighbor        Spk    AS MsgRcvd MsgSent   TblVer  InQ OutQ  Up/Down  St/PfxRcd
+    10.0.0.1          0 65000      55      21      187    0    0 00:18:49         93
+    10.0.0.7          0 65000      55      21      187    0    0 00:18:16         93
+    ```
+
+7. Optional: display the entire BGP-LS table on the RRs:
+    ```
+    RP/0/RP0/CPU0:xrd05#show bgp link-state link-state
+    Tue Jan 10 21:50:37.406 UTC
+    BGP router identifier 10.0.0.5, local AS number 65000
+    BGP generic scan interval 60 secs
+    Non-stop routing is enabled
+    BGP table state: Active
+    Table ID: 0x0   RD version: 187
+    BGP main routing table version 187
+    BGP NSR Initial initsync version 1 (Reached)
+    BGP NSR/ISSU Sync-Group versions 0/0
+    BGP scan interval 60 secs
+
+    Status codes: s suppressed, d damped, h history, * valid, > best
+                i - internal, r RIB-failure, S stale, N Nexthop-discard
+    Origin codes: i - IGP, e - EGP, ? - incomplete
+    Prefix codes: E link, V node, T IP reacheable route, S SRv6 SID, u/U unknown
+                I Identifier, N local node, R remote node, L link, P prefix, S SID
+                L1/L2 ISIS level-1/level-2, O OSPF, D direct, S static/peer-node
+                a area-ID, l link-ID, t topology-ID, s ISO-ID,
+                c confed-ID/ASN, b bgp-identifier, r router-ID, s SID
+                i if-address, n nbr-address, o OSPF Route-type, p IP-prefix
+                d designated router address
+    Network            Next Hop            Metric LocPrf Weight Path
+    *>i[V][L2][I0x0][N[c65000][b0.0.0.0][s0000.0000.0001.00]]/328
+                        10.0.0.1                      100      0 i
+    * i                   10.0.0.7                      100      0 i
+    *>i[V][L2][I0x0][N[c65000][b0.0.0.0][s0000.0000.0002.00]]/328
+                        10.0.0.1                      100      0 i
+    * i                   10.0.0.7                      100      0 i
+    *>i[V][L2][I0x0][N[c65000][b0.0.0.0][s0000.0000.0003.00]]/328
+                        10.0.0.1                      100      0 i
+    * i                   10.0.0.7                      100      0 i
+    *>i[V][L2][I0x0][N[c65000][b0.0.0.0][s0000.0000.0004.00]]/328
+                        10.0.0.1                      100      0 i
+    * i                   10.0.0.7                      100      0 i
+    *>i[V][L2][I0x0][N[c65000][b0.0.0.0][s0000.0000.0005.00]]/328
+                        10.0.0.1                      100      0 i
+    * i                   10.0.0.7                      100      0 i
+    *>i[V][L2][I0x0][N[c65000][b0.0.0.0][s0000.0000.0006.00]]/328
+                        10.0.0.1                      100      0 i
+    * i                   10.0.0.7                      100      0 i
+    *>i[V][L2][I0x0][N[c65000][b0.0.0.0][s0000.0000.0007.00]]/328
+                        10.0.0.1                      100      0 i
+    * i                   10.0.0.7                      100      0 i
+    *>i[E][L2][I0x0][N[c65000][b0.0.0.0][s0000.0000.0001.00]][R[c65000][b0.0.0.0][s0000.0000.0002.00]][L[i10.1.1.0][n10.1.1.1]]/696
+                        10.0.0.1                      100      0 i
+    * i                   10.0.0.7                      100      0 i
+    *>i[E][L2][I0x0][N[c65000][b0.0.0.0][s0000.0000.0001.00]][R[c65000][b0.0.0.0][s0000.0000.0002.00]][L[i2001:1:1:1::][n2001:1:1:1::1][t0x0002]]/936
+    --More-- 
+    <<< output truncated >>>
+    ```
 
 ### End of lab 1
 Please proceed to [Lab 2](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_2/lab_2-guide.md)
