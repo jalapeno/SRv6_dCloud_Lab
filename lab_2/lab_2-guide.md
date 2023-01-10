@@ -6,7 +6,7 @@ In Lab 2 the student will perform the basic configuration of SR-MPLS and SRv6 on
 ## Contents
 1. [Configure and validate SR-MPLS](#sr-mpls)
 2. [Configure and validate SRv6](#srv6)
-3. [Validate end to end connectivity for both SR-MPLS and SRv6](#end-to-end-connectivity)
+3. [Validate XRd end to end connectivity for both SR-MPLS and SRv6](#end-to-end-connectivity)
   
 
 ## Lab Objectives
@@ -137,8 +137,8 @@ The Cisco IOS-XR 7.5 Configuration guide for SRv6 can be found here: [LINK](http
 SRv6 uSID locator and source address information for nodes in the lab:
 
 ```
-    | Router Name | Loopback Int| Locator Prefix | Source-address |                                           
-    |:------------|:-----------:|:--------------:|:--------------:|                          
+    | Router Name | Loopback Int|    Locator Prefix    |    Source-address    |                                           
+    |:------------|:-----------:|:--------------------:|:--------------------:|                          
     | xrd01       | loopback 0  | fc00:0000:1111::/48  | fc00:0000:1111::1    |
     | xrd02       | loopback 0  | fc00:0000:2222::/48  | fc00:0000:2222::1    |
     | xrd03       | loopback 0  | fc00:0000:3333::/48  | fc00:0000:3333::1    |
@@ -152,13 +152,14 @@ SRv6 uSID locator and source address information for nodes in the lab:
 1. Enable SRv6 globally and define SRv6 locator and source address for outbound encapsulation 
    - the source address should match the router's loopback0 ipv6 address
    - locator should match the first 48-bits of the router's loopback0
+   - locator name should match the router's name, for example on xrd01 locator name would be: "xrd01-locator"
     ```
     segment-routing
       srv6
         encapsulation
           source-address fc00:0000:1111::1
         locators
-          locator MAIN
+          locator MyLocator
             micro-segment behavior unode psp-usd
             prefix fc00:0000:1111::/48
     ```
@@ -168,7 +169,7 @@ SRv6 uSID locator and source address information for nodes in the lab:
     router isis 100
       address-family ipv6 unicast
          segment-routing srv6
-           locator MAIN
+           locator MyLocator
     ```
  3. Validation SRv6 configuration and reachability
     ```
@@ -251,19 +252,6 @@ listening on br-1be0f9f81cbd, link-type EN10MB (Ethernet), capture size 262144 b
 21:59:08.125911 IP6 fc00:0000:7777::1 > fc00:0000:1111::1: ICMP6, echo reply, seq 0, length 60
 21:59:08.129554 IP6 fc00:0000:7777::1 > fc00:0000:1111::1: ICMP6, echo reply, seq 1, length 60
 ```
-4. Run some pings to/from Amsterdam and Rome VMs:
- - Amsterdam ping Rome:
-
-```
-ping 10.107.1.1
-```
- - Rome ping Amsterdam: 
-```
-ping 10.101.1.1
-```
-Tcpdump.sh output should show SR-MPLS encapsulation of traffic on some set of links through the network. We'll see SRv6 encapsulated traffic in labs 2 - 6.
-
-Feel free to experiment with the tcpdump script on other links while pinging to/from different nodes in the network.
 
 ### End of lab 2
 Please proceed to [Lab 3](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_3/lab_3-guide.md)

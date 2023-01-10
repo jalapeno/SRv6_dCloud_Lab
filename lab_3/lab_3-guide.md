@@ -1,7 +1,7 @@
 # Extend SR-MPLS Topology lab 3 Guide
 
 ### Description: 
-In lab 3 the student will extend the routing topology to include sites Amsterdam and Rome. In addition SR-MPLS will be used to create a baseline end to end routing between the two locations. With SR-MPLS the student will then use show commands and tools like TCPDump to validate how traffic is routed through the neetwork. This is important as Lab 3 will override this behaviour when the student implements SRv6 L3VPN with path selection.
+In lab 3 the student will extend the routing topology to include sites Amsterdam and Rome. In addition SR-MPLS will be used to create a baseline end to end routing between the two locations. With SR-MPLS the student will then use show commands and tools like TCPDump to validate how traffic is routed through the network. This is important as in later labs we will override the SR-MPLS behaviour with host-based SRv6 encapsulations.
 
 
 ## Contents
@@ -84,14 +84,25 @@ route refelctors xrd05 and xrd07
   commit
 ```
 
-Now lets get network 20.0.0.0/24 advertised across our routing topology. First log into router xrd01 and enable routing table debugging. This will allow us to see when xrd01 installs the route 20.0.0./24 into the table.
+Now lets get the Rome and Amsterdam subnets advertised across our routing topology. We've preconfigured static routes on xrd01 and xrd07, so from here we'll only need to at network statements to BGP. 
+
+1. First log into router xrd01 and enable routing table debugging. This will allow us to see when xrd01 installs the route 20.0.0./24 into the table.
 
   ```
   RP/0/RP0/CPU0:xrd01#terminal monitor
   RP/0/RP0/CPU0:xrd01#debug ip routing 
   ```
 ### Advertise BGP-LU prefixes
-xrd01 - Routes for Amsterdam
+
+2. xrd07 - Routes for Rome
+  ```
+  router bgp 65000            
+  address-family ipv4 unicast 
+    network 20.0.0.0/24
+  commit
+  ```
+
+3. xrd01 - Routes for Amsterdam (optional: enable route table debugging on xrd07)
   ```
   router bgp 65000            
   address-family ipv4 unicast 
@@ -99,17 +110,6 @@ xrd01 - Routes for Amsterdam
     network 10.101.2.0/24
   commit
   ```
-
-xrd07 - Routes for Rome
-  ```
-  router bgp 65000            
-  address-family ipv4 unicast 
-    network 20.0.0.0/24
-  commit
-  ```
-* hopefully we can remove the following line: 
-
-Log into the BGP route reflectors xrd05 and xrd06 and reset the bgp neighbor connections using _clear bgp *_
 
 ### Validate BGP routes
 You should now see BGP update the new route being installed in xrd01 and xrd07. Notice in this example for xrd01 that route 20.0.0.0/24 was installed with local label *24007*

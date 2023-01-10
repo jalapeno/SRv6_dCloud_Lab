@@ -6,7 +6,7 @@ router isis 100
  !
  address-family ipv6 unicast
   segment-routing srv6
-   locator MAIN
+   locator MyLocator
    !
   !
  !
@@ -25,7 +25,7 @@ segment-routing
    source-address fc00:0000:1111::1
   !
   locators
-   locator MAIN
+   locator MyLocator
     micro-segment behavior unode psp-usd
     prefix fc00:0000:1111::/48
    !
@@ -42,7 +42,7 @@ router isis 100
  !
  address-family ipv6 unicast
   segment-routing srv6
-   locator MAIN
+   locator MyLocator
    !
   !
  !
@@ -61,7 +61,7 @@ segment-routing
    source-address fc00:0000:2222::1
   !
   locators
-   locator MAIN
+   locator MyLocator
     micro-segment behavior unode psp-usd
     prefix fc00:0000:2222::/48
    !
@@ -76,7 +76,7 @@ router isis 100
  !
  address-family ipv6 unicast
   segment-routing srv6
-   locator MAIN
+   locator MyLocator
    !
   !
  !
@@ -95,7 +95,7 @@ segment-routing
    source-address fc00:0000:3333::1
   !
   locators
-   locator MAIN
+   locator MyLocator
     micro-segment behavior unode psp-usd
     prefix fc00:0000:3333::/48
    !
@@ -110,7 +110,7 @@ router isis 100
  !
  address-family ipv6 unicast
   segment-routing srv6
-   locator MAIN
+   locator MyLocator
    !
   !
  !
@@ -129,7 +129,7 @@ segment-routing
    source-address fc00:0000:4444::1
   !
   locators
-   locator MAIN
+   locator MyLocator
     micro-segment behavior unode psp-usd
     prefix fc00:0000:4444::/48
    !
@@ -144,7 +144,7 @@ router isis 100
  !
  address-family ipv6 unicast
   segment-routing srv6
-   locator MAIN
+   locator MyLocator
    !
   !
  !
@@ -163,7 +163,7 @@ segment-routing
    source-address fc00:0000:5555::1
   !
   locators
-   locator MAIN
+   locator MyLocator
     micro-segment behavior unode psp-usd
     prefix fc00:0000:5555::/48
    !
@@ -178,7 +178,7 @@ router isis 100
  !
  address-family ipv6 unicast
   segment-routing srv6
-   locator MAIN
+   locator MyLocator
    !
   !
  !
@@ -197,7 +197,7 @@ segment-routing
    source-address fc00:0000:6666::1
   !
   locators
-   locator MAIN
+   locator MyLocator
     micro-segment behavior unode psp-usd
     prefix fc00:0000:6666::/48
    !
@@ -212,7 +212,7 @@ router isis 100
  !
  address-family ipv6 unicast
   segment-routing srv6
-   locator MAIN
+   locator MyLocator
    !
   !
  !
@@ -231,7 +231,7 @@ segment-routing
    source-address fc00:0000:7777::1
   !
   locators
-   locator MAIN
+   locator MyLocator
     micro-segment behavior unode psp-usd
     prefix fc00:0000:7777::/48
    !
