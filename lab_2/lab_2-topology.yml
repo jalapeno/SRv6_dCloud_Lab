@@ -74,6 +74,11 @@ xr_l2networks:
   - ["xrd06:Gi0/0/0/0", "xrd07:Gi0/0/0/2"]
 
 networks:
+  # macvlan: 
+    # xrd-VM ens224: xrd01 gi0/0/0/0 -> Amsterdam VPP
+    # xrd-VM ens256: xrd07 gi0/0/0/0 -> Rome ens192
+    # xrd-VM ens161: xrd07 gi0/0/0/3 -> Rome ens224
+    # xrd-VM ens193: xrd01 gi0/0/0/3 -> Amsterdam ens224
   macvlan0:
     driver: macvlan
     driver_opts:
@@ -95,6 +100,13 @@ networks:
     ipam:
       config:
         - subnet: 10.107.2.0/24
+  macvlan3:
+    driver: macvlan
+    driver_opts:
+      parent: ens193
+    ipam:
+      config:
+        - subnet: 10.101.3.0/24
   mgmt:
     xr_interfaces:
       - xrd01:Mg0/RP0/CPU0/0
