@@ -13,7 +13,7 @@ In lab 4 we will establish a Layer-3 VPN named "carrots" which will use SRv6 tra
 4. [Validate SRv6-TE steering of L3VPN traffic](#validate-srv6-te-steering-of-l3vpn-traffic)
 
 ## Configure SRv6 L3VPN
-The SRv6-based IPv4/IPv6 L3VPN feature enables deployment of IPv4/IPv6 L3VPN over a SRv6 data plane. Traditionally, it was done over an SR-MPLS based system. SRv6-based L3VPN uses SRv6 Segment IDs (SIDs) for service segments instead of labels. SRv6-based L3VPN functionality interconnects multiple sites to resemble a private network service over public infrastructure. The basic SRv6 configuration was completed in [Lab -2](/lab_2/lab_2-guide.md).
+The SRv6-based IPv4/IPv6 L3VPN feature enables deployment of IPv4/IPv6 L3VPN over a SRv6 data plane. Traditionally, it was done over an SR-MPLS based system. SRv6-based L3VPN uses SRv6 Segment IDs (SIDs) for service segments instead of labels. SRv6-based L3VPN functionality interconnects multiple sites to resemble a private network service over public infrastructure. The basic SRv6 configuration was completed in [Lab 2](/lab_2/lab_2-guide.md).
 
 For this feature, BGP allocates an SRv6 SID from the locator space, configured under SRv6-base and VPNv4 address family. For more information on this, refer Segment Routing over IPv6 Overview. In this lab the BGP SID is in the per-VRF mode that provides End.DT4 support. End.DT4 represents the Endpoint with decapsulation and IPv4 table lookup.
 
@@ -22,7 +22,7 @@ BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4 L3VPN Network L
 For more details on SRv6 please see this [LINK](/SRv6.md)
 
   ### Configure VRF
-  For our IPv4 and IPv6 vpn with will use the VRF *carrot*. The *carrot* vrf needs to be only configured on the two edge routes in our SP network: xrd01 and xrd07. Intermediate routers do not need to be vrf aware and are instead forwarding on the SRv6 data plane.
+  This lab will use the VRF *carrot* for IPv4 and IPv6 vpn. The *carrot* vrf needs to be only configured on the two edge routes in our SP network: xrd01 and xrd07. Intermediate routers do not need to be vrf aware and are instead forwarding on the SRv6 data plane.
 
   Configure the VRF on xrd01 and 07:
 
@@ -31,26 +31,24 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
   address-family ipv4 unicast
     import route-target
     9:9
-    !
+    
     export route-target
     9:9
-    !
+    
     address-family ipv6 unicast
     import route-target
     9:9
-    !
+    
     export route-target
     9:9
-    !
-  !
-  !
+  
   ```
 
-  ### Add VRF to router interfaces for L3VPN:
-  Now that our vrf *carrot* has been created lets get the vrf added to applicable interfaces. For xrd01 we will use  interface *GigabitEthernet0/0/0/3* which connects to Amsterdam over link *M*. For xrd07 we will use interface *GigabitEthernet0/0/0/3* which connects to Rome over link *K*.
+  ### Add VRF to router interfaces for L3VPN
+  Now that our vrf *carrot* has been created lets get the vrf added to the applicable interfaces. For xrd01 we will use  interface *GigabitEthernet0/0/0/3* which connects to Amsterdam over link *M*. For xrd07 we will use interface *GigabitEthernet0/0/0/3* which connects to Rome over link *K*.
 
   1. Add VRF to interfaces
-    #### xrd01
+  #### xrd01
     ```
     interface GigabitEthernet0/0/0/3
     vrf carrots
