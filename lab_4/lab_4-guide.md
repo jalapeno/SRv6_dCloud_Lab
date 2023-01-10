@@ -45,7 +45,7 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
   Now that our vrf *carrot* has been created lets get the vrf added to the applicable interfaces. For xrd01 we will use  interface *GigabitEthernet0/0/0/3* which connects to Amsterdam over link *M*. For xrd07 we will use interface *GigabitEthernet0/0/0/3* which connects to Rome over link *K*.
 
 Add VRF to interfaces  
-  Router **xrd01**
+  **xrd01**  
     ```
     interface GigabitEthernet0/0/0/3
       vrf carrots
@@ -53,7 +53,7 @@ Add VRF to interfaces
       ipv6 address 10:9:1::1/64
     ```
 
-  Router **xrd07**
+  **xrd07**  
   ```
     interface GigabitEthernet0/0/0/3
       vrf carrots
