@@ -44,7 +44,7 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
   ### Add VRF to router interfaces for L3VPN
   Now that our vrf *carrot* has been created lets get the vrf added to the applicable interfaces. For xrd01 we will use  interface *GigabitEthernet0/0/0/3* which connects to Amsterdam over link *M*. For xrd07 we will use interface *GigabitEthernet0/0/0/3* which connects to Rome over link *K*.
 
-Add VRF to interfaces
+Add VRF to interfaces  
   Router **xrd01**
     ```
     interface GigabitEthernet0/0/0/3
