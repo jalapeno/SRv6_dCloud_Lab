@@ -28,17 +28,17 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
 
   ```
   vrf carrots
-  address-family ipv4 unicast
-    import route-target
-    9:9
-    export route-target
-    9:9
-    
-  address-family ipv6 unicast
+    address-family ipv4 unicast
       import route-target
       9:9
       export route-target
       9:9
+    
+    address-family ipv6 unicast
+        import route-target
+        9:9
+        export route-target
+        9:9
   ```
 
   ### Add VRF to router interfaces for L3VPN
@@ -46,21 +46,21 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
 
   1. Add VRF to interfaces  
 
-  **xrd01**  
-  ```
-  interface GigabitEthernet0/0/0/3
-    vrf carrots
-    ipv4 address 10.101.3.2 255.255.255.0
-    ipv6 address 10:9:1::1/64
-  ```
+    **xrd01**  
+    ```
+    interface GigabitEthernet0/0/0/3
+      vrf carrots
+      ipv4 address 10.101.3.2 255.255.255.0
+      ipv6 address 10:9:1::1/64
+    ```
 
-  **xrd07**  
-  ```
-  interface GigabitEthernet0/0/0/3
-    vrf carrots
-    ipv4 address 10.107.2.2 255.255.255.0
-    ipv6 address fc00:0:107:2::2/64
-  ```
+    **xrd07**  
+    ```
+    interface GigabitEthernet0/0/0/3
+      vrf carrots
+      ipv4 address 10.107.2.2 255.255.255.0
+      ipv6 address fc00:0:107:2::2/64
+    ```
 
   2. Add VRF static routes
   **xrd07** 
