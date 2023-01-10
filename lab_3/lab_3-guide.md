@@ -1,7 +1,7 @@
-# Extend SR-MPLS Topology Lab 2 Guide
+# Extend SR-MPLS Topology lab 3 Guide
 
 ### Description: 
-In Lab 2 the student will extend the routing topology to include sites Amsterdam and Rome. In addition SR-MPLS will be used to create a baseline end to end routing between the two locations. With SR-MPLS the student will then use show commands and tools like TCPDump to validate how traffic is routed through the neetwork. This is important as Lab 3 will override this behaviour when the student implements SRv6 L3VPN with path selection.
+In lab 3 the student will extend the routing topology to include sites Amsterdam and Rome. In addition SR-MPLS will be used to create a baseline end to end routing between the two locations. With SR-MPLS the student will then use show commands and tools like TCPDump to validate how traffic is routed through the neetwork. This is important as Lab 3 will override this behaviour when the student implements SRv6 L3VPN with path selection.
 
 
 ## Contents
@@ -16,7 +16,7 @@ In Lab 2 the student will extend the routing topology to include sites Amsterdam
   
 
 ## Lab Objectives
-The student upon completion of Lab 2 should have achieved the following objectives:
+The student upon completion of lab 3 should have achieved the following objectives:
 
 * Understanding of ISIS routing policy
 * Enable BGP Labeled Unicast network routing over the SR-MPLS underlay
@@ -424,5 +424,5 @@ listening on br-65c7870958c4, link-type EN10MB (Ethernet), capture size 262144 b
 13:30:17.016005 MPLS (label 100001, exp 0, ttl 62) (label 24008, exp 0, [S], ttl 63) IP 20.0.0.1.5201 > 10.101.2.1.43938: Flags [.], ack 38, win 509, options [nop,nop,TS val 1943388705 ecr 1262297045], length 0
 ```
 
-### End of lab 2
+### End of lab 3
 Please proceed to [Lab 3](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_3/lab_3-guide.md)

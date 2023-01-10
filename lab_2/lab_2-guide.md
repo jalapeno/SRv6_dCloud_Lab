@@ -1,4 +1,4 @@
-# SRv6 Lab 1 Guide
+# SRv6 Lab 2 Guide
 
 ### Description: 
 In Lab 1 the student will launch the XRd topology validate it is up and running and that all baseline 
@@ -657,4 +657,4 @@ Tcpdump.sh output should show SR-MPLS encapsulation of traffic on some set of li
 Feel free to experiment with the tcpdump script on other links while pinging to/from different nodes in the network.
 
 ### End of lab 1
-Please proceed to [Lab 2](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_2/lab_2-guide.md)
+Please proceed to [Lab 3](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_3/lab_3-guide.md)

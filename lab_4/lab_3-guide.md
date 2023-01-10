@@ -1,7 +1,7 @@
-# Lab 3: Configure SRv6-L3VPN and perform SRv6-TE steering of L3VPN prefixes
+# lab 4: Configure SRv6-L3VPN and perform SRv6-TE steering of L3VPN prefixes
 
 ### Description
-In lab 3 we will establish a Layer-3 VPN named "carrots" which will use SRv6 transport and will have endpoints on xrd01, xrd06, and xrd07. xrd01 and xrd06 will only have loopback interfaces participating in the L3VPN. xrd07's gi 0/0/0/3 interface connects to a secondary NIC on the Rome VM and will also be attached to the L3VPN. Once the L3VPN is established and has run some test traffic we will then setup SRv6-TE traffic steering to specific Rome prefixes.
+In lab 4 we will establish a Layer-3 VPN named "carrots" which will use SRv6 transport and will have endpoints on xrd01, xrd06, and xrd07. xrd01 and xrd06 will only have loopback interfaces participating in the L3VPN. xrd07's gi 0/0/0/3 interface connects to a secondary NIC on the Rome VM and will also be attached to the L3VPN. Once the L3VPN is established and has run some test traffic we will then setup SRv6-TE traffic steering to specific Rome prefixes.
 
 ## Contents
 1. [Configure SRv6 L3VPN](#configure-srv6-l3vpn)
@@ -197,7 +197,7 @@ router bgp 65000
 ### Validate SRv6 L3VPN
 
 From xrd01 run the following set of validation commands:
- - Validation command output examples can be found [here](https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_3/validation-cmd-output.md)
+ - Validation command output examples can be found [here](https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_4/validation-cmd-output.md)
 ```
 show segment-routing srv6 sid
 show bgp vpnv4 unicast
@@ -437,5 +437,5 @@ listening on br-9c9433e006cf, link-type EN10MB (Ethernet), capture size 262144 b
 ```
 
 
-### End of lab 3
-Please proceed to [Lab 4](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_4/lab_4-guide.md)
+### End of lab 4
+Please proceed to [Lab 5](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_5/lab_5-guide.md)
