@@ -24,31 +24,28 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
   ### Configure VRF
   This lab will use the VRF *carrot* for IPv4 and IPv6 vpn. The *carrot* vrf needs to be only configured on the two edge routes in our SP network: xrd01 and xrd07. Intermediate routers do not need to be vrf aware and are instead forwarding on the SRv6 data plane.
 
-  Configure the VRF on xrd01 and 07:
+  Configure the VRF on **xrd01** and **xrd07**:
 
   ```
   vrf carrots
   address-family ipv4 unicast
     import route-target
     9:9
-    
     export route-target
     9:9
     
-    address-family ipv6 unicast
-    import route-target
-    9:9
-    
-    export route-target
-    9:9
-  
+  address-family ipv6 unicast
+      import route-target
+      9:9
+      export route-target
+      9:9
   ```
 
   ### Add VRF to router interfaces for L3VPN
   Now that our vrf *carrot* has been created lets get the vrf added to the applicable interfaces. For xrd01 we will use  interface *GigabitEthernet0/0/0/3* which connects to Amsterdam over link *M*. For xrd07 we will use interface *GigabitEthernet0/0/0/3* which connects to Rome over link *K*.
 
   1. Add VRF to interfaces
-    #### xrd01
+    **xrd01**
       ```
       interface GigabitEthernet0/0/0/3
       vrf carrots
@@ -56,7 +53,7 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
       ipv6 address 10:9:1::1/64
       ```
 
-    #### xrd07
+    **xrd07**
     ```
       interface GigabitEthernet0/0/0/3
       vrf carrots
@@ -65,18 +62,18 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
     ```
   
   2. Add VRF static routes
-    #### xrd07 
+    **xrd07** 
     In addition to configuring *GigabitEthernet0/0/0/3* to be a member of VRF carrots, xrd07 will need a pair of static routes for reachability to Rome's "40" and "50" network prefixes:
     ```
     router static
     vrf carrots
       address-family ipv4 unicast
-      40.0.0.0/24 10.107.2.1
-      50.0.0.0/24 10.107.2.1
-      !
+        40.0.0.0/24 10.107.2.1
+        50.0.0.0/24 10.107.2.1
+      
       address-family ipv6 unicast
-      fc00:0:40::/64 fc00:0:107:2::1
-      fc00:0:50::/64 fc00:0:107:2::1
+        fc00:0:40::/64 fc00:0:107:2::1
+        fc00:0:50::/64 fc00:0:107:2::1
     ```
 
   3. Verify reachability
