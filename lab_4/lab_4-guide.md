@@ -91,7 +91,7 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
   ### Configure BGP L3VPN Peering
   The next step is to add the L3VPN configuration into BGP. We will be using separate BGP neighbor groups for v4 and v6 peers. For example for IPv4 neighbors you will enable L3VPN in the neighbor template by issuing the *address-family vpnv4 unicast* command.
   
-  Next you will enable vrf *carrots* to participate in SRv6 by adding the __segment-routing srv6__ command and then tieing that to the locator policy ISIS. 
+  Next you will enable vrf *carrots* to participate in SRv6 by adding the `segment-routing srv6` command and then tieing that to the locator policy ISIS. 
 
   See below for configuraiton on xrd01 and xrd07
 
