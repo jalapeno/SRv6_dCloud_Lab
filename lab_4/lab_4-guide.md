@@ -77,7 +77,7 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
           fc00:0:50::/64 fc00:0:107:2::1
     ```
 
-  3. Verify reachability
+  3. Verify reachability  
   Ping check from xrd07 gi 0/0/0/3 to Rome VM 2nd NIC:
   ```
   ping vrf carrots 10.107.2.1
