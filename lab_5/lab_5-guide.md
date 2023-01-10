@@ -1,7 +1,7 @@
 # Install Jalapeno and enable BMP and Streaming Telemetry
 
 ### Description
-In lab 4 we will install the open-source Jalapeno data infrastructure platform. We will then configure BGP Monitoring Protocol (BMP) on our route reflectors and streaming telemetry on all routers in the network.
+In lab 5 we will install the open-source Jalapeno data infrastructure platform. We will then configure BGP Monitoring Protocol (BMP) on our route reflectors and streaming telemetry on all routers in the network.
 
 ## Contents
 1. [Install Jalapeno](#install-jalapeno)
@@ -106,7 +106,7 @@ The SR-Processors are a pair of POC data processors that mine Jalapeno's graphDB
 
 1. Install SR-Processors:
 ```
-cd ~/SRv6_dCloud_Lab/lab_4/sr-processors
+cd ~/SRv6_dCloud_Lab/lab_5/sr-processors
 kubectl apply -f sr-node.yaml 
 kubectl apply -f sr-topology.yaml 
 ```
@@ -317,5 +317,5 @@ fc00:0:1111:e008::          uB6 (Insert.Red)  'srte_c_50_ep_fc00:0:7777::1' (50,
 fc00:0:1111:e009::          uB6 (Insert.Red)  'srte_c_40_ep_fc00:0:7777::1' (40, fc00:0:7777::1)  xtc_srv6            InUse  Y 
 ``` 
 
-### End of lab 4
-Please proceed to [Lab 5](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_5/lab_5-guide.md)
+### End of lab 5
+Please proceed to [Lab 6](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_6/lab_6-guide.md)

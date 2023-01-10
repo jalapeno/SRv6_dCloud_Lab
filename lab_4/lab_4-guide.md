@@ -1,4 +1,4 @@
-# lab 4: Configure SRv6-L3VPN and perform SRv6-TE steering of L3VPN prefixes
+# Lab 4: Configure SRv6-L3VPN and perform SRv6-TE steering of L3VPN prefixes
 
 ### Description
 In lab 4 we will establish a Layer-3 VPN named "carrots" which will use SRv6 transport and will have endpoints on xrd01, xrd06, and xrd07. xrd01 and xrd06 will only have loopback interfaces participating in the L3VPN. xrd07's gi 0/0/0/3 interface connects to a secondary NIC on the Rome VM and will also be attached to the L3VPN. Once the L3VPN is established and has run some test traffic we will then setup SRv6-TE traffic steering to specific Rome prefixes.

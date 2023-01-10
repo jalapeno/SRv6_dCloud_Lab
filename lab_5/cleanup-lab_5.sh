@@ -1,6 +1,6 @@
 #/bin/sh
 
-docker-compose -f docker-compose-lab_3.yml down
+docker-compose -f docker-compose-lab_5.yml down
 
 docker volume rm xrd01
 docker volume rm xrd02
