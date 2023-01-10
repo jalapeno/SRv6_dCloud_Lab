@@ -54,6 +54,7 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
       ```
 
     **xrd07**
+    
     ```
       interface GigabitEthernet0/0/0/3
         vrf carrots
@@ -64,7 +65,7 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
   2. Add VRF static routes
     **xrd07** 
     In addition to configuring *GigabitEthernet0/0/0/3* to be a member of VRF carrots, xrd07 will need a pair of static routes for reachability to Rome's "40" and "50" network prefixes:
-    
+
     ```
     router static
     vrf carrots
