@@ -43,7 +43,7 @@ interface Loopback9
  ipv6 address 10:9:1::1/64
 !
 ```
-
+<<< Remove xrd06 config>>>
  #### xrd06
 ```
 interface Loopback9
