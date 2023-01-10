@@ -64,7 +64,7 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
 
 
  2. Add VRF static routes
-
+    In addition to configuring *GigabitEthernet0/0/0/3* to be a member of VRF carrots, xrd07 will need a pair of static routes for reachability to Rome's "40" and "50" network prefixes:  
     **xrd07**
     ```
     router static
@@ -76,10 +76,6 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
           fc00:0:40::/64 fc00:0:107:2::1
           fc00:0:50::/64 fc00:0:107:2::1
     ```
-
-
-In addition to configuring *GigabitEthernet0/0/0/3* to be a member of VRF carrots, xrd07 will need a pair of static routes for reachability to Rome's "40" and "50" network prefixes:  
-
 
   3. Verify reachability
   Ping check from xrd07 gi 0/0/0/3 to Rome VM 2nd NIC:
