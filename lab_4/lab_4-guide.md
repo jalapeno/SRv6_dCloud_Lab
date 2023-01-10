@@ -79,14 +79,15 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
 
   3. Verify reachability  
   Ping check from xrd07 gi 0/0/0/3 to Rome VM 2nd NIC:
-  ```
-  ping vrf carrots 10.107.2.1
-  ping vrf carrots 40.0.0.1
-  ping vrf carrots 50.0.0.1
-  ping vrf carrots fc00:0:107:2::1
-  ping vrf carrots fc00:0:40::1
-  ping vrf carrots fc00:0:50::1
-  ```
+  
+    ```
+    ping vrf carrots 10.107.2.1
+    ping vrf carrots 40.0.0.1
+    ping vrf carrots 50.0.0.1
+    ping vrf carrots fc00:0:107:2::1
+    ping vrf carrots fc00:0:40::1
+    ping vrf carrots fc00:0:50::1
+    ```
 
   ### Configure BGP L3VPN Peering
   The next step is to add the L3VPN configuration into BGP. We will be using separate BGP neighbor groups for v4 and v6 peers. For example for IPv4 neighbors you will enable L3VPN in the neighbor template by issuing the *address-family vpnv4 unicast* command.
