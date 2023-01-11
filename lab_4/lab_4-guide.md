@@ -265,7 +265,7 @@ router bgp 65000
  
 ```
 
-## Validate TE Policy
+### Validate TE Policy
 Validate vpnv4 and v6 prefixes are received at xrd01 and that they have their color extcomms:
 
 **xrd01**
