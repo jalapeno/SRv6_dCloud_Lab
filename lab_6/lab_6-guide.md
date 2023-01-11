@@ -8,7 +8,9 @@ In lab 6 we will explore the Jalapeno system running on Kubernetes. We will log 
 2. [Arango GraphDB](#arango-graphdb)
 3. [Basic queries](#basic-queries-to-explore-data-collections)
 4. [Populating the DB with meta data](#populating-the-db-with-external-data)
-5. [Graph Traversals](#graph-traversals)
+5. [Graph Traversals and Shortest Path Queries](#arango-graph-traversals-and-shortest-path-queries)
+6. [Shortest Path Using Other Metrics](#shortest-path-queries-using-metrics-other-than-hop-count)
+7. [Shortest Path using Graph Traversal](#graph-traversals)
 
 #### Continue on the Jalapeno VM
 
@@ -101,6 +103,16 @@ DB: jalapeno
 2. Spend some time exploring the data collections in the DB
 
 #### Basic queries to explore data collections 
+The ArangoDB Query Language (AQL) can be used to retrieve and modify data that are stored in ArangoDB.
+
+The general workflow when executing a query is as follows:
+
+ - A client application ships an AQL query to the ArangoDB server. The query text contains everything ArangoDB needs to compile the result set
+
+ - ArangoDB will parse the query, execute it and compile the results. If the query is invalid or cannot be executed, the server will return an error that the client can process and react to. If the query can be executed successfully, the server will return the query results (if any) to the client
+
+https://www.arangodb.com/docs/stable/aql/index.html
+
 
 Run DB Queries:
 ```
@@ -127,106 +139,120 @@ for l in sr_topology return l
 for l in sr_node return { node: l.router_id, name: l.name, prefix_sid: l.prefix_attr_tlvs.ls_prefix_sid, srv6sid: l.srv6_sid }
 ```
 ### Populating the DB with external data 
-Return to the Jalapeno VM ssh session and add some synthetic meta data to the DB:
+
+1. Return to the ssh session on the Jalapeno VM and add some synthetic meta data to the DB:
 ```
 cd ~/SRv6_dCloud_Lab/lab_6/
 python3 add_meta_data.py
 ```
-Validate meta data with ArangoDB query:
+
+2. Validate meta data with ArangoDB query:
 ```
 for l in sr_topology return { key: l._key, from: l._from, to: l._to, latency: l.latency, 
     utilization: l.percent_util_out, country_codes: l.country_codes }
 ```
+ - Note: only the ISIS links in the DB have latency and utilization numbers. The Amsterdam and Rome VMs are directly connected to PEs xrd01 and xrd07, so their "edge connections" in the DB are effectively zero latency.
 
-Run the get_nodes.py script:
+3. Run the get_nodes.py script to get a listing of nodes in the network, their addresses, and SR/SRv6 SID data:
 ```
 python3 get_nodes.py
 cat nodes.json
 ```
 
-### Graph traversals
+### Arango Graph traversals and shortest path queries
+https://www.arangodb.com/docs/stable/aql/graphs.html
 
-Return to the ArangoDB browser UI and run a graph traversal from xrd01 to xrd07:
+#### Shortest Path
+This type of query is supposed to find the shortest path between two given documents (startVertex and targetVertex) in your graph. In our case the shortest path between two different nodes in graph's representation of the network.
+
+1. Return to the ArangoDB browser UI and run a shortest path query from xrd01 to xrd07, and have it return SR and SRv6 SID data:
 ```
-for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0001' TO 'sr_node/2_0_0_0000.0000.0007' sr_topology
-    return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, srv6sid: v.srv6_sid }
+for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0001' TO 'sr_node/2_0_0_0000.0000.0007' sr_topology return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, srv6sid: v.srv6_sid }
 ```
-Return path:
+2. Run the query against the return path:
 ```
-for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0007' TO 'sr_node/2_0_0_0000.0000.0001' sr_topology
-    return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, srv6sid: v.srv6_sid }
+for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0007' TO 'sr_node/2_0_0_0000.0000.0001' sr_topology return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, srv6sid: v.srv6_sid }
 ```
 
-Run a graph traversal from source prefix to destination prefix:
+3. Run a shortest path query from source prefix (Amsterdam) to destination prefix (Rome):
 ```
-for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' 
-    TO 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' sr_topology return  { node: v.name, 
-    location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, sid: v.srv6_sid, 
-    latency: e.latency }
+ for v, e in any shortest_path 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' sr_topology return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, sid: v.srv6_sid, latency: e.latency }
 ```
-Return path:
+4. Query for the return path:
 ```
-for v, e in outbound shortest_path 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' 
-    TO 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology return  { node: v.name, 
-    location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, sid: v.srv6_sid, 
-    latency: e.latency }
+for v, e in outbound shortest_path 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' TO 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, sid: v.srv6_sid, latency: e.latency }
 ```
-These shortest path result are based purely on hop count. However, the graphDB allows us to run a 'weighted traversal' based on any metric or other piece of meta data in the graph.
+These shortest path result are based purely on hop count. Also, in the case of multiple equal cost shortest paths, the Arango query will return the first one it finds. 
 
-### Graph traversals using metrics other than hop count
+Basic shortest path by hop count is fine, however, the graphDB also allows us to run a 'weighted shortest path query' based on any metric or other piece of meta data in the graph!
+
+### Shortest path queries using metrics other than hop count
 
 #### Query for the lowest latency path:
 ```
-for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' 
-    TO 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' sr_topology OPTIONS {weightAttribute: 'latency' } 
-    return  { prefix: v.prefix, name: v.name, sid: e.srv6_sid, latency: e.latency }
+for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' sr_topology OPTIONS {weightAttribute: 'latency' } return  { prefix: v.prefix, name: v.name, sid: e.srv6_sid, latency: e.latency }
 ```
 Return path:
 ```
-for v, e in outbound shortest_path 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' 
-    TO 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology OPTIONS {weightAttribute: 'latency' } 
-    return  { prefix: v.prefix, name: v.name, sid: e.srv6_sid, latency: e.latency }
+for v, e in outbound shortest_path 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' TO 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology OPTIONS {weightAttribute: 'latency' } return { prefix: v.prefix, name: v.name, sid: e.srv6_sid, latency: e.latency }
 ```
+### Graph Traversals
+A traversal starts at one specific document (startVertex) and follows all edges connected to this document. For all documents (vertices) that are targeted by these edges it will again follow all edges connected to them and so on. It is possible to define how many of these follow iterations should be executed at least (min depth) and at most (max depth).
+https://www.arangodb.com/docs/stable/aql/graphs-traversals-explained.html
+
+For our purposes we can use Graph Traversal to run a limited or bounded shortest path query (min and max hops):
+
 #### Query for the least utilized path
-Backups, data replication, other bulk transfers can oftentimes take a non-best path through the network.
-Graph traversal query for the least utilized path:
+Backups, data replication, other bulk transfers can oftentimes take a non-best path through the network. In theory the least utilized path could be many hops in length, so we're going to build the query such that the traversal limits itself to a maximum of 6 hops from the source vertex.
+
+1. Graph traversal query for the least utilized path:
 ```
 FOR v, e, p IN 1..6 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
-    OPTIONS {uniqueVertices: "path", bfs: true} FILTER v._id == 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' 
+    OPTIONS {uniqueVertices: "path", bfs: true} FILTER v._id == 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
     RETURN { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*],
     latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
 ```
-Return path:
+ - Note the least utilized path should be xrd01 -> xrd02 -> xrd03 -> xrd04 -> xrd07. This also happens to be the longest path geographically in our network (Netherlands proceeding east and south through Germany, Poland, Ukraine, Turkey, etc.). Any traffic taking this path will be subject to the longest latency in our network.
+
+2. Query for the return path:
 ```
-FOR v, e, p IN 1..6 outbound 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' sr_topology 
+FOR v, e, p IN 1..6 outbound 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' sr_topology 
     OPTIONS {uniqueVertices: "path", bfs: true} FILTER v._id == 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' 
     RETURN { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*],
     latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
 ```
-Note the Amsterdam to Rome path is different than the Rome to Amsterdam path
+ - Note: unlike latency, where latency will be roughly equivalent in either direction, average utilization could be quite different. In our network the least utilized Amsterdam to Rome path is different from the least utilized Rome to Amsterdam path: xrd07 -> xrd06 -> xrd02 -> xrd01
 
-The previous queries provided paths up to 6-hops in length. We can increase or decrease the number of hops a graph traversal may use:
+The previous queries provided paths up to 6-hops in length. We can increase or decrease the number of hops a graph traversal may use
+
+3. Decrease the length of the traversal (should provide fewer valid results)
 
 ```
 FOR v, e, p IN 1..5 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
-    OPTIONS {uniqueVertices: "path", bfs: true} FILTER v._id == 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' 
+    OPTIONS {uniqueVertices: "path", bfs: true} FILTER v._id == 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
     RETURN { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*],
     latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
 ```
-Or
+4. Increase the length of the traversal (should provide more valid results)
 ```
 FOR v, e, p IN 1..8 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
-    OPTIONS {uniqueVertices: "path", bfs: true} FILTER v._id == 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7' 
+    OPTIONS {uniqueVertices: "path", bfs: true} FILTER v._id == 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
     RETURN { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*],
     latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
 
 ```
-### Data sovereignty
+ - Note: the graph traversal is inherently loop-free. If you increase the previous query to max of 10 or 12 hops you should get back the same number of results as 8 hops max.
 
-Find a suitable path that avoids France
+### K Shortest Paths
+This type of query finds the first k paths in order of length (or weight) between two given documents, startVertex and targetVertex in your graph.
+
+https://www.arangodb.com/docs/stable/aql/graphs-kshortest-paths.html
+
+#### A Data sovereignty query
+We'll use the K Shortest Paths query method to find a suitable path that avoids France:
 
 ```
-for p in outbound k_shortest_paths  'sr_node/2_0_0_0000.0000.0001' TO 'unicast_prefix_v4/10.107.1.0_24_10.0.0.7'
+for p in outbound k_shortest_paths  'sr_node/2_0_0_0000.0000.0001' TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7'
     sr_topology filter p.edges[*].country_codes !like "%FRA%" return { path: p.edges[*].remote_node_name, 
     sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency),
     percent_util_out: avg(p.edges[*].percent_util_out)}

@@ -23,7 +23,9 @@ cursor = db.aql.execute("for s in sr_node return \
         city: s.location_id, address: s.address, \
             prefix_sid: s.prefix_sid, srv6_sid: s.srv6_sid }")
 nodes = [doc for doc in cursor]
-print("querying for sr nodes and writing to file 'nodes.json'")
+print("""
+querying for sr nodes and writing to file 'nodes.json'
+""")
 nodesObj = json.dumps(nodes, indent=4)
 with open("nodes.json", "w") as outfile:
     outfile.write(nodesObj)
