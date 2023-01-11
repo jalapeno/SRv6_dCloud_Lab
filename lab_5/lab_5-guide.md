@@ -75,7 +75,7 @@ One of the primary goals of the Jalapeno project is to be flexible and extensibl
       blah
       ```
     </details>
-Don't worry about the 'error validating' messages, they're cosmetic...we'll fix those one of these days
+
 
 4. Verify k8s pods are running (note, some pods may initially be in a crashloop state. These should resolve after 2-3 minutes):  
 
