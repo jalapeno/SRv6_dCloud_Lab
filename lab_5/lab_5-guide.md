@@ -69,10 +69,10 @@ One of the primary goals of the Jalapeno project is to be flexible and extensibl
     <details>
       <summary>Example output</summary>
       ```
-      blah
-      blah
-      blah
-      blah
+      blah  
+      blah  
+      blah  
+      blah  
       ```
     </details>
 
