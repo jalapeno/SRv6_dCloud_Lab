@@ -111,12 +111,9 @@ The next step is to add the L3VPN configuration into BGP. We will be using separ
  2. Enable SRv6 for VRF carrots
       We will now need to add the VRF/SRv6 configuration to BGP. We will add VRF *carrot* in BGP and add enable SRv6 to each address family with the command *`segement-routing srv6`*. In addition we will tie the vrf to the locator policy MyLocator. 
 
-      Last on xrd07 we will want to redistribute the static routes we added earlier using the command `*redistribute static`*. On xrd01 we only need to redistribute the connected routes to provide reachability for Amsterdam using the mmand `*redistribute connected`*
-
-    
+      Last on xrd01 we will want to redistribute the connected routesusing the command `*redistribute connected*`. On xrd07 we will need to redistribute the connected and static routes to provide reachability for Rome. For xrd07 we will add the command `*redistribute connected*`
    
     **xrd01**  
-    On xrd01 we'll redistribute the VRF's connected routes into BGP
     ```
     router bgp 65000
       vrf carrots
@@ -137,7 +134,6 @@ The next step is to add the L3VPN configuration into BGP. We will be using separ
     ```
 
     **xrd07**  
-    On xrd07 we will redistribute the VRF's connected and static routes into BGP
     ```
     router bgp 65000
       vrf carrots
@@ -147,44 +143,17 @@ The next step is to add the L3VPN configuration into BGP. We will be using separ
           locator MyLocator
           alloc mode per-vrf
           redistribute static
+          redistribute connected
       
         address-family ipv6 unicast
           segment-routing srv6
           locator MyLocator
           alloc mode per-vrf
           redistribute static
+          redistribute connected
       ```
 
- 3. We'll redistribute the VRF's connected loopback routes into BGP vpnv4 and vpnv6:
-    
-    **xrd07**  
-    On xrd07 we'll redistribute the VRF's static routes into BGP:
-    ```
-    router bgp 65000
-      neighbor-group xrd-ipv4-peer
-        address-family vpnv4 unicast
-        next-hop-self
-      
-      neighbor-group xrd-ipv6-peer
-        address-family vpnv6 unicast
-        next-hop-self
-      vrf carrots
-        rd auto
-        address-family ipv4 unicast
-        segment-routing srv6
-          locator ISIS
-          alloc mode per-vrf
-          redistribute static
-          redistribute connected
-      
-        address-family ipv6 unicast
-        segment-routing srv6
-          locator ISIS
-          alloc mode per-vrf
-          redistribute static
-          redistribute connected
-    ```
-4. BGP Route Reflectors **xrd05**, **xrd06**  
+3. BGP Route Reflectors **xrd05**, **xrd06**  
     The BGP route reflectors will also need to have the L3VPN feature added to their peering group.
     ```
     router bgp 65000
