@@ -73,7 +73,7 @@ Don't worry about the 'error validating' messages, they're cosmetic...we'll fix 
     ```
     kubectl get pods -A
     ```
-Expected output:  
+    Expected output:  
 
     ```
     cisco@jalapeno:~/jalapeno/install$ kubectl get pods -A
