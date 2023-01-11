@@ -46,21 +46,21 @@ One of the primary goals of the Jalapeno project is to be flexible and extensibl
 
   Example output:  
 
-    ```
-    cisco@jalapeno:~/test$ git clone https://github.com/cisco-open/jalapeno.git
-    Cloning into 'jalapeno'...
-    remote: Enumerating objects: 4808, done.
-    remote: Counting objects: 100% (1468/1468), done.
-    remote: Compressing objects: 100% (566/566), done.
-    remote: Total 4808 (delta 733), reused 1350 (delta 670), pack-reused 3340
-    Receiving objects: 100% (4808/4808), 17.43 MiB | 26.88 MiB/s, done.
-    Resolving deltas: 100% (2461/2461), done.
-    cisco@jalapeno:~/test$ cd jalapeno/
-    cisco@jalapeno:~/test/jalapeno$ git checkout cleu-srv6-lab
-    Branch 'cleu-srv6-lab' set up to track remote branch 'cleu-srv6-lab' from 'origin'.
-    Switched to a new branch 'cleu-srv6-lab'
-    cisco@jalapeno:~/test/jalapeno$ 
-    ```
+```
+cisco@jalapeno:~/test$ git clone https://github.com/cisco-open/jalapeno.git
+Cloning into 'jalapeno'...
+remote: Enumerating objects: 4808, done.
+remote: Counting objects: 100% (1468/1468), done.
+remote: Compressing objects: 100% (566/566), done.
+remote: Total 4808 (delta 733), reused 1350 (delta 670), pack-reused 3340
+Receiving objects: 100% (4808/4808), 17.43 MiB | 26.88 MiB/s, done.
+Resolving deltas: 100% (2461/2461), done.
+cisco@jalapeno:~/test$ cd jalapeno/
+cisco@jalapeno:~/test/jalapeno$ git checkout cleu-srv6-lab
+Branch 'cleu-srv6-lab' set up to track remote branch 'cleu-srv6-lab' from 'origin'.
+Switched to a new branch 'cleu-srv6-lab'
+cisco@jalapeno:~/test/jalapeno$ 
+```
 
 3. Run the Jalapeno install script
     ```
