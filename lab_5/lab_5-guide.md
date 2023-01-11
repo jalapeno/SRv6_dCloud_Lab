@@ -73,6 +73,7 @@ One of the primary goals of the Jalapeno project is to be flexible and extensibl
       blah
       blah
       blah
+      ```
     </details>
 Don't worry about the 'error validating' messages, they're cosmetic...we'll fix those one of these days
 
