@@ -114,19 +114,9 @@ The next step is to add the L3VPN configuration into BGP. We will be using separ
       Last on xrd07 we will want to redistribute the static routes we added earlier using the command `*redistribute static`*. On xrd01 we only need to redistribute the connected routes to provide reachability for Amsterdam using the mmand `*redistribute connected`*
 
     
-    **xrd07**  
-    On xrd07 we'll redistribute the VRF's static routes into BGP
-    ```
-      router bgp 65000
-      neighbor-group xrd-ipv4-peer
-        address-family vpnv4 unicast
-        next-hop-self
-        
-      neighbor-group xrd-ipv6-peer
-        address-family vpnv6 unicast
-        next-hop-self
-    ```
-    **xrd01**
+   
+    **xrd01**  
+    On xrd01 we'll redistribute the VRF's connected routes into BGP
     ```
     router bgp 65000
       vrf carrots
@@ -145,7 +135,9 @@ The next step is to add the L3VPN configuration into BGP. We will be using separ
       
         redistribute connected
     ```
-    **xrd07**
+
+    **xrd07**  
+    On xrd07 we will redistribute the VRF's connected and static routes into BGP
     ```
     router bgp 65000
       vrf carrots
@@ -169,30 +161,28 @@ The next step is to add the L3VPN configuration into BGP. We will be using separ
     On xrd07 we'll redistribute the VRF's static routes into BGP:
     ```
     router bgp 65000
-    neighbor-group xrd-ipv4-peer
-      address-family vpnv4 unicast
-      next-hop-self
+      neighbor-group xrd-ipv4-peer
+        address-family vpnv4 unicast
+        next-hop-self
       
-    neighbor-group xrd-ipv6-peer
-      address-family vpnv6 unicast
-      next-hop-self
+      neighbor-group xrd-ipv6-peer
+        address-family vpnv6 unicast
+        next-hop-self
+      vrf carrots
+        rd auto
+        address-family ipv4 unicast
+        segment-routing srv6
+          locator ISIS
+          alloc mode per-vrf
+          redistribute static
+          redistribute connected
       
-    
-    vrf carrots
-      rd auto
-      address-family ipv4 unicast
-      segment-routing srv6
-        locator ISIS
-        alloc mode per-vrf
-      
-      redistribute static
-      
-      address-family ipv6 unicast
-      segment-routing srv6
-        locator ISIS
-        alloc mode per-vrf
-      
-      redistribute static
+        address-family ipv6 unicast
+        segment-routing srv6
+          locator ISIS
+          alloc mode per-vrf
+          redistribute static
+          redistribute connected
     ```
 4. BGP Route Reflectors **xrd05**, **xrd06**  
     The BGP route reflectors will also need to have the L3VPN feature added to their peering group.
