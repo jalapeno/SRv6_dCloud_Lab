@@ -43,7 +43,8 @@ One of the primary goals of the Jalapeno project is to be flexible and extensibl
     cd jalapeno
     git checkout cleu-srv6-lab
     ```
-Example output:  
+
+  Example output:  
 
     ```
     cisco@jalapeno:~/test$ git clone https://github.com/cisco-open/jalapeno.git
