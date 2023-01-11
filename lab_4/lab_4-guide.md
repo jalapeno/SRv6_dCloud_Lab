@@ -330,18 +330,21 @@ segment-routing
 ### Validate SRv6-TE steering of L3VPN traffic
 #### Validate bulk traffic takes the non-shortest path: xrd01 -> 02 -> 03 -> 04 -> 07 
 1. Run the tcpdump.sh script in the util directory on the following links in the network
-  ```
-  ./tcpdump.sh xrd01-xrd02
-  ./tcpdump.sh xrd02-xrd03
-  ./tcpdump.sh xrd03-xrd04
-  ./tcpdump.sh xrd04-xrd07
-  ```
+  
+    ```
+    ./tcpdump.sh xrd01-xrd02
+    ./tcpdump.sh xrd02-xrd03
+    ./tcpdump.sh xrd03-xrd04
+    ./tcpdump.sh xrd04-xrd07
+    ```
 
 2. Ping from xrd01 to Rome's bulk transport destination IPv4 and IPv6 addresses:
-  ```
-  ping vrf carrots 40.0.0.1 count 3
-  ping vrf carrots fc00:0:40::1 count 3
-  ```
+
+    ```
+    ping vrf carrots 40.0.0.1 count 3
+    ping vrf carrots fc00:0:40::1 count 3
+    ```
+
 Example: tcpdump.sh output should look something like below on the xrd02-xrd03 link with both outer SRv6 uSID header and inner IPv4/6 headers. Note in this case the outbound traffic is taking a non-shortest path.  We don't have a specific policy for return traffic so it will take one of the ECMP shortest paths; thus we do not see replies in the tcpdump output:
 ```
 16:37:30.292761 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e004::: IP 10.9.1.1 > 40.0.0.1: ICMP echo request, id 56816, seq 0, length 80
