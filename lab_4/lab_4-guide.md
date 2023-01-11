@@ -122,15 +122,13 @@ The next step is to add the L3VPN configuration into BGP. We will be using separ
           segment-routing srv6
           locator MyLocator
           alloc mode per-vrf
-      
-        redistribute connected
+          redistribute connected
       
         address-family ipv6 unicast
           segment-routing srv6
           locator MyLocator
           alloc mode per-vrf
-      
-        redistribute connected
+          redistribute connected
     ```
 
     **xrd07**  
