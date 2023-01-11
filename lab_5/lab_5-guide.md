@@ -1,4 +1,4 @@
-# Install Jalapeno and enable BMP and Streaming Telemetry
+# Lab 5: Install Jalapeno and enable BMP
 
 ### Description
 In Lab 5 we will install the open-source Jalapeno data infrastructure platform. Jalapeno will leverage a Kubernetes environment that allows us to install not only Jalapeno but, the entire support software stack. Kubernetes experience is not required for Lab 5 as we have included the required validation commands. Next the student will then configure BGP Monitoring Protocol (BMP) on our route reflectors. Last we will add in support for SRv6 sourced traffic originating from Amsterdam and Rome.
