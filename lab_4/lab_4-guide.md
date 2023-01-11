@@ -194,7 +194,7 @@ The next step is to add the L3VPN configuration into BGP. We will be using separ
       
       redistribute static
     ```
-    4. BGP Route Reflectors xrd05, xrd06
+4. BGP Route Reflectors xrd05, xrd06
     The BGP route reflectors will also need to have the L3VPN feature added to their peering group.
     ```
     router bgp 65000
