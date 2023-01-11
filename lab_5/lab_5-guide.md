@@ -66,8 +66,9 @@ One of the primary goals of the Jalapeno project is to be flexible and extensibl
     cd ~/jalapeno/install/
     ./deploy_jalapeno.sh 
     ```
-    <details><summary>Example output</summary></p>
-      cisco@jalapeno:~/jalapeno/install$ ./deploy_jalapeno.sh 
+    <details><summary>Example output</summary>
+    </p>
+      cisco@jalapeno:~/jalapeno/install$ ./deploy_jalapeno.sh
       Creating Jalapeno Namespace
       namespace/jalapeno created
       Creating Jalapeno Service Account
