@@ -1,14 +1,13 @@
 # Install Jalapeno and enable BMP and Streaming Telemetry
 
 ### Description
-In lab 5 we will install the open-source Jalapeno data infrastructure platform. We will then configure BGP Monitoring Protocol (BMP) on our route reflectors and streaming telemetry on all routers in the network.
+In Lab 5 we will install the open-source Jalapeno data infrastructure platform. Jalapeno will leverage a Kubernetes environment that allows us to install not only Jalapeno but, the entire support software stack. Kubernetes experience is not required for Lab 5 as we have included the required validation commands. Next the student will then configure BGP Monitoring Protocol (BMP) on our route reflectors. Last we will add in support for SRv6 sourced traffic originating from Amsterdam and Rome.
 
 ## Contents
 1. [Install Jalapeno](#install-jalapeno)
 2. [Install Jalapeno SR-Processors](#install-jalapeno-sr-processors)
 3. [BGP Monitoring Protocol](#bgp-monitoring-protocol-bmp)
-4. [Streaming Telemetry](#streaming-telemetry)
-5. [BGP SRv6 Locator](#configure-a-bgp-srv6-locator)
+4. [BGP SRv6 Locator](#configure-a-bgp-srv6-locator)
 
 ### Install Jalapeno 
 Project Jalapeno combines existing open source tools with some new stuff we've developed into an infrastructure platform intended to enable development of "Cloud Native Network Services" (CNNS). Think of it as applying microservices architecture to SDN: give developers the ability to quickly and easily build microservice control planes (CNNS) on top of a common data collection and warehousing infrastructure (Jalapeno).
@@ -19,7 +18,7 @@ Jalapeno breaks the data collection and warehousing problem down into a series o
 - Data collector services such as GoBMP and Telegraf collect network topology and statistics and publish to Kafka
 - Data processor services such as "Topology" (and other future services) subscribe to Kafka topics and write the data they receive to databases
 - Arango GraphDB for modeling topology data
-- Influx TSDB for warehousing statistical time-series data
+- InfluxDB for warehousing statistical time-series data
 - API-Gateway: is currently under construction so for the lab we'll interact directly with the DB
 
 #### Jalapeno Architecture and Data Flow
