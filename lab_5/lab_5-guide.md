@@ -67,7 +67,6 @@ One of the primary goals of the Jalapeno project is to be flexible and extensibl
     ./deploy_jalapeno.sh 
     ```
     <details><summary>Example output</summary></p>
-      ```
       cisco@jalapeno:~/jalapeno/install$ ./deploy_jalapeno.sh 
       Creating Jalapeno Namespace
       namespace/jalapeno created
@@ -126,7 +125,6 @@ One of the primary goals of the Jalapeno project is to be flexible and extensibl
       deployment.apps/telegraf-egress-deployment created
       Deploying LS Link-Node Edge Processor
       deployment.apps/lslinknode-edge created 
-      ```
     </p></details>
 Don't worry about the 'error validating' messages, they're cosmetic...we'll fix those one of these days
 
