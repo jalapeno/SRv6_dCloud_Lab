@@ -1,65 +1,40 @@
-### xrd01
+#### xrd05 and xrd06
 ```
-vrf carrots
- address-family ipv4 unicast
-  import route-target
-   9:9
+bmp server 1
+ host 198.18.128.101 port 30511
+ description jalapeno GoBMP  
+ update-source MgmtEth0/RP0/CPU0/0
+ flapping-delay 60
+ initial-delay 5
+ stats-reporting-period 60
+ initial-refresh delay 25 spread 2
+!
+router bgp 65000
+ neighbor 10.0.0.1
+  bmp-activate server 1
+ !
+ neighbor fc00:0000:1111::1
+  bmp-activate server 1
   !
-  export route-target
-   9:9
-  !
-  address-family ipv6 unicast
-  import route-target
-   9:9
-  !
-  export route-target
-   9:9
+ !
+ neighbor 10.0.0.7
+  bmp-activate server 1
+ !
+ neighbor fc00:0000:7777::1
+  bmp-activate server 1
   !
  !
 !
-
 ```
-
-### xrd06
+#### xrd01 and xrd07
 ```
-vrf carrots
+router bgp 65000
  address-family ipv4 unicast
-  import route-target
-   9:9
-  !
-  export route-target
-   9:9
-  !
-  address-family ipv6 unicast
-  import route-target
-   9:9
-  !
-  export route-target
-   9:9
+  segment-routing srv6
+   locator MyLocator
   !
  !
-!
-
-```
-
-### xrd07
-```
-vrf carrots
- address-family ipv4 unicast
-  import route-target
-   9:9
-  !
-  export route-target
-   9:9
-  !
-  address-family ipv6 unicast
-  import route-target
-   9:9
-  !
-  export route-target
-   9:9
-  !
- !
-!
-
+ address-family ipv6 unicast
+  segment-routing srv6
+   locator MyLocator
 ```

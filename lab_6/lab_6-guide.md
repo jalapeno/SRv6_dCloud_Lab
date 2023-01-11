@@ -1,7 +1,7 @@
 ## Lab 6: Exploring Jalapeno, Kafka, and ArangoDB
 
 ### Description
-In lab 6 we will explore the Jalapeno system running on Kubernetes. We will log into the Kafka container and monitor topics for data coming in from Jalapeno's data collectors, which will then be picked up by Jalapeno processors (topology, lslinknode, sr-node, sr-topology, etc.). We will spend some time getting familiar with the Arango graphDB, its data collections, and run some basic queries. Lastly we will populate the graphDB with some synthetic data and run a number of complex queries including graph traversals.
+In lab 6 we will explore the Jalapeno system running on Kubernetes. We will log into the Kafka container and monitor topics for data coming in from Jalapeno's data collectors. Data which is subsequently picked up by Jalapeno's data processors (topology, lslinknode, sr-node, sr-topology, etc.) and written to the Arango graphDB. We will spend some time getting familiar with ArangoDB and the Jalapeno data collections, and will run some basic queries. Lastly we will populate the graphDB with some synthetic data and run a number of complex queries including graph traversals.
 
 ## Contents
 1. [Kafka](#kafka)
@@ -129,7 +129,7 @@ for l in sr_node return { node: l.router_id, name: l.name, prefix_sid: l.prefix_
 ### Populating the DB with external data 
 Return to the Jalapeno VM ssh session and add some synthetic meta data to the DB:
 ```
-cd ~/SRv6_dCloud_Lab/lab_7/
+cd ~/SRv6_dCloud_Lab/lab_6/
 python3 add_meta_data.py
 ```
 Validate meta data with ArangoDB query:
