@@ -43,7 +43,7 @@ One of the primary goals of the Jalapeno project is to be flexible and extensibl
     cd jalapeno
     git checkout cleu-srv6-lab
     ```
-Example output:
+Example output:  
     ```
     cisco@jalapeno:~/test$ git clone https://github.com/cisco-open/jalapeno.git
     Cloning into 'jalapeno'...
@@ -67,11 +67,13 @@ Example output:
     ```
 Don't worry about the 'error validating' messages, they're cosmetic...we'll fix those one of these days
 
-4. Verify k8s pods are running (note, some pods may initially be in a crashloop state. These should resolve after 2-3 minutes):
+4. Verify k8s pods are running (note, some pods may initially be in a crashloop state. These should resolve after 2-3 minutes):  
+
     ```
     kubectl get pods -A
     ```
-Expected output:
+Expected output:  
+
     ```
     cisco@jalapeno:~/jalapeno/install$ kubectl get pods -A
     NAMESPACE             NAME                                           READY   STATUS    RESTARTS        AGE
@@ -119,7 +121,8 @@ The SR-Processors are a pair of POC data processors that mine Jalapeno's graphDB
     ```
     kubectl get pods -n jalapeno
     ```
-#### Expected output:
+#### Expected output:  
+
     ```
     cisco@jalapeno:~/sr-processors$ kubectl get pods -n jalapeno
     NAME                                          READY   STATUS    RESTARTS      AGE
@@ -171,7 +174,8 @@ We'll first establish a BMP session between our route-reflectors and the open-so
     show bgp bmp server 1
     ```
 
-Expected output:
+Expected output:  
+
     ```
     RP/0/RP0/CPU0:xrd05#show bgp bmp ser 1
     Sat Jan  7 22:51:03.080 UTC
@@ -289,7 +293,8 @@ When we get to lab 6 we'll be sending SRv6 encapsulated traffic directly to/from
     ```
     show segment-routing srv6 sid
     ```
-Expected output on xrd01:
+Expected output on xrd01:  
+
     ```
     RP/0/RP0/CPU0:xrd01#show segment-routing srv6 sid
     Sat Jan  7 22:24:00.280 UTC
