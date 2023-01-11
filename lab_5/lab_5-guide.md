@@ -18,9 +18,10 @@ The student upon completion of Lab 5 should have achieved the following objectiv
 * Creation of SRv6 data plane support on Amsterdam and Rome
 
 ## Install Jalapeno 
-Project Jalapeno combines existing open source tools with some new stuff we've developed into an infrastructure platform intended to enable development of "Cloud Native Network Services" (CNNS). Think of it as applying microservices architecture to SDN: give developers the ability to quickly and easily build microservice control planes (CNNS) on top of a common data collection and warehousing infrastructure (Jalapeno).
+Project Jalapeno combines existing open source tools with some new stuff we've developed into an infrastructure platform intended to enable development of "Cloud Native Network Services" (CNNS). Think of it as applying microservices architecture to SDN: give developers the ability to quickly and easily build microservice control planes (CNNS) on top of a common data collection and warehousing infrastructure (Jalapeno). More information on Jalapeno can be found at the Jalapeno Git repository: [LINK](https://github.com/cisco-open/jalapeno/blob/main/README.md)
 
-https://github.com/cisco-open/jalapeno/blob/main/README.md
+### Jalapeno Architecture and Data Flow
+![jalapeno_architecture](https://github.com/cisco-open/jalapeno/blob/main/docs/diagrams/jalapeno_architecture.png)
 
 Jalapeno breaks the data collection and warehousing problem down into a series of components and services:
 - Data collector services such as GoBMP and Telegraf collect network topology and statistics and publish to Kafka
@@ -28,9 +29,6 @@ Jalapeno breaks the data collection and warehousing problem down into a series o
 - Arango GraphDB for modeling topology data
 - InfluxDB for warehousing statistical time-series data
 - API-Gateway: is currently under construction so for the lab we'll interact directly with the DB
-
-### Jalapeno Architecture and Data Flow
-![jalapeno_architecture](https://github.com/cisco-open/jalapeno/blob/main/docs/diagrams/jalapeno_architecture.png)
 
 One of the primary goals of the Jalapeno project is to be flexible and extensible. In the future we expect Jalapeno might support any number of data collectors and processors (LLDP Topology, pmacct, etc.). Or an operator might integrate Jalapeno's GoBMP/Topology/GraphDB modules into an existing environment running Kafka. We also envision future integrations with other API-driven data warehouses such as ThousandEyes: https://www.thousandeyes.com/
 
