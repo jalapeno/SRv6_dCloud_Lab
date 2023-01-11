@@ -68,13 +68,11 @@ One of the primary goals of the Jalapeno project is to be flexible and extensibl
     ```
     <details>
       <summary>Example output</summary>
-      ```
-      cisco@jalapeno:~/jalapeno/install$ ./deploy_jalapeno.sh
-      Creating Jalapeno Namespace
-      namespace/jalapeno created
-      Creating Jalapeno Service Account
-      serviceaccount/jalapeno created
-      ```
+]     ```
+      blah
+      blah
+      blah
+      blah
     </details>
 Don't worry about the 'error validating' messages, they're cosmetic...we'll fix those one of these days
 
