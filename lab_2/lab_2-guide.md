@@ -253,5 +253,5 @@ listening on br-1be0f9f81cbd, link-type EN10MB (Ethernet), capture size 262144 b
 21:59:08.129554 IP6 fc00:0000:7777::1 > fc00:0000:1111::1: ICMP6, echo reply, seq 1, length 60
 ```
 
-### End of lab 2
+### End of Lab 2
 Please proceed to [Lab 3](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_3/lab_3-guide.md)

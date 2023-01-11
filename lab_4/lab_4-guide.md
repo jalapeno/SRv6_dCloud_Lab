@@ -420,5 +420,5 @@ segment-routing
     ```
 
 
-### End of lab 4
+### End of Lab 4
 Please proceed to [Lab 5](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_5/lab_5-guide.md)

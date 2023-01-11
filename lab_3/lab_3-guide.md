@@ -426,5 +426,5 @@ listening on br-65c7870958c4, link-type EN10MB (Ethernet), capture size 262144 b
 13:30:17.016005 MPLS (label 100001, exp 0, ttl 62) (label 24008, exp 0, [S], ttl 63) IP 20.0.0.1.5201 > 10.101.2.1.43938: Flags [.], ack 38, win 509, options [nop,nop,TS val 1943388705 ecr 1262297045], length 0
 ```
 
-### End of lab 3
+### End of Lab 3
 Please proceed to [Lab 4](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_4/lab_4-guide.md)

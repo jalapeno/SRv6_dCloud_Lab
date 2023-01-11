@@ -480,5 +480,5 @@ For full size image see [LINK](/topo_drawings/bgp-topology-large.png)
     <<< output truncated >>>
     ```
 
-### End of lab 1
+### End of Lab 1
 Please proceed to [Lab 2](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_2/lab_2-guide.md)
