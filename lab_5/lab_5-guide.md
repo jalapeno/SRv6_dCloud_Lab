@@ -4,12 +4,20 @@
 In Lab 5 we will install the open-source Jalapeno data infrastructure platform. Jalapeno will leverage a Kubernetes environment that allows us to install not only Jalapeno but, the entire support software stack. Kubernetes experience is not required for Lab 5 as we have included the required validation commands. Next the student will then configure BGP Monitoring Protocol (BMP) on our route reflectors. Last we will add in support for SRv6 sourced traffic originating from Amsterdam and Rome.
 
 ## Contents
-1. [Install Jalapeno](#install-jalapeno)
-2. [Install Jalapeno SR-Processors](#install-jalapeno-sr-processors)
-3. [BGP Monitoring Protocol](#bgp-monitoring-protocol-bmp)
-4. [BGP SRv6 Locator](#configure-a-bgp-srv6-locator)
+1. [Lab Objectives](#lab-objectives)
+2. [Install Jalapeno](#install-jalapeno)
+3. [Install Jalapeno SR-Processors](#install-jalapeno-sr-processors)
+4. [BGP Monitoring Protocol BMP](#bgp-monitoring-protocol-bmp)
+5. [BGP SRv6 Locator](#configure-a-bgp-srv6-locator)
 
-### Install Jalapeno 
+## Lab Objectives
+The student upon completion of Lab 5 should have achieved the following objectives:
+
+* Understanding Jalapeno software stack
+* Understanding and configuration of BMP
+* Creation of SRv6 data plane support on Amsterdam and Rome
+
+## Install Jalapeno 
 Project Jalapeno combines existing open source tools with some new stuff we've developed into an infrastructure platform intended to enable development of "Cloud Native Network Services" (CNNS). Think of it as applying microservices architecture to SDN: give developers the ability to quickly and easily build microservice control planes (CNNS) on top of a common data collection and warehousing infrastructure (Jalapeno).
 
 https://github.com/cisco-open/jalapeno/blob/main/README.md
@@ -21,7 +29,7 @@ Jalapeno breaks the data collection and warehousing problem down into a series o
 - InfluxDB for warehousing statistical time-series data
 - API-Gateway: is currently under construction so for the lab we'll interact directly with the DB
 
-#### Jalapeno Architecture and Data Flow
+### Jalapeno Architecture and Data Flow
 ![jalapeno_architecture](https://github.com/cisco-open/jalapeno/blob/main/docs/diagrams/jalapeno_architecture.png)
 
 One of the primary goals of the Jalapeno project is to be flexible and extensible. In the future we expect Jalapeno might support any number of data collectors and processors (LLDP Topology, pmacct, etc.). Or an operator might integrate Jalapeno's GoBMP/Topology/GraphDB modules into an existing environment running Kafka. We also envision future integrations with other API-driven data warehouses such as ThousandEyes: https://www.thousandeyes.com/
@@ -100,7 +108,7 @@ kubectl describe pod -n <namespace> <pod name>
 
 example: kubectl describe pod -n jalapeno topology-678ddb8bb4-rt9jg
 ```
-### Install Jalapeno SR-Processors
+## Install Jalapeno SR-Processors
 The SR-Processors are a pair of POC data processors that mine Jalapeno's graphDB and create a pair of new data collections. The sr-node processor loops through various link-state data collections and gathers relevant SR/SRv6 data for each node in the network. The sr-topology processor generates a graph of the entire network topology (internal and external links, nodes, peers, prefixes, etc.) and populates relevant SR/SRv6 data within the graph collection.
 
 1. Install SR-Processors:
@@ -129,7 +137,7 @@ topology-678ddb8bb4-rt9jg                     1/1     Running   3 (11m ago)   12
 zookeeper-0                                   1/1     Running   0             12m
 ```
 
-### BGP Monitoring Protocol (BMP)
+## BGP Monitoring Protocol (BMP)
 
 Most transport SDN systems use BGP-LS to gather and model the underlying IGP topology. Jalapeno is intended to be a more generalized data platform to support use cases beyond internal transport such as VPNs or service chains. Because of this, Jalapeno's primary method of capturing topology data is via BMP. BMP supplies Jalapeno with all BGP AFI/SAFI info, and thus Jalapeno is able to model many different kinds of topology, including the topology of the Internet (at least from the perspective of our peering routers).
 
@@ -268,13 +276,7 @@ Messages sent   : 57
     ROUTE-MON   : 56
 ```
 
-### Streaming Telemetry
-
-Placeholder - do we bother with config, or simply explore the data in influx/grafana?
-
-
-
-### Configure a BGP SRv6 locator
+## Configure a BGP SRv6 locator
 When we get to lab 6 we'll be sending SRv6 encapsulated traffic directly to/from Amsterdam and Rome. We'll need an SRv6 end.DT4/6 function at the egress nodes (xrd01 and xrd07) to be able to pop the SRv6 encap and perform a global table lookup on the underlying payload. Configuring an SRv6 locator under BGP will trigger creation of the end.DT4/6 functions:
 
 1. Configure SRv6 locators for BGP on both xrd01 and xrd07:

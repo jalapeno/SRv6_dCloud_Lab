@@ -4,7 +4,8 @@
 In lab 4 we will establish a Layer-3 VPN named "carrots" which will use SRv6 transport and will have endpoints on xrd01, xrd06, and xrd07. xrd01 and xrd06 will only have loopback interfaces participating in the L3VPN. xrd07's gi 0/0/0/3 interface connects to a secondary NIC on the Rome VM and will also be attached to the L3VPN. Once the L3VPN is established and has run some test traffic we will then setup SRv6-TE traffic steering to specific Rome prefixes.
 
 ## Contents
-1. [SRv6 L3VPN](#configure-srv6-l3vpn)
+1. [Lab Objectives](#lab-objectives)
+2. [SRv6 L3VPN](#configure-srv6-l3vpn)
     - [Configure VRF](#configure-vrf)
     - [Add VRF to Router Interfaces](#add-vrf-to-router-interfaces-for-l3vpn)
     - [Configure BGP L3VPN Peering](#configure-bgp-l3vpn-peering)
@@ -13,6 +14,14 @@ In lab 4 we will establish a Layer-3 VPN named "carrots" which will use SRv6 tra
 4. [Validate SRv6-TE steering of L3VPN traffic](#validate-srv6-te-steering-of-l3vpn-traffic)
     - [Create TE Steering Policy](#reate-testeering-policy)
     - [Validate TE Policy](#validate-te-policy)
+
+## Lab Objectives
+The student upon completion of Lab 4 should have achieved the following objectives:
+
+* Understanding of SRv6 L3VPN
+* Configuration of SRv6 L3VPN in XR
+* Configuration of SRv6 TE policy
+* Demonstartion of SRv6 TE traffic steering
 
 ## Configure SRv6 L3VPN
 The SRv6-based IPv4/IPv6 L3VPN feature enables deployment of IPv4/IPv6 L3VPN over a SRv6 data plane. Traditionally, it was done over an SR-MPLS based system. SRv6-based L3VPN uses SRv6 Segment IDs (SIDs) for service segments instead of labels. SRv6-based L3VPN functionality interconnects multiple sites to resemble a private network service over public infrastructure. The basic SRv6 configuration was completed in [Lab 2](/lab_2/lab_2-guide.md).

@@ -1,4 +1,4 @@
-# Extend SR-MPLS Topology lab 3 Guide
+# Lab 3: Extend SR-MPLS Topology
 
 ### Description: 
 In lab 3 the student will extend the routing topology to include sites Amsterdam and Rome. In addition SR-MPLS will be used to create a baseline end to end routing between the two locations. With SR-MPLS the student will then use show commands and tools like TCPDump to validate how traffic is routed through the network. This is important as in later labs we will override the SR-MPLS behaviour with host-based SRv6 encapsulations.
@@ -16,7 +16,7 @@ In lab 3 the student will extend the routing topology to include sites Amsterdam
   
 
 ## Lab Objectives
-The student upon completion of lab 3 should have achieved the following objectives:
+The student upon completion of Lab 3 should have achieved the following objectives:
 
 * Understanding of ISIS routing policy
 * Enable BGP Labeled Unicast network routing over the SR-MPLS underlay
