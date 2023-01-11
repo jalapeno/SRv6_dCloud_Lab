@@ -165,7 +165,7 @@ The next step is to add the L3VPN configuration into BGP. We will be using separ
 
  3. We'll redistribute the VRF's connected loopback routes into BGP vpnv4 and vpnv6:
     
-    **xrd07**
+    **xrd07**  
     On xrd07 we'll redistribute the VRF's static routes into BGP:
     ```
     router bgp 65000
