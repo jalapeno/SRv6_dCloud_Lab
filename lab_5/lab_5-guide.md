@@ -20,7 +20,7 @@ Jalapeno breaks the data collection and warehousing problem down into a series o
 - Data processor services such as "Topology" (and other future services) subscribe to Kafka topics and write the data they receive to databases
 - Arango GraphDB for modeling topology data
 - Influx TSDB for warehousing statistical time-series data
-- API-Gateway: under construction
+- API-Gateway: is currently under construction so for the lab we'll interact directly with the DB
 
 #### Jalapeno Architecture and Data Flow
 ![jalapeno_architecture](https://github.com/cisco-open/jalapeno/blob/main/docs/diagrams/jalapeno_architecture.png)

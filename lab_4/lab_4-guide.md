@@ -185,8 +185,16 @@ Validation command output examples can be found at this [LINK](https://github.co
 Rome's L3VPN IPv4 and IPv6 prefixes are associated with two classes of traffic. The "40" destinations (40.0.0.0/24 and fc00:0:40::/64) are for Bulk Transport (content replication or data backups) and thus are latency and loss tolerant. The "50" destinations (50.0.0.0/24 and fc00:0:50::/64) are for real time traffic (live video, etc.) and thus require the lowest latency path available.
 
 ### Create TE steering policy
-On xrd07 advertise Rome's loopback prefixes with their respective color extended communities:
-#### xrd07
+For our SRv6-TE purposes we'll leverage on-demand nexthop (ODN). Here is a nice example and explanation of ODN:
+https://xrdocs.io/design/blogs/latest-converged-sdn-transport-ig
+
+Using the ODN method, our the egress PE, xrd07, will need to advertise its L3VPN routes with color extended communities. We'll do this by first defining the extcomms, then setting up route-policies to match on destination prefixes and set the extcomm values.
+
+The ingress PE, xrd01, will then be configured with an SRv6 ODN steering policy that matches routes with the respective color and applies the appropriate SID stack on outbound traffic.
+
+1. On xrd07 advertise Rome's "40" and "50" prefixes with their respective color extended communities:
+
+**xrd07**
 ```
 extcommunity-set opaque bulk-transfer
   40
@@ -222,9 +230,7 @@ router bgp 65000
  
 ```
 
-### Validate TE Policy
-
-1. Validate vpnv4 and v6 prefixes are received at xrd01 and that they have their color extcomms:  
+2. Validate vpnv4 and v6 prefixes are received at xrd01 and that they have their color extcomms:  
 **xrd01**
 ```
 show bgp vpnv4 uni vrf carrots 40.0.0.0/24
@@ -286,9 +292,11 @@ Paths: (1 available, best #1)
 
 ```
 
-2. On xrd01 configure a pair of SRv6-TE segment lists for traffic steering: 
+3. On xrd01 configure a pair of SRv6-TE segment lists for steering traffic over these specific paths through the network: 
  - xrd2347 will be explicit path: xrd01 -> 02 -> 03 -> 04 -> 07
  - xrd567 will be explicit path: xrd01 -> 05 -> 06 -> 07
+
+**xrd01**
 ```
 segment-routing
  traffic-eng
@@ -307,7 +315,8 @@ segment-routing
      index 20 sid fc00:0:6666::
 ```
 
-3. On xrd01 configure our bulk transport and low latency SRv6 steering policies:
+4. On xrd01 configure our bulk transport and low latency SRv6 steering policies:
+**xrd01**
 ```
   policy bulk-transfer
    srv6
@@ -338,11 +347,11 @@ segment-routing
     ./tcpdump.sh xrd04-xrd07
     ```
 
-2. Ping from xrd01 to Rome's bulk transport destination IPv4 and IPv6 addresses:
+2. Ping from Amsterdam to Rome's bulk transport destination IPv4 and IPv6 addresses:
 
     ```
-    ping vrf carrots 40.0.0.1 count 3
-    ping vrf carrots fc00:0:40::1 count 3
+    ping 40.0.0.1 -i .4
+    ping fc00:0:40::1 -i .4
     ```
 
     Example: tcpdump.sh output should look something like below on the xrd02-xrd03 link with both outer SRv6 uSID header and inner IPv4/6 headers. Note in this case the outbound traffic is taking a non-shortest path.  We don't have a specific policy for return traffic so it will take one of the ECMP shortest paths; thus we do not see replies in the tcpdump output:
