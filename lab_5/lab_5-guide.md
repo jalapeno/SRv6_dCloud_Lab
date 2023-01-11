@@ -33,16 +33,16 @@ Jalapeno breaks the data collection and warehousing problem down into a series o
 One of the primary goals of the Jalapeno project is to be flexible and extensible. In the future we expect Jalapeno might support any number of data collectors and processors (LLDP Topology, pmacct, etc.). Or an operator might integrate Jalapeno's GoBMP/Topology/GraphDB modules into an existing environment running Kafka. We also envision future integrations with other API-driven data warehouses such as ThousandEyes: https://www.thousandeyes.com/
 
 1. In a separate terminal session ssh to the Jalapeno VM 
-  ```
-  cisco@198.18.128.101
-  pw = cisco123
-  ```
+    ```
+    cisco@198.18.128.101
+    pw = cisco123
+    ```
 2. Clone the Jalapeno repository at https://github.com/cisco-open/jalapeno, then cd into the repo and switch to the "cleu-srv6-lab" code branch:
-```
-git clone https://github.com/cisco-open/jalapeno.git
-cd jalapeno
-git checkout cleu-srv6-lab
-```
+  ```
+  git clone https://github.com/cisco-open/jalapeno.git
+  cd jalapeno
+  git checkout cleu-srv6-lab
+  ```
 Example output:
 ```
 cisco@jalapeno:~/test$ git clone https://github.com/cisco-open/jalapeno.git
