@@ -113,19 +113,19 @@ The next step is to add the L3VPN configuration into BGP. We will be using separ
 
       Last on xrd07 we will want to redistribute the static routes we added earlier using the command `*redistribute static`*. On xrd01 we only need to redistribute the connected routes to provide reachability for Amsterdam using the mmand `*redistribute connected`*
 
+    ```
+    **xrd07**
+      On xrd07 we'll redistribute the VRF's static routes into BGP
       ```
-      **xrd07**
-        On xrd07 we'll redistribute the VRF's static routes into BGP
-        ```
-        router bgp 65000
-        neighbor-group xrd-ipv4-peer
-          address-family vpnv4 unicast
-          next-hop-self
-          
-        neighbor-group xrd-ipv6-peer
-          address-family vpnv6 unicast
-          next-hop-self
-      ```
+      router bgp 65000
+      neighbor-group xrd-ipv4-peer
+        address-family vpnv4 unicast
+        next-hop-self
+        
+      neighbor-group xrd-ipv6-peer
+        address-family vpnv6 unicast
+        next-hop-self
+    ```
     **xrd01**
     ```
     router bgp 65000
