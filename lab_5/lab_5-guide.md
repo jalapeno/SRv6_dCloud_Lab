@@ -122,8 +122,7 @@ The SR-Processors are a pair of POC data processors that mine Jalapeno's graphDB
     ```
     kubectl get pods -n jalapeno
     ```
-#### Expected output:  
-
+    #### Expected output:  
     ```
     cisco@jalapeno:~/sr-processors$ kubectl get pods -n jalapeno
     NAME                                          READY   STATUS    RESTARTS      AGE
@@ -175,8 +174,7 @@ We'll first establish a BMP session between our route-reflectors and the open-so
     show bgp bmp server 1
     ```
 
-Expected output:  
-
+    Expected output:  
     ```
     RP/0/RP0/CPU0:xrd05#show bgp bmp ser 1
     Sat Jan  7 22:51:03.080 UTC
@@ -294,8 +292,8 @@ When we get to lab 6 we'll be sending SRv6 encapsulated traffic directly to/from
     ```
     show segment-routing srv6 sid
     ```
-Expected output on xrd01:  
-
+    
+    Expected output on xrd01:  
     ```
     RP/0/RP0/CPU0:xrd01#show segment-routing srv6 sid
     Sat Jan  7 22:24:00.280 UTC
