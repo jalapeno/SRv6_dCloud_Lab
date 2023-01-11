@@ -66,67 +66,16 @@ One of the primary goals of the Jalapeno project is to be flexible and extensibl
     cd ~/jalapeno/install/
     ./deploy_jalapeno.sh 
     ```
-    <details><summary>Example output</summary>
-    </p>
+    <details>
+      <summary>Example output</summary>
+      ```
       cisco@jalapeno:~/jalapeno/install$ ./deploy_jalapeno.sh
       Creating Jalapeno Namespace
       namespace/jalapeno created
       Creating Jalapeno Service Account
       serviceaccount/jalapeno created
-      clusterrole.rbac.authorization.k8s.io/jalapeno created
-      clusterrolebinding.rbac.authorization.k8s.io/jalapeno created
-      Setting up secret for docker.io
-      secret/regcred created
-      Deploying Kafka
-      persistentvolume/pvzoo created
-      persistentvolume/pvkafka created
-      service/zookeeper created
-      statefulset.apps/zookeeper created
-      configmap/broker-config created
-      service/broker created
-      service/kafka created
-      statefulset.apps/kafka created
-      error: resource mapping not found for name: "zookeeper-pdb" namespace: "jalapeno" from "/home/cisco/jalapeno/install/infra/kafka/1-zookeeper.yaml": no matches for kind "PodDisruptionBudget" in version "policy/v1beta1"
-      ensure CRDs are installed first
-      Deploying ArangoDB
-      persistentvolume/arangodb-apps created
-      persistentvolume/arangodb created
-      statefulset.apps/arangodb created
-      service/arangodb created
-      service/arango-np created
-      Deploying InfluxDB
-      statefulset.apps/influxdb created
-      service/influxdb created
-      service/influxdb-np created
-      Deploying Grafana
-      configmap/grafana-config created
-      deployment.apps/grafana-deployment created
-      service/grafana created
-      service/grafana-np created
-      error validating "/home/cisco/jalapeno/install/infra/grafana/egress-mdt.json": error validating data: [apiVersion not set, kind not set]; if you choose to ignore these errors, turn validation off with --validate=false
-      error validating "/home/cisco/jalapeno/install/infra/grafana/ingress-mdt.json": error validating data: [apiVersion not set, kind not set]; if you choose to ignore these errors, turn validation off with --validate=false
-      Finished deploying infra services
-      Deploying Jalapeno Collectors
-      Creating jalapeno-collectors namespace
-      namespace/jalapeno-collectors created
-      Deploying Telegraf-Ingress Collector to collect network performance-metric data
-      configmap/telegraf-ingress-config created
-      deployment.apps/telegraf-ingress-deployment created
-      service/telegraf-ingress-np created
-      Deploying GoBMP Collector to collect network topology data
-      configmap/gobmp-config created
-      service/gobmp created
-      deployment.apps/gobmp created
-      Finished deploying Jalapeno Collectors
-      Deploying Topology
-      secret/jalapeno created
-      deployment.apps/topology created
-      Deploying Telegraf-Egress
-      configmap/telegraf-egress-config created
-      deployment.apps/telegraf-egress-deployment created
-      Deploying LS Link-Node Edge Processor
-      deployment.apps/lslinknode-edge created 
-    </p></details>
+      ```
+    </details>
 Don't worry about the 'error validating' messages, they're cosmetic...we'll fix those one of these days
 
 4. Verify k8s pods are running (note, some pods may initially be in a crashloop state. These should resolve after 2-3 minutes):  
