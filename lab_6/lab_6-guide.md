@@ -11,6 +11,7 @@ In lab 6 we will explore the Jalapeno system running on Kubernetes. We will log 
 5. [Graph Traversals and Shortest Path Queries](#arango-graph-traversals-and-shortest-path-queries)
 6. [Shortest Path Using Other Metrics](#shortest-path-queries-using-metrics-other-than-hop-count)
 7. [Shortest Path using Graph Traversal](#graph-traversals)
+8. [K Shortest Paths](#k-shortest-paths)
 
 #### Continue on the Jalapeno VM
 
@@ -249,7 +250,8 @@ This type of query finds the first k paths in order of length (or weight) betwee
 https://www.arangodb.com/docs/stable/aql/graphs-kshortest-paths.html
 
 #### A Data sovereignty query
-We'll use the K Shortest Paths query method to find a suitable path that avoids France:
+
+1. We'll use the K Shortest Paths query method to find one or more suitable paths from Amsterdam to Rome that avoids France:
 
 ```
 for p in outbound k_shortest_paths  'sr_node/2_0_0_0000.0000.0001' TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7'
@@ -257,6 +259,7 @@ for p in outbound k_shortest_paths  'sr_node/2_0_0_0000.0000.0001' TO 'unicast_p
     sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency),
     percent_util_out: avg(p.edges[*].percent_util_out)}
 ```
+ - The results in the query response should not traverse any links containing the FRA country code
 
 ### End of lab 6
 Please proceed to [Lab 7](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_7/lab_7-guide.md)
