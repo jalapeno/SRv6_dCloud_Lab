@@ -37,7 +37,7 @@ One of the primary goals of the Jalapeno project is to be flexible and extensibl
     cisco@198.18.128.101
     pw = cisco123
     ```
-2. Clone the Jalapeno repository at https://github.com/cisco-open/jalapeno, then cd into the repo and switch to the "cleu-srv6-lab" code branch:
+2. Clone the Jalapeno repository at https://github.com/cisco-open/jalapeno, then cd into the repo and switch to the `cleu-srv6-lab` code branch:
     ```
     git clone https://github.com/cisco-open/jalapeno.git
     cd jalapeno
