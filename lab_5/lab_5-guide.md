@@ -1,7 +1,7 @@
 # Lab 5: Install Jalapeno and enable BMP
 
 ### Description
-In Lab 5 we will install the open-source Jalapeno data infrastructure platform. Jalapeno will leverage a Kubernetes environment that allows us to install not only Jalapeno but, the entire support software stack. Kubernetes experience is not required for Lab 5 as we have included the required validation commands. Next the student will then configure BGP Monitoring Protocol (BMP) on our route reflectors. Last we will add in support for SRv6 sourced traffic originating from Amsterdam and Rome.
+In Lab 5 we will install the open-source Jalapeno data infrastructure platform. Jalapeno will leverage a Kubernetes (k8) environment that allows us to install not only Jalapeno but, the entire support software stack. Kubernetes experience is not required for Lab 5 as we have included the required validation commands. Next the student will then configure BGP Monitoring Protocol (BMP) on our route reflectors. Last we will add in support for SRv6 sourced traffic originating from Amsterdam and Rome.
 
 ## Contents
 1. [Lab Objectives](#lab-objectives)
@@ -46,7 +46,7 @@ One of the primary goals of the Jalapeno project is to be flexible and extensibl
 
     Example output:  
     ```
-    cisco@jalapeno:~/test$ git clone https://github.com/cisco-open/jalapeno.git
+    cisco@jalapeno:~/$ git clone https://github.com/cisco-open/jalapeno.git
     Cloning into 'jalapeno'...
     remote: Enumerating objects: 4808, done.
     remote: Counting objects: 100% (1468/1468), done.
@@ -54,16 +54,16 @@ One of the primary goals of the Jalapeno project is to be flexible and extensibl
     remote: Total 4808 (delta 733), reused 1350 (delta 670), pack-reused 3340
     Receiving objects: 100% (4808/4808), 17.43 MiB | 26.88 MiB/s, done.
     Resolving deltas: 100% (2461/2461), done.
-    cisco@jalapeno:~/test$ cd jalapeno/
-    cisco@jalapeno:~/test/jalapeno$ git checkout cleu-srv6-lab
+    cisco@jalapeno:~/$ cd jalapeno/
+    cisco@jalapeno:~/jalapeno$ git checkout cleu-srv6-lab
     Branch 'cleu-srv6-lab' set up to track remote branch 'cleu-srv6-lab' from 'origin'.
     Switched to a new branch 'cleu-srv6-lab'
-    cisco@jalapeno:~/test/jalapeno$ 
+    cisco@jalapeno:~/jalapeno$ 
     ```
 
 3. Run the Jalapeno install script
     ```
-    cd install/
+    cd ~/jalapeno/install/
     ./deploy_jalapeno.sh 
     ```
 Don't worry about the 'error validating' messages, they're cosmetic...we'll fix those one of these days
@@ -292,7 +292,7 @@ When we get to lab 6 we'll be sending SRv6 encapsulated traffic directly to/from
     ```
     show segment-routing srv6 sid
     ```
-    
+
     Expected output on xrd01:  
     ```
     RP/0/RP0/CPU0:xrd01#show segment-routing srv6 sid
