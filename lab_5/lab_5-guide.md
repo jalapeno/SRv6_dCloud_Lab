@@ -87,7 +87,7 @@ One of the primary goals of the Jalapeno project is to be flexible and extensibl
     </details>
 
 
-4. Verify k8s pods are running (note, some pods may initially be in a crashloop state. These should resolve after 2-3 minutes):  
+4. Verify k8s pods are running (note, some pods may initially be in a crashloop state. These should resolve after 2-3 minutes). For those students new to Kubernetes you can reference this cheat sheet [HERE](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)  
 
     ```
     kubectl get pods -A
