@@ -201,9 +201,7 @@ Rome's L3VPN IPv4 and IPv6 prefixes are associated with two classes of traffic. 
 
 We will use the below diagram for reference:
 
-![L3VPN Topology](/topo_drawings/l3vpn-topology-medium.png)
-
-For full size image see [LINK](/topo_drawings/l3vpn-topology-large.png)
+![L3VPN Topology](/topo_drawings/l3vpn-topology-large.png)
 
 ### Create TE steering policy
 For our SRv6-TE purposes we'll leverage the on-demand nexthop (ODN) feature set. Here is a nice example and explanation of ODN:
