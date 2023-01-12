@@ -193,6 +193,12 @@ Validation command output examples can be found at this [LINK](https://github.co
 ## Configure SRv6-TE steering for L3VPN
 Rome's L3VPN IPv4 and IPv6 prefixes are associated with two classes of traffic. The "40" destinations (40.0.0.0/24 and fc00:0:40::/64) are for Bulk Transport (content replication or data backups) and thus are latency and loss tolerant. The "50" destinations (50.0.0.0/24 and fc00:0:50::/64) are for real time traffic (live video, etc.) and thus require the lowest latency path available.
 
+We will use the below diagram for reference:
+
+![L3VPN Topology](/topo_drawings/l3vpn-topology-medium.png)
+
+For full size image see [LINK](/topo_drawings/l3vpn-topology-large.png)
+
 ### Create TE steering policy
 For our SRv6-TE purposes we'll leverage on-demand nexthop (ODN). Here is a nice example and explanation of ODN:
 https://xrdocs.io/design/blogs/latest-converged-sdn-transport-ig
