@@ -4,20 +4,31 @@
 In lab 6 we will explore the Jalapeno system running on Kubernetes. We will log into the Kafka container and monitor topics for data coming in from Jalapeno's data collectors. Data which is subsequently picked up by Jalapeno's data processors (topology, lslinknode, sr-node, sr-topology, etc.) and written to the Arango graphDB. We will spend some time getting familiar with ArangoDB and the Jalapeno data collections, and will run some basic queries. Lastly we will populate the graphDB with some synthetic data and run a number of complex queries including graph traversals.
 
 ## Contents
-1. [Kafka](#kafka)
-2. [Arango GraphDB](#arango-graphdb)
-3. [Basic queries](#basic-queries-to-explore-data-collections)
-4. [Populating the DB with meta data](#populating-the-db-with-external-data)
-5. [Graph Traversals and Shortest Path Queries](#arango-graph-traversals-and-shortest-path-queries)
-6. [Shortest Path Using Other Metrics](#shortest-path-queries-using-metrics-other-than-hop-count)
-7. [Shortest Path using Graph Traversal](#graph-traversals)
-8. [K Shortest Paths](#k-shortest-paths)
+1. [Lab Objectives](#lab-objectives)
+2. [Kafka](#kafka)
+3. [Arango GraphDB](#arango-graphdb)
+4. [Basic queries](#basic-queries-to-explore-data-collections)
+5. [Populating the DB with meta data](#populating-the-db-with-external-data)
+6. [Graph Traversals and Shortest Path Queries](#arango-graph-traversals-and-shortest-path-queries)
+7. [Shortest Path Using Other Metrics](#shortest-path-queries-using-metrics-other-than-hop-count)
+8. [Shortest Path using Graph Traversal](#graph-traversals)
+9. [K Shortest Paths](#k-shortest-paths)
 
-#### Continue on the Jalapeno VM
+## Lab Objectives
+The student upon completion of Lab 6 should have achieved the following objectives:
+
+* A tour of the Jalapeno platform and high level understanding of how it collects and processes data
+* Familiarity with the ArangoDB UI and the BMP/BGP data collections the system has created
+* Familiarity with Arango Query Language (AQL) syntax
+* Familiarity with more complex Arango shortest-path and graph traversal queries
 
 ### Kafka
 From the Kafka homepage: Apache Kafka is an open-source distributed event streaming platform used by thousands of companies for high-performance data pipelines, streaming analytics, data integration, and mission-critical applications.
 https://kafka.apache.org/
+
+Jalapeno's data collectors publish their data to Kafka topics. Jalapeno's data processors subscribe to the relevant Kafka topics, gather the published data, and write it to either the graphDB or TSDB. This Collector -> Kafka -> Processor -> DB pipeline allows for architectural flexibility such that other applications could subscribe to the Jalapeno topics and use the BMP or telemetry data for their own purposes.
+
+#### Continue on the Jalapeno VM
 
 1. Login to the Kafka container and list topics:
 ```
@@ -71,14 +82,26 @@ jalapeno.telemetry
 ```
 
 2. Monitor a Kafka topic:
+ - ISIS node data (via BGP-LS NLRIs) is published to the ls_node topic:
 ```
 ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_node
+```
+ - ISIS link, prefix, and SRv6 SID data is published to the ls_link, ls_prefix, and ls_srv6_sid topics respectively:
+```
 ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_link
+./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_prefix
+./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_srv6_sid
+```
+ - L3VPN prefix data is published to the l3vpn topics:
+```
 ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.l3vpn_v4
-
+```
+ - We won't be using streaming telemetry in this lab, however MDT is configured on the nodes in the lab and the Telegraf collector publishes the data to the jalapeno.telemetry topic:
+```
 ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic jalapeno.telemetry
 ```
-The gobmp topics should be fairly quiet unless BGP updates are happening. Try clearing bgp-ls or bgp-vpnv4 on one of the RRs and see what data comes through on the Kafka topic.
+
+3. The gobmp topics should be fairly quiet unless BGP updates are happening. Try clearing bgp-ls or bgp-vpnv4 on one of the RRs and see what data comes through when monitoring the Kafka topic.
 
 ```
 clear bgp vpnv4 unicast * soft
@@ -115,11 +138,11 @@ The general workflow when executing a query is as follows:
 https://www.arangodb.com/docs/stable/aql/index.html
 
 
-Run DB Queries:
+3. Run some DB Queries:
 ```
 for l in ls_node return l
 ```
-Note: after running a query comment it out before running the next query. 
+Note: after running a query you will need to comment it out before running the next query. 
 
 Example:
 
@@ -140,6 +163,10 @@ for l in sr_topology return l
 for l in sr_node return { node: l.router_id, name: l.name, prefix_sid: l.prefix_attr_tlvs.ls_prefix_sid, srv6sid: l.srv6_sid }
 ```
 ### Populating the DB with external data 
+
+The add_meta_data.py python script will connect to the ArangoDB and populate elements in our data collections with addresses and country codes. Also, due to the fact that we can't run realistic traffic through the xrd topology the script will populate the relevant graphDB elements with synthetic link latency and utilization data per this diagram:
+
+<img src="latency-util.png" width="600">
 
 1. Return to the ssh session on the Jalapeno VM and add some synthetic meta data to the DB:
 ```
