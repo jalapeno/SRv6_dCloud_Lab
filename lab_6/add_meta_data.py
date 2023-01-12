@@ -253,7 +253,7 @@ srt.update(srt0704)
 srt0605 = srt.get("2_0_0_0_0000.0000.0006_10.1.1.15_0000.0000.0005_10.1.1.14")
 srt0605['prefix_sid'] = prefix_sid05
 srt0605['latency'] = 5
-srt0605['percent_util_out'] = 55
+srt0605['percent_util_out'] = 60
 srt0605['country_codes'] = ['GBR', 'FRA']
 srt.update(srt0605)
 
