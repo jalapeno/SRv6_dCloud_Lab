@@ -76,16 +76,6 @@ One of the primary goals of the Jalapeno project is to be flexible and extensibl
     cd ~/jalapeno/install/
     ./deploy_jalapeno.sh 
     ```
-    <details>
-      <summary>Example output</summary>
-      ```
-      blah  
-      blah  
-      blah  
-      blah  
-      ```
-    </details>
-
 
 4. Verify k8s pods are running (note, some pods may initially be in a crashloop state. These should resolve after 2-3 minutes). For those students new to Kubernetes you can reference this cheat sheet [HERE](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)  
 
@@ -132,8 +122,8 @@ One of the primary goals of the Jalapeno project is to be flexible and extensibl
 The SR-Processors are a pair of proof-of-concept data processors that mine Jalapeno's graphDB and create a pair of new data collections. The sr-node processor loops through various link-state data collections and gathers relevant SR/SRv6 data for each node in the network. The sr-topology processor generates a graph of the entire network topology (internal and external links, nodes, peers, prefixes, etc.) and populates relevant SR/SRv6 data within the graph collection.
 
 1. Install SR-Processors:
-  The below command `*kubectl apply*` will input a yaml template fill and start a new application.
-  
+  The below command *`kubectl apply`* will input a yaml template fill and start a new application.
+
     ```
     cd ~/SRv6_dCloud_Lab/lab_6/sr-processors
     kubectl apply -f sr-node.yaml 
