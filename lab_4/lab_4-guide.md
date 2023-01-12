@@ -1,7 +1,7 @@
 # Lab 4: Configure SRv6-L3VPN and perform SRv6-TE steering of L3VPN prefixes
 
 ### Description
-In lab 4 we will establish a Layer-3 VPN named "carrots" which will use SRv6 transport and will have endpoints on xrd01, xrd06, and xrd07. xrd01 and xrd06 will only have loopback interfaces participating in the L3VPN. xrd07's gi 0/0/0/3 interface connects to a secondary NIC on the Rome VM and will also be attached to the L3VPN. Once the L3VPN is established and has run some test traffic we will then setup SRv6-TE traffic steering to specific Rome prefixes.
+In lab 4 we will establish a Layer-3 VPN named "carrots" which will use SRv6 transport and will have endpoints on xrd01, and xrd07. Both nodes gi 0/0/0/3 interfaces will be added to the VRF as they connect to secondary NICs on the Amsterdam and Rome VMs respectively. Once the L3VPN is established and has run some test traffic we will then setup SRv6-TE traffic steering from Amsterdam to specific Rome prefixes.
 
 ## Contents
 1. [Lab Objectives](#lab-objectives)
@@ -24,16 +24,18 @@ The student upon completion of Lab 4 should have achieved the following objectiv
 * Demonstartion of SRv6 TE traffic steering
 
 ## Configure SRv6 L3VPN
-The SRv6-based IPv4/IPv6 L3VPN feature enables deployment of IPv4/IPv6 L3VPN over a SRv6 data plane. Traditionally, it was done over an SR-MPLS based system. SRv6-based L3VPN uses SRv6 Segment IDs (SIDs) for service segments instead of labels. SRv6-based L3VPN functionality interconnects multiple sites to resemble a private network service over public infrastructure. The basic SRv6 configuration was completed in [Lab 2](/lab_2/lab_2-guide.md).
+The SRv6-based IPv4/IPv6 L3VPN feature enables deployment of IPv4/IPv6 L3VPN over a SRv6 data plane. Traditionally L3VPN has been operated over MPLS or SR-MPLS based systems. SRv6-based L3VPN uses SRv6 Segment IDs (SIDs) for service segments instead of labels. SRv6-based L3VPN functionality interconnects multiple sites to resemble a private network service over public infrastructure. The basic SRv6 configuration was completed in [Lab 2](/lab_2/lab_2-guide.md).
 
-For this feature, BGP allocates an SRv6 SID from the locator space, configured under SRv6-base and VPNv4 address family. For more information on this, refer Segment Routing over IPv6 Overview. In this lab the BGP SID is in the per-VRF mode that provides End.DT4 support. End.DT4 represents the Endpoint with decapsulation and IPv4 table lookup.
+For this feature, BGP allocates an SRv6 SID from the locator space, configured under SRv6-base and VPNv4 address family. For more information on this, refer Segment Routing over IPv6 Overview. In this lab the BGP SID is in the per-VRF mode that provides End.DT4 or End.DT6 support. End.DT4/6 represents the Endpoint with decapsulation and IPv4 or v6 table lookup.
 
-BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4 L3VPN Network Layer Reachability Information (NLRI) and advertises it to IPv6 peering over an SRv6 network. The Ingress PE (provider edge) router encapsulates the VRF IPv4 traffic with the SRv6 VPN SID and sends it over the SRv6 network.
+https://datatracker.ietf.org/doc/html/rfc8986#name-enddt6-decapsulation-and-sp
+
+BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4/6 L3VPN Network Layer Reachability Information (NLRI) and advertises it to IPv6 peering over an SRv6 network. The Ingress PE (provider edge) router encapsulates the VRF IPv4/6 traffic with the SRv6 VPN SID and sends it over the SRv6 network.
 
 For more details on SRv6 please see this [LINK](/SRv6.md)
 
   ### Configure VRF
-  This lab will use the VRF *carrot* for IPv4 and IPv6 vpn. The *carrot* vrf needs to be only configured on the two edge routes in our SP network: xrd01 and xrd07. Intermediate routers do not need to be vrf aware and are instead forwarding on the SRv6 data plane.
+  This lab will use the VRF *carrots* for IPv4 and IPv6 vpn. The *carrots* vrf needs to be only configured on the two edge routers in our SP network: xrd01 and xrd07. Intermediate routers do not need to be vrf aware and are instead forwarding on the SRv6 data plane.
 
   Configure the VRF on **xrd01** and **xrd07**:
 
@@ -46,14 +48,14 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
       9:9
     
     address-family ipv6 unicast
-        import route-target
-        9:9
-        export route-target
-        9:9
+      import route-target
+      9:9
+      export route-target
+      9:9
   ```
 
   ### Add VRF to router interfaces for L3VPN
-  Now that our vrf *carrot* has been created lets get the vrf added to the applicable interfaces. For xrd01 we will use  interface *GigabitEthernet0/0/0/3* which connects to Amsterdam over link *M*. For xrd07 we will use interface *GigabitEthernet0/0/0/3* which connects to Rome over link *K*.
+  Now that our vrf *carrots* has been created lets get the vrf added to the applicable interfaces. For xrd01 we will use  interface *GigabitEthernet0/0/0/3* which connects to Amsterdam over link *M*. For xrd07 we will use interface *GigabitEthernet0/0/0/3* which connects to Rome over link *K*.
 
  1. Add VRF to interfaces
 
@@ -62,7 +64,7 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
     interface GigabitEthernet0/0/0/3
       vrf carrots
       ipv4 address 10.101.3.2 255.255.255.0
-      ipv6 address 10:9:1::1/64
+      ipv6 address fc00:0:101:3::2/64
     ```
 
     **xrd07**  
@@ -88,8 +90,8 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
           fc00:0:50::/64 fc00:0:107:2::1
     ```
 
-3. Verify reachability  
-    Ping check from xrd07 gi 0/0/0/3 to Rome VM 2nd NIC:  
+3. Verify Rome VRF prefix reachability  
+    Ping check from xrd07 gi 0/0/0/3 to Rome VM via 2nd NIC:  
     ```
     ping vrf carrots 10.107.2.1
     ping vrf carrots 40.0.0.1
@@ -99,28 +101,33 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
     ping vrf carrots fc00:0:50::1
     ```
 
+4. Verify Amsterdam VRF prefix reachability  
+    Ping check from xrd01 gi 0/0/0/3 to Amsterdam VM via 2nd NIC:  
+    ```
+    ping vrf carrots 10.101.3.1
+    ping vrf carrots fc00:0:101:3::1
+    ```
+
 ### Configure BGP L3VPN Peering
-The next step is to add the L3VPN configuration into BGP. We will be using separate BGP neighbor groups for v4 and v6 peers. For example for IPv4 neighbors you will enable L3VPN in the neighbor template by issuing the *address-family vpnv4 unicast* command.
+The next step is to add the L3VPN configuration into BGP. Because this is SRv6 L3VPN we will be adding both vpnv4 and vpnv6 address-families to the BGP neighbor-group for ipv6 peers. For example you will enable L3VPN in the neighbor-group template by issuing the *address-family vpnv4 unicast* command.
   
- 1. Enable BGP L3VPN  
-     Next you will enable vrf *carrots* to participate in SRv6 by adding the *`segment-routing srv6`* command and then tieing that to the locator policy ISIS. 
+ 1. Enable BGP L3VPN 
 
     **xrd01** and **xrd07**
     ```
     router bgp 65000
-      neighbor-group xrd-ipv4-peer
+      neighbor-group xrd-ipv6-peer
         address-family vpnv4 unicast
         next-hop-self
-    
-      neighbor-group xrd-ipv6-peer
+
         address-family vpnv6 unicast
         next-hop-self
     ```
 
  2. Enable SRv6 for VRF carrots
-      We will now need to add the VRF/SRv6 configuration to BGP. We will add VRF *carrot* in BGP and add enable SRv6 to each address family with the command *`segement-routing srv6`*. In addition we will tie the vrf to the locator policy MyLocator. 
+      We will now need to add the VRF/SRv6 configuration to BGP. We will add VRF *carrots* in BGP and enable SRv6 to each address family with the command *`segement-routing srv6`*. In addition we will tie the vrf to the SRv6 locator *MyLocator*. 
 
-      Last on xrd01 we will want to redistribute the connected routesusing the command *`redistribute connected`*. On xrd07 we will need to redistribute the connected and static routes to provide reachability for Rome. For xrd07 we will add the command *`redistribute connected`*
+      Last on xrd01 we will redistribute the connected routes using the command *`redistribute connected`*. On xrd07 we will need to redistribute the connected and static routes to provide reachability to Rome and its additional prefixes. For xrd07 we will add the command *`redistribute static`*
    
     **xrd01**  
     ```
@@ -161,14 +168,13 @@ The next step is to add the L3VPN configuration into BGP. We will be using separ
       ```
 
 3. BGP Route Reflectors **xrd05**, **xrd06**  
-    The BGP route reflectors will also need to have the L3VPN feature added to their peering group.
+    The BGP route reflectors will also need to have L3VPN capability added to their peering group.
     ```
     router bgp 65000
-    neighbor-group xrd-ipv4-peer
+    neighbor-group xrd-ipv6-peer
       address-family vpnv4 unicast
       route-reflector-client
       
-    neighbor-group xrd-ipv6-peer
       address-family vpnv6 unicast
       next-hop-self
     ```
@@ -191,15 +197,15 @@ Validation command output examples can be found at this [LINK](https://github.co
   ping vrf carrots fc00:0:50::1
   ```
 ## Configure SRv6-TE steering for L3VPN
-Rome's L3VPN IPv4 and IPv6 prefixes are associated with two classes of traffic. The "40" destinations (40.0.0.0/24 and fc00:0:40::/64) are for Bulk Transport (content replication or data backups) and thus are latency and loss tolerant. The "50" destinations (50.0.0.0/24 and fc00:0:50::/64) are for real time traffic (live video, etc.) and thus require the lowest latency path available.
+Rome's L3VPN IPv4 and IPv6 prefixes are associated with two classes of traffic. The "40" destinations (40.0.0.0/24 and fc00:0:40::/64) are Bulk Transport destinations (content replication or data backups) and thus are latency and loss tolerant. The "50" destinations (50.0.0.0/24 and fc00:0:50::/64) are for real time traffic (live video, etc.) and thus require the lowest latency path available.
 
 ### Create TE steering policy
-For our SRv6-TE purposes we'll leverage on-demand nexthop (ODN). Here is a nice example and explanation of ODN:
+For our SRv6-TE purposes we'll leverage the on-demand nexthop (ODN) feature set. Here is a nice example and explanation of ODN:
 https://xrdocs.io/design/blogs/latest-converged-sdn-transport-ig
 
 Using the ODN method, our the egress PE, xrd07, will need to advertise its L3VPN routes with color extended communities. We'll do this by first defining the extcomms, then setting up route-policies to match on destination prefixes and set the extcomm values.
 
-The ingress PE, xrd01, will then be configured with an SRv6 ODN steering policy that matches routes with the respective color and applies the appropriate SID stack on outbound traffic.
+The ingress PE, xrd01, will then be configured with SRv6 segment-lists and SRv6 ODN steering policies that match routes with the respective color and apply the appropriate SID stack on outbound traffic.
 
 1. On xrd07 advertise Rome's "40" and "50" prefixes with their respective color extended communities:
 
@@ -230,7 +236,7 @@ route-policy set-color
 end-policy
 
 router bgp 65000
- neighbor-group ibgp-v6
+ neighbor-group xrd-ipv6-peer
   address-family vpnv4 unicast
    route-policy set-color out
   
@@ -265,7 +271,7 @@ Paths: (1 available, best #1)
       Received Label 0xe0040
       Origin incomplete, metric 0, localpref 100, valid, internal, best, group-best, import-candidate, imported
       Received Path ID 0, Local Path ID 1, version 30
-      Extended community: Color:40 RT:9:9 
+      Extended community: Color:40 RT:9:9                      <-------------------
       Originator: 10.0.0.7, Cluster list: 10.0.0.5
       PSID-Type:L3, SubTLV Count:1
        SubTLV:
@@ -290,7 +296,7 @@ Paths: (1 available, best #1)
       Received Label 0xe0050
       Origin incomplete, metric 0, localpref 100, valid, internal, best, group-best, import-candidate, imported
       Received Path ID 0, Local Path ID 1, version 34
-      Extended community: Color:50 RT:9:9 
+      Extended community: Color:50 RT:9:9                      <------------------- 
       Originator: 10.0.0.7, Cluster list: 10.0.0.5
       PSID-Type:L3, SubTLV Count:1
        SubTLV:
@@ -302,8 +308,8 @@ Paths: (1 available, best #1)
 ```
 
 3. On xrd01 configure a pair of SRv6-TE segment lists for steering traffic over these specific paths through the network: 
- - xrd2347 will be explicit path: xrd01 -> 02 -> 03 -> 04 -> 07
- - xrd567 will be explicit path: xrd01 -> 05 -> 06 -> 07
+ - Segment list *xrd2347* will execute the explicit path: xrd01 -> 02 -> 03 -> 04 -> 07
+ - Segment list *xrd567* will execute the explicit path: xrd01 -> 05 -> 06 -> 07
 
 **xrd01**
 ```
@@ -324,7 +330,7 @@ segment-routing
      index 20 sid fc00:0:6666::
 ```
 
-4. On xrd01 configure our bulk transport and low latency SRv6 steering policies:
+4. On xrd01 configure our bulk transport and low latency SRv6 steering policies. Low latency traffic will be forced over the xrd01-05-06-07 path, and bulk transport traffic will take the longer xrd01-02-03-04-07 path:
 **xrd01**
 ```
   policy bulk-transfer
@@ -391,7 +397,7 @@ segment-routing
     ping vrf carrots fc00:0:50::1 count 3
     ```
 
-    Example: tcpdump.sh output should look something like below on the xrd05-xrd06 link. In this case xrd05 -> 06 -> 07 is one of the IGP shortest paths. The v4 flow's replies are taking the same return path, however the v6 flow's replies have been hashed onto one of the other ECMP paths:
+    Example: tcpdump.sh output should look something like below on the xrd05-xrd06 link. In this case xrd05 -> 06 -> 07 is one of the IGP shortest paths. In this example the IPv4 ping replies are taking the same return path, however the IPv6 ping replies have been hashed onto one of the other ECMP paths. Your results may vary depending on how the XRd nodes have hashed their flows:
     ```
     16:50:26.667875 IP6 fc00:0:1111::1 > fc00:0:6666:7777:e004::: IP 10.9.1.1 > 50.0.0.1: ICMP echo request, id 59290, seq 0, length 80
     16:50:26.670199 IP6 fc00:0:7777::1 > fc00:0:1111:e004::: IP 50.0.0.1 > 10.9.1.1: ICMP echo reply, id 59290, seq 0, length 80
@@ -407,7 +413,7 @@ segment-routing
     16:50:42.047007 IS-IS, p2p IIH, src-id 0000.0000.0006, length 1497
 
     ```
-    Found the return traffic:
+    Here we found the return traffic for the IPv6 ping:
     ```
     cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd04-xrd05
     sudo tcpdump -ni br-9c9433e006cf
