@@ -28,6 +28,7 @@ https://kafka.apache.org/
 
 Jalapeno's data collectors publish their data to Kafka topics. Jalapeno's data processors subscribe to the relevant Kafka topics, gather the published data, and write it to either the graphDB or InfluxDB. This Collector -> Kafka -> Processor -> DB pipeline allows for architectural flexibility such that other applications could subscribe to the Jalapeno topics and use the BMP or telemetry data for their own purposes.
 
+
 ### Continue on the Jalapeno VM
 
 1. Login to the Kafka container and list topics:
@@ -109,7 +110,7 @@ clear bgp link-state link-state * soft
 ```
 
 Example GoBMP message published to Kafka when monitoring the l3vpn_v4 topic and clearing bgp-vpnv4 on xrd05:
-```
+```json
 {"action":"add","router_hash":"0669df0f031fb83e345267a9679bbc6a","router_ip":"10.0.0.5","base_attrs":{"base_attr_hash":"b41cebdba45850cdb7f6994b4675fa4c","origin":"incomplete","local_pref":100,"is_atomic_agg":false,"ext_community_list":["rt=9:9"]},"peer_hash":"e0b24585a43db7cc196f5e42d48e8b5f","peer_ip":"fc00:0:1111::1","peer_asn":65000,"timestamp":"2023-01-08T04:22:14.000588527Z","prefix":"10.9.1.0","prefix_len":24,"is_ipv4":true,"nexthop":"fc00:0:1111::1","is_nexthop_ipv4":false,"labels":[14681088],"is_prepolicy":false,"is_adj_rib_in":false,"vpn_rd":"10.0.0.1:0","vpn_rd_type":1,"prefix_sid":{"srv6_l3_service":{"sub_tlvs":{"1":[{"sid":"fc00:0:1111::","endpoint_behavior":63,"sub_sub_tlvs":{"1":[{"locator_block_length":32,"locator_node_length":16,"function_length":16,"argument_length":0,"transposition_length":16,"transposition_offset":48}]}}]}}}}
 ```
 
