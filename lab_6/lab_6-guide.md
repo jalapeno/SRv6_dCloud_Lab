@@ -168,13 +168,13 @@ The add_meta_data.py python script will connect to the ArangoDB and populate ele
 
 <img src="latency-util.png" width="900">
 
-1. Return to the ssh session on the Jalapeno VM and add some synthetic meta data to the DB:
+1. Return to the ssh session on the Jalapeno VM and add meta data to the DB:
 ```
 cd ~/SRv6_dCloud_Lab/lab_6/
 python3 add_meta_data.py
 ```
 
-2. Validate meta data with ArangoDB query:
+2. Validate meta data with an ArangoDB query:
 ```
 for l in sr_topology return { key: l._key, from: l._from, to: l._to, latency: l.latency, 
     utilization: l.percent_util_out, country_codes: l.country_codes }
