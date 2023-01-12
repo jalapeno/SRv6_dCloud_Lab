@@ -3,10 +3,9 @@
 ### Description
 In Lab 6 we will explore the Jalapeno system running on Kubernetes. We will log into the Kafka container and monitor topics for data coming in from Jalapeno's data collectors. Data which is subsequently picked up by Jalapeno's data processors (topology, lslinknode, sr-node, sr-topology, etc.) and written to the Arango graphDB. We will spend some time getting familiar with ArangoDB and the Jalapeno data collections, and will run some basic queries. Lastly we will populate the graphDB with some synthetic data and run a number of complex queries including graph traversals.
 
-![Jalapeno](/topo_drawings/jalapeno-topology-stack.png)|
-
 ## Contents
 1. [Lab Objectives](#lab-objectives)
+2. [Jalapeno Software Stack](#jalapeno-software-stack)
 2. [Kafka](#kafka)
 3. [Arango GraphDB](#arango-graphdb)
 4. [Basic queries](#basic-queries-to-explore-data-collections)
@@ -23,6 +22,9 @@ The student upon completion of Lab 6 should have achieved the following objectiv
 * Familiarity with the ArangoDB UI and the BMP/BGP data collections the system has created
 * Familiarity with Arango Query Language (AQL) syntax
 * Familiarity with more complex Arango shortest-path and graph traversal queries
+
+## Jalapeno Software Stack
+![Jalapeno](/topo_drawings/jalapeno-topology-stack.png)
 
 ## Kafka
 From the Kafka homepage: [Apache Kafka](https://kafka.apache.org/) is an open-source distributed event streaming platform used by thousands of companies for high-performance data pipelines, streaming analytics, data integration, and mission-critical applications. Kafka in essence is a messaging bus service.
