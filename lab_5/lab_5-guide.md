@@ -1,10 +1,13 @@
 # Lab 5: Install Jalapeno and enable BMP
 
 ### Description
-In Lab 5 we will install the open-source Jalapeno data infrastructure platform. Jalapeno will leverage a Kubernetes (k8) environment that allows us to install not only Jalapeno but, the entire support software stack. Kubernetes experience is not required for Lab 5 as we have included the required validation commands. Next the student will then configure BGP Monitoring Protocol (BMP) on our route reflectors. Last we will add in support for SRv6 sourced traffic originating from Amsterdam and Rome.
+In Lab 5 we will install the open-source Jalapeno data infrastructure platform. Jalapeno is designed to run on Kubernetes (k8s), which allows for easy integration into existing environments, and the ability to easily deploy on bare metal, VMs, or in a public cloud. Kubernetes experience is not required for Lab 5 as K8s has been preinstalled on the Jalapeno VM and we have included the required *kubectl* validation commands. 
+
+After installing the Jalapeno package the student will then configure BGP Monitoring Protocol (BMP) on our route reflectors. Last we will add an SRv6 Locator to BGP default/global tables, which will be used in a later exercise where Amsterdam and Rome perform SRv6 encapsulation of their own outbound traffic.
 
 ## Contents
 1. [Lab Objectives](#lab-objectives)
+2. [Jalapeno Overview](#jalapeno-overview)
 2. [Install Jalapeno](#install-jalapeno)
 3. [Install Jalapeno SR-Processors](#install-jalapeno-sr-processors)
 4. [BGP Monitoring Protocol BMP](#bgp-monitoring-protocol-bmp)
@@ -17,8 +20,8 @@ The student upon completion of Lab 5 should have achieved the following objectiv
 * Understanding and configuration of BMP
 * Creation of SRv6 data plane support on Amsterdam and Rome
 
-## Install Jalapeno 
-Project Jalapeno combines existing open source tools with some new stuff we've developed into an infrastructure platform intended to enable development of "Cloud Native Network Services" (CNNS). Think of it as applying microservices architecture to SDN: give developers the ability to quickly and easily build microservice control planes (CNNS) on top of a common data collection and warehousing infrastructure (Jalapeno). More information on Jalapeno can be found at the Jalapeno Git repository: [LINK](https://github.com/cisco-open/jalapeno/blob/main/README.md)
+## Jalapeno Overview
+Project Jalapeno combines existing open source tools with some new stuff we've developed into an infrastructure platform intended to enable development of "Cloud Native Network Services" (CNNS). Think of it as applying microservices architecture and concepts to SDN: give developers the ability to quickly and easily build microservice control planes (CNNS) on top of a common data collection and warehousing infrastructure (Jalapeno). More information on Jalapeno can be found at the Jalapeno Git repository: [LINK](https://github.com/cisco-open/jalapeno/blob/main/README.md)
 
 ### Jalapeno Architecture and Data Flow
 ![jalapeno_architecture](https://github.com/cisco-open/jalapeno/blob/main/docs/diagrams/jalapeno_architecture.png)
@@ -26,11 +29,14 @@ Project Jalapeno combines existing open source tools with some new stuff we've d
 Jalapeno breaks the data collection and warehousing problem down into a series of components and services:
 - Data collector services such as GoBMP and Telegraf collect network topology and statistics and publish to Kafka
 - Data processor services such as "Topology" (and other future services) subscribe to Kafka topics and write the data they receive to databases
-- Arango GraphDB for modeling topology data
-- InfluxDB for warehousing statistical time-series data
+- Arango GraphDB is used for modeling topology data
+- InfluxDB is used for warehousing statistical time-series data
 - API-Gateway: is currently under construction so for the lab we'll interact directly with the DB
+- Jalapeno's installation script will also deploy a Grafana container, which can be used to create dashboards to visualize the Influx time-series data (this is out of scope for CLEU 2023, but is on our roadmap for future labs)
 
-One of the primary goals of the Jalapeno project is to be flexible and extensible. In the future we expect Jalapeno might support any number of data collectors and processors (LLDP Topology, pmacct, etc.). Or an operator might integrate Jalapeno's GoBMP/Topology/GraphDB modules into an existing environment running Kafka. We also envision future integrations with other API-driven data warehouses such as ThousandEyes: https://www.thousandeyes.com/
+One of the primary goals of the Jalapeno project is to be flexible and extensible. In the future we expect Jalapeno might support any number of data collectors and processors. For example the could be a collector/processor pair that creates an LLDP Topology model in the graphDB. Netflow data could be incorporated via a future integration with pmacct. Or an operator might already have a telemetry stack and could choose to selectively integrate Jalapeno's GoBMP/Topology/GraphDB modules into an existing environment running Kafka. We also envision future integrations with other API-driven data warehouses such as ThousandEyes: https://www.thousandeyes.com/
+
+## Install Jalapeno
 
 1. In a separate terminal session ssh to the Jalapeno VM 
     ```
@@ -40,7 +46,9 @@ One of the primary goals of the Jalapeno project is to be flexible and extensibl
 2. Clone the Jalapeno repository at https://github.com/cisco-open/jalapeno, then cd into the repo and switch to the `cleu-srv6-lab` code branch:
     ```
     git clone https://github.com/cisco-open/jalapeno.git
+    
     cd jalapeno
+    
     git checkout cleu-srv6-lab
     ```
 
@@ -54,7 +62,9 @@ One of the primary goals of the Jalapeno project is to be flexible and extensibl
     remote: Total 4808 (delta 733), reused 1350 (delta 670), pack-reused 3340
     Receiving objects: 100% (4808/4808), 17.43 MiB | 26.88 MiB/s, done.
     Resolving deltas: 100% (2461/2461), done.
+
     cisco@jalapeno:~/$ cd jalapeno/
+
     cisco@jalapeno:~/jalapeno$ git checkout cleu-srv6-lab
     Branch 'cleu-srv6-lab' set up to track remote branch 'cleu-srv6-lab' from 'origin'.
     Switched to a new branch 'cleu-srv6-lab'
@@ -119,7 +129,7 @@ One of the primary goals of the Jalapeno project is to be flexible and extensibl
     example: kubectl describe pod -n jalapeno topology-678ddb8bb4-rt9jg
     ```
 ## Install Jalapeno SR-Processors
-The SR-Processors are a pair of POC data processors that mine Jalapeno's graphDB and create a pair of new data collections. The sr-node processor loops through various link-state data collections and gathers relevant SR/SRv6 data for each node in the network. The sr-topology processor generates a graph of the entire network topology (internal and external links, nodes, peers, prefixes, etc.) and populates relevant SR/SRv6 data within the graph collection.
+The SR-Processors are a pair of proof-of-concept data processors that mine Jalapeno's graphDB and create a pair of new data collections. The sr-node processor loops through various link-state data collections and gathers relevant SR/SRv6 data for each node in the network. The sr-topology processor generates a graph of the entire network topology (internal and external links, nodes, peers, prefixes, etc.) and populates relevant SR/SRv6 data within the graph collection.
 
 1. Install SR-Processors:
     ```
@@ -151,7 +161,7 @@ The SR-Processors are a pair of POC data processors that mine Jalapeno's graphDB
 
 Most transport SDN systems use BGP-LS to gather and model the underlying IGP topology. Jalapeno is intended to be a more generalized data platform to support use cases beyond internal transport such as VPNs or service chains. Because of this, Jalapeno's primary method of capturing topology data is via BMP. BMP supplies Jalapeno with all BGP AFI/SAFI info, and thus Jalapeno is able to model many different kinds of topology, including the topology of the Internet (at least from the perspective of our peering routers).
 
-We'll first establish a BMP session between our route-reflectors and the open-source GoBMP collector (https://github.com/sbezverk/gobmp), which comes pre-packaged with the Jalapeno install. We'll then enable BMP on the RRs' BGP peering sessions with our PE routers xrd01 and xrd07. Once established, the RRs' will stream all BGP NLRI info they receive from the PE routers to the GoBMP collector, which will in turn publish the data to Kafka. We'll get more into the Jalapeno data flow in Lab 5.
+We'll first establish a BMP session between our route-reflectors and the open-source GoBMP collector (https://github.com/sbezverk/gobmp), which comes pre-packaged with the Jalapeno install. We'll then enable BMP on the RRs' BGP peering sessions with our PE routers xrd01 and xrd07. Once established, the RRs' will stream all BGP NLRI info they receive from the PE routers to the GoBMP collector, which will in turn publish the data to Kafka. We'll get more into the Jalapeno data flow in Lab 6.
 
 1. BMP configuration on xrd05 and xrd06:
     ```
@@ -183,107 +193,32 @@ We'll first establish a BMP session between our route-reflectors and the open-so
     show bgp bmp server 1
     ```
 
-    Expected output:  
+    Expected output (truncated):  
     ```
-    RP/0/RP0/CPU0:xrd05#show bgp bmp ser 1
-    Sat Jan  7 22:51:03.080 UTC
-    BMP server 1
-    Host 198.18.128.101 Port 30511
-    NOT Connected
-    Last Disconnect event received : 00:00:00
-    Precedence:  internet
-    BGP neighbors: 4
-    VRF: - (0x60000000)
-    Update Source: (null) (Mg0/RP0/CPU0/0)
-    Update Source Vrf ID: 0x0
-
-    Queue write pulse sent            : not set, not set (all)
-    Queue write pulse received        : not set
-    Update Mode : Route Monitoring Pre-Policy
-
-    TCP: 
-      Last message sent: not set, Status: Not Connected
-      Last write pulse received: not set, Waiting: FALSE
-
-    Message Stats:
-    Total msgs dropped   : 0
-    Total msgs pending   : 0, Max: 0 at not set
-    Total messages sent  : 0
-    Total bytes sent     : 0, Time spent: 0.000 secs
-              INITIATION: 0
-              TERMINATION: 0
-            STATS-REPORT: 0
-        PER-PEER messages: 0
-
-    ROUTE-MON messages   : 0
-
     RP/0/RP0/CPU0:xrd05#sho bgp bmp ser 1
-    Sat Jan  7 23:16:46.761 UTC
+    Thu Jan 12 04:09:26.902 UTC
     BMP server 1
     Host 198.18.128.101 Port 30511
-    Connected for 00:25:35
-    Last Disconnect event received : 00:00:00
+    Connected for 1d03h                      <----------------------
+    Last Disconnect event received : 1d04h
     Precedence:  internet
     BGP neighbors: 4
     VRF: - (0x60000000)
     Update Source: 10.254.254.105 (Mg0/RP0/CPU0/0)
     Update Source Vrf ID: 0x60000000
 
-    Queue write pulse sent            : Jan  7 23:15:58.131, Jan  7 22:51:26.348 (all)
-    Queue write pulse received        : Jan  7 23:15:58.131
+    Queue write pulse sent            : Jan 12 04:09:26.563, Jan 11 00:10:46.178 (all)
+    Queue write pulse received        : Jan 12 04:09:26.563
     Update Mode : Route Monitoring Pre-Policy
 
     TCP: 
-      Last message sent: Jan  7 23:15:58.131, Status: No Pending Data
-      Last write pulse received: Jan  7 23:15:58.132, Waiting: FALSE
+      Last message sent: Jan 12 04:09:26.563, Status: No Pending Data
+      Last write pulse received: Jan 12 04:09:26.565, Waiting: FALSE
 
-    Message Stats:
-    Total msgs dropped   : 0
-    Total msgs pending   : 0, Max: 20 at Jan  7 22:51:26.146
-    Total messages sent  : 227
-    Total bytes sent     : 50522, Time spent: 0.003 secs
-              INITIATION: 1
-              TERMINATION: 0
-            STATS-REPORT: 100
-        PER-PEER messages: 126
-
-    ROUTE-MON messages   : 122
-
-      Neighbor fc00:0:7777::1
-    Messages pending: 0
-    Messages dropped: 0
-    Messages sent   : 8
-          PEER-UP   : 1
-        PEER-DOWN   : 0
-        ROUTE-MON   : 7
-
-      Neighbor fc00:0:1111::1
-    Messages pending: 0
-    Messages dropped: 0
-    Messages sent   : 4
-          PEER-UP   : 1
-        PEER-DOWN   : 0
-        ROUTE-MON   : 3
-
-      Neighbor 10.0.0.7
-    Messages pending: 0
-    Messages dropped: 0
-    Messages sent   : 57
-          PEER-UP   : 1
-        PEER-DOWN   : 0
-        ROUTE-MON   : 56
-
-      Neighbor 10.0.0.1
-    Messages pending: 0
-    Messages dropped: 0
-    Messages sent   : 57
-          PEER-UP   : 1
-        PEER-DOWN   : 0
-        ROUTE-MON   : 56
     ```
 
 ## Configure a BGP SRv6 locator
-When we get to lab 6 we'll be sending SRv6 encapsulated traffic directly to/from Amsterdam and Rome. We'll need an SRv6 end.DT4/6 function at the egress nodes (xrd01 and xrd07) to be able to pop the SRv6 encap and perform a global table lookup on the underlying payload. Configuring an SRv6 locator under BGP will trigger creation of the end.DT4/6 functions:
+When we get to lab 7 we'll be sending SRv6 encapsulated traffic directly to/from Amsterdam and Rome. We'll need an SRv6 end.DT4/6 function at the egress nodes (xrd01 and xrd07) to be able to pop the SRv6 encap and perform a global table lookup on the underlying payload. Configuring an SRv6 locator under BGP will trigger creation of the end.DT4/6 functions:
 
 1. Configure SRv6 locators for BGP on both xrd01 and xrd07:
     ```

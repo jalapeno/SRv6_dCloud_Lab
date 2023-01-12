@@ -1,4 +1,4 @@
-# Lab 3: Extend SR-MPLS Topology
+# Lab 3: BGP-LU over SR-MPLS
 
 ### Description: 
 In lab 3 the student will extend the routing topology to include sites Amsterdam and Rome. In addition SR-MPLS will be used to create a baseline end to end routing between the two locations. With SR-MPLS the student will then use show commands and tools like TCPDump to validate how traffic is routed through the network. This is important as in later labs we will override the SR-MPLS behaviour with host-based SRv6 encapsulations.

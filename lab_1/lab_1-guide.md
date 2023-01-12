@@ -308,7 +308,7 @@ ping fc00:0000:7777::1 source lo0
 
 ## Validate BGP Topology
 
-In lab 1 we will use BGP for exchange of IPv6 prefixes and BGP-LS (we will setup IPv4 labeled-unicast and SRv6-L3VPN in later lab exercises). In the topology we are running a single AS 65000 with BGP running on xrd01, xrd05, xrd06, xrd07.  Routers xrd05 and xrd06 are functioning as route reflectors and xrd01 and xrd07 are clients. The student will want to confirm that they see a full BGP topology.
+In lab 1 we will use BGP for exchange of IPv6 prefixes and BGP-LS. We will setup IPv4 labeled-unicast and SRv6-L3VPN in later lab exercises. In the topology we are running a single ASN 65000 with BGP running on xrd01, xrd05, xrd06, xrd07.  Routers xrd05 and xrd06 are functioning as route reflectors and xrd01 and xrd07 are clients. The student will want to confirm that they see a full BGP topology.
 
 ![BGP Topology](/topo_drawings/bgp-topology-medium.png)
 
