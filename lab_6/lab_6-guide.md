@@ -152,12 +152,12 @@ In this exercise we are going to stitch together several elements that we have w
             "action": "add",
             "router_hash": "0669df0f031fb83e345267a9679bbc6a",
             "domain_id": 0,
-            "router_ip": "10.0.0.5",
+            "router_ip": "10.0.0.5",       <---- Reporting router
             "peer_hash": "ef9f1cc86e4617df24d4675e2b55bbe2",
-            "peer_ip": "10.0.0.1",
+            "peer_ip": "10.0.0.1",         <---- Source router
             "peer_asn": 65000,
             "timestamp": "2023-01-13T20:20:51.000164765Z",
-            "igp_router_id": "0000.0000.0001",
+            "igp_router_id": "0000.0000.0001",  <-------- Link State Node ID
             "router_id": "10.0.0.1",
             "asn": 65000,
             "mt_id_tlv": [
@@ -301,15 +301,15 @@ In this exercise we are going to stitch together several elements that we have w
 2. Spend some time exploring the data collections in the DB
 
 #### Basic queries to explore data collections 
-    The ArangoDB Query Language (AQL) can be used to retrieve and modify data that are stored in ArangoDB.
+The ArangoDB Query Language (AQL) can be used to retrieve and modify data that are stored in ArangoDB.
 
-    The general workflow when executing a query is as follows:
+The general workflow when executing a query is as follows:
 
-    - A client application ships an AQL query to the ArangoDB server. The query text contains everything ArangoDB needs to compile the result set
+- A client application ships an AQL query to the ArangoDB server. The query text contains everything ArangoDB needs to compile the result set
 
-    - ArangoDB will parse the query, execute it and compile the results. If the query is invalid or cannot be executed, the server will return an error that the client can process and react to. If the query can be executed successfully, the server will return the query results (if any) to the client. 
+- ArangoDB will parse the query, execute it and compile the results. If the query is invalid or cannot be executed, the server will return an error that the client can process and react to. If the query can be executed successfully, the server will return the query results (if any) to the client. 
 
-    https://www.arangodb.com/docs/stable/aql/index.html
+https://www.arangodb.com/docs/stable/aql/index.html
 
 
 3. Run some DB Queries:
