@@ -113,18 +113,20 @@ The *kafka-console-consumer.sh* utility allows one to manually monitor a given t
 
 In the next set of steps we'll run the CLI to monitor a Kafka topic and watch for data from the GoBMP collector. GoBMP's topics are fairly quiet unless BGP updates are happening. So, once we have our monitoring session up we'll clear bgp-ls on the RR, which should result in a flood of data onto the topic.
 
-    1. Monitor the BGP-LS *"ls_node"* topic for incoming BMP messages describing ISIS nodes in the network:
+    1. Monitor the BGP-LS *"ls_node"* topic for incoming BMP messages describing ISIS nodes in the network:  
 
     ```
     ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_node
     ```
 
-    Optional - enable terminal monitoring and debugging the of BGP-LS address family on one of the route reflectors such as xrd05:
+    Optional - enable terminal monitoring and debugging the of BGP-LS address family on one of the route reflectors such as xrd05:  
+
     ```
     terminal monitor
     debug bgp update afi link-state link-state in
     ```
-    - Fair warning: this will output quite a bit of data when the AFI is cleared
+
+    *Fair warning: this will output quite a bit of data when the AFI is cleared*
     
     2. Connect to xrd01 and clear the BGP-LS address family
     ```
