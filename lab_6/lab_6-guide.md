@@ -6,7 +6,10 @@ In Lab 6 we will explore the Jalapeno system running on Kubernetes. We will log 
 ## Contents
 1. [Lab Objectives](#lab-objectives)
 2. [Jalapeno Software Stack](#jalapeno-software-stack)
-2. [Kafka](#kafka)
+2. [Kafka](#kafka-intro)
+    - [Intro](#kafka-intro)
+    - [Topics](#kafka-topics)
+    - [Monitoring](#monitoring-a-kafka-topic)
 3. [Arango GraphDB](#arango-graphdb)
 4. [Basic queries](#basic-queries-to-explore-data-collections)
 5. [Populating the DB with meta data](#populating-the-db-with-external-data)
@@ -26,6 +29,7 @@ The student upon completion of Lab 6 should have achieved the following objectiv
 ## Jalapeno Software Stack
 ![Jalapeno](/topo_drawings/jalapeno-topology-stack.png)
 
+## Kafka
 ### Kafka Intro
 From the Kafka [homepage](https://kafka.apache.org/): Apache Kafka is an open-source distributed event streaming platform used by thousands of companies for high-performance data pipelines, streaming analytics, data integration, and mission-critical applications.
 
@@ -36,7 +40,7 @@ Kafka has a number of built in command line utilities to do things like listing 
 For additional help on Kafka see this external CLI cheat sheet [HERE](https://medium.com/@TimvanBaarsen/apache-kafka-cli-commands-cheat-sheet-a6f06eac01b)
 
 
-#### Continue on the Jalapeno VM
+### Kafka Topics 
 
 1. In a separate terminal session ssh to the Jalapeno VM 
     ```
@@ -44,16 +48,24 @@ For additional help on Kafka see this external CLI cheat sheet [HERE](https://me
     pw = cisco123
     ```
 
-2. Login to the Kafka container and list topics:
+2. Login to the Kafka container and cd into the bin directory
     ```
     kubectl exec -it kafka-0 -n jalapeno -- /bin/bash
 
     cd bin
-    unset JMX_PORT
+    ls -la
+    ```
 
+3. The Jalapeno deployment of Kakfa includes enablement of JMX (Java Management Extensions), which allows for monitoring of Kafka elements such as brokers, topics, Zookeeper, etc. To operate the CLI utilies we'll need to unset the JMX_PORT:  
+    ```
+    unset JMX_PORT
+    ```
+
+4. Run the CLI utility to get a listing of all Kafka topics in our cluster:
+    ```
     ./kafka-topics.sh --list  --bootstrap-server localhost:9092
     ```
-    A few seconds after running the command you should see the following list toward the bottom on the command output:
+    - A few seconds after running the *--list* command you should see the following list of topics toward the bottom on the command output:
     ```
     gobmp.parsed.evpn
     gobmp.parsed.evpn_events
@@ -95,37 +107,80 @@ For additional help on Kafka see this external CLI cheat sheet [HERE](https://me
     jalapeno.telemetry
     ```
 
-3. Monitor a Kafka topic:
-    - ISIS node data (via BGP-LS NLRIs) is published to the ls_node topic:
+### Monitoring a Kafka topic
+
+The *kafka-console-consumer.sh* utility allows one to manually monitor a given topic and see messages as they are published to Kafka by Jalapeno's GoBMP collector. This gives us a nice troubleshooting tool for scenarios where a router may be sending data to the collector, but the data is not seen in the DB.
+
+In the next set of steps we'll run the CLI to monitor a Kafka topic and watch for data from the GoBMP collector. GoBMP's topics are fairly quiet unless BGP updates are happening. So, once we have our monitoring session up we'll clear bgp-ls on the RR, which should result in a flood of data onto the topic.
+
+    1. Monitor the BGP-LS *"ls_node"* topic for incoming BMP messages describing ISIS nodes in the network:
+
     ```
     ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_node
     ```
-    - ISIS link, prefix, and SRv6 SID data is published to the ls_link, ls_prefix, and ls_srv6_sid topics respectively:
-    ```
-    ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_link
-    ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_prefix
-    ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_srv6_sid
-    ```
-    - L3VPN prefix data is published to the l3vpn topics:
-    ```
-    ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.l3vpn_v4
-    ```
-    - We won't be using streaming telemetry in this lab, however MDT is configured on the nodes in the lab and the Telegraf collector publishes the data to the jalapeno.telemetry topic:
-    ```
-    ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic jalapeno.telemetry
-    ```
 
-4. The gobmp topics should be fairly quiet unless BGP updates are happening. Try clearing bgp-ls or bgp-vpnv4 on one of the RRs and see what data comes through when monitoring the Kafka topic.
-
+    Optional - enable terminal monitoring and debugging the of BGP-LS address family on one of the route reflectors such as xrd05:
     ```
-    clear bgp vpnv4 unicast * soft
+    terminal monitor
+    debug bgp update afi link-state link-state in
+    ```
+    - Fair warning: this will output quite a bit of data when the AFI is cleared
+    
+    2. Connect to xrd01 and clear the BGP-LS address family
+    ```
     clear bgp link-state link-state * soft
     ```
 
-    Example GoBMP message published to Kafka when monitoring the l3vpn_v4 topic and clearing bgp-vpnv4 on xrd05:
+    One the Kafka console we expect to see 14 json objects representing BMP messages coming from our 2 route reflectors and describing our 7 different ISIS nodes. Example messages:
+
+    Test
     ```json
-    {"action":"add","router_hash":"0669df0f031fb83e345267a9679bbc6a","router_ip":"10.0.0.5","base_attrs":{"base_attr_hash":"b41cebdba45850cdb7f6994b4675fa4c","origin":"incomplete","local_pref":100,"is_atomic_agg":false,"ext_community_list":["rt=9:9"]},"peer_hash":"e0b24585a43db7cc196f5e42d48e8b5f","peer_ip":"fc00:0:1111::1","peer_asn":65000,"timestamp":"2023-01-08T04:22:14.000588527Z","prefix":"10.9.1.0","prefix_len":24,"is_ipv4":true,"nexthop":"fc00:0:1111::1","is_nexthop_ipv4":false,"labels":[14681088],"is_prepolicy":false,"is_adj_rib_in":false,"vpn_rd":"10.0.0.1:0","vpn_rd_type":1,"prefix_sid":{"srv6_l3_service":{"sub_tlvs":{"1":[{"sid":"fc00:0:1111::","endpoint_behavior":63,"sub_sub_tlvs":{"1":[{"locator_block_length":32,"locator_node_length":16,"function_length":16,"argument_length":0,"transposition_length":16,"transposition_offset":48}]}}]}}}}
+       <code>{"action":"add","router_hash":"0669df0f031fb83e345267a9679bbc6a","domain_id":0,"router_ip":"10.0.0.5","peer_hash":"ef9f1cc86e4617df24d4675e2b55bbe2","peer_ip":"10.0.0.1","peer_asn":65000,"timestamp":"2023-01-12T21:47:51.000349811Z","igp_router_id":"0000.0000.0004","router_id":"10.0.0.4","asn":65000,"mt_id_tlv":[{"o_flag":false,"a_flag":false,"mt_id":0},{"o_flag":false,"a_flag":false,"mt_id":2}],"area_id":"49.0901","protocol":"IS-IS Level 2","protocol_id":2,"name":"xrd04","ls_sr_capabilities":{"flags":{"i_flag":true,"v_flag":false},"sr_capability_subtlv":[{"range":64000,"sid":100000}]},"sr_algorithm":[0,1],"sr_local_block":{"flags":0,"subranges":[{"range_size":1000,"label":15000}]},"srv6_capabilities_tlv":{"o_flag":false},"node_msd":[{"msd_type":1,"msd_value":10}],"is_prepolicy":false,"is_adj_rib_in":false}
     ```
+
+    <code>{"action":"add","router_hash":"0669df0f031fb83e345267a9679bbc6a","domain_id":0,"router_ip":"10.0.0.5","peer_hash":"ef9f1cc86e4617df24d4675e2b55bbe2","peer_ip":"10.0.0.1","peer_asn":65000,"timestamp":"2023-01-12T21:47:51.000349811Z","igp_router_id":"0000.0000.0004","router_id":"10.0.0.4","asn":65000,"mt_id_tlv":[{"o_flag":false,"a_flag":false,"mt_id":0},{"o_flag":false,"a_flag":false,"mt_id":2}],"area_id":"49.0901","protocol":"IS-IS Level 2","protocol_id":2,"name":"xrd04","ls_sr_capabilities":{"flags":{"i_flag":true,"v_flag":false},"sr_capability_subtlv":[{"range":64000,"sid":100000}]},"sr_algorithm":[0,1],"sr_local_block":{"flags":0,"subranges":[{"range_size":1000,"label":15000}]},"srv6_capabilities_tlv":{"o_flag":false},"node_msd":[{"msd_type":1,"msd_value":10}],"is_prepolicy":false,"is_adj_rib_in":false}
+
+
+    {"action":"add","router_hash":"9e3a5bee3d95ebf710f509bd2177324b","domain_id":0,"router_ip":"10.0.0.6","peer_hash":"ef9f1cc86e4617df24d4675e2b55bbe2","peer_ip":"10.0.0.1","peer_asn":65000,"timestamp":"2023-01-12T21:47:51.000350197Z","igp_router_id":"0000.0000.0004","router_id":"10.0.0.4","asn":65000,"mt_id_tlv":[{"o_flag":false,"a_flag":false,"mt_id":0},{"o_flag":false,"a_flag":false,"mt_id":2}],"area_id":"49.0901","protocol":"IS-IS Level 2","protocol_id":2,"name":"xrd04","ls_sr_capabilities":{"flags":{"i_flag":true,"v_flag":false},"sr_capability_subtlv":[{"range":64000,"sid":100000}]},"sr_algorithm":[0,1],"sr_local_block":{"flags":0,"subranges":[{"range_size":1000,"label":15000}]},"srv6_capabilities_tlv":{"o_flag":false},"node_msd":[{"msd_type":1,"msd_value":10}],"is_prepolicy":false,"is_adj_rib_in":false}
+    </code>
+
+    We can monitor other topics and their data come in using the same procedure:
+
+3. Stop the kafka monitor (ctrl-c) and then restart it and monitor the *ls_srv6_sid* topic to see incoming SRv6 locator SID messages:
+    ```
+    ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_srv6_sid
+    ```
+4. Again on xrd01 clear the BGP-LS address family
+    ```
+    clear bgp link-state link-state * soft
+    ```
+
+    We should see 14 json objects representing 7 SRv6 locator SIDs coming from each of our RRs.
+    Examples:
+
+    <code>{"action":"add","router_hash":"9e3a5bee3d95ebf710f509bd2177324b","router_ip":"10.0.0.6","domain_id":0,"peer_hash":"ef9f1cc86e4617df24d4675e2b55bbe2","peer_ip":"10.0.0.1","peer_asn":65000,"timestamp":"2023-01-12T22:05:30.000755997Z","igp_router_id":"0000.0000.0002","local_node_asn":65000,"protocol_id":2,"protocol":"IS-IS Level 2","nexthop":"10.0.0.1","local_node_hash":"7f0f374efc82198eeedaa86834274a7e","mt_id_tlv":{"o_flag":false,"a_flag":false,"mt_id":2},"igp_flags":0,"is_prepolicy":false,"is_adj_rib_in":false,"srv6_sid":"fc00:0:2222::","srv6_endpoint_behavior":{"endpoint_behavior":48,"flag":0,"algo":0},"srv6_sid_structure":{"locator_block_length":32,"locator_node_length":16,"function_length":0,"argument_length":80}}
+
+
+    {"action":"add","router_hash":"9e3a5bee3d95ebf710f509bd2177324b","router_ip":"10.0.0.6","domain_id":0,"peer_hash":"ef9f1cc86e4617df24d4675e2b55bbe2","peer_ip":"10.0.0.1","peer_asn":65000,"timestamp":"2023-01-12T22:05:30.000755997Z","igp_router_id":"0000.0000.0001","local_node_asn":65000,"protocol_id":2,"protocol":"IS-IS Level 2","nexthop":"10.0.0.1","local_node_hash":"89cd5823cd2cb0cfc304a61117c89a45","mt_id_tlv":{"o_flag":false,"a_flag":false,"mt_id":2},"igp_flags":0,"is_prepolicy":false,"is_adj_rib_in":false,"srv6_sid":"fc00:0:1111::","srv6_endpoint_behavior":{"endpoint_behavior":48,"flag":0,"algo":0},"srv6_sid_structure":{"locator_block_length":32,"locator_node_length":16,"function_length":0,"argument_length":80}}
+    </code>
+
+    The same 'monitor topic and clear BGP AFI' procedure can be run against any of the GoBMP topics. 
+
+5. Monitor L3VPN prefix messages:
+    ```
+    ctrl-c
+
+    ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.l3vpn_v4
+    ```
+    Clear BGP VPNv4 on xrd01:
+    ```
+    clear bgp vpnv4 uni fc00:0:5555::1 soft 
+    ```
+
+Expected output on Kafka console:
+
+<code>{"action":"add","router_hash":"0669df0f031fb83e345267a9679bbc6a","router_ip":"10.0.0.5","base_attrs":{"base_attr_hash":"b41cebdba45850cdb7f6994b4675fa4c","origin":"incomplete","local_pref":100,"is_atomic_agg":false,"ext_community_list":["rt=9:9"]},"peer_hash":"e0b24585a43db7cc196f5e42d48e8b5f","peer_ip":"fc00:0:1111::1","peer_asn":65000,"timestamp":"2023-01-12T22:11:21.000873174Z","prefix":"10.101.3.0","prefix_len":24,"is_ipv4":true,"nexthop":"fc00:0:1111::1","is_nexthop_ipv4":false,"labels":[14681088],"is_prepolicy":false,"is_adj_rib_in":false,"vpn_rd":"10.0.0.1:0","vpn_rd_type":1,"prefix_sid":{"srv6_l3_service":{"sub_tlvs":{"1":[{"sid":"fc00:0:1111::","endpoint_behavior":63,"sub_sub_tlvs":{"1":[{"locator_block_length":32,"locator_node_length":16,"function_length":16,"argument_length":0,"transposition_length":16,"transposition_offset":48}]}}]}}}}</code>
+
 
 ### Arango GraphDB
 
