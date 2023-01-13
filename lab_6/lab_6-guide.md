@@ -245,9 +245,9 @@ In this exercise we are going to stitch together several elements that we have w
            micro-segment behavior unode psp-usd
            prefix fc00:0:1111::/48     <----- xrd01 IPv6 locator defined
        ```
-       
+
    4. With **xrd01** SID locator identified lets see how that is communicated through the BMP from the route reflectors.
-      Monitor the BGP-LS *"ls_srv6_sid"* topic for incoming BMP messages describing SRv6 SIDs in the network:  
+      Monitor the BGP-LS *ls_srv6_sid* topic for incoming BMP messages describing SRv6 SIDs in the network:  
        ```
        ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_srv6_sid
        ```
@@ -258,9 +258,9 @@ In this exercise we are going to stitch together several elements that we have w
        terminal monitor
        debug bgp update afi vpnv6 unicast in
        ```
-       *Fair warning: this will output quite a bit of data when the AFI is cleared*
+       *Fair warning: this will output quite a bit of data when the bgp is cleared*
 
-   5. Again on xrd01 clear the BGP-LS address family
+   5. Again on **xrd01** clear the BGP-LS address family
        ```
        clear bgp link-state link-state * soft
        ```
@@ -270,10 +270,10 @@ In this exercise we are going to stitch together several elements that we have w
        {
            "action": "add",
            "router_hash": "0669df0f031fb83e345267a9679bbc6a",
-           "router_ip": "10.0.0.5",
+           "router_ip": "10.0.0.5",   <---- Reporting router
            "domain_id": 0,
            "peer_hash": "ef9f1cc86e4617df24d4675e2b55bbe2",
-           "peer_ip": "10.0.0.1",
+           "peer_ip": "10.0.0.1",     <---- Source router
            "peer_asn": 65000,
            "timestamp": "2023-01-13T19:49:01.000764233Z",
            "igp_router_id": "0000.0000.0001",
