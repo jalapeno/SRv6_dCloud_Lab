@@ -144,7 +144,7 @@ In this exercise we are going to stitch together several elements that we have w
         clear bgp link-state link-state * soft
         ```
 
-        On the Kafka console we expect to see 14 json objects representing BMP messages coming from our 2 route reflectors and describing our 7 different ISIS nodes. Example messages:
+        On the Kafka console we expect to see 14 json objects representing BMP messages coming from our 2 route reflectors and describing our 7 different ISIS nodes. Example message:
 
         ```json
         {
@@ -214,21 +214,27 @@ In this exercise we are going to stitch together several elements that we have w
         }
         ```
 #### SRv6 Locator SID    
-   1. Now lets examine the SRv6 policy on *xrd01* with the command *show run segment-routing traffic-eng policy low-latency*
-       ```
-       segment-routing
-           traffic-eng
-           policy low-latency
-           srv6
-               locator MyLocator binding-sid dynamic behavior ub6-insert-reduced  <-- SRv6 Locator
-           !
-           color 50 end-point ipv6 fc00:0:7777::1
-           candidate-paths
-               preference 100
-               explicit segment-list xrd567
+   1. Now lets examine the SRv6 policy on *xrd01* with the command 
+        ```  
+        show run segment-routing traffic-eng policy low-latency
+    
+        segment-routing
+            traffic-eng
+            policy low-latency
+            srv6
+                locator MyLocator binding-sid dynamic behavior ub6-insert-reduced  <-- SRv6 Locator
+            !
+            color 50 end-point ipv6 fc00:0:7777::1
+            candidate-paths
+                preference 100
+                explicit segment-list xrd567
+        ```
 
-   2. Next since we have identified the locator policy name *MyLocator* let's see config with *show run segment-routing srv6*
+   2. Next since we have identified the locator policy name *MyLocator* let's look at the config:
+    
       ```
+      show run segment-routing srv6
+
       segment-routing
        srv6
        encapsulation
@@ -239,7 +245,8 @@ In this exercise we are going to stitch together several elements that we have w
            micro-segment behavior unode psp-usd
            prefix fc00:0:1111::/48     <----- xrd01 IPv6 locator defined
        ```
-   3. With **xrd01** SID locator identified lets see how that is communicated through the BMP from the route reflectors.
+       
+   4. With **xrd01** SID locator identified lets see how that is communicated through the BMP from the route reflectors.
       Monitor the BGP-LS *"ls_srv6_sid"* topic for incoming BMP messages describing SRv6 SIDs in the network:  
        ```
        ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_srv6_sid
@@ -253,7 +260,7 @@ In this exercise we are going to stitch together several elements that we have w
        ```
        *Fair warning: this will output quite a bit of data when the AFI is cleared*
 
-   4. Again on xrd01 clear the BGP-LS address family
+   5. Again on xrd01 clear the BGP-LS address family
        ```
        clear bgp link-state link-state * soft
        ```
