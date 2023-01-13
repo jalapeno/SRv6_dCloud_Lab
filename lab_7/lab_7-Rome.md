@@ -134,21 +134,19 @@ python3 client.py -f rome.json -e sr -s lu
 ```
  - The client's command line output should display the new route in the routing table:
 ```
-20.0.0.0 10.101.2.0
-for u in unicast_prefix_v4 filter u.prefix == "20.0.0.0"         return { id: u._id, src_peer: u.peer_ip } 
-src_dict:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'src_peer': '10.0.0.7'}]
-dst_dict:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'dst_peer': '10.0.0.1'}]
+src data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'src_peer': '10.0.0.7'}]
+dest data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'dst_peer': '10.0.0.1'}]
 Least Utilized Service
 locators:  ['fc00:0:6666::', 'fc00:0:2222::', 'fc00:0:1111::']
 prefix_sids:  [100006, 100002, 100001]
 srv6 sid:  fc00:0:6666:2222:1111::
-command: sudo ip route add 10.101.2.0/24 encap mpls 100006/100002/100001 via 10.107.1.2 dev ens192
+adding linux SR route: ip route add 10.101.2.0/24 encap mpls 100006/100002/100001 via 10.107.1.2 dev ens192
 RTNETLINK answers: File exists
 default via 198.18.128.1 dev ens160 proto static 
 10.0.0.0/24 via 10.107.1.2 dev ens192 proto static 
 10.1.1.0/24 via 10.107.1.2 dev ens192 proto static 
 10.101.1.0/24 via 10.107.1.2 dev ens192 proto static 
-10.101.2.0/24  encap mpls  100006/100002/100001 via 10.107.1.2 dev ens192 
+10.101.2.0/24  encap mpls  100006/100002/100001 via 10.107.1.2 dev ens192         <-------------------
 10.101.2.0/24 via 10.107.1.2 dev ens192 proto static 
 10.101.3.0/24 via 10.107.2.2 dev ens224 proto static 
 10.107.1.0/24 dev ens192 proto kernel scope link src 10.107.1.1 
@@ -180,44 +178,61 @@ ping 10.101.2.1 -I 20.0.0.1 -i .3
 cisco@rome:~$ sudo tcpdump -ni ens192
 tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
 listening on ens192, link-type EN10MB (Ethernet), capture size 262144 bytes
-22:17:16.770622 MPLS (label 100006, exp 0, ttl 64) (label 100002, exp 0, ttl 64) (label 100001, exp 0, [S], ttl 64) IP 10.107.1.1 > 10.101.1.1: ICMP echo request, id 30, seq 9, length 64
-22:17:16.775121 IP 10.101.1.1 > 10.107.1.1: ICMP echo reply, id 30, seq 9, length 64
+04:15:48.834889 MPLS (label 100006, exp 0, ttl 64) (label 100002, exp 0, ttl 64) (label 100001, exp 0, [S], ttl 64) IP 20.0.0.1 > 10.101.2.1: ICMP echo request, id 11, seq 1, length 64
+04:15:48.843360 IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 11, seq 1, length 64
+04:15:49.136057 MPLS (label 100006, exp 0, ttl 64) (label 100002, exp 0, ttl 64) (label 100001, exp 0, [S], ttl 64) IP 20.0.0.1 > 10.101.2.1: ICMP echo request, id 11, seq 2, length 64
+04:15:49.147006 IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 11, seq 2, length 64
 ```
 
-5. Open an ssh session to the xrd VM and verify the nets.sh script in the util directory has run. The directory should look like this: 
-```
-cisco@xrd:~/SRv6_dCloud_Lab/util$ ls
-nets.sh     xrd01-xrd02  xrd02-xrd03  xrd03-xrd04  xrd04-xrd07  xrd06-xrd07
-tcpdump.sh  xrd01-xrd05  xrd02-xrd06  xrd04-xrd05  xrd05-xrd06
-```
-
-6. Use tcpdump.sh <xrd0x-xrd0y>" to capture packets along the path from Rome VM to Amsterdam VM. Given the label stack seen above, we'll monitor the linux bridges linking xrd07 and xrd06, xrd06 and xrd05, then xrd05 and xrd01:
+5. Return to an SSH session on the XRD VM and use tcpdump.sh <xrd0x-xrd0y>" to capture packets along the path from Rome VM to Amsterdam VM. Given the label stack seen above, we'll monitor the linux bridges linking xrd07 to xrd06, xrd06 to xrd02, then xrd02 to xrd01:
  - restart the ping if it is stopped
 ```
+cd cd ~/SRv6_dCloud_Lab/util/
 ./tcpdump.sh xrd06-xrd07
 ./tcpdump.sh xrd02-xrd06
 ./tcpdump.sh xrd01-xrd02
 ```
- - We expect to see SR-MPLS PHP behavior as xrd nodes pop outer labels as the traffic traverses the network. Example output:
+ - We expect to see SR-MPLS PHP behavior on the *echo request* packets as the nodes pop outer labels as the traffic traverses the network. Example output for the link between xrd06 and xrd02:
 ```
 cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd02-xrd06
-sudo tcpdump -ni br-9695b2ce572e
+sudo tcpdump -ni br-07e02174172b
 tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
-listening on br-9695b2ce572e, link-type EN10MB (Ethernet), capture size 262144 bytes
-17:17:55.352668 MPLS (label 100001, exp 0, [S], ttl 62) IP 10.107.1.1 > 10.101.1.1: ICMP echo request, id 30, seq 86, length 64
-17:17:55.354834 MPLS (label 100007, exp 0, [S], ttl 62) IP 10.101.1.1 > 10.107.1.1: ICMP echo reply, id 30, seq 86, length 64
-17:17:55.821760 IS-IS, p2p IIH, src-id 0000.0000.0002, length 1497
-17:17:55.854029 MPLS (label 100001, exp 0, [S], ttl 62) IP 10.107.1.1 > 10.101.1.1: ICMP echo request, id 30, seq 87, length 64
-17:17:55.856079 MPLS (label 100007, exp 0, [S], ttl 62) IP 10.101.1.1 > 10.107.1.1: ICMP echo reply, id 30, seq 87, length 64
+listening on br-07e02174172b, link-type EN10MB (Ethernet), capture size 262144 bytes
+23:19:39.310524 MPLS (label 100001, exp 0, [S], ttl 62) IP 20.0.0.1 > 10.101.2.1: ICMP echo request, id 11, seq 767, length 64
+23:19:39.315326 MPLS (label 100007, exp 0, ttl 61) (label 24009, exp 0, [S], ttl 62) IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 11, seq 767, length 64
+23:19:39.610924 MPLS (label 100001, exp 0, [S], ttl 62) IP 20.0.0.1 > 10.101.2.1: ICMP echo request, id 11, seq 768, length 64
+23:19:39.667534 MPLS (label 100007, exp 0, ttl 61) (label 24009, exp 0, [S], ttl 62) IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 11, seq 768, length 64
+23:19:39.911902 MPLS (label 100001, exp 0, [S], ttl 62) IP 20.0.0.1 > 10.101.2.1: ICMP echo request, id 11, seq 769, length 64
+23:19:39.924014 MPLS (label 100007, exp 0, ttl 61) (label 24009, exp 0, [S], ttl 62) IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 11, seq 769, length 64
 ```
 
-7. Cleanup Rome's routes and execute the least utilized path service with SRv6 encapsulation
+6. Cleanup Rome's routes and execute the least utilized path service with SRv6 encapsulation
 ```
 ./cleanup_rome_routes.sh 
 python3 client.py -f rome.json -e srv6 -s lu
 ```
+Expected client.py console output:
+```
+cisco@rome:~/SRv6_dCloud_Lab/lab_7$ python3 client.py -f rome.json -e srv6 -s lu
+src data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'src_peer': '10.0.0.7'}]
+dest data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'dst_peer': '10.0.0.1'}]
+Least Utilized Service
+locators:  ['fc00:0:6666::', 'fc00:0:2222::', 'fc00:0:1111::']
+prefix_sids:  [100006, 100002, 100001]
+srv6 sid:  fc00:0:6666:2222:1111::
+adding linux SRv6 route: ip route add 10.101.2.0/24 encap seg6 mode encap segs fc00:0:6666:2222:1111:: dev ens192
+default via 198.18.128.1 dev ens160 proto static 
+10.0.0.0/24 via 10.107.1.2 dev ens192 proto static 
+10.1.1.0/24 via 10.107.1.2 dev ens192 proto static 
+10.101.1.0/24 via 10.107.1.2 dev ens192 proto static 
+10.101.2.0/24  encap seg6 mode encap segs 1 [ fc00:0:6666:2222:1111:: ] dev ens192 scope link    <-------------
+10.101.3.0/24 via 10.107.2.2 dev ens224 proto static 
+10.107.1.0/24 dev ens192 proto kernel scope link src 10.107.1.1 
+10.107.2.0/24 dev ens224 proto kernel scope link src 10.107.2.1 
+198.18.128.0/18 dev ens160 proto kernel scope link src 198.18.128.103
+```
 
-8. Repeat, or just spot-check, steps 2 - 6
+7. Repeat, or just spot-check the ping and tcpdump steps describe in 3 - 5
 
 ### Low Latency Path
 The procedure is the same as Least Utilized Path
