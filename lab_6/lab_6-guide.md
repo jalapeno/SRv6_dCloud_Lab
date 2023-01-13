@@ -35,7 +35,13 @@ Jalapeno's data collectors publish their data to Kafka topics. Jalapeno's data p
 
 ### Continue on the Jalapeno VM
 
-1. Login to the Kafka container and list topics:
+1. In a separate terminal session ssh to the Jalapeno VM 
+    ```
+    cisco@198.18.128.101
+    pw = cisco123
+    ```
+
+2. Login to the Kafka container and list topics:
 ```
 kubectl exec -it kafka-0 /bin/bash -n jalapeno
 
@@ -86,7 +92,7 @@ jalapeno.ls_node_edge_events
 jalapeno.telemetry
 ```
 
-2. Monitor a Kafka topic:
+3. Monitor a Kafka topic:
  - ISIS node data (via BGP-LS NLRIs) is published to the ls_node topic:
 ```
 ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_node
@@ -106,7 +112,7 @@ jalapeno.telemetry
 ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic jalapeno.telemetry
 ```
 
-3. The gobmp topics should be fairly quiet unless BGP updates are happening. Try clearing bgp-ls or bgp-vpnv4 on one of the RRs and see what data comes through when monitoring the Kafka topic.
+4. The gobmp topics should be fairly quiet unless BGP updates are happening. Try clearing bgp-ls or bgp-vpnv4 on one of the RRs and see what data comes through when monitoring the Kafka topic.
 
 ```
 clear bgp vpnv4 unicast * soft
