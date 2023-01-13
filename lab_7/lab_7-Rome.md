@@ -1,39 +1,17 @@
 ## POC host-based SRv6 and SR-MPLS SDN 
 
-The Rome VM is simulating a linux host or other endpoint that will subscribe to SR and SRv6 services from the XRd network
-
-1. Enable MPLS forwarding on xrd01 and xrd07 host-facing interfaces to allow for forwarding of labeled packets coming from the Rome VM
-
-```
-mpls static
- int gigabitEthernet 0/0/0/0
- commit
-```
-validate:
-```
-show mpls interface
-```
-Expected output:
-```
-Fri Dec 23 23:24:11.146 UTC
-Interface                  LDP      Tunnel   Static   Enabled 
--------------------------- -------- -------- -------- --------
-GigabitEthernet0/0/0/0     No       No       Yes      Yes
-GigabitEthernet0/0/0/1     No       No       No       Yes
-GigabitEthernet0/0/0/2     No       No       No       Yes
-```
-
-2.  Login to the Rome VM
-```
-ssh cisco@198.18.128.103
-```
-Both the Rome and Amsterdam VM's are pre-loaded with a python client that can query Jalapeno and create linux ip routes with SR or SRv6 encapsulations.
+The Rome VM is simulating a user host or endpoint and will simply use its Linux dataplane to perform SR or SRv6 traffic encapsulation:
 
  - Linux SRv6 route reference: https://segment-routing.org/index.php/Implementation/Configuration
 
- - For host-based SR we'll simply use Linux's iproute2 MPLS implemenation. There are a number of decent references to be found; this one is very straightforward: https://liuhangbin.netlify.app/post/mpls-on-linux/
+ - There is no Linux "SR-MPLS" per se, but from the host's perspective its just labels, so we'll use the iproute2 MPLS implemenation. There are a number of decent references to be found; this one is very straightforward: https://liuhangbin.netlify.app/post/mpls-on-linux/
 
-3. On the Rome VM cd into the lab_7 directory where the client resides:
+1.  Login to the Rome VM
+```
+ssh cisco@198.18.128.103
+```
+
+2. On the Rome VM cd into the lab_7 directory where the client resides:
 ```
 cd ~/SRv6_dCloud_Lab/lab_7
 ```
@@ -42,23 +20,30 @@ cd ~/SRv6_dCloud_Lab/lab_7
 cat rome.json
 cat cleanup_rome_routes.sh
 cat client.py
-ls netservice
+ls netservice/
 
 ```
-4. Set the Rome VM's SRv6 localsid source address:
+4. For SRv6 we'll need to set Rome's SRv6 localsid source address:
 
 ```
 sudo ip sr tunsrc set fc00:0:107:1::1
 ```
 5. Ensure Rome VM is setup to support SR/MPLS:
 ```
-modprobe mpls_router
-modprobe mpls_iptunnel
+sudo modprobe mpls_router
+sudo modprobe mpls_iptunnel
 lsmod | grep mpls
 ```
 
 ### Jalapeno python client:
-A host or endpoint with this client can request a network service between a given source and destination. Currently supported services are: Low Latency Path, Least Utilized Path, Data Sovereignty Path, and an informational Get All Paths service. The client passes its service request as a Shortest Path query to Jalapeno's Arango graphDB. The DB performs a traversal of its graph and responds with a dataset reflecting the shortest path per the query. The client receives the data, performs some data manipulation as needed and then constructs a local SR or SRv6 route/policy.
+A host or endpoint with this client can request a network service between a given source and destination. The client's currently supported services are: 
+
+ - Low Latency Path
+ - Least Utilized Path
+ - Data Sovereignty Path
+ - Get All Paths (informational only)
+ 
+ When executed the client passes its service request as a Shortest Path query to Jalapeno's Arango graphDB. The DB performs a traversal of its graph and responds with a dataset reflecting the shortest path per the query. The client receives the data, performs some data manipulation as needed and then constructs a local SR or SRv6 route/policy.
 
 Currently the client operates as a CLI tool, which expects to see a set of command line arguments. A user or application may operate the client by specifying the desired network service (-s) and encapsulation(-e), and inputs a json file which contains source and destination info and a few other items.
 
@@ -69,15 +54,32 @@ For ease of use the currently supported network services are abbreviated:
  - lu = least_utilized
  - ds = data_sovereignty
 
-Example client command:
-```
-python3 client.py -f rome.json -e srv6 -s lu
-```
-client help:
+1. Access client help with the *-h* argument:
 ```
 python3 client.py -h
 ``` 
-The client's network service modules are located in the netservice directory. When invoked the client first calls the src_dst.py module, which queries the graphDB and returns database ID info for the source and destination prefixes. The client then runs the selected service module (gp, ll, lu, or ds) and calculates an SRv6 uSID or SR label stack, which will satisfy the network service request. The netservice module then calls the add_route.py module to create the local SR or SRv6 route/policy.
+Expected output:
+```
+cisco@rome:~/SRv6_dCloud_Lab/lab_7$ python3 client.py -h
+usage: Jalapeno client [-h] [-e E] [-f F] [-s S]
+
+takes command line input and calls path calculator functions
+
+optional arguments:
+  -h, --help  show this help message and exit
+  -e E        encapsulation type <sr> <srv6>
+  -f F        json file with src, dst, parameters
+  -s S        requested network service: sr = low_latency, lu = least_utilized, ds = data_sovereignty, gp = get_paths)
+
+client.py -f <json file> -e <sr or srv6> -s <ll, lu, ds, or gp>
+```
+
+Example client command with network-service arguments:
+```
+python3 client.py -f rome.json -e srv6 -s lu
+```
+
+The client's network service modules are located in the *netservice* directory. When invoked the client first calls the src_dst.py module, which queries the graphDB and returns database ID info for the source and destination prefixes. The client then runs the selected service module (gp, ll, lu, or ds) and calculates an SRv6 uSID or SR label stack, which will satisfy the network service request. The netservice module then calls the add_route.py module to create the local SR or SRv6 route/policy.
 
 ## Network Services
 ### Get All Paths
