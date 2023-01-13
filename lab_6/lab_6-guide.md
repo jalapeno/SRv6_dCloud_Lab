@@ -13,17 +13,8 @@ In Lab 6 we will explore the Jalapeno system running on Kubernetes. We will log 
   - [Kafka Intro](#kafka-intro)
   - [Kafka Topics](#kafka-topics)
   - [Monitoring a Kafka topic](#monitoring-a-kafka-topic)
-  - [Arango GraphDB](#arango-graphdb)
-    - [Basic queries to explore data collections](#basic-queries-to-explore-data-collections)
-  - [Populating the DB with external data](#populating-the-db-with-external-data)
-  - [Arango Graph traversals and shortest path queries](#arango-graph-traversals-and-shortest-path-queries)
-    - [Shortest Path](#shortest-path)
-  - [Shortest path queries using metrics other than hop count](#shortest-path-queries-using-metrics-other-than-hop-count)
-    - [Query for the lowest latency path:](#query-for-the-lowest-latency-path)
-  - [Graph Traversals](#graph-traversals)
-    - [Query for the least utilized path](#query-for-the-least-utilized-path)
-  - [K Shortest Paths](#k-shortest-paths)
-    - [A Data sovereignty query](#a-data-sovereignty-query)
+    - [ISIS Link State](#isis-link-state)
+    - [SRv6 Locator SID](#srv6-locator-sid)
   - [End of lab 6](#end-of-lab-6)
 
 ## Lab Objectives
@@ -120,33 +111,186 @@ For additional help on Kafka see this external CLI cheat sheet [HERE](https://me
 The *kafka-console-consumer.sh* utility allows one to manually monitor a given topic and see messages as they are published to Kafka by Jalapeno's GoBMP collector. This gives us a nice troubleshooting tool for scenarios where a router may be sending data to the collector, but the data is not seen in the DB.
 
 In the next set of steps we'll run the CLI to monitor a Kafka topic and watch for data from the GoBMP collector. GoBMP's topics are fairly quiet unless BGP updates are happening. So, once we have our monitoring session up we'll clear bgp-ls on the RR, which should result in a flood of data onto the topic.
-1. Monitor the BGP-LS *"ls_node"* topic for incoming BMP messages describing ISIS nodes in the network:  
+
+In this exercise we are going to stitch together several elements that we have worked on through out this lab. Each router in the lab was configured with a SRv6 locator SID that is unique. We will use the tools to examine how that is communicated through the network and into Jalapeno
+
+#### ISIS Link State
+   1. Monitor the BGP-LS *"ls_node"* topic for incoming BMP messages describing ISIS nodes in the network:
+
+        ```
+        ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_node
+        ```
+
+        Optional - enable terminal monitoring and debugging the of BGP-LS address family on one of the route reflectors such as xrd05:
+        ```
+        terminal monitor
+        debug bgp update afi link-state link-state in
+        ```
+        - Fair warning: this will output quite a bit of data when the AFI is cleared
+        
+    2. Connect to xrd01 and clear the BGP-LS address family
+        ```
+        clear bgp link-state link-state * soft
+        ```
+
+        One the Kafka console we expect to see 14 json objects representing BMP messages coming from our 2 route reflectors and describing our 7 different ISIS nodes. Example messages:
+
+        ```json
+        {
+            "action": "add",
+            "router_hash": "0669df0f031fb83e345267a9679bbc6a",
+            "domain_id": 0,
+            "router_ip": "10.0.0.5",
+            "peer_hash": "ef9f1cc86e4617df24d4675e2b55bbe2",
+            "peer_ip": "10.0.0.1",
+            "peer_asn": 65000,
+            "timestamp": "2023-01-13T20:20:51.000164765Z",
+            "igp_router_id": "0000.0000.0001",
+            "router_id": "10.0.0.1",
+            "asn": 65000,
+            "mt_id_tlv": [
+                {
+                    "o_flag": false,
+                    "a_flag": false,
+                    "mt_id": 0
+                },
+                {
+                    "o_flag": false,
+                    "a_flag": false,
+                    "mt_id": 2
+                }
+            ],
+            "area_id": "49.0901",
+            "protocol": "IS-IS Level 2",
+            "protocol_id": 2,
+            "name": "xrd01",
+            "ls_sr_capabilities": {
+                "flags": {
+                    "i_flag": true,
+                    "v_flag": false
+                },
+                "sr_capability_subtlv": [
+                    {
+                        "range": 64000,
+                        "sid": 100000
+                    }
+                ]
+            },
+            "sr_algorithm": [
+                0,
+                1
+            ],
+            "sr_local_block": {
+                "flags": 0,
+                "subranges": [
+                    {
+                        "range_size": 1000,
+                        "label": 15000
+                    }
+                ]
+            },
+            "srv6_capabilities_tlv": {
+                "o_flag": false
+            },
+            "node_msd": [
+                {
+                    "msd_type": 1,
+                    "msd_value": 10
+                }
+            ],
+            "is_prepolicy": false,
+            "is_adj_rib_in": false
+        }
+        ```
+#### SRv6 Locator SID    
+1. Now lets examine the SRv6 policy on *xrd01* with the command *show run segment-routing traffic-eng policy low-latency*
     ```
-    ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_node
+    segment-routing
+        traffic-eng
+        policy low-latency
+        srv6
+            locator MyLocator binding-sid dynamic behavior ub6-insert-reduced  <-- SRv6 Locator
+        !
+        color 50 end-point ipv6 fc00:0:7777::1
+        candidate-paths
+            preference 100
+            explicit segment-list xrd567
+
+2. Next since we have identified the locator policy name *MyLocator* let's see config with *show run segment-routing srv6*
+   ```
+   segment-routing
+    srv6
+    encapsulation
+    source-address fc00:0:1111::1
+    !
+    locators
+    locator MyLocator
+        micro-segment behavior unode psp-usd
+        prefix fc00:0:1111::/48     <----- xrd01 IPv6 locator defined
+    ```
+3. With **xrd01** SID locator identified lets see how that is communicated through the BMP from the route reflectors.
+   Monitor the BGP-LS *"ls_srv6_sid"* topic for incoming BMP messages describing SRv6 SIDs in the network:  
+    ```
+    ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_srv6_sid
     ```
 
     Optional - enable terminal monitoring and debugging the of BGP-LS address family on one of the route reflectors such as xrd05:  
 
     ```
     terminal monitor
-    debug bgp update afi link-state link-state in
+    debug bgp update afi vpnv6 unicast in
     ```
-
     *Fair warning: this will output quite a bit of data when the AFI is cleared*
-2. Connect to xrd01 and clear the BGP-LS address family
+
+4. Connect to xrd01 and clear the BGP-LS address family
     ```
     clear bgp link-state link-state * soft
     ```
 
     One the Kafka console we expect to see 14 json objects representing BMP messages coming from our 2 route reflectors and describing our 7 different ISIS nodes. Example messages:
-
-
-
-3. Stop the kafka monitor (ctrl-c) and then restart it and monitor the *ls_srv6_sid* topic to see incoming SRv6 locator SID messages:
+    ```json
+    {
+        "action": "add",
+        "router_hash": "0669df0f031fb83e345267a9679bbc6a",
+        "router_ip": "10.0.0.5",
+        "domain_id": 0,
+        "peer_hash": "ef9f1cc86e4617df24d4675e2b55bbe2",
+        "peer_ip": "10.0.0.1",
+        "peer_asn": 65000,
+        "timestamp": "2023-01-13T19:49:01.000764233Z",
+        "igp_router_id": "0000.0000.0001",
+        "local_node_asn": 65000,
+        "protocol_id": 2,
+        "protocol": "IS-IS Level 2",
+        "nexthop": "10.0.0.1",
+        "local_node_hash": "89cd5823cd2cb0cfc304a61117c89a45",
+        "mt_id_tlv": {
+            "o_flag": false,
+            "a_flag": false,
+            "mt_id": 2
+        },
+        "igp_flags": 0,
+        "is_prepolicy": false,
+        "is_adj_rib_in": false,
+        "srv6_sid": "fc00:0:1111::",   <---- xrd01 loactor SID
+        "srv6_endpoint_behavior": {
+            "endpoint_behavior": 48,
+            "flag": 0,
+            "algo": 0
+        },
+        "srv6_sid_structure": {
+            "locator_block_length": 32,
+            "locator_node_length": 16,
+            "function_length": 0,
+            "argument_length": 80
+        }
+    }
+    ```
+5. Stop the kafka monitor (ctrl-c) and then restart it and monitor the *ls_srv6_sid* topic to see incoming SRv6 locator SID messages:
     ```
     ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_srv6_sid
     ```
-4. Again on xrd01 clear the BGP-LS address family
+6. Again on xrd01 clear the BGP-LS address family
     ```
     clear bgp link-state link-state * soft
     ```
