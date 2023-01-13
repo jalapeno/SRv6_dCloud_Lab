@@ -215,37 +215,18 @@ In this exercise we are going to stitch together several elements that we have w
         }
         ```
 #### SRv6 Locator SID    
-   1. Now lets examine the SRv6 policy on *xrd01* with the command 
-        ```  
-        show run segment-routing traffic-eng policy low-latency
+   1. Now lets examine the SRv6 locator configuration on *xrd01* with the command: show run segment-routing srv6 locators 
+      ```  
     
-        segment-routing
-            traffic-eng
-            policy low-latency
-            srv6
-                locator MyLocator binding-sid dynamic behavior ub6-insert-reduced  <-- SRv6 Locator
-            !
-            color 50 end-point ipv6 fc00:0:7777::1
-            candidate-paths
-                preference 100
-                explicit segment-list xrd567
-        ```
-
-   2. Next since we have identified the locator policy name *MyLocator* let's look at the config:
-    
-      ```
-      show run segment-routing srv6
+      show run segment-routing srv6 locators
 
       segment-routing
        srv6
-       encapsulation
-       source-address fc00:0:1111::1
-       !
-       locators
-       locator MyLocator
+        locators
+         locator MyLocator
            micro-segment behavior unode psp-usd
-           prefix fc00:0:1111::/48     <----- xrd01 IPv6 locator defined
-       ```
+           prefix fc00:0:1111::/48     <----- xrd01 SRv6 locator defined
+      ```
 
    4. With **xrd01** SID locator identified lets see how that is communicated through the BMP from the route reflectors.
       Monitor the BGP-LS *ls_srv6_sid* topic for incoming BMP messages describing SRv6 SIDs in the network:  
