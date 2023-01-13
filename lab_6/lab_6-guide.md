@@ -338,7 +338,7 @@ https://www.arangodb.com/docs/stable/aql/index.html
     ```
 ### Populating the DB with external data 
 
-The add_meta_data.py python script will connect to the ArangoDB and populate elements in our data collections with addresses and country codes. Also, due to the fact that we can't run realistic traffic through the xrd topology the script will populate the relevant graphDB elements with synthetic link latency and utilization data per this diagram:
+The *add_meta_data.py* python script will connect to the ArangoDB and populate elements in our data collections with addresses and country codes. Also, due to the fact that we can't run realistic traffic through the xrd topology the script will populate the relevant graphDB elements with synthetic link latency and utilization data per this diagram:
 
 <img src="/topo_drawings/path-latency-topology.png" width="900">
 
@@ -353,7 +353,8 @@ python3 add_meta_data.py
 for l in sr_topology return { key: l._key, from: l._from, to: l._to, latency: l.latency, 
     utilization: l.percent_util_out, country_codes: l.country_codes }
 ```
- - Note: only the ISIS links in the DB have latency and utilization numbers. The Amsterdam and Rome VMs are directly connected to PEs xrd01 and xrd07, so their "edge connections" in the DB are effectively zero latency.
+ - Note: only the ISIS links in the DB have latency and utilization numbers. The Amsterdam and Rome VMs are directly connected to PEs xrd01 and xrd07, so their "edge connections" in the DB are effectively zero latency. 
+  - The *add_meta_data.py* script has also populated country codes for all the countries a give link traverses from one node to its adjacent peer. Example: xrd01 is in Amsterdam, and xrd02 is in Berlin. Thus the xrd01 <--> xrd02 link traverses [NLD, DEU]
 
 3. Run the get_nodes.py script to get a listing of nodes in the network, their addresses, and SR/SRv6 SID data:
 ```
