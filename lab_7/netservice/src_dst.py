@@ -3,7 +3,7 @@ from arango import ArangoClient
 def get_src_dst(src, prefix, user, pw, dbname):
     client = ArangoClient(hosts='http://198.18.128.101:30852')
     db = client.db(dbname, username=user, password=pw)
-    print(src, prefix)
+    # print(src, prefix)
     aql = db.aql
     cursor = db.aql.execute("""for u in unicast_prefix_v4 filter u.prefix == """  + '"%s"' % src +  """ \
         return { id: u._id, src_peer: u.peer_ip } """)
