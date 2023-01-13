@@ -369,9 +369,9 @@ https://www.arangodb.com/docs/stable/aql/graphs.html
 This type of query is supposed to find the shortest path between two given documents (startVertex and targetVertex) in your graph. In our case the shortest path between two different nodes in the graph's representation of our network.
 
 1. Return to the ArangoDB browser UI and run a shortest path query from xrd01 to xrd07, and have it return SR and SRv6 SID data:
-
-<code>for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0001' TO 'sr_node/2_0_0_0000.0000.0007' sr_topology return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, srv6sid: v.srv6_sid }
-</code>
+```
+for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0001' TO 'sr_node/2_0_0_0000.0000.0007' sr_topology return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, srv6sid: v.srv6_sid }
+```
 2. Run the query against the return path:
 ```
 for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0007' TO 'sr_node/2_0_0_0000.0000.0001' sr_topology return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, srv6sid: v.srv6_sid }
