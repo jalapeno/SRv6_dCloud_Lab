@@ -134,19 +134,21 @@ python3 client.py -f rome.json -e sr -s lu
 ```
  - The client's command line output should display the new route in the routing table:
 ```
-20.0.0.0 10.101.1.0
+20.0.0.0 10.101.2.0
 for u in unicast_prefix_v4 filter u.prefix == "20.0.0.0"         return { id: u._id, src_peer: u.peer_ip } 
 src_dict:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'src_peer': '10.0.0.7'}]
-dst_dict:  [{'id': 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1', 'dst_peer': '10.0.0.1'}]
+dst_dict:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'dst_peer': '10.0.0.1'}]
 Least Utilized Service
 locators:  ['fc00:0:6666::', 'fc00:0:2222::', 'fc00:0:1111::']
 prefix_sids:  [100006, 100002, 100001]
 srv6 sid:  fc00:0:6666:2222:1111::
-command: sudo ip route add 10.101.1.0/24 encap mpls 100006/100002/100001 via 10.107.1.2 dev ens192
+command: sudo ip route add 10.101.2.0/24 encap mpls 100006/100002/100001 via 10.107.1.2 dev ens192
+RTNETLINK answers: File exists
 default via 198.18.128.1 dev ens160 proto static 
 10.0.0.0/24 via 10.107.1.2 dev ens192 proto static 
 10.1.1.0/24 via 10.107.1.2 dev ens192 proto static 
-10.101.1.0/24  encap mpls  100006/100002/100001 via 10.107.1.2 dev ens192     <----------------------------
+10.101.1.0/24 via 10.107.1.2 dev ens192 proto static 
+10.101.2.0/24  encap mpls  100006/100002/100001 via 10.107.1.2 dev ens192 
 10.101.2.0/24 via 10.107.1.2 dev ens192 proto static 
 10.101.3.0/24 via 10.107.2.2 dev ens224 proto static 
 10.107.1.0/24 dev ens192 proto kernel scope link src 10.107.1.1 
@@ -168,12 +170,12 @@ ip route
 ```
 sudo tcpdump -ni ens192
 ```
- - Return to the first Rome ssh session and ping
+ - Return to the first Rome ssh session and ping Amsterdam with Rome source address 20.0.0.1. The "-i .3" argument sets the ping interval to 300ms
 ```
-ping 10.101.1.1 -i .4
+ping 10.101.2.1 -I 20.0.0.1 -i .3
 ```
 
-4. Validate traffic is encapsulated in the SR label stack. Expected output will be something like:
+4. Check the Rome tcpdump to validate traffic is encapsulated in the SR label stack. Expected output will be something like:
 ```
 cisco@rome:~$ sudo tcpdump -ni ens192
 tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
