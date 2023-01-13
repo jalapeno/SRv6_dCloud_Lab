@@ -32,6 +32,7 @@ In Lab 6 we will explore the Jalapeno system running on Kubernetes. We will log 
 The student upon completion of Lab 6 should have achieved the following objectives:
 
 * A tour of the Jalapeno platform and high level understanding of how it collects and processes data
+* Familiarity with Kafka and Kafka's command line utilities
 * Familiarity with the ArangoDB UI and the BMP/BGP data collections the system has created
 * Familiarity with Arango Query Language (AQL) syntax
 * Familiarity with more complex Arango shortest-path and graph traversal queries
@@ -45,7 +46,7 @@ From the Kafka [homepage](https://kafka.apache.org/): Apache Kafka is an open-so
 
 Jalapeno uses Kafka as a message bus between its data collectors and data processors. Jalapeno's data collectors create Kafka topics then publish their datasets to those topics. Jalapeno's data processors subscribe to the relevant Kafka topics, gather the published data, and write it to either the graphDB or TSDB. This Collector -> Kafka -> Processor -> DB pipeline allows for architectural flexibility and extensibility such that other applications could subscribe to the Jalapeno Kafka topics and use the BMP or telemetry data for their own purposes.
 
-Kafka has a number of built in command line utilities to do things like listing topics or outputting of topic data to the screen, which we'll do in the next section of the lab. Here's a nice blog post on Kafka's CLI as well:
+Kafka has a number of built in command line utilities to do things like listing topics or outputting of topic data to the screen, which we'll do in the next section of the lab. 
 
 For additional help on Kafka see this external CLI cheat sheet [HERE](https://medium.com/@TimvanBaarsen/apache-kafka-cli-commands-cheat-sheet-a6f06eac01b)
 
@@ -119,9 +120,9 @@ For additional help on Kafka see this external CLI cheat sheet [HERE](https://me
 
 ### Monitoring a Kafka topic
 
-The *kafka-console-consumer.sh* utility allows one to manually monitor a given topic and see messages as they are published to Kafka by Jalapeno's GoBMP collector. This gives us a nice troubleshooting tool for scenarios where a router may be sending data to the collector, but the data is not seen in the DB.
+The *kafka-console-consumer.sh* utility allows one to manually monitor a given topic and see messages as they are published to Kafka by the GoBMP collector. This gives us a nice troubleshooting tool for scenarios where a router may be sending data to the collector, but the data is not seen in the DB.
 
-In the next set of steps we'll run the CLI to monitor a Kafka topic and watch for data from the GoBMP collector. GoBMP's topics are fairly quiet unless BGP updates are happening. So, once we have our monitoring session up we'll clear bgp-ls on the RR, which should result in a flood of data onto the topic.
+In the next set of steps we'll run the CLI to monitor a Kafka topic and watch for data from GoBMP. GoBMP's topics are fairly quiet unless BGP updates are happening, so once we have our monitoring session up we'll clear BGP-LS on the RR, which should result in a flood of data onto the topic.
 
 In this exercise we are going to stitch together several elements that we have worked on through out this lab. Each router in the lab was configured with a SRv6 locator SID that is unique. We will use the tools to examine how that is communicated through the network and into Jalapeno
 
