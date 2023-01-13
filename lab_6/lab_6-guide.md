@@ -171,7 +171,7 @@ for l in sr_node return { node: l.router_id, name: l.name, prefix_sid: l.prefix_
 
 The add_meta_data.py python script will connect to the ArangoDB and populate elements in our data collections with addresses and country codes. Also, due to the fact that we can't run realistic traffic through the xrd topology the script will populate the relevant graphDB elements with synthetic link latency and utilization data per this diagram:
 
-<img src="latency-util.png" width="900">
+<img src="/topo_drawings/path-latency-topology.png" width="900">
 
 1. Return to the ssh session on the Jalapeno VM and add meta data to the DB:
 ```
