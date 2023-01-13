@@ -108,12 +108,14 @@ locators:  [None, 'fc00:0000:4444::', 'fc00:0000:3333::', 'fc00:0000:2222::', 'f
 ```
 You can also experiment with the script's graph traversal parameters to limit or expand the number of vertex 'hops' the query will search for. Note: ArangoDB considers the source and destination vertices as 'hops' when doing its graph traversal.
 
-2. Change the 'gp' service's hopcount parameters. Open the netservice/gp.py file in a text editor (vi, vim) and change parameters in line 9. https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_7/netservice/gp.py#L9
+2. Change the 'gp' service's hopcount parameters. Open the netservice/gp.py file in a text editor (vi, vim) and change parameters in line 9: 
+
+https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_7/netservice/gp.py#L9
 
 ```
 for v, e, p in 6..6 outbound
 ```
-Save gp.py and re-run the script. You should see more path options in the command line output and log.
+Save gp.py and re-run the script. You should see fewer path options in the command line output and log.
 
 3. Try increasing the number of hops the graph may traverse:
 
@@ -123,16 +125,33 @@ Save gp.py and re-run the script. You should see more path options in the comman
 Save the file and re-run the script. You should see more path options in the command line output and log.
 
 ### Least Utilized Path
-Many segment routing and SDN solutions focus on the low latency path as their primary use case. We absolutely feel low latency is an important network service, especially for real time applications. However, we believe one of the use cases which deliver the most bang for the buck is "Least Utilized Path". The idea behind this use case is that the routing protocol's chosen best path is usually the Best Path. Thus this service looks to steer lower priority traffic (backups, content replication, etc.) to lesser used paths and preserve the routing protocol's best path for higher priority traffic.
+Many segment routing and SDN solutions focus on the low latency path as their primary use case. We absolutely feel low latency is an important network service, especially for real time applications. However, we believe one of the use cases which deliver the most bang for the buck is "Least Utilized Path". The idea behind this use case is that the routing protocol's chosen best path is usually *The Best Path*. Thus the *Least Utilized* service looks to steer lower priority traffic (backups, content replication, etc.) to lesser used paths and preserve the routing protocol's best path for higher priority traffic.
 
-1. Cleanup and stale routes and execute the least utilized path service with SR encapsulation
+1. Cleanup any stale routes on the VM and execute the least utilized path service with SR encapsulation
 ``` 
 ./cleanup_rome_routes.sh 
 python3 client.py -f rome.json -e sr -s lu
 ```
  - The client's command line output should display the new route in the routing table:
 ```
-10.101.1.0/24  encap mpls  100006/100002/100001 via 10.107.1.2 dev ens192 
+20.0.0.0 10.101.1.0
+for u in unicast_prefix_v4 filter u.prefix == "20.0.0.0"         return { id: u._id, src_peer: u.peer_ip } 
+src_dict:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'src_peer': '10.0.0.7'}]
+dst_dict:  [{'id': 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1', 'dst_peer': '10.0.0.1'}]
+Least Utilized Service
+locators:  ['fc00:0:6666::', 'fc00:0:2222::', 'fc00:0:1111::']
+prefix_sids:  [100006, 100002, 100001]
+srv6 sid:  fc00:0:6666:2222:1111::
+command: sudo ip route add 10.101.1.0/24 encap mpls 100006/100002/100001 via 10.107.1.2 dev ens192
+default via 198.18.128.1 dev ens160 proto static 
+10.0.0.0/24 via 10.107.1.2 dev ens192 proto static 
+10.1.1.0/24 via 10.107.1.2 dev ens192 proto static 
+10.101.1.0/24  encap mpls  100006/100002/100001 via 10.107.1.2 dev ens192     <----------------------------
+10.101.2.0/24 via 10.107.1.2 dev ens192 proto static 
+10.101.3.0/24 via 10.107.2.2 dev ens224 proto static 
+10.107.1.0/24 dev ens192 proto kernel scope link src 10.107.1.1 
+10.107.2.0/24 dev ens224 proto kernel scope link src 10.107.2.1 
+198.18.128.0/18 dev ens160 proto kernel scope link src 198.18.128.103 
 ```
 
 2. Check log output and linux ip route:
