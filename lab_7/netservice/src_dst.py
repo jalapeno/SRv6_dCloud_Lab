@@ -10,14 +10,14 @@ def get_src_dst(src, prefix, user, pw, dbname):
     src_dict = [doc for doc in cursor]
     # print("""for u in unicast_prefix_v4 filter u.prefix == """  + '"%s"' % src +  """ \
     #     return { id: u._id, src_peer: u.peer_ip } """)
-    print("src info: ", src_dict)
+    print("src data: ", src_dict)
 
     # Get destination prefix ID to end graph traversal
     aql = db.aql
     cursor = db.aql.execute("""for u in unicast_prefix_v4 filter u.prefix == """  + '"%s"' % prefix +  """ \
         return { id: u._id, dst_peer: u.peer_ip } """)
     dst_dict = [doc for doc in cursor]
-    print("dest info: ", dst_dict)
+    print("dest data: ", dst_dict)
 
     id = "id"
     src_peer = "src_peer"

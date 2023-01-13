@@ -2,14 +2,14 @@ import subprocess
 
 def add_linux_route(dst, srv6_sid, prefix_sid, intf, encap):
     if encap == "srv6":
-        print("command: sudo ip route add", dst, "encap seg6 mode encap segs", srv6_sid, "dev", intf)
+        print("adding linux SRv6 route: sudo ip route add", dst, "encap seg6 mode encap segs", srv6_sid, "dev", intf)
         d = subprocess.call(['sudo', 'ip', 'route', 'del', dst])
         a = subprocess.call(['sudo', 'ip', 'route', 'add', dst, 'encap', 'seg6', 'mode', 'encap', 'segs', srv6_sid, 'dev', intf])
         subprocess.call(['ip', 'route'])
 
     if encap == "sr":
         label_stack = '/'.join([str(elem) for elem in prefix_sid])
-        print("command: sudo ip route add", dst, "encap mpls", label_stack, "via 10.107.1.2 dev", intf)
+        print("adding linux SR route: sudo ip route add", dst, "encap mpls", label_stack, "via 10.107.1.2 dev", intf)
         a = subprocess.call(['sudo', 'ip', 'route', 'add', dst, 'encap', 'mpls', label_stack, 'via', '10.107.1.2', 'dev', intf])
         subprocess.call(['ip', 'route'])
 
