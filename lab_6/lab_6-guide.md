@@ -131,6 +131,10 @@ In the next set of steps we'll run the CLI to monitor a Kafka topic and watch fo
     ```
 
     One the Kafka console we expect to see 14 json objects representing BMP messages coming from our 2 route reflectors and describing our 7 different ISIS nodes. Example messages:
+
+    ```json
+    {"action":"add","router_hash":"0669df0f031fb83e345267a9679bbc6a","domain_id":0,"router_ip":"10.0.0.5","peer_hash":"ef9f1cc86e4617df24d4675e2b55bbe2","peer_ip":"10.0.0.1","peer_asn":65000,"timestamp":"2023-01-12T21:47:51.000349811Z","igp_router_id":"0000.0000.0004","router_id":"10.0.0.4","asn":65000,"mt_id_tlv":[{"o_flag":false,"a_flag":false,"mt_id":0},{"o_flag":false,"a_flag":false,"mt_id":2}],"area_id":"49.0901","protocol":"IS-IS Level 2","protocol_id":2,"name":"xrd04","ls_sr_capabilities":{"flags":{"i_flag":true,"v_flag":false},"sr_capability_subtlv":[{"range":64000,"sid":100000}]},"sr_algorithm":[0,1],"sr_local_block":{"flags":0,"subranges":[{"range_size":1000,"label":15000}]},"srv6_capabilities_tlv":{"o_flag":false},"node_msd":[{"msd_type":1,"msd_value":10}],"is_prepolicy":false,"is_adj_rib_in":false}
+    ```
     
 3. Stop the kafka monitor (ctrl-c) and then restart it and monitor the *ls_srv6_sid* topic to see incoming SRv6 locator SID messages:
     ```
