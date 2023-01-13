@@ -125,6 +125,13 @@ In the next set of steps we'll run the CLI to monitor a Kafka topic and watch fo
     ```
 
     *Fair warning: this will output quite a bit of data when the AFI is cleared*
+2. Connect to xrd01 and clear the BGP-LS address family
+    ```
+    clear bgp link-state link-state * soft
+    ```
+
+    One the Kafka console we expect to see 14 json objects representing BMP messages coming from our 2 route reflectors and describing our 7 different ISIS nodes. Example messages:
+    
 3. Stop the kafka monitor (ctrl-c) and then restart it and monitor the *ls_srv6_sid* topic to see incoming SRv6 locator SID messages:
     ```
     ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_srv6_sid
