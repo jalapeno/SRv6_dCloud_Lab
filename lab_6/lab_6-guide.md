@@ -4,19 +4,27 @@
 In Lab 6 we will explore the Jalapeno system running on Kubernetes. We will log into the Kafka container and monitor topics for data coming in from Jalapeno's data collectors. Data which is subsequently picked up by Jalapeno's data processors (topology, lslinknode, sr-node, sr-topology, etc.) and written to the Arango graphDB. We will spend some time getting familiar with ArangoDB and the Jalapeno data collections, and will run some basic queries. Lastly we will populate the graphDB with some synthetic data and run a number of complex queries including graph traversals.
 
 ## Contents
-1. [Lab Objectives](#lab-objectives)
-2. [Jalapeno Software Stack](#jalapeno-software-stack)
-2. [Kafka](#kafka-intro)
-    - [Intro](#kafka-intro)
-    - [Topics](#kafka-topics)
-    - [Monitoring](#monitoring-a-kafka-topic)
-3. [Arango GraphDB](#arango-graphdb)
-4. [Basic queries](#basic-queries-to-explore-data-collections)
-5. [Populating the DB with meta data](#populating-the-db-with-external-data)
-6. [Graph Traversals and Shortest Path Queries](#arango-graph-traversals-and-shortest-path-queries)
-7. [Shortest Path Using Other Metrics](#shortest-path-queries-using-metrics-other-than-hop-count)
-8. [Shortest Path using Graph Traversal](#graph-traversals)
-9. [K Shortest Paths](#k-shortest-paths)
+- [Lab 6: Exploring Jalapeno, Kafka, and ArangoDB](#lab-6-exploring-jalapeno-kafka-and-arangodb)
+  - [Description](#description)
+- [Contents](#contents)
+- [Lab Objectives](#lab-objectives)
+- [Jalapeno Software Stack](#jalapeno-software-stack)
+- [Kafka](#kafka)
+  - [Kafka Intro](#kafka-intro)
+  - [Kafka Topics](#kafka-topics)
+  - [Monitoring a Kafka topic](#monitoring-a-kafka-topic)
+  - [Arango GraphDB](#arango-graphdb)
+    - [Basic queries to explore data collections](#basic-queries-to-explore-data-collections)
+  - [Populating the DB with external data](#populating-the-db-with-external-data)
+  - [Arango Graph traversals and shortest path queries](#arango-graph-traversals-and-shortest-path-queries)
+    - [Shortest Path](#shortest-path)
+  - [Shortest path queries using metrics other than hop count](#shortest-path-queries-using-metrics-other-than-hop-count)
+    - [Query for the lowest latency path:](#query-for-the-lowest-latency-path)
+  - [Graph Traversals](#graph-traversals)
+    - [Query for the least utilized path](#query-for-the-least-utilized-path)
+  - [K Shortest Paths](#k-shortest-paths)
+    - [A Data sovereignty query](#a-data-sovereignty-query)
+  - [End of lab 6](#end-of-lab-6)
 
 ## Lab Objectives
 The student upon completion of Lab 6 should have achieved the following objectives:
@@ -132,10 +140,8 @@ In the next set of steps we'll run the CLI to monitor a Kafka topic and watch fo
 
     One the Kafka console we expect to see 14 json objects representing BMP messages coming from our 2 route reflectors and describing our 7 different ISIS nodes. Example messages:
 
-    ```json
-    {"action":"add","router_hash":"0669df0f031fb83e345267a9679bbc6a","domain_id":0,"router_ip":"10.0.0.5","peer_hash":"ef9f1cc86e4617df24d4675e2b55bbe2","peer_ip":"10.0.0.1","peer_asn":65000,"timestamp":"2023-01-12T21:47:51.000349811Z","igp_router_id":"0000.0000.0004","router_id":"10.0.0.4","asn":65000,"mt_id_tlv":[{"o_flag":false,"a_flag":false,"mt_id":0},{"o_flag":false,"a_flag":false,"mt_id":2}],"area_id":"49.0901","protocol":"IS-IS Level 2","protocol_id":2,"name":"xrd04","ls_sr_capabilities":{"flags":{"i_flag":true,"v_flag":false},"sr_capability_subtlv":[{"range":64000,"sid":100000}]},"sr_algorithm":[0,1],"sr_local_block":{"flags":0,"subranges":[{"range_size":1000,"label":15000}]},"srv6_capabilities_tlv":{"o_flag":false},"node_msd":[{"msd_type":1,"msd_value":10}],"is_prepolicy":false,"is_adj_rib_in":false}
-    ```
-    
+
+
 3. Stop the kafka monitor (ctrl-c) and then restart it and monitor the *ls_srv6_sid* topic to see incoming SRv6 locator SID messages:
     ```
     ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_srv6_sid
