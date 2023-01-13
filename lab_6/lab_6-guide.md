@@ -127,52 +127,52 @@ Example GoBMP message published to Kafka when monitoring the l3vpn_v4 topic and 
 ### Arango GraphDB
 
 1. Switch to a web browser and connect to Jalapeno's Arango GraphDB
-```
-http://198.18.128.101:30852/
+    ```
+    http://198.18.128.101:30852/
 
-user: root
-password: jalapeno
-DB: jalapeno
+    user: root
+    password: jalapeno
+    DB: jalapeno
 
-```
+    ```
 2. Spend some time exploring the data collections in the DB
 
 #### Basic queries to explore data collections 
-The ArangoDB Query Language (AQL) can be used to retrieve and modify data that are stored in ArangoDB.
+    The ArangoDB Query Language (AQL) can be used to retrieve and modify data that are stored in ArangoDB.
 
-The general workflow when executing a query is as follows:
+    The general workflow when executing a query is as follows:
 
- - A client application ships an AQL query to the ArangoDB server. The query text contains everything ArangoDB needs to compile the result set
+    - A client application ships an AQL query to the ArangoDB server. The query text contains everything ArangoDB needs to compile the result set
 
- - ArangoDB will parse the query, execute it and compile the results. If the query is invalid or cannot be executed, the server will return an error that the client can process and react to. If the query can be executed successfully, the server will return the query results (if any) to the client
+    - ArangoDB will parse the query, execute it and compile the results. If the query is invalid or cannot be executed, the server will return an error that the client can process and react to. If the query can be executed successfully, the server will return the query results (if any) to the client. 
 
-https://www.arangodb.com/docs/stable/aql/index.html
+    https://www.arangodb.com/docs/stable/aql/index.html
 
 
 3. Run some DB Queries:
-```
-for l in ls_node return l
-```
-Note: after running a query you will need to comment it out before running the next query. 
+    ```
+    for l in ls_node return l
+    ```
+    Note: after running a query you will need to comment it out before running the next query. 
 
-Example:
+    Example:
 
-<img src="arango-query.png" width="600">
+    <img src="arango-query.png" width="600">
 
-More sample queries:
-```
-for l in ls_link return l
+    More sample queries:
+    ```
+    for l in ls_link return l
 
-for l in ls_link filter l.mt_id_tlv.mt_id !=2 return l
+    for l in ls_link filter l.mt_id_tlv.mt_id !=2 return l
 
-for l in ls_link filter l.mt_id_tlv.mt_id !=2 return { key: l._key, router_id: l.router_id, igp_id: l.igp_router_id, local_ip: l.local_link_ip, remote_ip: l.remote_link_ip }
+    for l in ls_link filter l.mt_id_tlv.mt_id !=2 return { key: l._key, router_id: l.router_id, igp_id: l.igp_router_id, local_ip: l.local_link_ip, remote_ip: l.remote_link_ip }
 
-for l in ls_node_edge return l
+    for l in ls_node_edge return l
 
-for l in sr_topology return l
+    for l in sr_topology return l
 
-for l in sr_node return { node: l.router_id, name: l.name, prefix_sid: l.prefix_attr_tlvs.ls_prefix_sid, srv6sid: l.srv6_sid }
-```
+    for l in sr_node return { node: l.router_id, name: l.name, prefix_sid: l.prefix_attr_tlvs.ls_prefix_sid, srv6sid: l.srv6_sid }
+    ```
 ### Populating the DB with external data 
 
 The add_meta_data.py python script will connect to the ArangoDB and populate elements in our data collections with addresses and country codes. Also, due to the fact that we can't run realistic traffic through the xrd topology the script will populate the relevant graphDB elements with synthetic link latency and utilization data per this diagram:
