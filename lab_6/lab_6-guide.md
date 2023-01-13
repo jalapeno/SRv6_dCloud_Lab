@@ -385,7 +385,7 @@ for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0007' TO 'sr_node/2_
 ```
 for v, e in outbound shortest_path 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' TO 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, sid: v.srv6_sid, latency: e.latency }
 ```
-These shortest path result are based purely on hop count. Also, in the case of multiple equal cost shortest paths, the Arango query will return the first one it finds. 
+Thus far all of these shortest path query results are based purely on hop count. Also note, in the case where the graph has multiple equal cost shortest paths, the Arango query will return the first one it finds. 
 
 Basic shortest path by hop count is fine, however, the graphDB also allows us to run a 'weighted shortest path query' based on any metric or other piece of meta data in the graph!
 
@@ -395,7 +395,7 @@ Basic shortest path by hop count is fine, however, the graphDB also allows us to
 ```
 for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' sr_topology OPTIONS {weightAttribute: 'latency' } return  { prefix: v.prefix, name: v.name, sid: e.srv6_sid, latency: e.latency }
 ```
-Return path:
+Lowest latency return path:
 ```
 for v, e in outbound shortest_path 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' TO 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology OPTIONS {weightAttribute: 'latency' } return { prefix: v.prefix, name: v.name, sid: e.srv6_sid, latency: e.latency }
 ```
@@ -424,9 +424,9 @@ FOR v, e, p IN 1..6 outbound 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' sr_topolog
     RETURN { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*],
     latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
 ```
- - Note: unlike latency, where latency will be roughly equivalent in either direction, average utilization could be quite different. In our network the least utilized Amsterdam to Rome path is different from the least utilized Rome to Amsterdam path: xrd07 -> xrd06 -> xrd02 -> xrd01
+ - Note: unlike latency, which we can expect to be roughly equivalent in either direction, average utilization could be quite different. In our network the least utilized Amsterdam to Rome path is different from the least utilized Rome to Amsterdam path: xrd07 -> xrd06 -> xrd02 -> xrd01
 
-The previous queries provided paths up to 6-hops in length. We can increase or decrease the number of hops a graph traversal may use
+The previous queries provided paths up to 6-hops in length. We can increase or decrease the number of hops a graph traversal may use:
 
 3. Decrease the length of the traversal (should provide fewer valid results)
 
@@ -444,7 +444,7 @@ FOR v, e, p IN 1..8 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topol
     latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
 
 ```
- - Note: the graph traversal is inherently loop-free. If you increase the previous query to max of 10 or 12 hops you should get back the same number of results as 8 hops max.
+ - Note: the graph traversal is inherently loop-free. If you increase the previous query to max of 10 or 12 hops it should return the same number of results as 8 hops max.
 
 ### K Shortest Paths
 This type of query finds the first k paths in order of length (or weight) between two given documents, startVertex and targetVertex in your graph.
