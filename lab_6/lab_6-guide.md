@@ -15,6 +15,17 @@ In Lab 6 we will explore the Jalapeno system running on Kubernetes. We will log 
   - [Monitoring a Kafka topic](#monitoring-a-kafka-topic)
     - [ISIS Link State](#isis-link-state)
     - [SRv6 Locator SID](#srv6-locator-sid)
+  - [Arango GraphDB](#arango-graphdb)
+    - [Basic queries to explore data collections](#basic-queries-to-explore-data-collections)
+  - [Populating the DB with external data](#populating-the-db-with-external-data)
+  - [Arango Graph traversals and shortest path queries](#arango-graph-traversals-and-shortest-path-queries)
+    - [Shortest Path](#shortest-path)
+  - [Shortest path queries using metrics other than hop count](#shortest-path-queries-using-metrics-other-than-hop-count)
+    - [Query for the lowest latency path:](#query-for-the-lowest-latency-path)
+  - [Graph Traversals](#graph-traversals)
+    - [Query for the least utilized path](#query-for-the-least-utilized-path)
+  - [K Shortest Paths](#k-shortest-paths)
+    - [A Data sovereignty query](#a-data-sovereignty-query)
   - [End of lab 6](#end-of-lab-6)
 
 ## Lab Objectives
@@ -128,12 +139,12 @@ In this exercise we are going to stitch together several elements that we have w
         ```
         - Fair warning: this will output quite a bit of data when the AFI is cleared
         
-    2. Connect to xrd01 and clear the BGP-LS address family
+   2. Connect to xrd01 and clear the BGP-LS address family
         ```
         clear bgp link-state link-state * soft
         ```
 
-        One the Kafka console we expect to see 14 json objects representing BMP messages coming from our 2 route reflectors and describing our 7 different ISIS nodes. Example messages:
+        On the Kafka console we expect to see 14 json objects representing BMP messages coming from our 2 route reflectors and describing our 7 different ISIS nodes. Example messages:
 
         ```json
         {
@@ -203,124 +214,89 @@ In this exercise we are going to stitch together several elements that we have w
         }
         ```
 #### SRv6 Locator SID    
-1. Now lets examine the SRv6 policy on *xrd01* with the command *show run segment-routing traffic-eng policy low-latency*
-    ```
-    segment-routing
-        traffic-eng
-        policy low-latency
-        srv6
-            locator MyLocator binding-sid dynamic behavior ub6-insert-reduced  <-- SRv6 Locator
-        !
-        color 50 end-point ipv6 fc00:0:7777::1
-        candidate-paths
-            preference 100
-            explicit segment-list xrd567
+   1. Now lets examine the SRv6 policy on *xrd01* with the command *show run segment-routing traffic-eng policy low-latency*
+       ```
+       segment-routing
+           traffic-eng
+           policy low-latency
+           srv6
+               locator MyLocator binding-sid dynamic behavior ub6-insert-reduced  <-- SRv6 Locator
+           !
+           color 50 end-point ipv6 fc00:0:7777::1
+           candidate-paths
+               preference 100
+               explicit segment-list xrd567
 
-2. Next since we have identified the locator policy name *MyLocator* let's see config with *show run segment-routing srv6*
-   ```
-   segment-routing
-    srv6
-    encapsulation
-    source-address fc00:0:1111::1
-    !
-    locators
-    locator MyLocator
-        micro-segment behavior unode psp-usd
-        prefix fc00:0:1111::/48     <----- xrd01 IPv6 locator defined
-    ```
-3. With **xrd01** SID locator identified lets see how that is communicated through the BMP from the route reflectors.
-   Monitor the BGP-LS *"ls_srv6_sid"* topic for incoming BMP messages describing SRv6 SIDs in the network:  
-    ```
-    ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_srv6_sid
-    ```
+   2. Next since we have identified the locator policy name *MyLocator* let's see config with *show run segment-routing srv6*
+      ```
+      segment-routing
+       srv6
+       encapsulation
+       source-address fc00:0:1111::1
+       !
+       locators
+       locator MyLocator
+           micro-segment behavior unode psp-usd
+           prefix fc00:0:1111::/48     <----- xrd01 IPv6 locator defined
+       ```
+   3. With **xrd01** SID locator identified lets see how that is communicated through the BMP from the route reflectors.
+      Monitor the BGP-LS *"ls_srv6_sid"* topic for incoming BMP messages describing SRv6 SIDs in the network:  
+       ```
+       ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_srv6_sid
+       ```
 
-    Optional - enable terminal monitoring and debugging the of BGP-LS address family on one of the route reflectors such as xrd05:  
+       Optional - enable terminal monitoring and debugging the of BGP-LS address family on one of the route reflectors such as xrd05:  
 
-    ```
-    terminal monitor
-    debug bgp update afi vpnv6 unicast in
-    ```
-    *Fair warning: this will output quite a bit of data when the AFI is cleared*
+       ```
+       terminal monitor
+       debug bgp update afi vpnv6 unicast in
+       ```
+       *Fair warning: this will output quite a bit of data when the AFI is cleared*
 
-4. Connect to xrd01 and clear the BGP-LS address family
-    ```
-    clear bgp link-state link-state * soft
-    ```
+   4. Again on xrd01 clear the BGP-LS address family
+       ```
+       clear bgp link-state link-state * soft
+       ```
 
-    One the Kafka console we expect to see 14 json objects representing BMP messages coming from our 2 route reflectors and describing our 7 different ISIS nodes. Example messages:
-    ```json
-    {
-        "action": "add",
-        "router_hash": "0669df0f031fb83e345267a9679bbc6a",
-        "router_ip": "10.0.0.5",
-        "domain_id": 0,
-        "peer_hash": "ef9f1cc86e4617df24d4675e2b55bbe2",
-        "peer_ip": "10.0.0.1",
-        "peer_asn": 65000,
-        "timestamp": "2023-01-13T19:49:01.000764233Z",
-        "igp_router_id": "0000.0000.0001",
-        "local_node_asn": 65000,
-        "protocol_id": 2,
-        "protocol": "IS-IS Level 2",
-        "nexthop": "10.0.0.1",
-        "local_node_hash": "89cd5823cd2cb0cfc304a61117c89a45",
-        "mt_id_tlv": {
-            "o_flag": false,
-            "a_flag": false,
-            "mt_id": 2
-        },
-        "igp_flags": 0,
-        "is_prepolicy": false,
-        "is_adj_rib_in": false,
-        "srv6_sid": "fc00:0:1111::",   <---- xrd01 loactor SID
-        "srv6_endpoint_behavior": {
-            "endpoint_behavior": 48,
-            "flag": 0,
-            "algo": 0
-        },
-        "srv6_sid_structure": {
-            "locator_block_length": 32,
-            "locator_node_length": 16,
-            "function_length": 0,
-            "argument_length": 80
-        }
-    }
-    ```
-5. Stop the kafka monitor (ctrl-c) and then restart it and monitor the *ls_srv6_sid* topic to see incoming SRv6 locator SID messages:
-    ```
-    ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_srv6_sid
-    ```
-6. Again on xrd01 clear the BGP-LS address family
-    ```
-    clear bgp link-state link-state * soft
-    ```
-
-    We should see 14 json objects representing 7 SRv6 locator SIDs coming from each of our RRs.
-    Examples:
-
-    <code>{"action":"add","router_hash":"9e3a5bee3d95ebf710f509bd2177324b","router_ip":"10.0.0.6","domain_id":0,"peer_hash":"ef9f1cc86e4617df24d4675e2b55bbe2","peer_ip":"10.0.0.1","peer_asn":65000,"timestamp":"2023-01-12T22:05:30.000755997Z","igp_router_id":"0000.0000.0002","local_node_asn":65000,"protocol_id":2,"protocol":"IS-IS Level 2","nexthop":"10.0.0.1","local_node_hash":"7f0f374efc82198eeedaa86834274a7e","mt_id_tlv":{"o_flag":false,"a_flag":false,"mt_id":2},"igp_flags":0,"is_prepolicy":false,"is_adj_rib_in":false,"srv6_sid":"fc00:0:2222::","srv6_endpoint_behavior":{"endpoint_behavior":48,"flag":0,"algo":0},"srv6_sid_structure":{"locator_block_length":32,"locator_node_length":16,"function_length":0,"argument_length":80}}
-
-
-    {"action":"add","router_hash":"9e3a5bee3d95ebf710f509bd2177324b","router_ip":"10.0.0.6","domain_id":0,"peer_hash":"ef9f1cc86e4617df24d4675e2b55bbe2","peer_ip":"10.0.0.1","peer_asn":65000,"timestamp":"2023-01-12T22:05:30.000755997Z","igp_router_id":"0000.0000.0001","local_node_asn":65000,"protocol_id":2,"protocol":"IS-IS Level 2","nexthop":"10.0.0.1","local_node_hash":"89cd5823cd2cb0cfc304a61117c89a45","mt_id_tlv":{"o_flag":false,"a_flag":false,"mt_id":2},"igp_flags":0,"is_prepolicy":false,"is_adj_rib_in":false,"srv6_sid":"fc00:0:1111::","srv6_endpoint_behavior":{"endpoint_behavior":48,"flag":0,"algo":0},"srv6_sid_structure":{"locator_block_length":32,"locator_node_length":16,"function_length":0,"argument_length":80}}
-    </code>
-
-    The same 'monitor topic and clear BGP AFI' procedure can be run against any of the GoBMP topics. 
-
-5. Monitor L3VPN prefix messages:
-    ```
-    ctrl-c
-
-    ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.l3vpn_v4
-    ```
-    Clear BGP VPNv4 on xrd01:
-    ```
-    clear bgp vpnv4 uni fc00:0:5555::1 soft 
-    ```
-
-    Expected output on Kafka console:
-
-    <code>{"action":"add","router_hash":"0669df0f031fb83e345267a9679bbc6a","router_ip":"10.0.0.5","base_attrs":{"base_attr_hash":"b41cebdba45850cdb7f6994b4675fa4c","origin":"incomplete","local_pref":100,"is_atomic_agg":false,"ext_community_list":["rt=9:9"]},"peer_hash":"e0b24585a43db7cc196f5e42d48e8b5f","peer_ip":"fc00:0:1111::1","peer_asn":65000,"timestamp":"2023-01-12T22:11:21.000873174Z","prefix":"10.101.3.0","prefix_len":24,"is_ipv4":true,"nexthop":"fc00:0:1111::1","is_nexthop_ipv4":false,"labels":[14681088],"is_prepolicy":false,"is_adj_rib_in":false,"vpn_rd":"10.0.0.1:0","vpn_rd_type":1,"prefix_sid":{"srv6_l3_service":{"sub_tlvs":{"1":[{"sid":"fc00:0:1111::","endpoint_behavior":63,"sub_sub_tlvs":{"1":[{"locator_block_length":32,"locator_node_length":16,"function_length":16,"argument_length":0,"transposition_length":16,"transposition_offset":48}]}}]}}}}</code>
-
+       One the Kafka console we expect to see 14 json objects representing BMP messages coming from our 2 route reflectors and describing our 7 different ISIS nodes. Example messages:
+       ```json
+       {
+           "action": "add",
+           "router_hash": "0669df0f031fb83e345267a9679bbc6a",
+           "router_ip": "10.0.0.5",
+           "domain_id": 0,
+           "peer_hash": "ef9f1cc86e4617df24d4675e2b55bbe2",
+           "peer_ip": "10.0.0.1",
+           "peer_asn": 65000,
+           "timestamp": "2023-01-13T19:49:01.000764233Z",
+           "igp_router_id": "0000.0000.0001",
+           "local_node_asn": 65000,
+           "protocol_id": 2,
+           "protocol": "IS-IS Level 2",
+           "nexthop": "10.0.0.1",
+           "local_node_hash": "89cd5823cd2cb0cfc304a61117c89a45",
+           "mt_id_tlv": {
+               "o_flag": false,
+               "a_flag": false,
+               "mt_id": 2
+           },
+           "igp_flags": 0,
+           "is_prepolicy": false,
+           "is_adj_rib_in": false,
+           "srv6_sid": "fc00:0:1111::",   <---- xrd01 loactor SID
+           "srv6_endpoint_behavior": {
+               "endpoint_behavior": 48,
+               "flag": 0,
+               "algo": 0
+           },
+           "srv6_sid_structure": {
+               "locator_block_length": 32,
+               "locator_node_length": 16,
+               "function_length": 0,
+               "argument_length": 80
+           }
+       }
+       ```
 
 ### Arango GraphDB
 
