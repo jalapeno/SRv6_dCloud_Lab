@@ -16,7 +16,6 @@ In Lab 6 we will explore the Jalapeno system running on Kubernetes. We will log 
     - [ISIS Link State](#isis-link-state)
     - [SRv6 Locator SID](#srv6-locator-sid)
   - [Arango GraphDB](#arango-graphdb)
-    - [Basic queries to explore data collections](#basic-queries-to-explore-data-collections)
   - [Populating the DB with external data](#populating-the-db-with-external-data)
   - [Arango Graph traversals and shortest path queries](#arango-graph-traversals-and-shortest-path-queries)
     - [Shortest Path](#shortest-path)
@@ -298,23 +297,21 @@ In this exercise we are going to stitch together several elements that we have w
     ```
 2. Spend some time exploring the data collections in the DB
 
-#### Basic queries to explore data collections 
-The ArangoDB Query Language (AQL) can be used to retrieve and modify data that are stored in ArangoDB.
+    #### Basic queries to explore data collections 
+    The ArangoDB Query Language (AQL) can be used to retrieve and modify data that are stored in ArangoDB.
 
-The general workflow when executing a query is as follows:
+    The general workflow when executing a query is as follows:
 
-- A client application ships an AQL query to the ArangoDB server. The query text contains everything ArangoDB needs to compile the result set
+    - A client application ships an AQL query to the ArangoDB server. The query text contains everything ArangoDB needs to compile the result set
 
-- ArangoDB will parse the query, execute it and compile the results. If the query is invalid or cannot be executed, the server will return an error that the client can process and react to. If the query can be executed successfully, the server will return the query results (if any) to the client. 
-
-https://www.arangodb.com/docs/stable/aql/index.html
+    - ArangoDB will parse the query, execute it and compile the results. If the query is invalid or cannot be executed, the server will return an error that the client can process and react to. If the query can be executed successfully, the server will return the query results (if any) to the client. See ArangoDB documentation [HERE](https://www.arangodb.com/docs/stable/aql/index.html)
 
 
 3. Run some DB Queries:
     ArangoDB uses AQL as it's query syntax language. It likely is new to you so we have provides some basic explanations:
     For a the most basic query below *x* is a object variable with each key field in a record populated as a child object.
 
-        for *x* in *collection* return *x*
+    for *x* in *collection* return *x*
 
     ```
     for x in sr_node return x
