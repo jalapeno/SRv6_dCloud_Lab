@@ -335,6 +335,7 @@ In this exercise we are going to stitch together several elements that we have w
     ```
     for x in sr_node return {Name: x.name, SID: x.srv6_sid}
     ```
+    ```
     Name    SID
     xrd01	fc00:0:1111::
     xrd02	fc00:0:2222::
