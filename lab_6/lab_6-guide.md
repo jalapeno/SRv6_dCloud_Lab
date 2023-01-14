@@ -37,7 +37,7 @@ The student upon completion of Lab 6 should have achieved the following objectiv
 * Familiarity with more complex Arango shortest-path and graph traversal queries
 
 ## Jalapeno Software Stack
-![Jalapeno](/topo_drawings/jalapeno-software-stack.png)
+ <img src="/topo_drawings/jalapeno-software-stack.png" width="800">
 
 ## Kafka
 ### Kafka Intro
