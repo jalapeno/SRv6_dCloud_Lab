@@ -37,7 +37,7 @@ The student upon completion of Lab 6 should have achieved the following objectiv
 * Familiarity with more complex Arango shortest-path and graph traversal queries
 
 ## Jalapeno Software Stack
- <img src="/topo_drawings/jalapeno-software-stack.png" width="800">
+ <img src="/topo_drawings/jalapeno-software-stack.png" width="700">
 
 ## Kafka
 ### Kafka Intro
@@ -311,12 +311,52 @@ https://www.arangodb.com/docs/stable/aql/index.html
 
 
 3. Run some DB Queries:
-    ```
-    for l in ls_node return l
-    ```
-    Note: after running a query you will need to comment it out before running the next query. 
+    ArangoDB uses AQL as it's query syntax language. It likely is new to you so we have provides some basic explanations:
+    For a the most basic query below *x* is a object variable with each key field in a record populated as a child object.
 
-    Example:
+        for *x* in *collection* return *x*
+
+    ```
+    for x in sr_node return x
+    ```
+    This query will return ALL records in the sr_node collection. In our lab topology you should expect 7 records. 
+
+    Next lets get the AQL to return only the key:value field we are interested in. We will query the name of all nodes in the sr_node collection with the below query. To reference a specific key field we use use the format *x.key* syntax.
+    ```
+    for x in sr_node return x.name
+    ```
+    ```   
+    "xrd01",
+    "xrd02",
+    "xrd03",
+    "xrd04",
+    "xrd05",
+    "xrd06",
+    "xrd07"
+    ```
+    If we wish to return multiple keys in our query we will switch to using curly braces to ask for a data set in the return
+    ```
+    for x in sr_node return {Name: x.name, SID: x.srv6_sid}
+    ```
+    Name    SID
+    xrd01	fc00:0:1111::
+    xrd02	fc00:0:2222::
+    xrd03	fc00:0:3333::
+    xrd04	fc00:0:4444::
+    xrd05	fc00:0:5555::
+    xrd06	fc00:0:6666::
+    xrd07	fc00:0:7777::
+    ```
+    More interesting lets query against actual key:value fields in the sr_node collection. In this case we are quering the name to return the record only for **xrd01**
+    ```
+    for x in sr_node 
+        filter x.name == "xrd01"
+    return {Name: x.name, SID: x.srv6_sid}
+    ```
+
+    Note: after running a query you will need to comment it out before running the next query using two forward slashes //
+
+    Some additional Example:s
 
     <img src="arango-query.png" width="600">
 
