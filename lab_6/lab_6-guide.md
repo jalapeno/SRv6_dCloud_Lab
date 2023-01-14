@@ -37,7 +37,7 @@ The student upon completion of Lab 6 should have achieved the following objectiv
 * Familiarity with more complex Arango shortest-path and graph traversal queries
 
 ## Jalapeno Software Stack
-![Jalapeno](/topo_drawings/jalapeno-topology-stack.png)
+![Jalapeno](/topo_drawings/jalapeno-software-stack.png)
 
 ## Kafka
 ### Kafka Intro
@@ -216,7 +216,6 @@ In this exercise we are going to stitch together several elements that we have w
 #### SRv6 Locator SID    
    1. Now lets examine the SRv6 locator configuration on **xrd01** with the command: show run segment-routing srv6 locators 
       ```  
-    
       show run segment-routing srv6 locators
 
       segment-routing
@@ -291,11 +290,11 @@ In this exercise we are going to stitch together several elements that we have w
 1. Switch to a web browser and connect to Jalapeno's Arango GraphDB
     ```
     http://198.18.128.101:30852/
-
+    ```
+    ```
     user: root
     password: jalapeno
     DB: jalapeno
-
     ```
 2. Spend some time exploring the data collections in the DB
 
