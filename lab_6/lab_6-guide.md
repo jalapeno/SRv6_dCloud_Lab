@@ -351,6 +351,12 @@ In this exercise we are going to stitch together several elements that we have w
         filter x.name == "xrd01"
     return {Name: x.name, SID: x.srv6_sid}
     ```
+    Now if you want to filter on multiple conditions we can through a boolean value in to return the **xrd01** and **xrd07** records.
+    ```
+    for x in sr_node 
+        filter x.name == "xrd01" or x.name=="xrd07"
+    return {Name: x.name, SID: x.srv6_sid}
+    ```
 
     Note: after running a query you will need to comment it out before running the next query using two forward slashes //
 
@@ -372,6 +378,9 @@ In this exercise we are going to stitch together several elements that we have w
 
     for l in sr_node return { node: l.router_id, name: l.name, prefix_sid: l.prefix_attr_tlvs.ls_prefix_sid, srv6sid: l.srv6_sid }
     ```
+
+4. Graph Collections within 
+ 
 ### Populating the DB with external data 
 
 The *add_meta_data.py* python script will connect to the ArangoDB and populate elements in our data collections with addresses and country codes. Also, due to the fact that we can't run realistic traffic through the XRD topology the script will populate the relevant graphDB elements with synthetic link latency and utilization data per this diagram:
@@ -399,10 +408,11 @@ cat nodes.json
 ```
 
 ### Arango Graph traversals and shortest path queries
-https://www.arangodb.com/docs/stable/aql/graphs.html
+General Arango AQL query syntax information [HERE](https://www.arangodb.com/docs/stable/aql/graphs.html)
 
 #### Shortest Path
-This type of query is supposed to find the shortest path between two given documents (startVertex and targetVertex) in your graph. In our case the shortest path between two different nodes in the graph's representation of our network.
+This type of query is supposed to find the shortest path between two given vertex (startVertex and targetVertex) in your graph. In our case the shortest path between two different nodes in the graph's representation of our network. 
+Reference this document on the shortest path algorithim in AQL [HERE](https://www.arangodb.com/docs/stable/aql/graphs-shortest-path.html) (2 minute read). 
 
    1. Return to the ArangoDB browser UI and run a shortest path query from **xrd01** to **xrd07**, and have it return SR and SRv6 SID data:
    ```
