@@ -12,7 +12,7 @@ echo br-"$netinstance"
 
 brctl show | grep br-"$netinstance" > br.txt 
 veth1to2=$(rev br.txt | cut -c -11 | rev ) 
-sudo tc qdisc add dev $veth1to2 root netem delay 10000
+sudo tc qdisc add dev $veth1to2 root netem delay 9000
 
 docker network ls | awk -F': ' '/xrd01-gi2-xrd05-gi0 /{print $0}' > net.txt
 netinstance=$( head -n 1 net.txt | cut -c 1-12 )
@@ -21,7 +21,7 @@ echo br-"$netinstance"
 
 brctl show | grep br-"$netinstance" > br.txt 
 veth1to5=$(rev br.txt | cut -c -11 | rev ) 
-sudo tc qdisc add dev $veth1to5 root netem delay 10000
+sudo tc qdisc add dev $veth1to5 root netem delay 4000
 
 docker network ls | awk -F': ' '/xrd02-gi1-xrd03-gi0 /{print $0}' > net.txt
 netinstance=$( head -n 1 net.txt | cut -c 1-12 )
@@ -30,7 +30,7 @@ echo br-"$netinstance"
 
 brctl show | grep br-"$netinstance" > br.txt 
 veth2to3=$(rev br.txt | cut -c -11 | rev ) 
-sudo tc qdisc add dev $veth2to3 root netem delay 10000
+sudo tc qdisc add dev $veth2to3 root netem delay 28000
 
 docker network ls | awk -F': ' '/xrd02-gi2-xrd06-gi1 /{print $0}' > net.txt
 netinstance=$( head -n 1 net.txt | cut -c 1-12 )
@@ -39,7 +39,7 @@ echo br-"$netinstance"
 
 brctl show | grep br-"$netinstance" > br.txt 
 veth2to6=$(rev br.txt | cut -c -11 | rev ) 
-sudo tc qdisc add dev $veth2to6 root netem delay 10000
+sudo tc qdisc add dev $veth2to6 root netem delay 18000
 
 docker network ls | awk -F': ' '/xrd03-gi1-xrd04-gi0 /{print $0}' > net.txt
 netinstance=$( head -n 1 net.txt | cut -c 1-12 )
@@ -48,7 +48,7 @@ echo br-"$netinstance"
 
 brctl show | grep br-"$netinstance" > br.txt 
 veth3to4=$(rev br.txt | cut -c -11 | rev ) 
-sudo tc qdisc add dev $veth3to4 root netem delay 10000
+sudo tc qdisc add dev $veth3to4 root netem delay 38000
 
 docker network ls | awk -F': ' '/xrd04-gi1-xrd07-gi1 /{print $0}' > net.txt
 netinstance=$( head -n 1 net.txt | cut -c 1-12 )
@@ -57,7 +57,7 @@ echo br-"$netinstance"
 
 brctl show | grep br-"$netinstance" > br.txt 
 veth4to7=$(rev br.txt | cut -c -11 | rev ) 
-sudo tc qdisc add dev $veth4to7 root netem delay 10000
+sudo tc qdisc add dev $veth4to7 root netem delay 28000
 
 docker network ls | awk -F': ' '/xrd04-gi2-xrd05-gi1 /{print $0}' > net.txt
 netinstance=$( head -n 1 net.txt | cut -c 1-12 )
@@ -66,7 +66,7 @@ echo br-"$netinstance"
 
 brctl show | grep br-"$netinstance" > br.txt 
 veth4to5=$(rev br.txt | cut -c -11 | rev ) 
-sudo tc qdisc add dev $veth4to5 root netem delay 10000
+sudo tc qdisc add dev $veth4to5 root netem delay 58000
 
 docker network ls | awk -F': ' '/xrd05-gi2-xrd06-gi2 /{print $0}' > net.txt
 netinstance=$( head -n 1 net.txt | cut -c 1-12 )
@@ -75,7 +75,7 @@ echo br-"$netinstance"
 
 brctl show | grep br-"$netinstance" > br.txt 
 veth5to6=$(rev br.txt | cut -c -11 | rev ) 
-sudo tc qdisc add dev $veth5to6 root netem delay 10000
+sudo tc qdisc add dev $veth5to6 root netem delay 4000
 
 docker network ls | awk -F': ' '/xrd06-gi0-xrd07-gi2 /{print $0}' > net.txt
 netinstance=$( head -n 1 net.txt | cut -c 1-12 )
@@ -84,7 +84,7 @@ echo br-"$netinstance"
 
 brctl show | grep br-"$netinstance" > br.txt 
 veth6to7=$(rev br.txt | cut -c -11 | rev ) 
-sudo tc qdisc add dev $veth6to7 root netem delay 10000
+sudo tc qdisc add dev $veth6to7 root netem delay 28000
 
 sudo tc qdisc list | grep veth
 
