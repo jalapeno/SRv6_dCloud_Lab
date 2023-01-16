@@ -35,6 +35,7 @@ prefix_sid01 = sid[0] + idx[0]
 print("xrd01 prefix sid: ", prefix_sid01)
 r01['prefix_sid'] = prefix_sid01
 r01['location_id'] = 'AMS001'
+r01['country_code'] = 'NLD'
 r01['address'] = "Frederiksplein 42, 1017 XN Amsterdam, Netherlands"
 sr.update(r01)
 
@@ -51,6 +52,7 @@ prefix_sid02 = sid[0] + idx[0]
 print("xrd02 prefix sid: ", prefix_sid02)
 r02['prefix_sid'] = prefix_sid02
 r02['location_id'] = 'BML001'
+r02['country_code'] = 'DEU'
 r02['address'] = "Albrechtstraße 110, 12103 Berlin, Germany"
 sr.update(r02)
 
@@ -67,6 +69,7 @@ prefix_sid03 = sid[0] + idx[0]
 print("xrd03 prefix sid: ", prefix_sid03)
 r03['prefix_sid'] = prefix_sid03
 r03['location_id'] = 'IEV001'
+r03['country_code'] = 'UKR'
 r03['address'] = "O.Gonchara str, Kyiv,Ukraine"
 sr.update(r03)
 
@@ -83,6 +86,7 @@ prefix_sid04 = sid[0] + idx[0]
 print("xrd04 prefix sid: ", prefix_sid04)
 r04['prefix_sid'] = prefix_sid04
 r04['location_id'] = 'IST001'
+r04['country_code'] = 'TUR'
 r04['address'] = "Büyükdere Cd No:121Şişli, Turkey, 34394"
 sr.update(r04)
 
@@ -99,6 +103,7 @@ prefix_sid05 = sid[0] + idx[0]
 print("xrd05 prefix sid: ", prefix_sid05)
 r05['prefix_sid'] = prefix_sid05
 r05['location_id'] = 'LHR001'
+r05['country_code'] = 'GBR'
 r05['address'] = "Second Floor, Trinity Ct, Trinity St, Peterborough PE1 1DA, United Kingdom"
 sr.update(r05)
 
@@ -115,6 +120,7 @@ prefix_sid06 = sid[0] + idx[0]
 print("xrd06 prefix sid: ", prefix_sid06)
 r06['prefix_sid'] = prefix_sid06
 r06['location_id'] = 'CDG001'
+r06['country_code'] = 'FRA'
 r06['address'] = "18 Rue la Boétie, 75008 Paris, France"
 sr.update(r06)
 
@@ -131,6 +137,7 @@ prefix_sid07 = sid[0] + idx[0]
 print("xrd07 prefix sid: ", prefix_sid07)
 r07['prefix_sid'] = prefix_sid07
 r07['location_id'] = 'FCO001'
+r07['country_code'] = 'ITA'
 r07['address'] = "Via dei Tizii, 2C, 00185 Roma Italy"
 sr.update(r07)
 

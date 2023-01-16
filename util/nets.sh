@@ -86,7 +86,7 @@ brctl show | grep br-"$netinstance" > br.txt
 veth6to7=$(rev br.txt | cut -c -11 | rev ) 
 sudo tc qdisc add dev $veth6to7 root netem delay 28000
 
-sudo tc qdisc list | grep veth
+sudo tc qdisc list | grep delay
 
 rm net.txt
 rm br.txt

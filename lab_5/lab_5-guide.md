@@ -181,7 +181,7 @@ We'll first establish a BMP session between our route-reflectors and the open-so
         bmp-activate server 1
     ```
 
-2. Validate BMP session establishment and client monitoring:
+2. Validate BMP session establishment and client monitoring (the session may take a couple minutes to become active/connected):
     ```
     show bgp bmp server 1
     ```
@@ -218,11 +218,11 @@ When we get to lab 7 we'll be sending SRv6 encapsulated traffic directly to/from
     router bgp 65000
       address-family ipv4 unicast
         segment-routing srv6
-        locator ISIS
+        locator MyLocator
       
       address-family ipv6 unicast
         segment-routing srv6
-        locator ISIS
+        locator MyLocator
     ```
 
 2. Validate end.DT4/6 SIDs belonging to BGP default table:
