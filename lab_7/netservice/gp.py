@@ -7,14 +7,14 @@ def gp_calc(src, dst, user, pw, dbname):
     client = ArangoClient(hosts='http://198.18.128.101:30852')
     db = client.db(dbname, username=user, password=pw)
     cursor = db.aql.execute("""for v, e, p in 1..6 outbound """ + '"%s"' % src + """ \
-            sr_topology OPTIONS {uniqueVertices: "path", bfs: true} \
+            sr_topology options {uniqueVertices: "path", bfs: true} \
                 filter v._id == """ + '"%s"' % dst + """ \
-                    return DISTINCT { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, \
+                    return distinct { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, \
                         prefix_sid: p.edges[*].prefix_sid, latency: sum(p.edges[*].latency), \
                             percent_util_out: avg(p.edges[*].percent_util_out)} """)
 
     path = [doc for doc in cursor]
-    #print("path: ", path)
+    #print("paths: ", path)
     for index in range(len(path)):
         for key in path[index]:
             #print(key, ":", path[index][key])
@@ -71,7 +71,7 @@ def gp_calc(src, dst, user, pw, dbname):
             'destination': dst,
             'path': path
         }
-    print("All paths data from", src, "to", dst, "logged to netservice/log/get_paths.json" )
+    print("All paths data from", src, "to", dst, "logged to log/get_paths.json" )
     pathobj = json.dumps(pathdict, indent=4)
     #print(pathobj)
     return(pathobj)
