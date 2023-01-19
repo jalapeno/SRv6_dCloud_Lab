@@ -28,14 +28,14 @@ The SRv6-based IPv4/IPv6 L3VPN feature enables deployment of IPv4/IPv6 L3VPN ove
 
 Example: 
 ```
-| Locator        | Function |                                         
+|     Locator    | Function |                                         
 |:---------------|:--------:|
-| fc00:0000:7777:| e004::   |
+| fc00:0000:7777:|   e004:: |
 ```
 
-SRv6-based L3VPN functionality interconnects multiple sites to resemble a private network service over public infrastructure. The basic SRv6 configuration was completed in [Lab 2](/lab_2/lab_2-guide.md).
+SRv6-based L3VPN functionality interconnects multiple sites to resemble a private network service over public or multi-tenant infrastructure. The basic SRv6 configuration was completed in [Lab 2](/lab_2/lab_2-guide.md).
 
-For this feature, BGP allocates an SRv6 SID from the locator space, configured under SRv6-base and VPNv4 address family. For more information on this, refer Segment Routing over IPv6 Overview. In this lab the BGP SID is in the per-VRF mode that provides End.DT4 or End.DT6 support. End.DT4/6 represents the Endpoint with decapsulation and IPv4 or v6 table lookup.
+In this lab the BGP SID will be allocated in per-VRF mode and provides End.DT4 or End.DT6 support. End.DT4/6 represents the Endpoint with decapsulation and IPv4 or v6 table lookup.
 
 https://datatracker.ietf.org/doc/html/rfc8986#name-enddt6-decapsulation-and-sp
 
@@ -118,7 +118,7 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
     ```
 
 ### Configure BGP L3VPN Peering
-The next step is to add the L3VPN configuration into BGP. Because this is SRv6 L3VPN we will be adding both vpnv4 and vpnv6 address-families to the BGP neighbor-group for ipv6 peers. For example you will enable L3VPN in the neighbor-group template by issuing the *address-family vpnv4 unicast* command.
+The next step is to add the L3VPN configuration into BGP. Because this is SRv6 L3VPN we will be adding both vpnv4 and vpnv6 address-families to the BGP neighbor-group for ipv6 peers. For example you will enable L3VPN in the neighbor-group template by issuing the *address-family vpnv4/6 unicast* command.
   
  1. Enable BGP L3VPN 
 
@@ -132,11 +132,11 @@ The next step is to add the L3VPN configuration into BGP. Because this is SRv6 L
         address-family vpnv6 unicast
         next-hop-self
     ```
+  We will now need to add the VRF/SRv6 configuration to BGP. We will add VRF *carrots* in BGP and enable SRv6 to each address family with the command *`segement-routing srv6`*. In addition we will tie the vrf to the SRv6 locator *MyLocator*. 
 
- 2. Enable SRv6 for VRF carrots
-      We will now need to add the VRF/SRv6 configuration to BGP. We will add VRF *carrots* in BGP and enable SRv6 to each address family with the command *`segement-routing srv6`*. In addition we will tie the vrf to the SRv6 locator *MyLocator*. 
+  Last on xrd01 we will redistribute the connected routes using the command *`redistribute connected`*. On xrd07 we will need to redistribute the connected and static routes to provide reachability to Rome and its additional prefixes. For xrd07 we will add the command *`redistribute static`*
 
-      Last on xrd01 we will redistribute the connected routes using the command *`redistribute connected`*. On xrd07 we will need to redistribute the connected and static routes to provide reachability to Rome and its additional prefixes. For xrd07 we will add the command *`redistribute static`*
+ 2. Enable SRv6 for VRF carrots and redistribute connected/static
    
     **xrd01**  
     ```
@@ -176,8 +176,9 @@ The next step is to add the L3VPN configuration into BGP. Because this is SRv6 L
           redistribute connected
       ```
 
+The BGP route reflectors will also need to have L3VPN capability added to their peering group.
+
 3. BGP Route Reflectors **xrd05**, **xrd06**  
-    The BGP route reflectors will also need to have L3VPN capability added to their peering group.
     ```
     router bgp 65000
     neighbor-group xrd-ipv6-peer
@@ -189,17 +190,17 @@ The next step is to add the L3VPN configuration into BGP. Because this is SRv6 L
     ```
 
 ## Validate SRv6 L3VPN
-From xrd01 run the following set of validation commands:
+
 Validation command output examples can be found at this [LINK](https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_5/validation-cmd-output.md)
+
+1. From xrd01 run the following set of validation commands:
 
   ```
   show segment-routing srv6 sid
   show bgp vpnv4 unicast
   show bgp vpnv4 unicast rd 10.0.0.7:0 10.9.7.0/24
   show bgp vpnv6 unicast
-  show bgp vpnv6 unicast rd 10.0.0.7:0 fc00:0:40::/64
-  ping vrf carrots 10.9.6.1
-  ping vrf carrots 10:9:6::1  
+  show bgp vpnv6 unicast rd 10.0.0.7:0 fc00:0:40::/64 
   ping vrf carrots 40.0.0.1
   ping vrf carrots 50.0.0.1
   ping vrf carrots fc00:0:40::1
