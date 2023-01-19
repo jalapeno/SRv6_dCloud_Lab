@@ -1,9 +1,9 @@
 # Lab 1 Guide: XRd Topology Setup and Validation
-The Cisco Live LTRSPG-2212 lab makes heavy use of the relatively new Dockerized IOS-XR router known as XRd. I you wish to explore XRd and its uses beyond the scope of this lab the xrdocs team has posted a number of XRd tutorials here: https://xrdocs.io/virtual-routing/tags/#xrd-tutorial-series
+The Cisco Live LTRSPG-2212 lab makes heavy use of the relatively new Dockerized IOS-XR router known as XRd. If you wish to explore XRd and its uses beyond the scope of this lab the xrdocs team has posted a number of XRd tutorials here: https://xrdocs.io/virtual-routing/tags/#xrd-tutorial-series
 
 ### Description: 
 In Lab 1 the student will launch the XRd topology and validate it is up and running. This will be the baseline 
-for all future connectivity. Second, they will validate that the pre-configured ISIS routing protocol is running and seeing the correct topology. 
+topology all subsequent lab exercises. Second, they will validate that the pre-configured ISIS and BGP routing protocols are running and seeing the correct topology. 
 
 ## Contents
 1. [Lab Objectives](#lab-objectives)
@@ -19,6 +19,7 @@ for all future connectivity. Second, they will validate that the pre-configured 
 The student upon completion of Lab 1 should have achieved the following objectives:
 
 * Access to all devices in the lab
+* Deployed the XRd network topology
 * Understanding of the lab topology and components
 * Confirm IPv4 and IPv6 connectivity   
 
@@ -39,7 +40,7 @@ User: cisco, Password: cisco123
 For full size image see [LINK](/topo_drawings/management-network.png)
 
 ### Launch and Validate XRD Topology
-1. SSH to the Ubuntu VM XRD which is using Docker to host the XRD application
+1. SSH to the Ubuntu VM XRD where we will launch the XRd routers
 ```
 ssh cisco@198.18.128.100
 ```
@@ -58,7 +59,7 @@ ssh cisco@198.18.128.100
     b948b6ba5918   host      host      local
     bdf431ee7377   none      null      local
     ```
-4.  Run the setup script stops any existing XRD docker containers and any XRD docker networks
+4.  Run the setup script, which should clean up any existing XRd containers and docker networks, then launch the topology into the "beginning of lab 1" configuration state 
     - change to the lab_1 directory
     ```
     cisco@xrd:~/SRv6_dCloud_Lab$ cd lab_1
@@ -120,22 +121,23 @@ ssh cisco@198.18.128.100
     b48429454f4c   xrd06-gi0-xrd07-gi2   bridge    local
     84b7ddd7e018   xrd07-gi3             bridge    local
     ```
-Note the docker Network IDs are unique on creation. Docker's network/bridge naming logic is such that the actual bridge instance names are not predictable. Rather than go through some renaming process the lab setup script calls another small script 'nets.sh' that resolves the bridge name and writes it to a file that we'll use later for running tcpdump on the virtual links between routers in our topology.
+Note the docker Network IDs are unique on creation. Docker's network/bridge naming logic is such that the actual Linux bridge instance names are not predictable. Rather than go through some re-naming process the lab setup script calls another small script 'nets.sh' that resolves the bridge name and writes it to a file that we'll use later for running tcpdump on the virtual links between routers in our topology.
 
  - The scripts and files reside in the lab 'util' directory:
 ```
 cisco@xrd:~/SRv6_dCloud_Lab$ ls ~/SRv6_dCloud_Lab/util/
 nets.sh     xrd01-xrd02  xrd02-xrd03  xrd03-xrd04  xrd04-xrd07  xrd06-xrd07
 tcpdump.sh  xrd01-xrd05  xrd02-xrd06  xrd04-xrd05  xrd05-xrd06
-cisco@xrd:~/SRv6_dCloud_Lab$ 
+
 ```
-Later we'll use "tcpdump.sh <xrd0x-xrd0y>" to capture packets along the path through the network. 
+Later we'll use "tcpdump.sh xrd0x-xrd0y" to capture packets along the path through the network. 
 
 7. The XRD router instances should be available for access 2 minutes after spin up.
 
 ### Validate Jalapeno VM
-The Ubuntu VM Jalapeno which is running Kubernetes and later in lab exercise 4 we will install the open-source Jalapeno application.
-Jalapeno will collect BGP Monitoring Protocol (BMP) and streaming telemetry data from the routers, and will serve as a data repository for the SDN clients we'll have running on the Amsterdam and Rome VMs.
+The Ubuntu VM Jalapeno has Kubernetes pre-installed and running. Later in lab exercise 5 we will install the open-source Jalapeno application.
+
+Jalapeno will collect BGP Monitoring Protocol (BMP) and streaming telemetry data from the routers, and will serve as a data repository for the SDN clients we'll have running on the Amsterdam and Rome VMs (Labs 5-7).
 
 1. Validate router reachability to Jalapeno VM (no need to check all routers, but will be good to validate xrd01, 05, 06, and 07):
 ```
@@ -161,6 +163,11 @@ __Rome__
 In our lab the Rome VM represents a standard linux host or endpoint, and is essentially a customer/user of our network.
 
 1. SSH to Rome Client VM from your laptop. 
+
+```
+ssh cisco@198.18.128.103
+```
+
 2. Check that the interface to router xrd07 is `UP` and has the assigned IP `10.107.1.1/24`
     ```
     cisco@rome:~$ ip address show ens192
@@ -195,26 +202,31 @@ __Amsterdam__
 The Amsterdam VM represents a server belonging to a cloud, CDN, or gaming company that serves content to end users (such as the Rome VM) or customer applications over our network. The Amsterdam VM comes with VPP pre-installed. VPP (also known as https://fd.io/) is a very flexible and high performance open source software dataplane. 
 
 1. SSH to Amsterdam Client VM from your laptop. 
-2. Check that the VPP interface facing Ubuntu (host-vpp-in) and the interface facing router xrd01 (GigabitEthernetb/0/0) are `UP` and have their assigned IP addresses. GigabitEthernetb/0/0: `10.101.1.1/24`, and host-vpp-in: `10.101.1.1/24` 
+
+```
+ssh cisco@198.18.128.103
+```
+
+2. Check that the VPP interface facing Ubuntu (host-vpp-in) and the interface facing router xrd01 (GigabitEthernetb/0/0) are `UP` and have their assigned IP addresses. GigabitEthernetb/0/0: `10.101.1.1/24`, and host-vpp-in: `10.101.2.2/24` 
     ```
-cisco@amsterdam:~$ sudo vppctl show interface address
-GigabitEthernetb/0/0 (up):
-  L3 10.101.1.1/24
-  L3 fc00:0:101:1::1/64
-host-vpp-in (up):
-  L3 10.101.2.2/24
+    cisco@amsterdam:~$ sudo vppctl show interface address
+    GigabitEthernetb/0/0 (up):
+    L3 10.101.1.1/24
+    L3 fc00:0:101:1::1/64
+    host-vpp-in (up):
+    L3 10.101.2.2/24
     ```
 3. Check connectivity from Amsterdam to xrd01 - we'll issue a ping from VPP itself:
     ```
-cisco@amsterdam:~$ sudo vppctl ping 10.101.1.2
-116 bytes from 10.101.1.2: icmp_seq=1 ttl=255 time=2.7229 ms
-116 bytes from 10.101.1.2: icmp_seq=2 ttl=255 time=1.1550 ms
-116 bytes from 10.101.1.2: icmp_seq=3 ttl=255 time=1.1341 ms
-116 bytes from 10.101.1.2: icmp_seq=4 ttl=255 time=1.2277 ms
-116 bytes from 10.101.1.2: icmp_seq=5 ttl=255 time=.8838 ms
+    cisco@amsterdam:~$ sudo vppctl ping 10.101.1.2
+    116 bytes from 10.101.1.2: icmp_seq=1 ttl=255 time=2.7229 ms
+    116 bytes from 10.101.1.2: icmp_seq=2 ttl=255 time=1.1550 ms
+    116 bytes from 10.101.1.2: icmp_seq=3 ttl=255 time=1.1341 ms
+    116 bytes from 10.101.1.2: icmp_seq=4 ttl=255 time=1.2277 ms
+    116 bytes from 10.101.1.2: icmp_seq=5 ttl=255 time=.8838 ms
 
-Statistics: 5 sent, 5 received, 0% packet loss
-cisco@amsterdam:~$ 
+    Statistics: 5 sent, 5 received, 0% packet loss
+    cisco@amsterdam:~$ 
     ```
 4. Check connectivity from Amsterday to Jalapeno VM
 ```

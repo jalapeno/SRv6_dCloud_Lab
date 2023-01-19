@@ -10,7 +10,7 @@ In Lab 2 the student will perform the basic configuration of SR-MPLS and SRv6 on
   
 
 ## Lab Objectives
-The student upon completion of Lab 1 should have achieved the following objectives:
+The student upon completion of Lab 2 should have achieved the following objectives:
 
 * Understanding of basic configuration for SR-MPLS
 * Understanding of basic configuration for SRv6

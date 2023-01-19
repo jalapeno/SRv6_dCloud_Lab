@@ -15,7 +15,7 @@ open source project provides ways to see SRv6 created paths through the network.
 * Repository Overview [LINK](#repository-overview)
 * Lab Topology [LINK](#lab-topology)
 * Remote Access [LINK](#remote-access)
-* Jalapeno Stack [LINK](https://github.com/cisco-open/jalapeno/blob/main/README.md)
+* Project Jalapeno [LINK](#jalapeno)
 * Lab 1 - XRd Topology Setup and Validation [LINK](/lab_1/lab_1-guide.md)
 * Lab 2 - Config Baseline SR-MPLS and SRv6 [LINK](/lab_2/lab_2-guide.md)
 * Lab 3 - Config BGP-LU over SR-MPLS [LINK](/lab_3/lab_3-guide.md)
@@ -26,7 +26,7 @@ open source project provides ways to see SRv6 created paths through the network.
 
 
 ## Repository Overview
-Each of the labs is designed to be completed in the order presented. Lab 0 is the baseline configurations 
+Each of the labs is designed to be completed in the order presented. Lab 1 is the baseline configurations 
 needed to build the starting topology and launch the XRd and extended environment.
 
 ### Root Directory
@@ -61,7 +61,7 @@ https://github.com/brmcdoug/XRd
 
 This lab is based on a simulated WAN design of seven routers running in a docker instance. Each of these 
 seven routers in the topology is running the XR operating system. In addition there are two client VMs named Amsterdam and Rome. Each client 
-system is running the Ubuntu OS. Last is a VM running Kubernetes which is hosting the Jalapeno application
+system is running the Ubuntu OS. Last is an Ubuntu VM running Kubernetes and hosting the Jalapeno application.
 
 ![Lab Topology](/topo_drawings/overview-topology-large.png)
 
@@ -69,15 +69,15 @@ system is running the Ubuntu OS. Last is a VM running Kubernetes which is hostin
 
 
 ### Device Access Table
-| Device Name    | Description              | Device Type | Access Type |   IP Address    |
+| VM Name        | Description              | Device Type | Access Type |   IP Address    |
 |:---------------|:-------------------------|:-----------:|:-----------:|:---------------:|
-| XRD            | Docker + XRD             | VM          | SSH         | 198.18.128.100  |
+| XRD            | Docker + XRd routers     | VM          | SSH         | 198.18.128.100  |
 | Jalapeno       | Kubernettes + Jalapeno   | VM          | SSH         | 198.18.128.101  |
 | Amsterdam      | Ubuntu client            | VM          | SSH         | 198.18.128.102  |
 | Rome           | Ubuntu client            | VM          | SSH         | 198.18.128.103  |
 
 
-* Use XRD VM as jumpbox to access the below devices
+* Use XRD VM as jumpbox to access the XRd routers as follows:
 
 | Device Name    | Device Type | Access Type |   IP Address    |                                           
 |:---------------|:------------|:------------|:---------------:|                          
@@ -90,3 +90,9 @@ system is running the Ubuntu OS. Last is a VM running Kubernetes which is hostin
 | xrd07           | router      | SSH         | 10.254.254.107  |
 
 ## Jalapeno
+
+Project Jalapeno combines existing open source tools with some new stuff we've developed into a data collection and warehousing infrastructure intended to enable development of SDN or network service applications. Think of it as applying microservices architecture and concepts to SDN: give developers the ability to quickly and easily build microservice control planes on top of a common data collection and warehousing infrastructure. More information on Jalapeno can be found at the Jalapeno Git repository: [LINK](https://github.com/cisco-open/jalapeno/blob/main/README.md)
+
+![jalapeno_architecture](https://github.com/cisco-open/jalapeno/blob/main/docs/diagrams/jalapeno_architecture.png)
+
+
