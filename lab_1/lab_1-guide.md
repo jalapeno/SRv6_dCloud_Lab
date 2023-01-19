@@ -230,9 +230,9 @@ ssh cisco@198.18.128.103
     ```
 4. Check connectivity from Amsterday to Jalapeno VM
 ```
-cisco@rome:~$ ping -c 1 198.18.128.101
+cisco@amsterdam:~$ ping -c 1 198.18.128.101
 PING 198.18.128.101 (198.18.128.101) 56(84) bytes of data.
-64 bytes from 198.18.128.101: icmp_seq=1 ttl=64 time=0.428 ms
+64 bytes from 198.18.128.101: icmp_seq=1 ttl=64 time=0.619 ms
 ```
 
 ### Connect to Routers
@@ -257,7 +257,13 @@ ssh cisco@xrd01
 ```
 ping fc00:0:101:1::1
 ```
-4. Validate adjacencies and traffic passing on each router. Use the topology diagram to determine neighbors. The client devices Amsterdam and Rome are not running CDP.
+
+4. SSH to xrd07 and validate IPv6 connectivity to the Rome VM: 
+```
+ping fc00:0:107:1::1
+```
+
+5. Validate adjacencies and traffic passing on each router. Use the topology diagram to determine neighbors. The client devices Amsterdam and Rome are not running CDP.
     ```
     RP/0/RP0/CPU0:xrd05#show cdp neighbors 
     Wed Dec 21 18:16:57.657 UTC
@@ -312,15 +318,16 @@ The Cisco IOS-XR 7.5 Configuration guide for SR and ISIS can be found here: [LIN
     xrd06              2         xrd02              Gi0/0/0/0       *PtoP*        
     xrd07              2         xrd04              Gi0/0/0/1       *PtoP* 
     ```
-3. Validate end-to-end ISIS reachability:
+3. On xrd01 validate end-to-end ISIS reachability:
 ```
 ping 10.0.0.7 source lo0
 ping fc00:0000:7777::1 source lo0
 ```
+ - Note: normally pinging xrd-to-xrd in this dockerized environment would result in ping times of ~1-3ms. However, we have injected synthetic latency in the underlying Linux links using the 'tc qdisc' tool, so you'll see a ping RTT of anywhere from ~60ms to ~150ms. This synthetic latency will allow us to really see the effect of later traffic steering execises.
 
 ## Validate BGP Topology
 
-In lab 1 we will use BGP for exchange of IPv6 prefixes and BGP-LS. We will setup IPv4 labeled-unicast and SRv6-L3VPN in later lab exercises. In the topology we are running a single ASN 65000 with BGP running on xrd01, xrd05, xrd06, xrd07.  Routers xrd05 and xrd06 are functioning as route reflectors and xrd01 and xrd07 are clients. The student will want to confirm that they see a full BGP topology.
+In lab 1 BGP is only exchanging IPv6 prefixes and BGP-LS data. We will setup IPv4 labeled-unicast and SRv6-L3VPN in later lab exercises. In the topology we are running a single ASN 65000 with BGP running on xrd01, xrd05, xrd06, xrd07.  Routers xrd05 and xrd06 are functioning as route reflectors and xrd01 and xrd07 are clients. The student will want to confirm that they see a full BGP topology.
 
 ![BGP Topology](/topo_drawings/bgp-topology-medium.png)
 
