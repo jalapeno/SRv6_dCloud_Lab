@@ -1,7 +1,7 @@
 # Lab 4: Configure SRv6-L3VPN and perform SRv6-TE steering of L3VPN prefixes
 
 ### Description
-In lab 4 we will establish a Layer-3 VPN named "carrots" which will use SRv6 transport and will have endpoints on xrd01, and xrd07. Both nodes gi 0/0/0/3 interfaces will be added to the VRF as they connect to secondary NICs on the Amsterdam and Rome VMs respectively. Once the L3VPN is established and has run some test traffic we will then setup SRv6-TE traffic steering from Amsterdam to specific Rome prefixes.
+In lab 4 we will establish a Layer-3 VPN named "carrots" which will use SRv6 transport and will have endpoints on xrd01, and xrd07. Both nodes' gi 0/0/0/3 interfaces will be added to the VRF as they connect to secondary NICs on the Amsterdam and Rome VMs respectively. Once the L3VPN is established and has run some test traffic we will then setup SRv6-TE traffic steering from Amsterdam to specific Rome prefixes.
 
 ## Contents
 1. [Lab Objectives](#lab-objectives)
@@ -24,7 +24,16 @@ The student upon completion of Lab 4 should have achieved the following objectiv
 * Demonstartion of SRv6 TE traffic steering
 
 ## Configure SRv6 L3VPN
-The SRv6-based IPv4/IPv6 L3VPN feature enables deployment of IPv4/IPv6 L3VPN over a SRv6 data plane. Traditionally L3VPN has been operated over MPLS or SR-MPLS based systems. SRv6-based L3VPN uses SRv6 Segment IDs (SIDs) for service segments instead of labels. SRv6-based L3VPN functionality interconnects multiple sites to resemble a private network service over public infrastructure. The basic SRv6 configuration was completed in [Lab 2](/lab_2/lab_2-guide.md).
+The SRv6-based IPv4/IPv6 L3VPN feature enables deployment of IPv4/IPv6 L3VPN over a SRv6 data plane. Traditionally L3VPN has been operated over MPLS or SR-MPLS based systems. SRv6-based L3VPN uses the locator/function aspect of SRv6 Segment IDs (SIDs)  instead of PE + VPN labels. 
+
+Example: 
+```
+| Locator        | Function |                                         
+|:---------------|:--------:|
+| fc00:0000:7777:| e004::   |
+```
+
+SRv6-based L3VPN functionality interconnects multiple sites to resemble a private network service over public infrastructure. The basic SRv6 configuration was completed in [Lab 2](/lab_2/lab_2-guide.md).
 
 For this feature, BGP allocates an SRv6 SID from the locator space, configured under SRv6-base and VPNv4 address family. For more information on this, refer Segment Routing over IPv6 Overview. In this lab the BGP SID is in the per-VRF mode that provides End.DT4 or End.DT6 support. End.DT4/6 represents the Endpoint with decapsulation and IPv4 or v6 table lookup.
 
