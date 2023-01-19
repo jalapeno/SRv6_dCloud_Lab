@@ -15,7 +15,7 @@ open source project provides ways to see SRv6 created paths through the network.
 * Repository Overview [LINK](#repository-overview)
 * Lab Topology [LINK](#lab-topology)
 * Remote Access [LINK](#remote-access)
-* Jalapeno Stack [LINK](#jalapeno)
+* Jalapeno Stack [LINK](https://github.com/cisco-open/jalapeno/blob/main/README.md)
 * Lab 1 - XRd Topology Setup and Validation [LINK](/lab_1/lab_1-guide.md)
 * Lab 2 - Config Baseline SR-MPLS and SRv6 [LINK](/lab_2/lab_2-guide.md)
 * Lab 3 - Config BGP-LU over SR-MPLS [LINK](/lab_3/lab_3-guide.md)

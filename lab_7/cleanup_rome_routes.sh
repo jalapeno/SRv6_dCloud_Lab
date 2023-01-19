@@ -5,6 +5,7 @@ sudo ip route del 10.101.2.0/24  encap seg6 mode encap segs fc00:0:6666:5555:111
 sudo ip route del 10.101.2.0/24  encap seg6 mode encap segs fc00:0:4444:3333:2222:1111::  dev ens192 scope link
 sudo ip route del 10.101.2.0/24  encap seg6 mode encap segs fc00:0:4444:5555:1111::  dev ens192 scope link
 sudo ip route del 10.101.2.0/24  encap seg6 mode encap segs fc00:0:3333:1111::  dev ens192 scope link
+sudo ip route del 10.101.2.0/24  encap seg6 mode encap segs fc00:0:6666:2222:1111:e008:: dev ens192 scope link 
 
 sudo ip route del 10.0.0.1  encap seg6 mode encap segs fc00:0:6666:2222:1111::  dev ens192 scope link
 sudo ip route del 10.0.0.1  encap seg6 mode encap segs fc00:0:6666:5555:1111:: dev ens192 scope link
