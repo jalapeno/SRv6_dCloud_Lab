@@ -241,7 +241,7 @@ The procedure is the same as Least Utilized Path
 ```
 ./cleanup_rome_routes.sh 
 python3 client.py -f rome.json -e sr -s ll
-ping 10.101.1.1 -i .4
+ping 10.101.2.1 -i .4
 ```
 2. SRv6 on Rome VM:
 ```
