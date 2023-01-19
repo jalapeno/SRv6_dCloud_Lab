@@ -1,7 +1,7 @@
 # Lab 3: BGP-LU over SR-MPLS
 
 ### Description: 
-In lab 3 the student will extend the routing topology to include sites Amsterdam and Rome. In addition SR-MPLS will be used to create a baseline end to end routing between the two locations. With SR-MPLS the student will then use show commands and tools like TCPDump to validate how traffic is routed through the network. This is important as in later labs we will override the SR-MPLS behaviour with host-based SRv6 encapsulations.
+In lab 3 the student will extend the routing topology to include sites Amsterdam and Rome. In addition BGP-LU/SR-MPLS will be used to create a baseline end to end routing between the two locations. With SR-MPLS the student will then use show commands and tools like TCPDump to validate how traffic is routed through the network. This is important as in later labs we will override the SR-MPLS behaviour with host-based SR and/or SRv6 encapsulations.
 
 
 ## Contents
@@ -26,7 +26,7 @@ The student upon completion of Lab 3 should have achieved the following objectiv
 
 ## Learn Default ISIS Path
 
-ISIS is the underlying IGP in this lab and you validated in Lab 1 reachability between xrd routers. Now we want you to work on validate traffic routing behavior for the default ISIS and SR-MPLS so that we can compare and contrast with SRv6 when implemented in Lab 3. Throughout this lab we will be creating traffic flows generated from the Amsterdam VM and traveling to networks in Rome and vice-versa. 
+ISIS is the underlying IGP in this lab and you validated in Lab 1 reachability between xrd routers. Now we want you to work on validate traffic routing behavior for the default ISIS and SR-MPLS so that we can compare and contrast with later traffic steering exercises. Throughout this lab we will be creating traffic flows generated from the Amsterdam VM and traveling to networks in Rome and vice-versa. 
 
 In referencing the ISIS topology diagram below we will examine the routing table on xrd01.
 
@@ -50,19 +50,20 @@ What we are looking for is xrd07 route 10.0.0.7/32 (Lo0) advertised through ISIS
   ```
 
 ## BGP Labeled Unicast (BGP-LU) over SR-MPLS Network Routing
-First we are going to need networks that are advertised through BGP-LU over the top of ISIS. In the next few steps you will quickly bring up and add in network 20.0.0./24 to the topology and validate end to end connectivity. This will be our baseline path to compare and contrast with SRv6
+First we are going to need networks that are advertised through BGP-LU over the top of ISIS. In the next few steps you will quickly bring up and add in Rome network 20.0.0.0/24 to the topology and validate end to end connectivity. This will be our baseline path to compare and contrast with SRv6
 
 For further reference the Cisco IOS-XR 7.5 Configuration guide for SR and BGP can be found here: [LINK](https://www.cisco.com/c/en/us/td/docs/iosxr/cisco8000/segment-routing/75x/b-segment-routing-cg-cisco8000-75x/configuring-segment-routing-for-bgp.html)
 
 ### Configure Remote Test Networks
 The location Rome has the network 20.0.0.0/24 which we will advertise via BGP-LU on router xrd07. First log into xrd07 and validate that you can reach network 20.0.0.0/24 by pinging the ip address 20.0.0.1/24 in Rome. Once you have confirmed connectivity across the Rome metro link xrd07 gi 0/0/0/0 head to the next step.
 
+We will also advertise a pair of Amsterdam networks from xrd01: VPP-outside 10.101.1.0/24 and Amsterdam-VM "ams-out" 10.101.2.0/24. We validated xrd01 reachability to these networks earlier in lab 1. 
 
 ![SR-MPLS Topology](/topo_drawings/sr-mpls-medium.png)
 For full size image see [LINK](/topo_drawings/sr-mpls-large.png)
 
 ### Enable BGP Labeled Unicast
-BGP Labeled Unicast (BGP-LU) is needed to advertise the label information we will need to enable SR-MPLS routing of our desired network traffic 20.0.0.0/24. First lets enable BGP-LU on our PE routers xrd01 and xrd07 plus our BGP route reflectors xrd05 and xrd06. The command *allocate-label all* under the ipv4 unicast which instructs bgp to advertise the networks in the global ipv4 table as labeled routes. Next you will add enable labeled unicast with the command *address-family ipv4 labeled-unicast* under neighbor-group xrd-ipv4-peer group.
+BGP Labeled Unicast (BGP-LU) is needed to advertise the label information we will need to enable SR-MPLS routing of our desired network traffic 20.0.0.0/24. First lets enable BGP-LU on our PE routers xrd01 and xrd07 plus our BGP route reflectors xrd05 and xrd06. The command *allocate-label all* under the ipv4 unicast address family instructs bgp to advertise the networks in the global ipv4 table as labeled routes. Next you will add enable labeled unicast with the command *address-family ipv4 labeled-unicast* under neighbor-group xrd-ipv4-peer group.
 
 xrd01 and xrd07
   ```
@@ -230,15 +231,11 @@ RP/0/RP0/CPU0:xrd01#
 ### Validate end to end connectivity
 Let's next use what we learned in step one of the lab guide about how xrd01 will use ECMP to load balance flows towards xrd07. We will test connectivity by initiating a ping from xrd01 to the address 20.0.0.1 in Rome. What we don't know is which path it will take as the next-hop could be either xrd02 or xrd05. In addition, we want to confirm that the path is using SR-MPLS forwarding.
 
-Lets use TCPDump to validate our configuration and SR-MPLS forwarding:
+Lets use the tcpdump.sh script to validate our configuration and SR-MPLS forwarding:
 1. Open up two new ssh sessions to the XRD VM and change to the *~/SRv6_dCloud_Lab/util* directory. 
 ```
 cd ~/SRv6_dCloud_Lab/util
 ```
-In lab_1 When we ran the XRd topology setup script it called the 'nets.sh' subscript in the ~/SRv6_dCloud_Lab/util directory. The nets.sh resolved the underlying docker network IDs wrote them to text files in this directory. As an example link "A" in the topology has a mapped file called xrd01-xrd02 which contains the linux network id we need. 
-
-With that understanding the *util* directory also contains a shell script called 'tcpdump.sh'. Running "./tcpdump.sh <filename>" will execute Linux TCPdump allowing us to monitor the traffic exiting xrd01 along the path to its destination and back.
-
 
 2. In terminal window-1 run the command *./tcpdump.sh xrd01-xrd02*
 
@@ -256,7 +253,7 @@ cisco@amsterdam:~$ ping 20.0.0.1 -i .4
 
 We should see TCPDump output something like this:
 
-  ```
+```
 cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd01-xrd02 
 sudo tcpdump -ni br-613d9944c678
 [sudo] password for cisco: 
@@ -266,7 +263,7 @@ listening on br-613d9944c678, link-type EN10MB (Ethernet), capture size 262144 b
 13:26:32.706566 MPLS (label 24008, exp 0, [S], ttl 61) IP 20.0.0.1 > 10.101.2.1: ICMP echo reply, id 20, seq 39, length 64
 13:26:32.903937 MPLS (label 100007, exp 0, ttl 62) (label 24007, exp 0, [S], ttl 62) IP 10.101.2.1 > 20.0.0.1: ICMP echo request, id 20, seq 40, length 64
 13:26:32.906271 MPLS (label 24008, exp 0, [S], ttl 61) IP 20.0.0.1 > 10.101.2.1: ICMP echo reply, id 20, seq 40, length 64
-  ```
+```
 3. We can run the tcpdump.sh script against any of the underlying links in the network:
 
 ```

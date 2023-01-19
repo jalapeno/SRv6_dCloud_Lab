@@ -205,7 +205,9 @@ SRv6 uSID locator and source address information for nodes in the lab:
     ```
 ## End-to-End Connectivity
 
-We'll use the tcpdump.sh in the SRv6_dCloud_Lab/util/ directory to monitor traffic as it traverses the XRd network. Traffic through the network may travel via one or more ECMP paths, so we may need to try tcpdump.sh on different links before we see anything meaningful in the output
+In lab_1 When we ran the XRd topology setup script it called the 'nets.sh' subscript in the ~/SRv6_dCloud_Lab/util directory. The nets.sh resolved the underlying docker network IDs and wrote them to text files in the util directory. As an example link "A" in the topology has a mapped file called xrd01-xrd02 which contains the linux network id we need.
+
+We'll use 'tcpdump.sh' shell script in the util directory to monitor traffic as it traverses the XRd network. Running "./tcpdump.sh xrd0x-xrd0y" will execute Linux TCPdump on the specified Linux bridge instance that links a pair of XRd routers. Note traffic through the network may travel via one or more ECMP paths, so we may need to try tcpdump.sh on different links before we see anything meaningful in the output
 
 1. Open a new ssh session on the XRD VM and cd into the lab's util directory:
 ```
