@@ -325,10 +325,10 @@ ping fc00:0000:7777::1 source lo0
 ```
  - Note: normally pinging xrd-to-xrd in this dockerized environment would result in ping times of ~1-3ms. However, we have injected synthetic latency in the underlying Linux links using the [netem](https://wiki.linuxfoundation.org/networking/netem) 'tc' command line tool, so you'll see a ping RTT of anywhere from ~60ms to ~150ms. This synthetic latency will allow us to really see the effect of later traffic steering execises.
 
- Example from the util/nets.sh script:
- ```
- sudo tc qdisc add dev $veth6to7 root netem delay 28000
- ```
+    Example from the util/nets.sh script:
+    ```
+    sudo tc qdisc add dev $veth6to7 root netem delay 28000
+    ```
 
 ## Validate BGP Topology
 

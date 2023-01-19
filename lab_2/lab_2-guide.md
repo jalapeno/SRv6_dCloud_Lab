@@ -18,7 +18,7 @@ The student upon completion of Lab 2 should have achieved the following objectiv
 
 ## SR-MPLS 
 
-Segment Routing (SR) is a source-based routing architecture. A node chooses a path and steers a packet through the network via that path by inserting an ordered list of segments, instructing how subsequent nodes in the path that receive the packet should process it. This simplifies operations and reduces resource requirements in the network by removing network state information from intermediary nodes as path information is encoded as an ordered list of segments in label stack at the ingress node. In addition to this, because the shortest-path segment includes all Equal-Cost Multi-Path (ECMP) paths to the related node, SR supports the ECMP nature of IP by design. In Lab 1 we will enable SR-MPLS forwarding on routers xrd01 -> xrd07. 
+Segment Routing (SR) is a source-based routing architecture. A node chooses a path and steers a packet through the network via that path by inserting an ordered list of segments, instructing how subsequent nodes in the path that receive the packet should process it. This simplifies operations and reduces resource requirements in the network by removing network state information from intermediary nodes as path information is encoded via the label stack at the ingress node. In addition to this, because the shortest-path segment includes all Equal-Cost Multi-Path (ECMP) paths to the related node, SR supports the ECMP nature of IP by design. In Lab 1 we will enable SR-MPLS forwarding on routers xrd01 -> xrd07. 
 
 For a full overview of SR-MPLS please see the Wiki here: [LINK](/SR-MPLS.md)  
 The Cisco IOS-XR 7.5 Configuration guide for SR-MPLS can be found here: [LINK](https://www.cisco.com/c/en/us/td/docs/iosxr/cisco8000/segment-routing/75x/b-segment-routing-cg-cisco8000-75x/configuring-segment-routing-for-is-is-protocol.html)
@@ -124,7 +124,7 @@ SRv6 introduces the Network Programming framework that enables a network operato
 
 In SRv6, an IPv6 address represents an instruction. SRv6 uses a new type of IPv6 Routing Extension Header, called the Segment Routing Header (SRH), in order to encode an ordered list of instructions. The active segment is indicated by the destination address of the packet, and the next segment is indicated by a pointer in the SRH.
 
-In our lab we will be working with SRv6 "micro segment" (SRv6 uSID or uSID for short) instruction. SRv6 uSID is a straightforward extension of the SRv6 Network Programming model:
+In our lab we will be working with SRv6 "micro segment" (SRv6 uSID or just "uSID" for short) instruction. SRv6 uSID is a straightforward extension of the SRv6 Network Programming model:
 
  - The SRv6 Control Plane is leveraged without any change
  - The SRH dataplane encapsulation is leveraged without any change
@@ -152,7 +152,7 @@ SRv6 uSID locator and source address information for nodes in the lab:
 1. Enable SRv6 globally and define SRv6 locator and source address for outbound encapsulation 
    - the source address should match the router's loopback0 ipv6 address
    - locator should match the first 48-bits of the router's loopback0
-   - locator name should match the router's name, for example on xrd01 locator name would be: "xrd01-locator"
+   - to keep things simple we're using the same locator name, 'MyLocator', on all nodes in the network
     ```
     segment-routing
       srv6
