@@ -122,7 +122,7 @@ The *kafka-console-consumer.sh* utility allows one to manually monitor a given t
 
 In the next set of steps we'll run the CLI to monitor a Kafka topic and watch for data from GoBMP. GoBMP's topics are fairly quiet unless BGP updates are happening, so once we have our monitoring session up we'll clear BGP-LS on the RR, which should result in a flood of data onto the topic.
 
-In this exercise we are going to stitch together several elements that we have worked on through out this lab. Each router in the lab was configured with a SRv6 locator SID that is unique. We will use the tools to examine how that is communicated through the network and into Jalapeno
+In this exercise we are going to stitch together several elements that we have worked on through out this lab. The routers in our lab have a number of topology-relevant configurations, including several that we've added over the course of labs 1 - 5. We will use the tools to examine how that data is communicated through the network and ultimately collected and populated into Jalapeno's DB.
 
 #### ISIS Link State
    1. Monitor the BGP-LS *"ls_node"* topic for incoming BMP messages describing ISIS nodes in the network:

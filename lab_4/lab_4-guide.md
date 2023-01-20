@@ -74,6 +74,7 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
       vrf carrots
       ipv4 address 10.101.3.2 255.255.255.0
       ipv6 address fc00:0:101:3::2/64
+      no shutdown
     ```
 
     **xrd07**  
@@ -82,6 +83,7 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
       vrf carrots
       ipv4 address 10.107.2.2 255.255.255.0
       ipv6 address fc00:0:107:2::2/64
+      no shutdown
     ```
 
 
@@ -186,7 +188,7 @@ The BGP route reflectors will also need to have L3VPN capability added to their 
       route-reflector-client
       
       address-family vpnv6 unicast
-      next-hop-self
+      route-reflector-client
     ```
 
 ## Validate SRv6 L3VPN
