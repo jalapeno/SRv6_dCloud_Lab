@@ -132,7 +132,7 @@ The next step is to add the L3VPN configuration into BGP. Because this is SRv6 L
         address-family vpnv6 unicast
         next-hop-self
     ```
-  We will now need to add the VRF/SRv6 configuration to BGP. We will add VRF *carrots* in BGP and enable SRv6 to each address family with the command *`segement-routing srv6`*. In addition we will tie the vrf to the SRv6 locator *MyLocator*. 
+  We will now need to add the VRF/SRv6 configuration to BGP. We will add VRF *carrots* in BGP and enable SRv6 to each address family with the command *`segment-routing srv6`*. In addition we will tie the vrf to the SRv6 locator *`MyLocator`*. 
 
   Last on xrd01 we will redistribute the connected routes using the command *`redistribute connected`*. On xrd07 we will need to redistribute the connected and static routes to provide reachability to Rome and its additional prefixes. For xrd07 we will add the command *`redistribute static`*
 

@@ -16,12 +16,12 @@ After installing the Jalapeno package the student will then configure BGP Monito
 ## Lab Objectives
 The student upon completion of Lab 5 should have achieved the following objectives:
 
-* Understanding Jalapeno software stack
+* High level understanding of the Jalapeno software stack
 * Understanding and configuration of BMP
-* Creation of SRv6 data plane support on Amsterdam and Rome
+* Creation of SRv6 locator/function SIDs for BGP IPv4 and IPv6 global tables
 
 ## Jalapeno Overview
-Project Jalapeno combines existing open source tools with some new stuff we've developed into a data collection and warehousing infrastructure intended to enable development of SDN or network service applications. Think of it as applying microservices architecture and concepts to SDN: give developers the ability to quickly and easily build microservice control planes on top of a common data collection and warehousing infrastructure. More information on Jalapeno can be found at the Jalapeno Git repository: [LINK](https://github.com/cisco-open/jalapeno/blob/main/README.md)
+Project Jalapeno combines existing open source tools with some new stuff we've developed into a data collection and warehousing infrastructure intended to enable development of SDN or network service applications. Think of it as applying microservices architecture and concepts to SDN: give developers the ability to quickly and easily build microservice control planes on top of a common data infrastructure. More information on Jalapeno can be found at the Jalapeno Git repository: [LINK](https://github.com/cisco-open/jalapeno/blob/main/README.md)
 
 ### Jalapeno Architecture and Data Flow
 ![jalapeno_architecture](https://github.com/cisco-open/jalapeno/blob/main/docs/diagrams/jalapeno_architecture.png)
@@ -122,7 +122,7 @@ One of the primary goals of the Jalapeno project is to be flexible and extensibl
 The SR-Processors are a pair of proof-of-concept data processors that mine Jalapeno's graphDB and create a pair of new data collections. The sr-node processor loops through various link-state data collections and gathers relevant SR/SRv6 data for each node in the network. The sr-topology processor generates a graph of the entire network topology (internal and external links, nodes, peers, prefixes, etc.) and populates relevant SR/SRv6 data within the graph collection.
 
 1. Install SR-Processors:
-  The below command *`kubectl apply`* will input a yaml template file and start a new application.
+  The below command *`kubectl apply`* will input a yaml template file and launch the specified pods.
 
     ```
     cd ~/SRv6_dCloud_Lab/lab_6/sr-processors
@@ -152,7 +152,7 @@ The SR-Processors are a pair of proof-of-concept data processors that mine Jalap
 
 ## BGP Monitoring Protocol (BMP)
 
-Most transport SDN systems use BGP-LS to gather and model the underlying IGP topology. Jalapeno is intended to be a more generalized data platform to support use cases beyond internal transport such as VPNs or service chains. Because of this, Jalapeno's primary method of capturing topology data is via BMP. BMP supplies Jalapeno with all BGP AFI/SAFI info, and thus Jalapeno is able to model many different kinds of topology, including the topology of the Internet (at least from the perspective of our peering routers).
+Most transport SDN systems use BGP-LS to gather and model the underlying IGP topology. Jalapeno is intended to be a more generalized data platform to support use cases beyond internal transport such as VPNs or service chains. Because of this, Jalapeno's primary method of capturing topology data is via BMP. BMP provides all BGP AFI/SAFI info, thus Jalapeno is able to model many different kinds of topology, including the topology of the Internet (at least from the perspective of our peering routers).
 
 We'll first establish a BMP session between our route-reflectors and the open-source GoBMP collector (https://github.com/sbezverk/gobmp), which comes pre-packaged with the Jalapeno install. We'll then enable BMP on the RRs' BGP peering sessions with our PE routers xrd01 and xrd07. Once established, the RRs' will stream all BGP NLRI info they receive from the PE routers to the GoBMP collector, which will in turn publish the data to Kafka. We'll get more into the Jalapeno data flow in Lab 6.
 
