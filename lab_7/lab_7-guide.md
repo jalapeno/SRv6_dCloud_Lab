@@ -62,34 +62,41 @@ The Rome VM is simulating a user host or endpoint and will simply use its Linux 
 
  - There is no Linux "SR-MPLS" per se, but from the host's perspective its just labels, so we'll use the iproute2 MPLS implemenation. There are a number of decent references to be found; this one is very straightforward: https://liuhangbin.netlify.app/post/mpls-on-linux/
 
-1.  Login to the Rome VM
-```
-ssh cisco@198.18.128.103
-```
+   1.  Login to the Rome VM
+   ```
+   ssh cisco@198.18.128.103
+   ```
 
-2. On the Rome VM cd into the lab_7 directory where the client resides:
-```
-cd ~/SRv6_dCloud_Lab/lab_7
-```
-2. Get familiar with files in the directory; specifically:
-```
-cat rome.json
-cat cleanup_rome_routes.sh
-cat client.py
-ls netservice/
+   2. On the Rome VM cd into the lab_7 directory where the client resides:
+   ```
+   cd ~/SRv6_dCloud_Lab/lab_7
+   ```
+   3. Get familiar with files in the directory; specifically:
+   ```
+   cat rome.json
+   cat cleanup_rome_routes.sh
+   cat client.py
+   ls netservice/
 
-```
-4. For SRv6 we'll need to set Rome's SRv6 localsid source address:
+   ```
+   4. For SRv6 we'll need to set Rome's SRv6 localsid source address:
 
-```
-sudo ip sr tunsrc set fc00:0:107:1::1
-```
-5. Ensure Rome VM is setup to support SR/MPLS:
-```
-sudo modprobe mpls_router
-sudo modprobe mpls_iptunnel
-lsmod | grep mpls
-```
+   ```
+   sudo ip sr tunsrc set fc00:0:107:1::1
+   ```
+   5. Ensure Rome VM is setup to support SR/MPLS:
+   ```
+   sudo modprobe mpls_router
+   sudo modprobe mpls_iptunnel
+   ```
+   Check to see the running modules. You should see the below output
+   ```
+   lsmod | grep mpls
+   cisco@rome:~$ lsmod | grep mpls
+    mpls_iptunnel          20480  0
+    mpls_router            40960  1 mpls_iptunnel
+    ip_tunnel              24576  1 mpls_router
+   ```
 
 ### Jalapeno python client:
 A host or endpoint with this client can request a network service between a given source and destination. The client's currently supported services are: 
