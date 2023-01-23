@@ -120,29 +120,29 @@ For ease of use the currently supported network services are abbreviated:
  - ds = data_sovereignty
 
 1. Access client help with the *-h* argument:
-```
-python3 client.py -h
-``` 
-Expected output:
-```
-cisco@rome:~/SRv6_dCloud_Lab/lab_7$ python3 client.py -h
-usage: Jalapeno client [-h] [-e E] [-f F] [-s S]
+    ```
+    python3 client.py -h
+    ``` 
+    Expected output:
+    ```
+    cisco@rome:~/SRv6_dCloud_Lab/lab_7$ python3 client.py -h
+    usage: Jalapeno client [-h] [-e E] [-f F] [-s S]
 
-takes command line input and calls path calculator functions
+    takes command line input and calls path calculator functions
 
-optional arguments:
-  -h, --help  show this help message and exit
-  -e E        encapsulation type <sr> <srv6>
-  -f F        json file with src, dst, parameters
-  -s S        requested network service: ll = low_latency, lu = least_utilized, ds = data_sovereignty, gp = get_paths)
+    optional arguments:
+    -h, --help  show this help message and exit
+    -e E        encapsulation type <sr> <srv6>
+    -f F        json file with src, dst, parameters
+    -s S        requested network service: ll = low_latency, lu = least_utilized, ds = data_sovereignty, gp = get_paths)
 
-client.py -f <json file> -e <sr or srv6> -s <ll, lu, ds, or gp>
-```
+    client.py -f <json file> -e <sr or srv6> -s <ll, lu, ds, or gp>
+    ```
 
-Example client command with network-service arguments:
-```
-python3 client.py -f rome.json -e srv6 -s lu
-```
+    Example client command with network-service arguments:
+    ```
+    python3 client.py -f rome.json -e srv6 -s lu
+    ```
 
 The client's network service modules are located in the *netservice* directory. When invoked the client first calls the src_dst.py module, which queries the graphDB and returns database ID info for the source and destination prefixes. The client then runs the selected service module (gp, ll, lu, or ds) and calculates an SRv6 uSID or SR label stack, which will satisfy the network service request. The netservice module then calls the add_route.py module to create the local SR or SRv6 route/policy.
 

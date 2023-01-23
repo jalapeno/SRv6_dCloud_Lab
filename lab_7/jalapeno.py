@@ -6,6 +6,7 @@ from netservice import src_dst, lu, ll, ds, gp
 ### Jalapeno/SDN client ###
 
 def main():
+    # Handle cli options passed in
     parser = argparse.ArgumentParser(
         prog = 'Jalapeno client',
         description = 'takes command line input and calls path calculator functions',
@@ -18,6 +19,13 @@ def main():
     encap = args.e
     file = args.f
     service = args.s
+
+    # Check that the required input arguments were passed in
+    if not encap or not file or not service:
+        print("Required input elements encapsulation type, input file, and service type were not entered")
+        print("client.py -f <json file> -e <sr or srv6> -s <ll, lu, ds, or gp>")
+        exit()
+
 
     username = "username"
     password = "password"
