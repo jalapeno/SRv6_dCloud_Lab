@@ -109,12 +109,12 @@ One of the primary goals of the Jalapeno project is to be flexible and extensibl
     ```
 5. Here are some additional k8s commands to try. Note the different outputs when specifying a particular namespace (-n option) vs. all namespaces (-A option):
     ```
-    kubectl get pods -n jalapeno
-    kubectl get pods -n jalapeno-collectors
-    kubectl get services -A
-    kubectl get all -A
-    kubectl get nodes
-    kubectl describe pod -n <namespace> <pod name>
+    kubectl get pods -n jalapeno              <-------- display all pods/containers in the Jalapeno namespace
+    kubectl get pods -n jalapeno-collectors   <-------- display all pods/containers in the Jalapeno-Collectors namespace
+    kubectl get services -A                   <-------- display all externally reachable services (BMP, Arango, etc.)
+    kubectl get all -A                        <-------- display a summary of all cluster info
+    kubectl get nodes                         <-------- display cluster node info
+    kubectl describe pod -n <namespace> <pod name>    <-------- display detailed info about a pod
 
     example: kubectl describe pod -n jalapeno topology-678ddb8bb4-rt9jg
     ```
