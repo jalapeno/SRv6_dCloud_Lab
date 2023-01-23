@@ -28,7 +28,7 @@ consumer = KafkaConsumer(
      max_poll_records=20,
      value_deserializer=lambda x: loads(x.decode('utf-8')))
 
-# for loop subscribes to Kafka messages
+# for loop subscribes to Kafka messages and uploads docs to DB
 for message in consumer:
     consumer.commit() 
     message = message.value
