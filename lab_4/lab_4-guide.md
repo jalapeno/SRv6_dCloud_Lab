@@ -200,7 +200,7 @@ Validation command output examples can be found at this [LINK](https://github.co
   ```
   show segment-routing srv6 sid
   show bgp vpnv4 unicast
-  show bgp vpnv4 unicast rd 10.0.0.7:0 10.9.7.0/24
+  show bgp vpnv4 unicast rd 10.0.0.7:0 50.0.0.0/24
   show bgp vpnv6 unicast
   show bgp vpnv6 unicast rd 10.0.0.7:0 fc00:0:40::/64 
   ping vrf carrots 40.0.0.1
@@ -351,7 +351,7 @@ segment-routing
 ```
   policy bulk-transfer
    srv6
-    locator ISIS binding-sid dynamic behavior ub6-insert-reduced
+    locator MyLocator binding-sid dynamic behavior ub6-insert-reduced
    
    color 40 end-point ipv6 fc00:0:7777::1
    candidate-paths
@@ -360,7 +360,7 @@ segment-routing
      
   policy low-latency
    srv6
-    locator ISIS binding-sid dynamic behavior ub6-insert-reduced
+    locator MyLocator binding-sid dynamic behavior ub6-insert-reduced
    
    color 50 end-point ipv6 fc00:0:7777::1
    candidate-paths

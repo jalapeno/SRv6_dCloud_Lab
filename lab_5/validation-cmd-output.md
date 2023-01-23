@@ -4,7 +4,7 @@
 RP/0/RP0/CPU0:xrd01#show segment-routing srv6 sid
 Sat Jan  7 21:03:02.074 UTC
 
-*** Locator: 'ISIS' *** 
+*** Locator: 'MyLocator' *** 
 
 SID                         Behavior          Context                           Owner               State  RW
 --------------------------  ----------------  --------------------------------  ------------------  -----  --

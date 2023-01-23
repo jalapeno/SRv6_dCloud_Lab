@@ -183,30 +183,16 @@ We'll first establish a BMP session between our route-reflectors and the open-so
 
 2. Validate BMP session establishment and client monitoring (the session may take a couple minutes to become active/connected):
     ```
-    show bgp bmp server 1
+    show bgp bmp summary
     ```
 
     Expected output (truncated):  
     ```
-    RP/0/RP0/CPU0:xrd05#sho bgp bmp ser 1
-    Thu Jan 12 04:09:26.902 UTC
-    BMP server 1
-    Host 198.18.128.101 Port 30511
-    Connected for 1d03h                      <----------------------
-    Last Disconnect event received : 1d04h
-    Precedence:  internet
-    BGP neighbors: 4
-    VRF: - (0x60000000)
-    Update Source: 10.254.254.105 (Mg0/RP0/CPU0/0)
-    Update Source Vrf ID: 0x60000000
-
-    Queue write pulse sent            : Jan 12 04:09:26.563, Jan 11 00:10:46.178 (all)
-    Queue write pulse received        : Jan 12 04:09:26.563
-    Update Mode : Route Monitoring Pre-Policy
-
-    TCP: 
-      Last message sent: Jan 12 04:09:26.563, Status: No Pending Data
-      Last write pulse received: Jan 12 04:09:26.565, Waiting: FALSE
+    RP/0/RP0/CPU0:xrd05#show bgp bmp summary
+    Fri Jan 20 21:50:08.460 UTC
+    ID   Host                 Port     State   Time        NBRs
+    1   198.18.128.101       30511    CONNECT 00:00:00    4
+    RP/0/RP0/CPU0:xrd05# 
 
     ```
 
@@ -235,7 +221,7 @@ When we get to lab 7 we'll be sending SRv6 encapsulated traffic directly to/from
     RP/0/RP0/CPU0:xrd01#show segment-routing srv6 sid
     Sat Jan  7 22:24:00.280 UTC
 
-    *** Locator: 'ISIS' *** 
+    *** Locator: 'MyLocator' *** 
 
     SID                         Behavior          Context                           Owner               State  RW
     --------------------------  ----------------  --------------------------------  ------------------  -----  --

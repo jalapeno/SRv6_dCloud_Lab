@@ -175,7 +175,7 @@ SRv6 uSID locator and source address information for nodes in the lab:
     ```
     RP/0/RP0/CPU0:xrd01#show segment-routing srv6 sid
 
-    *** Locator: 'ISIS' *** 
+    *** Locator: 'MyLocator' *** 
 
     SID                         Behavior          Context                           Owner               State  RW
     --------------------------  ----------------  --------------------------------  ------------------  -----  --
@@ -195,7 +195,7 @@ SRv6 uSID locator and source address information for nodes in the lab:
     IS-IS 100 SRv6 Locators
     Name                  ID       Algo  Prefix                    Status
     ------                ----     ----  ------                    ------
-    ISIS                  1        0     fc00:0000:1111::/48             Active
+    MyLocator                  1        0     fc00:0000:1111::/48             Active
     Advertised Level: level-1-2   
     Level: level-1      Metric: 1        Administrative Tag: 0         
     Level: level-2-only Metric: 1        Administrative Tag: 0         
