@@ -92,6 +92,8 @@ The Rome VM is simulating a user host or endpoint and will simply use its Linux 
    Check to see the running modules. You should see the below output
    ```
    lsmod | grep mpls
+   ```
+   ```
    cisco@rome:~$ lsmod | grep mpls
     mpls_iptunnel          20480  0
     mpls_router            40960  1 mpls_iptunnel
@@ -106,7 +108,7 @@ A host or endpoint with this client can request a network service between a give
  - Data Sovereignty Path
  - Get All Paths (informational only)
  
- When executed the client passes its service request as a Shortest Path query to Jalapeno's Arango graphDB. The DB performs a traversal of its graph and responds with a dataset reflecting the shortest path per the query. The client receives the data, performs some data manipulation as needed and then constructs a local SR or SRv6 route/policy.
+ When executed the client passes its service request as a Shortest Path query to Jalapeno's Arango graph database. The database performs a traversal of its graph and responds with a dataset reflecting the shortest path per the query. The client receives the data, performs some data manipulation as needed and then constructs a local SR or SRv6 route/policy.
 
 Currently the client operates as a CLI tool, which expects to see a set of command line arguments. A user or application may operate the client by specifying the desired network service (-s) and encapsulation(-e), and inputs a json file which contains source and destination info and a few other items.
 
@@ -132,7 +134,7 @@ optional arguments:
   -h, --help  show this help message and exit
   -e E        encapsulation type <sr> <srv6>
   -f F        json file with src, dst, parameters
-  -s S        requested network service: sr = low_latency, lu = least_utilized, ds = data_sovereignty, gp = get_paths)
+  -s S        requested network service: ll = low_latency, lu = least_utilized, ds = data_sovereignty, gp = get_paths)
 
 client.py -f <json file> -e <sr or srv6> -s <ll, lu, ds, or gp>
 ```
