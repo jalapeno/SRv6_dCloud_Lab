@@ -363,7 +363,7 @@ In this exercise we are going to stitch together several elements that we have w
 
     Some additional Example:s
 
-    <img src="arango-query.png" width="600">
+    <img src="images/arango-query.png" width="600">
 
     More sample queries:
     ```
@@ -447,7 +447,7 @@ Reference this document on the shortest path algorithim in AQL [HERE](https://ww
    for v, e in outbound shortest_path 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' TO 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology OPTIONS {weightAttribute: 'latency' } return { prefix: v.prefix, name: v.name, sid: e.srv6_sid, latency: e.latency }
    ```
 ### Graph Traversals
-A traversal starts at one specific document (startVertex) and follows all edges connected to this document. For all documents (vertices) that are targeted by these edges it will again follow all edges connected to them and so on. It is possible to define how many of these follow iterations should be executed at least (min depth) and at most (max depth).
+A traversal starts at one specific document (startVertex) and follows all edges connected to this document. For all documents (vertices) that are targeted by these edges it will again follow all edges connected to them and so on. It is possible to define how many of these follow iterations should be executed at least (min depth) and at most (max depth). Or in network-engineer-speak "fewest hops" and "most hops"
 https://www.arangodb.com/docs/stable/aql/graphs-traversals-explained.html
 
 For our purposes we can use Graph Traversal to run a limited or bounded shortest path query (min and max hops):
@@ -455,40 +455,58 @@ For our purposes we can use Graph Traversal to run a limited or bounded shortest
 #### Query for the least utilized path
 Backups, data replication, other bulk transfers can oftentimes take a non-best path through the network. In theory the least utilized path could be many hops in length, so we're going to build the query such that the traversal limits itself to a maximum of 6 hops from the source vertex.
 
-   1. Graph traversal query for the least utilized path:
+   1. Graph traversal query for the least utilized path. The 1..6 notation indicates the query can consider paths with 6 or few hops.
+    - Query for full path data:
    ```
-   FOR v, e, p IN 1..6 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
-       OPTIONS {uniqueVertices: "path", bfs: true} FILTER v._id == 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
-       RETURN { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*],
+   FOR v, e, p in 1..6 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
+       options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
+       return distinct p
+   ```
+    - Now try the same query, but limit results to 5 hops or fewer:
+   ```
+   FOR v, e, p in 1..5 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
+       options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
+       return distinct p
+   ```
+    The resulting graph leaves out the longest path through the network:
+
+    <img src="images/graph-traversal-5-hops" width="600">
+
+    - Run the same query but with filtered output. 
+   ```
+   for v, e, p in 1..6 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
+       options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
+       return distinct { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*],
        latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
    ```
+    We no longer see the UI render a topology, but we do get a nice subnet of the output data:
+    
     - Note the least utilized path should be **xrd01** -> **xrd02** -> **xrd03** -> **xrd04** -> **xrd07**. This also happens to be the longest path geographically in our network (Netherlands proceeding east and south through Germany, Poland, Ukraine, Turkey, etc.). Any traffic taking this path will be subject to the longest latency in our network.
 
    2. Query for the return path:
    ```
-   FOR v, e, p IN 1..6 outbound 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' sr_topology 
-       OPTIONS {uniqueVertices: "path", bfs: true} FILTER v._id == 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' 
-       RETURN { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*],
+   for v, e, p in 1..6 outbound 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' sr_topology 
+       options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' 
+       return distinct { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*],
        latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
    ```
     - Note: unlike latency, which we can expect to be roughly equivalent in either direction, average utilization could be quite different. In our network the least utilized Amsterdam to Rome path is different from the least utilized Rome to Amsterdam path: **xrd07** -> **xrd06** -> **xrd02** -> **xrd01**
 
-   The previous queries provided paths up to 6-hops in length. We can increase or decrease the number of hops a graph traversal may use:
+   The previous queries provided paths up to 5 or 6-hops in length. We can increase or decrease the number of hops a graph traversal may use:
 
-   3. Decrease the length of the traversal (should provide fewer valid results)
+   3. Let's constrain the traversal to only consider a path 6 hops in length:
 
    ```
-   FOR v, e, p IN 1..5 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
-       OPTIONS {uniqueVertices: "path", bfs: true} FILTER v._id == 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
-       RETURN { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*],
-       latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
+   for v, e, p in 6..6 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
+       options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
+       return distinct p
    ```
    4. Increase the length of the traversal (should provide more valid results)
    ```
-   FOR v, e, p IN 1..8 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
-       OPTIONS {uniqueVertices: "path", bfs: true} FILTER v._id == 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
-       RETURN { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*],
-       latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
+    for v, e, p in 1..8 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
+        options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
+        return distinct { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*],
+        latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
 
    ```
     - Note: the graph traversal is inherently loop-free. If you increase the previous query to max of 10 or 12 hops it should return the same number of results as 8 hops max.
@@ -502,9 +520,16 @@ https://www.arangodb.com/docs/stable/aql/graphs-kshortest-paths.html
 
 1. We'll use the K Shortest Paths query method to find one or more suitable paths from Amsterdam to Rome that avoids France:
 
+ - Full path data:
     ```
-    for p in outbound k_shortest_paths  'sr_node/2_0_0_0000.0000.0001' TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7'
-        sr_topology filter p.edges[*].country_codes !like "%FRA%" return { path: p.edges[*].remote_node_name, 
+    for p in outbound k_shortest_paths  'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' to 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' sr_topology options {uniqueVertices: "path"} filter p.edges[*].country_codes !like "%FRA%" return distinct p
+    ```
+  <img src="images/data-sovereignty-query.png" width="600">
+
+ - Filtered output:
+    ```
+    for p in outbound k_shortest_paths  'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' to 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7'
+        sr_topology filter p.edges[*].country_codes !like "%FRA%" return distinct { path: p.edges[*].remote_node_name, 
         sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency),
         percent_util_out: avg(p.edges[*].percent_util_out)}
     ```
