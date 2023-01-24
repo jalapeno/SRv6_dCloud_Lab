@@ -480,9 +480,9 @@ Backups, data replication, other bulk transfers can oftentimes take a non-best p
        return distinct { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*],
        latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
    ```
-    We no longer see the UI render a topology, but we do get a nice subnet of the output data:
+   We no longer see the UI render a topology, but we do get a nice subnet of the output data:
     
-    - Note the least utilized path should be **xrd01** -> **xrd02** -> **xrd03** -> **xrd04** -> **xrd07**. This also happens to be the longest path geographically in our network (Netherlands proceeding east and south through Germany, Poland, Ukraine, Turkey, etc.). Any traffic taking this path will be subject to the longest latency in our network.
+   - Note the least utilized path should be **xrd01** -> **xrd02** -> **xrd03** -> **xrd04** -> **xrd07**. This also happens to be the longest path geographically in our network (Netherlands proceeding east and south through Germany, Poland, Ukraine, Turkey, etc.). Any traffic taking this path will be subject to the longest latency in our network.
 
    4. Query for the return path:
    ```
@@ -491,7 +491,7 @@ Backups, data replication, other bulk transfers can oftentimes take a non-best p
        return distinct { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*],
        latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
    ```
-    - Note: unlike latency, which we can expect to be roughly equivalent in either direction, average utilization could be quite different. In our network the least utilized Amsterdam to Rome path is different from the least utilized Rome to Amsterdam path: **xrd07** -> **xrd06** -> **xrd02** -> **xrd01**
+   - Note: unlike latency, which we can expect to be roughly equivalent in either direction, average utilization could be quite different. In our network the least utilized Amsterdam to Rome path is different from the least utilized Rome to Amsterdam path: **xrd07** -> **xrd06** -> **xrd02** -> **xrd01**
 
    The previous queries provided paths up to 5 or 6-hops in length. We can increase or decrease the number of hops a graph traversal may use:
 
@@ -510,7 +510,7 @@ Backups, data replication, other bulk transfers can oftentimes take a non-best p
         latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
 
    ```
-    - Note: the graph traversal is inherently loop-free. If you increase the previous query to max of 10 or 12 hops it should return the same number of results as 8 hops max.
+   - Note: the graph traversal is inherently loop-free. If you increase the previous query to max of 10 or 12 hops it should return the same number of results as 8 hops max.
 
 ### K Shortest Paths
 This type of query finds the first k paths in order of length (or weight) between two given documents, startVertex and targetVertex in your graph.
