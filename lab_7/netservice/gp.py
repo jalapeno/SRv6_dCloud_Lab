@@ -34,7 +34,7 @@ def gp_calc(src, dst, user, pw, dbname):
                 #print("sid: ", path[index][key])
                 locators = path[index][key]
                 usid_block = 'fc00:0:'
-                print("locators: ", locators)
+                print("SRv6 locators for path: ", locators)
                 for sid in list(locators):
                     if sid == None:
                         locators.remove(sid)
