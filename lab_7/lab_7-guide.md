@@ -162,14 +162,14 @@ The Get All Paths Service will query the DB for all paths which meet certain par
 
 1. Run the 'gp' service (no need to specify encapsulation type):
 ``` 
-python3 client.py -f rome.json -s gp
+python3 jalapeno.py -f rome.json -s gp -e sr
 ```
- - check log output:
+ - All the jalapeno network services will output some data to the console. More verbose data will be logged to the lab_7 log directory. Check log output:
 ```
 more log/get_paths.json
 ```
  - We can expect to see a json file with source, destination, and path data which includes srv6 sids and sr label stack info
- - The client will also print several pieces of data out to the command line as it performs its logic. Note this line which provides a summary of the relevant paths by outputing the SRv6 locators along each path:
+ - The code contains a number of console logging instances that are commented out, and some that are active. Note this line which provides a summary of the relevant paths by outputing the SRv6 locators along each path:
 
  https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_7/netservice/gp.py#L37
 
@@ -189,7 +189,7 @@ https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_7/netservice/gp.py#L9
 ```
 for v, e, p in 6..6 outbound
 ```
-Save gp.py and re-run the script. You should see fewer path options in the command line output and log.
+Save gp.py and re-run the script. The *6..6* syntax indicates the traversal should only consider paths 6 hops in length. After re-running the client *python3 jalapeno.py -f rome.json -s gp -e sr* you should see fewer path options in the command line output and log.
 
 3. Try increasing the number of hops the graph may traverse:
 
