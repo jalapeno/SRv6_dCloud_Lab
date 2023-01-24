@@ -469,9 +469,9 @@ Backups, data replication, other bulk transfers can oftentimes take a non-best p
        options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
        return distinct p
    ```
-    The resulting graph leaves out the longest path through the network:
+   The resulting graph leaves out the longest path through the network:
 
-    <img src="images/graph-traversal-5-hops" width="600">
+   <img src="images/graph-traversal-5-hops" width="600">
 
    3. Run the same query but with filtered output. 
    ```
