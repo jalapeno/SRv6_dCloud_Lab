@@ -462,7 +462,8 @@ Backups, data replication, other bulk transfers can oftentimes take a non-best p
        options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
        return distinct p
    ```
-    - Now try the same query, but limit results to 5 hops or fewer:
+   
+   2. Now try the same query, but limit results to 5 hops or fewer:
    ```
    FOR v, e, p in 1..5 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
        options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
@@ -472,7 +473,7 @@ Backups, data replication, other bulk transfers can oftentimes take a non-best p
 
     <img src="images/graph-traversal-5-hops" width="600">
 
-    - Run the same query but with filtered output. 
+   3. Run the same query but with filtered output. 
    ```
    for v, e, p in 1..6 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
        options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
@@ -483,7 +484,7 @@ Backups, data replication, other bulk transfers can oftentimes take a non-best p
     
     - Note the least utilized path should be **xrd01** -> **xrd02** -> **xrd03** -> **xrd04** -> **xrd07**. This also happens to be the longest path geographically in our network (Netherlands proceeding east and south through Germany, Poland, Ukraine, Turkey, etc.). Any traffic taking this path will be subject to the longest latency in our network.
 
-   2. Query for the return path:
+   4. Query for the return path:
    ```
    for v, e, p in 1..6 outbound 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' sr_topology 
        options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' 
@@ -494,14 +495,14 @@ Backups, data replication, other bulk transfers can oftentimes take a non-best p
 
    The previous queries provided paths up to 5 or 6-hops in length. We can increase or decrease the number of hops a graph traversal may use:
 
-   3. Let's constrain the traversal to only consider a path 6 hops in length:
+   5. Let's constrain the traversal to only consider a path 6 hops in length:
 
    ```
    for v, e, p in 6..6 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
        options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
        return distinct p
    ```
-   4. Increase the length of the traversal (should provide more valid results)
+   6. Increase the length of the traversal (should provide more valid results)
    ```
     for v, e, p in 1..8 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
         options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
