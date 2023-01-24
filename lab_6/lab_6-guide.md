@@ -471,7 +471,7 @@ Backups, data replication, other bulk transfers can oftentimes take a non-best p
    ```
    The resulting graph leaves out the longest path through the network:
 
-   <img src="images/graph-traversal-5-hops" width="600">
+   <img src="images/graph-traversal-5-hops.png" width="600">
 
    3. Run the same query but with filtered output. 
    ```
