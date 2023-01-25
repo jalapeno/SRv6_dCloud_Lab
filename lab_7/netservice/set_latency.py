@@ -57,5 +57,6 @@ for i in c:
 tc_options = "qdisc change dev "+interface +" root netem delay " + str(args.ms)
 print (tc_options)
 # program the bridge interface with new latench value
-result = subprocess.Popen(['tc', tc_options)], stdout = subprocess.PIPE)
+result = subprocess.Popen(['tc', tc_options], stdout = subprocess.PIPE)
+
 print (result)
