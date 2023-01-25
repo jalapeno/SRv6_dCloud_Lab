@@ -54,9 +54,9 @@ for i in c:
 
 # Program the upated latency value for the Linux bridge
 # Create tc option list
-tc_options = "qdisc change dev "+interface +" root netem delay " + str(args.ms)
+tc_options = "qdisc change dev "+interface +" root netem delay " + str(args.ms) +"ms"
 print (tc_options)
-# program the bridge interface with new latench value
+# program the bridge interface with new latency value
 result = subprocess.Popen(['tc', tc_options], stdout = subprocess.PIPE)
 
 print (result)
