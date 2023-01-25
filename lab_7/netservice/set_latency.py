@@ -30,7 +30,6 @@ file = '../../util/' + file_dict.get(args.l)
 # Open and read in the router link file
 with open(file, 'r') as file:
     bridge_id = file.read().rstrip()
-print (bridge_id)
 
 # Run bridge control and find assocaiated interface to the bridge_id
 # using the Popen function to execute the
@@ -54,9 +53,12 @@ for i in c:
 
 # Program the upated latency value for the Linux bridge
 # Create tc option list
-tc_options = "qdisc change dev "+interface +" root netem delay " + str(args.ms) +"ms"
-print (tc_options)
-# program the bridge interface with new latency value
-result = subprocess.Popen(['tc', tc_options], stdout = subprocess.PIPE)
+tc_command = "tc qdisc change dev "+interface +" root netem delay " + str(args.ms) +"ms"
 
-print (result)
+# program the bridge interface with new latency value
+result = subprocess.run([tc_command], capture_output=True, shell = True)
+
+if result.returncode == 0:
+	print ("Link " + args.l + " programmed successfully for " + str(args.ms) + "ms of latency.")
+else:
+	print ("Link programming failed")
