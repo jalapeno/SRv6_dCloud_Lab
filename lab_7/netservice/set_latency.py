@@ -12,10 +12,13 @@ parser.add_argument("-ms", help="latency on link in ms")
 args = parser.parse_args()
 
 # Check that the required input arguments were passed in
-if not args.l or not args.ms:
-    print("Required input elements encapsulation type, input file, and/or service type were not entered")
-    print("set_latency.py -l <a..i> -ms <0 -300>")
-    exit()
+#if not args.l or not args.ms:
+#    print("Required input elements encapsulation type, input file, and/or service type were not entered")
+#    print("set_latency.py -l <a..i> -ms <0 -300>")
+#    exit()
 
-f = open(file)
-print (f)
+file='../../util/xrd01-xrd02'
+
+with open(file, 'r') as file:
+    data = file.read().rstrip()
+print (data)

@@ -361,7 +361,7 @@ In this exercise we are going to stitch together several elements that we have w
 
     Note: after running a query you will need to comment it out before running the next query using two forward slashes //
 
-    Some additional Example:s
+    Some additional Example's
 
     <img src="arango-query.png" width="600">
 
