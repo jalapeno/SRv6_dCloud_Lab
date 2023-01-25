@@ -3,6 +3,7 @@
 ### Description
 The goal of the Jalapeno model is to enable applications to directly control their network experience. We envision a process where the application or endpoint requests some Jalapeno network service for its traffic. The Jalapeno network-service queries the DB and provides a response, which includes an SR-MPLS or SRv6 SID stack. The application or endpoint would then encapsulate its own outbound traffic; aka, the SR or SRv6 encapsulation/decapsulation would be performed at the host where the Application resides. The host-based SR/SRv6 encap/decap could be executed at the Linux networking layer, by an onboard dataplane element such as a vSwitch or VPP, or by a CNI dataplane such as eBPF. The encapsulated traffic, once transmitted from the host will reach the SR/SRv6 transport network and will be statelessly forwarded per the SR/SRv6 encapsulation, thus executing the requested network service treatment. Essentially the application or endpoint will be steering its own traffic through the network and thus executing its own SR/SRv6 network program.
 
+
 ## Contents
 - [Lab Objectives](#lab-objectives)
 - [XRd SR Support for VMs](#enable-xrd-router-support-for-sr-vm-traffic)
@@ -18,6 +19,11 @@ The student upon completion of Lab 6 should have achieved the following objectiv
 * Using Python craft specific SR headers for traffic routing
 * Using Python to create and program your own SR-MPLS and SRv6 network path
 
+*Note: the python code used in this lab has a dependency on the python-arango module. The module has been preinstalled on both the Rome and Amsterdam VMs, however, if one wishes to recreate this lab in their own environment, any client node will need to install the module:*
+```
+sudo apt install python3-pip
+pip install python-arango 
+```
 
 ## Enable XRd router support for SR VM Traffic
 Both the Rome and Amsterdam VM's are pre-loaded with a python client (jalapeno.py) that will execute our Jalapeno network service per the process described above. As the client is run it will program a local route or SR-policy with SR/SRv6 encapsulation, which will allow the VM to "self-encapsulate" its outbound traffic, The xrd network will statelessly forward the traffic per the SR/SRv6 encapsulation.
@@ -45,18 +51,6 @@ GigabitEthernet0/0/0/1     No       No       No       Yes
 GigabitEthernet0/0/0/2     No       No       No       Yes
 ```
 
-<<<<<<< HEAD
-Now we're ready to work from the Rome VM.
-
-*Note: the python code in this lab has a dependency on the python-arango module. The module has been preinstalled on both the Rome and Amsterdam VMs, however, if one wishes to recreate this lab in their own environment, any client node will need to install the module:*
-
-=======
-Note: the python code in this lab has a dependency on the python-arango module. The module has been preinstalled on both the Rome and Amsterdam VMs, however, if one wishes to recreate this lab in their own environment, any client node will need to install the module:
->>>>>>> 7dcd37f49ad39aa50bbd3fe1448dbda4d18f3cdd
-```
-sudo apt install python3-pip
-pip install python-arango 
-```
 ## Rome VM: Linux-based Segment Routing & SRv6 
 
 The Rome VM is simulating a user host or endpoint and will use its Linux dataplane to perform SR or SRv6 traffic encapsulation:
@@ -78,18 +72,18 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
    3. Get familiar with files in the directory; specifically:
    ```
    cat rome.json                 <------- data jalapeno.py will use to execute its query and program its SR/SRv6 route
-   cat cleanup_rome_routes.sh    <------- cleanup any old SR/SRv6 routes
+   cat cleanup_rome_routes.sh    <------- script to cleanup any old SR/SRv6 routes
    cat jalapeno.py               <------- python client that takes cmd line args to request/execute an SR/SRv6 network service
    ls netservice/                <------- contains python libraries available to jalapeno.py for calculating SR/SRv6 route instructions
 
    ```
-   4. For SRv6 we'll need to set Rome's SRv6 localsid source address:
+   4. For SRv6 outbound encapsulation we'll need to set Rome's SRv6 source address:
 
    ```
    sudo ip sr tunsrc set fc00:0:107:1::1
    ```
 
-   - Note: The MPLS modules aren't loaded by default, however, we already enabled them on the Rome VM. If you're setting up a similar lab in your own environment, here are the commands to load them: 
+   - Note: For host-based SR/MPLS the Linux MPLS modules aren't loaded by default, however, we already enabled them on the Rome VM. If you're setting up a similar lab in your own environment, here are the commands to load them: 
    ```
    sudo modprobe mpls_router
    sudo modprobe mpls_iptunnel
@@ -106,7 +100,7 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
     mpls_router            40960  1 mpls_iptunnel
     ip_tunnel              24576  1 mpls_router
    ```
-  Each line has three columns:
+  Each line in the output has three columns:
 
   * Module - The first column shows the name of the module.
   * Size - The second column shows the size of the module in bytes.
@@ -125,7 +119,7 @@ A host or endpoint with this client can request a network service between a give
  
  When executed the client passes its service request as a Shortest Path query to Jalapeno's Arango graph database. The database performs a traversal of its graph and responds with a dataset reflecting the shortest path based on the parameters of the query. The client receives the data, performs some data manipulation as needed and then constructs a local SR or SRv6 route/policy for any traffic it would send to the destination.
 
-Currently the client operates as a CLI tool, which expects to see a set of command line arguments. A user or application may operate the client by specifying the desired network service (-s) and encapsulation(-e), and inputs a json file which contains source and destination info and a few other items.
+Currently the client operates as a CLI tool, which expects to see a set of command line arguments. A user or application may operate the client by specifying the desired network service (-s) and encapsulation (-e), and inputs a json file which contains source and destination info and a few other items.
 
 For ease of use the currently supported network services are abbreviated: 
 
@@ -136,27 +130,27 @@ For ease of use the currently supported network services are abbreviated:
 
 1. Access client help with the *-h* argument:
     ```
-    python3 client.py -h
+    python3 jalapeno.py -h
     ``` 
     Expected output:
     ```
-    cisco@rome:~/SRv6_dCloud_Lab/lab_7$ python3 client.py -h
+    cisco@rome:~/SRv6_dCloud_Lab/lab_7$ python3 jalapeno.py -h
     usage: Jalapeno client [-h] [-e E] [-f F] [-s S]
 
     takes command line input and calls path calculator functions
 
     optional arguments:
     -h, --help  show this help message and exit
-    -e E        encapsulation type <sr> <srv6>
+    -e E        encapsulation type <sr> or <srv6>
     -f F        json file with src, dst, parameters
     -s S        requested network service: ll = low_latency, lu = least_utilized, ds = data_sovereignty, gp = get_paths)
 
-    client.py -f <json file> -e <sr or srv6> -s <ll, lu, ds, or gp>
+    jalapeno.py -f <json file> -e <sr or srv6> -s <ll, lu, ds, or gp>
     ```
 
     Example client command with network-service arguments:
     ```
-    python3 client.py -f rome.json -e srv6 -s lu
+    python3 jalapeno.py -f rome.json -e srv6 -s lu
     ```
 
 The client's network service modules are located in the *netservice* directory. When invoked the client first calls the src_dst.py module, which queries the graphDB and returns database ID info for the source and destination prefixes. The client then runs the selected service module (gp, ll, lu, or ds) and calculates an SRv6 uSID or SR label stack, which will satisfy the network service request. The netservice module then calls the add_route.py module to create the local SR or SRv6 route/policy.
@@ -168,14 +162,14 @@ The Get All Paths Service will query the DB for all paths which meet certain par
 
 1. Run the 'gp' service (no need to specify encapsulation type):
 ``` 
-python3 client.py -f rome.json -s gp
+python3 jalapeno.py -f rome.json -s gp -e sr
 ```
- - check log output:
+ - All the jalapeno network services will output some data to the console. More verbose data will be logged to the lab_7 log directory. Check log output:
 ```
 more log/get_paths.json
 ```
  - We can expect to see a json file with source, destination, and path data which includes srv6 sids and sr label stack info
- - The client will also print several pieces of data out to the command line as it performs its logic. Note this line which provides a summary of the relevant paths by outputing the SRv6 locators along each path:
+ - The code contains a number of console logging instances that are commented out, and some that are active. Note this line which provides a summary of the relevant paths by outputing the SRv6 locators along each path:
 
  https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_7/netservice/gp.py#L37
 
@@ -195,7 +189,7 @@ https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_7/netservice/gp.py#L9
 ```
 for v, e, p in 6..6 outbound
 ```
-Save gp.py and re-run the script. You should see fewer path options in the command line output and log.
+Save gp.py and re-run the script. The *6..6* syntax indicates the traversal should only consider paths 6 hops in length. After re-running the client *python3 jalapeno.py -f rome.json -s gp -e sr* you should see fewer path options in the command line output and log.
 
 3. Try increasing the number of hops the graph may traverse:
 

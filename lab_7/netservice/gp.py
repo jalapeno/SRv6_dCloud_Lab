@@ -6,7 +6,7 @@ def gp_calc(src, dst, user, pw, dbname):
 
     client = ArangoClient(hosts='http://198.18.128.101:30852')
     db = client.db(dbname, username=user, password=pw)
-    cursor = db.aql.execute("""for v, e, p in 1..6 outbound """ + '"%s"' % src + """ \
+    cursor = db.aql.execute("""for v, e, p in 1..8 outbound """ + '"%s"' % src + """ \
             sr_topology options {uniqueVertices: "path", bfs: true} \
                 filter v._id == """ + '"%s"' % dst + """ \
                     return distinct { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, \

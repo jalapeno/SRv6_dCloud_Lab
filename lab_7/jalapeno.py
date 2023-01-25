@@ -65,10 +65,10 @@ def main():
             print(srv6_ds)
     if service == "gp":
         print("Get All Paths Service")
-        srv6_gp = gp.gp_calc(src_id, dst_id, user, pw, dbname)  
+        gp_srv = gp.gp_calc(src_id, dst_id, user, pw, dbname)  
         with open('log/get_paths.json', 'a') as f:
             sys.stdout = f 
-            print(srv6_gp)                 
+            print(gp_srv)                 
     if service == "ll":
         print("Low Latency Service")
         srv6_ll = ll.ll_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane, encap) 
