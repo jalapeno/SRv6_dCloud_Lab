@@ -12,7 +12,7 @@ parser.add_argument("-l", choices=link_options,required=True, help="link identif
 parser.add_argument("-ms", type=int, required=True, help="latency on link in ms")  
 
 args = parser.parse_args()
-# Map link cli input to file descriptor
+# Map link cli input to file descriptor and create file locator
 file_dict={
     'A':'xrd01-xrd02',
     'B':'xrd01-xrd05',
@@ -25,8 +25,7 @@ file_dict={
     'I':'xrd06-xrd07'
 }
 
-file = '../../util/' + file_dict.get(args.l)
-print (file)
+file = '../../util/' + file_dict.get(args.l) 
 
 # Open and read in the router link file
 with open(file, 'r') as file:
@@ -34,7 +33,6 @@ with open(file, 'r') as file:
 print (bridge_id)
 
 # Run bridge control and find assocaiated interface to the bridge_id
-
 # using the Popen function to execute the
 # command and store the result in temp.
 # it returns a tuple that contains the 
@@ -54,3 +52,10 @@ c = b.split(",")
 for i in c:
  if i[0:4] == "veth":
    interface = i
+
+# Program the upated latency value for the Linux bridge
+
+# Create tc optin list
+tc_options = "qdisc add dev "+interface +" root netem delay " + str(args.ms)
+print (tc_options)
+#temp1 = subprocess.Popen(['tc', tc_options)], stdout = subprocess.PIPE)
