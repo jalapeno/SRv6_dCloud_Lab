@@ -37,12 +37,11 @@ print (bridge_id)
 # command and store the result in temp.
 # it returns a tuple that contains the 
 # data and the error if any.
-temp1 = subprocess.Popen(['brctl', 'show'], stdout = subprocess.PIPE)
-temp2 = subprocess.Popen(['grep', bridge_id],stdin=temp1.stdout, stdout=subprocess.PIPE)
+result1 = subprocess.Popen(['brctl', 'show'], stdout = subprocess.PIPE)
+result2 = subprocess.Popen(['grep', bridge_id],stdin=result1.stdout, stdout=subprocess.PIPE)
     
-# we use the communicate function
-# to fetch the output
-a = str(temp2.communicate())
+# we use the communicate function to fetch the output
+a = str(result2.communicate())
 
 # splitting the output so that
 # we can parse them line by line
@@ -54,8 +53,9 @@ for i in c:
    interface = i
 
 # Program the upated latency value for the Linux bridge
-
-# Create tc optin list
-tc_options = "qdisc add dev "+interface +" root netem delay " + str(args.ms)
+# Create tc option list
+tc_options = "qdisc change dev "+interface +" root netem delay " + str(args.ms)
 print (tc_options)
-#temp1 = subprocess.Popen(['tc', tc_options)], stdout = subprocess.PIPE)
+# program the bridge interface with new latench value
+result = subprocess.Popen(['tc', tc_options)], stdout = subprocess.PIPE)
+print (result)
