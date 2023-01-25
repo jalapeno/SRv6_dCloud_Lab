@@ -9,7 +9,7 @@ parser = argparse.ArgumentParser(
         description = 'Sets latency on a single link in the lab topology',
         epilog = 'set_latency.py -l <a..i> -ms <0 -300>')
 parser.add_argument("-l", choices=link_options,required=True, help="link identifier values A through I")
-parser.add_argument("-ms", choices=range(1,300), type=int, required=True, help="latency on link in ms")  
+parser.add_argument("-ms", type=int, required=True, help="latency on link in ms")  
 
 args = parser.parse_args()
 # Map link cli input to file descriptor
@@ -25,7 +25,7 @@ file_dict={
     'I':'xrd06-xrd07'
 }
 
-file = '../../util' + file_dict.get(args.l)
+file = '../../util/' + file_dict.get(args.l)
 print (file)
 
 # Open and read in the router link file
