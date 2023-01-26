@@ -22,6 +22,10 @@ The host-based SR/SRv6 encap/decap could be executed at the Linux networking lay
 - [Amsterdam VM - SR and SRv6 using VPP](#amsterdam-vm)
   - [Jalapeno python client](#jalapeno-sdn-client)
   - [Amsterdam Network Services](#amsterdam-network-services)
+    - [Get All Paths](#get-all-paths-1)
+    - [Least Utilized Path](#least-utilized-path-1)
+    - [Low Latency Path](#low-latency-path-1)
+    - [Data Sovereignty Path](#data-sovereignty-path-1)
 
 ## Lab Objectives
 The student upon completion of Lab 7 should have achieved the following objectives:
