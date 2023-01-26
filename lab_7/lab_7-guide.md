@@ -171,25 +171,31 @@ The client's network service modules are located in the lab_7 *python/netservice
 
 The Get All Paths Service will query the DB for all paths up to 6-hops in length between a pair of source and destination prefixes.
 
-1. Run the 'gp' service:
+1. Run the 'gp' service (you can specify either sr or srv6 for encap):
 ``` 
 python3 jalapeno.py -f rome.json -s gp -e sr
 ```
- - All the jalapeno network services will output some data to the console. More verbose data will be logged to the lab_7 log directory. Check log output:
+ - All the jalapeno network services will output some data to the console. More verbose data will be logged to the lab_7/python/log directory. Check log output:
 ```
 more log/get_paths.json
 ```
  - We can expect to see a json file with source, destination, and path data which includes srv6 sids and sr label stack info
  - The code contains a number of console logging instances that are commented out, and some that are active. Note this line which provides a summary of the relevant paths by outputing the SRv6 locators along each path:
 
- https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_7/netservice/gp.py#L37
+ https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_7/python/netservice/gp.py#L38
 
   - Sample command line output:
 ```
-locators:  [None, 'fc00:0000:6666::', 'fc00:0000:2222::', 'fc00:0000:1111::', None]
-locators:  [None, 'fc00:0000:6666::', 'fc00:0000:5555::', 'fc00:0000:1111::', None]
-locators:  [None, 'fc00:0000:4444::', 'fc00:0000:5555::', 'fc00:0000:1111::', None]
-locators:  [None, 'fc00:0000:4444::', 'fc00:0000:3333::', 'fc00:0000:2222::', 'fc00:0000:1111::', None]
+cisco@rome:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f rome.json -s gp -e sr
+src data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'src_peer': '10.0.0.7'}]
+dest data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'dst_peer': '10.0.0.1'}]
+Get All Paths Service
+number of paths found:  4
+locators along path:  [None, 'fc00:0:4444::', 'fc00:0:5555::', 'fc00:0:1111::', None]
+locators along path:  [None, 'fc00:0:6666::', 'fc00:0:2222::', 'fc00:0:1111::', None]
+locators along path:  [None, 'fc00:0:6666::', 'fc00:0:5555::', 'fc00:0:1111::', None]
+locators along path:  [None, 'fc00:0:4444::', 'fc00:0:3333::', 'fc00:0:2222::', 'fc00:0:1111::', None]
+All paths data from unicast_prefix_v4/20.0.0.0_24_10.0.0.7 to unicast_prefix_v4/10.101.2.0_24_10.0.0.1 logged to log/get_paths.json
 ```
 You can also experiment with the script's graph traversal parameters to limit or expand the number of vertex 'hops' the query will search for. Note: ArangoDB considers the source and destination vertices as 'hops' when doing its graph traversal.
 
