@@ -15,6 +15,7 @@ def gp_calc(src, dst, user, pw, dbname):
 
     path = [doc for doc in cursor]
     #print("paths: ", path)
+    print("number of paths found: ", len(path))
     for index in range(len(path)):
         for key in path[index]:
             #print(key, ":", path[index][key])
@@ -34,7 +35,7 @@ def gp_calc(src, dst, user, pw, dbname):
                 #print("sid: ", path[index][key])
                 locators = path[index][key]
                 usid_block = 'fc00:0:'
-                print("locators: ", locators)
+                print("locators along path: ", locators)
                 for sid in list(locators):
                     if sid == None:
                         locators.remove(sid)
