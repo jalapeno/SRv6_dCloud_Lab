@@ -1,15 +1,16 @@
 ## Lab 7: Host-Based SR/SRv6 and building your own SDN App (BYO-SDN-App)
 
 ### Description
+Lab 7 is divided into two primary parts. Part 1 is host-based SR/SRv6 using Linux kernel capabilities on the Rome VM. Part 2 will be host-based SR/SRv6 using VPP on the Amsterdam VM.
+
 The goal of the Jalapeno model is to enable applications to directly control their network experience. We envision a process where the application or endpoint requests some Jalapeno *network service* for its traffic. The Jalapeno network-service queries the DB and provides a response, which includes an SR-MPLS or SRv6 SID stack. The application or endpoint would then encapsulate its own outbound traffic; aka, the SR or SRv6 encapsulation/decapsulation would be performed at the host where the Application resides. 
 
 The host-based SR/SRv6 encap/decap could be executed at the Linux networking layer, or by an onboard dataplane element such as a vSwitch or VPP, or by a CNI dataplane such as eBPF. The encapsulated traffic, once transmitted from the host, will reach the SR/SRv6 transport network and will be statelessly forwarded per the SR/SRv6 encapsulation, thus executing the requested network service. 
 
-With Host-Based SR/SRv6 the application or endpoint essentially gets to steer its own traffic through the network, thus empowering the app and app-owner, and enabling massive service scale as network state gets distributed beyond the often resource constrained routing elements in the network.
 
 ## Contents
 - [Lab Objectives](#lab-objectives)
-- [XRd forwarding of host-sourced SR traffic](#enable-xrd-forwarding-of-host-sourced-sr-mpls-traffic)
+- [XRd forwarding of host-sourced SR traffic](#enable-xrd-forwarding-of-sr-mpls-traffic-coming-from-linux-hosts)
 - [Rome VM - SR and SRv6 on Linux](#rome-vm-segment-routing--srv6-on-linux)
   - [Preliminary steps on Rome VM](#preliminary-steps-for-srsrv6-on-rome-vm)
 - [Jalapeno python client](#jalapeno-python-client)
@@ -34,9 +35,7 @@ sudo apt install python3-pip
 pip install python-arango 
 ```
 
-## Enable XRd forwarding of host-sourced SR-MPLS traffic
-Both the Rome and Amsterdam VM's are pre-loaded with a python client (jalapeno.py) that will execute our Jalapeno network service per the process described above. As the client is run it will program a local route or SR-policy with SR/SRv6 encapsulation, which will allow the VM to "self-encapsulate" its outbound traffic, The xrd network will statelessly forward the traffic per the SR/SRv6 encapsulation.
-
+## Enable XRd forwarding of SR-MPLS traffic coming from Linux hosts
 In order to forward inbound labeled packets received from the Rome and Amsterdam VMs we'll need to enable MPLS forwarding on xrd01's and xrd07's VM-facing interfaces:
 
 1. Enable MPLS forwarding on the VM-facing interfaces on both xrd01 and xrd07: 
@@ -119,7 +118,9 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
 
 
 ## Jalapeno python client:
-A host or endpoint with this client can request a network service between a given source and destination. The client's currently supported services are: 
+Both the Rome and Amsterdam VM's are pre-loaded with a python client (jalapeno.py) that will execute our Jalapeno network service per the process described above. As the client is run it will program a local route or SR-policy with SR/SRv6 encapsulation, which will allow the VM to "self-encapsulate" its outbound traffic, The xrd network will statelessly forward the traffic per the SR/SRv6 encapsulation.
+
+A host or endpoint with the jalapeno.py client can request a network service between a given source and destination. The client's currently supported network services are: 
 
  - Low Latency Path
  - Least Utilized Path
@@ -137,13 +138,14 @@ For ease of use the currently supported network services are abbreviated:
  - lu = least_utilized
  - ds = data_sovereignty
 
-1. Access client help with the *-h* argument:
+1. cd into the lab_7 python directory and access client help with the *-h* argument:
     ```
+    cd ~/SRv6_dCloud_Lab/lab_7/python
     python3 jalapeno.py -h
     ``` 
     Expected output:
     ```
-    cisco@rome:~/SRv6_dCloud_Lab/lab_7$ python3 jalapeno.py -h
+    cisco@rome:~/SRv6_dCloud_Lab/lab_7/python/$ python3 jalapeno.py -h
     usage: Jalapeno client [-h] [-e E] [-f F] [-s S]
 
     takes command line input and calls path calculator functions
@@ -321,19 +323,19 @@ default via 198.18.128.1 dev ens160 proto static
 Low latency path is the most commonly used example when discussing traffic steering use cases.
 The procedure for testing/running the Low Latency Path service is the same as the one we followed with Least Utilized Path.
 
-1. SR on Rome VM:
+1. Low latency SR service on Rome VM:
 ```
 ./cleanup_rome_routes.sh 
 python3 client.py -f rome.json -e sr -s ll
 ping 10.101.2.1 -i .4
 ```
-2. SRv6 on Rome VM:
+2. Low latency SRv6 service on Rome VM:
 ```
 ./cleanup_rome_routes.sh 
 python3 client.py -f rome.json -e srv6 -s ll
-ping 10.101.1.1 -i .4
+ping 10.101.2.1 -i .4
 ```
-3. tcpdump script On XRD VM:
+3. Run the tcpdump scripts On the XRD VM to see labeled or SRv6 encapsulated traffic traverse the network:
 ```
 ./tcpdump.sh xrd06-xrd07
 ./tcpdump.sh xrd05-xrd06
