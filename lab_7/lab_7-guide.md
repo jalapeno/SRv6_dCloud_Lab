@@ -252,7 +252,7 @@ default via 198.18.128.1 dev ens160 proto static
 10.101.2.0/24  encap mpls  100006/100002/100001 via 10.107.1.2 dev ens192    <------------
 10.101.2.0/24 via 10.107.1.2 dev ens192 proto static 
 10.101.3.0/24 via 10.107.2.2 dev ens224 proto static 
-10.107.1.0/24 dev ens192 proto kernel scope link src 10.107.1.1 
+10.107.1.0/24 dev ens192 proto kernel scope link src 20.0.0.1 
 10.107.2.0/24 dev ens224 proto kernel scope link src 10.107.2.1 
 198.18.128.0/18 dev ens160 proto kernel scope link src 198.18.128.103  
 ```
@@ -327,7 +327,7 @@ default via 198.18.128.1 dev ens160 proto static
 10.101.1.0/24 via 10.107.1.2 dev ens192 proto static 
 10.101.2.0/24  encap seg6 mode encap segs 1 [ fc00:0:6666:2222:1111:: ] dev ens192 scope link  <------------
 10.101.3.0/24 via 10.107.2.2 dev ens224 proto static 
-10.107.1.0/24 dev ens192 proto kernel scope link src 10.107.1.1 
+10.107.1.0/24 dev ens192 proto kernel scope link src 20.0.0.1 
 10.107.2.0/24 dev ens224 proto kernel scope link src 10.107.2.1 
 198.18.128.0/18 dev ens160 proto kernel scope link src 198.18.128.103 
 ```
@@ -547,12 +547,11 @@ ipv4-VRF:0, fib_index:0, flow hash:[src dst sport dport proto flowlabel ] epoch:
         [@1]: mpls via 10.101.1.2 GigabitEthernetb/0/0: mtu:9000 next:2 flags:[] 02420a6501020050569722bb8847 
 ```
 
-2. Check log output:
+2. Check log output and local routing table. You can also check the VPP FIB entry from linux:
  ```
 cat log/least_utilized.json
-
 ip route
-
+sudo vppctl show ip fib 20.0.0.0/24
 ```
 
 3. Run a ping test 
@@ -562,18 +561,15 @@ sudo tcpdump -ni ens224
 ```
  - Return to the first Amsterdam ssh session and ping
 ```
-ping 10.107.1.1 -i .4
+ping 20.0.0.1 -i .4
 ```
 
 4. Validate outbound traffic is encapsulated in the SR label stack. Expected output will be something like:
 ```
 cisco@xrd:~/SRv6_dCloud_Lab/util$ sudo tcpdump -ni ens224
-tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
-listening on ens224, link-type EN10MB (Ethernet), capture size 262144 bytes
-23:39:02.390485 MPLS (label 100002, exp 0, ttl 64) (label 100003, exp 0, ttl 64) (label 100004, exp 0, ttl 64) (label 100007, exp 0, [S], ttl 64) IP 10.101.2.1 > 10.107.1.1: ICMP echo request, id 16, seq 10, length 64
-23:39:02.395566 IP 10.107.1.1 > 10.101.2.1: ICMP echo reply, id 16, seq 10, length 64
-23:39:02.790503 MPLS (label 100002, exp 0, ttl 64) (label 100003, exp 0, ttl 64) (label 100004, exp 0, ttl 64) (label 100007, exp 0, [S], ttl 64) IP 10.101.2.1 > 10.107.1.1: ICMP echo request, id 16, seq 11, length 64
-23:39:02.795213 IP 10.107.1.1 > 10.101.2.1: ICMP echo reply, id 16, seq 11, length 64
+<snip>
+23:39:02.390485 MPLS (label 100002, exp 0, ttl 64) (label 100003, exp 0, ttl 64) (label 100004, exp 0, ttl 64) (label 100007, exp 0, [S], ttl 64) IP 10.101.2.1 > 20.0.0.1: ICMP echo request, id 16, seq 10, length 64
+23:39:02.395566 IP 20.0.0.1 > 10.101.2.1: ICMP echo reply, id 16, seq 10, length 64
 ```
 
 5. Continuing on the XRd VM use the tcpdump.sh <xrd0x-xrd0y> script to capture packets along the path from Amsterdam VM to Rome VM. Given the label stack seen above, we'll monitor the linux bridges along this path: xrd01 --> xrd02 --> xrd03 --> xrd04 --> xrd07
@@ -591,20 +587,46 @@ listening on ens224, link-type EN10MB (Ethernet), capture size 262144 bytes
 python3 jalapeno.py -f amsterdam.json -e srv6 -s lu
 ```
 
+Expected output:
+```
+cisco@amsterdam:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f amsterdam.json -e srv6 -s lu
+src data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'src_peer': '10.0.0.1'}]
+dest data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'dst_peer': '10.0.0.7'}]
+Least Utilized Service
+locators:  ['fc00:0:2222::', 'fc00:0:3333::', 'fc00:0:4444::', 'fc00:0:7777::']
+prefix_sids:  [100002, 100003, 100004, 100007]
+srv6 sid:  fc00:0:2222:3333:4444:7777::
+adding vpp sr-policy to:  20.0.0.0/24 , with SRv6 encap:  fc00:0:2222:3333:4444:7777::
+sr steer: The requested SR steering policy could not be deleted.
+sr policy: BUG: sr policy returns -1
+ipv4-VRF:0, fib_index:0, flow hash:[src dst sport dport proto flowlabel ] epoch:0 flags:none locks:[adjacency:1, default-route:1, ]
+20.0.0.0/24 fib:0 index:36 locks:2
+  SR refs:1 entry-flags:uRPF-exempt, src-flags:added,contributing,active,
+    path-list:[41] locks:2 flags:shared, uPRF-list:39 len:0 itfs:[]
+      path:[49] pl-index:41 ip6 weight=1 pref=0 recursive:  oper-flags:resolved,
+        via 101::101 in fib:3 via-fib:35 via-dpo:[dpo-load-balance:37]
+
+ forwarding:   unicast-ip4-chain
+  [@0]: dpo-load-balance: [proto:ip4 index:38 buckets:1 uRPF:38 to:[0:0]]
+    [0] [@15]: dpo-load-balance: [proto:ip4 index:37 buckets:1 uRPF:-1 to:[0:0]]
+          [0] [@14]: SR: Segment List index:[0]
+	Segments:< fc00:0:2222:3333:4444:7777:: > - Weight: 1
+```
+
 7. Repeat, or just spot-check, steps 2 - 5
 
 ### Low Latency Path
-The procedure is the same as Least Utilized Path
+The procedure on Amsterdam is the same as Least Utilized Path
 
 1. SR on Amsterdam VM:
 ```
 python3 jalapeno.py -f amsterdam.json -e sr -s ll
-ping 10.107.1.1 -i .4
+ping 20.0.0.1 -i .4
 ```
 2. SRv6 on Amsterdam VM:
 ```
 python3 jalapeno.py -f amsterdam.json -e srv6 -s ll
-ping 10.107.1.1 -i .4
+ping 20.0.0.1 -i .4
 ```
 3. tcpdump script On XRD VM:
 ```
@@ -620,12 +642,12 @@ Running the Data Sovereignty service on Amsterdam
 1. SR on Amsterdam VM:
 ```
 python3 jalapeno.py -f amsterdam.json -e sr -s ll
-ping 10.107.1.1 -i .4
+ping 20.0.0.1 -i .4
 ```
 2. SRv6 on Amsterdam VM:
 ```
 python3 jalapeno.py -f amsterdam.json -e srv6 -s ll
-ping 10.107.1.1 -i .4
+ping 20.0.0.1 -i .4
 ```
 3. tcpdump on XRD VM:
 ```
