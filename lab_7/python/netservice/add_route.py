@@ -6,12 +6,14 @@ def add_linux_route(dst, srv6_sid, prefix_sid, intf, encap):
         d = subprocess.call(['sudo', 'ip', 'route', 'del', dst])
         #a = subprocess.call(['sudo', 'ip', 'route', 'add', dst, 'encap', 'seg6', 'mode', 'encap', 'segs', 'fc00:0:6666:2222:1111:e008::', 'dev', intf])
         a = subprocess.call(['sudo', 'ip', 'route', 'add', dst, 'encap', 'seg6', 'mode', 'encap', 'segs', srv6_sid, 'dev', intf])
+        print("show linux route table: ")
         subprocess.call(['ip', 'route'])
 
     if encap == "sr":
         label_stack = '/'.join([str(elem) for elem in prefix_sid])
         print("adding linux SR route: ip route add", dst, "encap mpls", label_stack, "via 10.107.1.2 dev", intf)
         a = subprocess.call(['sudo', 'ip', 'route', 'add', dst, 'encap', 'mpls', label_stack, 'via', '10.107.1.2', 'dev', intf])
+        print("show linux route table: ")
         subprocess.call(['ip', 'route'])
 
 def add_vpp_route(dst, srv6_sid, prefix_sid, encap):

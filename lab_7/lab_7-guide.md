@@ -201,27 +201,33 @@ You can also experiment with the script's graph traversal parameters to limit or
 
 2. Change the 'gp' service's hopcount parameters. Open the netservice/gp.py file in a text editor (vi, vim) and change parameters in line 9: 
 
-https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_7/netservice/gp.py#L9
+https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_7/python/netservice/gp.py#L9
 
+Change it to read:
 ```
 for v, e, p in 6..6 outbound
 ```
-Save gp.py and re-run the script. The *6..6* syntax indicates the traversal should only consider paths 6 hops in length. After re-running the client *python3 jalapeno.py -f rome.json -s gp -e sr* you should see fewer path options in the command line output and log.
+Save gp.py and re-run the script. The *6..6* syntax indicates the traversal should ONLY consider paths 6 hops in length. Given our topology a re-run of the client *python3 jalapeno.py -f rome.json -s gp -e sr* you should output only a single path option in the command line output and log.
+
+Example:
+```
+locators along path:  [None, 'fc00:0:4444::', 'fc00:0:3333::', 'fc00:0:2222::', 'fc00:0:1111::', None]
+```
 
 3. Try increasing the number of hops the graph may traverse:
 
  ```
  for v, e, p in 1..8 outbound
  ```
-Save the file and re-run the script. You should see more path options in the command line output and log.
+Save the file and re-run the script. You should see 8 total path options in the command line output and log.
 
 ### Least Utilized Path
-Many segment routing and SDN solutions focus on the low latency path as their primary use case. We absolutely feel low latency is an important network service, especially for real time applications. However, we believe one of the use cases which deliver the most bang for the buck is "Least Utilized Path". The idea behind this use case is that the routing protocol's chosen best path is usually *The Best Path*. Thus the *Least Utilized* service looks to steer lower priority traffic (backups, content replication, etc.) to lesser used paths and preserve the routing protocol's best path for higher priority traffic.
+Many segment routing and other SDN solutions focus on the low latency path as their primary use case. We absolutely feel low latency is an important network service, especially for real time applications. However, we believe one of the use cases which deliver the most bang for the buck is "Least Utilized Path". The idea behind this use case is that the routing protocol's chosen best path is usually *The Best Path*. Thus the *Least Utilized* service looks to steer lower priority traffic (backups, content replication, etc.) to lesser used paths and preserve the routing protocol's best path for higher priority traffic.
 
 1. Cleanup any stale routes on the VM and execute the least utilized path service with SR encapsulation
 ``` 
-./cleanup_rome_routes.sh 
-python3 client.py -f rome.json -e sr -s lu
+../cleanup_rome_routes.sh 
+python3 jalapeno.py -f rome.json -e sr -s lu
 ```
  - The client's command line output should display the new route in the routing table:
 ```
