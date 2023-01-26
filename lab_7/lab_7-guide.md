@@ -308,7 +308,7 @@ python3 jalapeno.py -f rome.json -e srv6 -s lu
 ```
 Expected console output:
 ```
-cisco@rome:~/SRv6_dCloud_Lab/lab_7$ python3 client.py -f rome.json -e srv6 -s lu
+cisco@rome:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f rome.json -e srv6 -s lu
 src data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'src_peer': '10.0.0.7'}]
 dest data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'dst_peer': '10.0.0.1'}]
 Least Utilized Service
@@ -316,27 +316,27 @@ locators:  ['fc00:0:6666::', 'fc00:0:2222::', 'fc00:0:1111::']
 prefix_sids:  [100006, 100002, 100001]
 srv6 sid:  fc00:0:6666:2222:1111::
 adding linux SRv6 route: ip route add 10.101.2.0/24 encap seg6 mode encap segs fc00:0:6666:2222:1111:: dev ens192
+Show Linux Route Table: 
 default via 198.18.128.1 dev ens160 proto static 
 10.0.0.0/24 via 10.107.1.2 dev ens192 proto static 
 10.1.1.0/24 via 10.107.1.2 dev ens192 proto static 
 10.101.1.0/24 via 10.107.1.2 dev ens192 proto static 
-10.101.2.0/24  encap seg6 mode encap segs 1 [ fc00:0:6666:2222:1111:: ] dev ens192 scope link    <-------------
+10.101.2.0/24  encap seg6 mode encap segs 1 [ fc00:0:6666:2222:1111:: ] dev ens192 scope link  <------------
 10.101.3.0/24 via 10.107.2.2 dev ens224 proto static 
 10.107.1.0/24 dev ens192 proto kernel scope link src 10.107.1.1 
 10.107.2.0/24 dev ens224 proto kernel scope link src 10.107.2.1 
-198.18.128.0/18 dev ens160 proto kernel scope link src 198.18.128.103
+198.18.128.0/18 dev ens160 proto kernel scope link src 198.18.128.103 
 ```
 
 7. Repeat, or just spot-check the ping and tcpdump steps describe in 3 - 5
 
 ### Low Latency Path
-Low latency path is the most commonly used example when discussing traffic steering use cases.
-The procedure for testing/running the Low Latency Path service is the same as the one we followed with Least Utilized Path.
+The Low Latency Path service will calculate an SR/SRv6 encapsulation instruction for sending traffic over the lowest latency path from a source to a given destination. The procedure for testing/running the Low Latency Path service is the same as the one we followed with Least Utilized Path. 
 
 1. Low latency SR service on Rome VM:
 ```
-./cleanup_rome_routes.sh 
-python3 client.py -f rome.json -e sr -s ll
+../cleanup_rome_routes.sh 
+python3 jalapeno.py -f rome.json -e sr -s ll
 ping 10.101.2.1 -i .4
 ```
 2. Low latency SRv6 service on Rome VM:
@@ -352,21 +352,21 @@ ping 10.101.2.1 -i .4
 ./tcpdump.sh xrd01-xrd05
 ```
 
-### Data Sovereignty Path 
+### Data Sovereignty Service 
 
-The procedure is the same as Least Utilized Path
+The Data Sovereignty Service will calculate an SR/SRv6 encapsulation instruction for sending traffic over a path from a source to a given destination that avoids a specified country supplied in the rome.json or amsterdam.json file. The procedure for testing/running the Data Sovereignty Service is the same as the one we followed with Least Utilized and Low Latency Path.
  
 1. SR on Rome VM:
 ```
-./cleanup_rome_routes.sh 
-python3 client.py -f rome.json -e sr -s ll
+../cleanup_rome_routes.sh 
+python3 jalapeno.py -f rome.json -e sr -s ll
 ping 10.101.1.1 -i .4
 ```
 2. SRv6 on Rome VM:
 ```
 ./cleanup_rome_routes.sh 
-python3 client.py -f rome.json -e srv6 -s ll
-ping 10.101.1.1 -i .4
+python3 jalapeno.py -f rome.json -e srv6 -s ll
+ping 10.101.2.1 -i .4
 ```
 3. tcpdump on XRD VM:
 ```
@@ -375,28 +375,24 @@ ping 10.101.1.1 -i .4
 ./tcpdump.sh xrd01-xrd05
 ```
 
-## Amsterdam
-## POC host-based SRv6 and SR-MPLS SDN 
+## Amsterdam VM
+## POC host-based SRv6 and SR-MPLS SDN using the VPP dataplane
+In our lab the Amsterdam VM represents a content server whose application owners wish to provide optimal user experience, while balancing out the need for bulk content replication.  They've chosen to use VPP as their host-based SR/SRv6 forwarding engine, and have subscribed to the network services made available by our Jalapeno system.
 
-Todo:
-1. Build and test this lab
-2. Writeup lab guide
+Like the Rome VM, Amsterdam has the same python client that can query Jalapeno for SR/SRv6 path data, and then program its local VPP dataplane with ip route with SR/SRv6 encapsulation.
 
-### Login to the Amsterdam VM
+1. Login to the Amsterdam VM
 ```
 ssh cisco@198.18.128.102
 ```
-In our lab the Amsterdam VM represents a content server whose application owners wish to provide optimal user experience, while balancing out the need for bulk content replication.  They've chosen to use VPP as their host-based SR/SRv6 forwarding engine, and have subscribed to the network services made available by our Jalapeno system.
 
-Like the Rome VM, Amsterdam has the same python client that can query Jalapeno for SR/SRv6 path data, and then program its local VPP dataplane with ip route with SR/SRv6 encapsulation
-
-1. On the Amsterdam VM cd into the lab_7 directory:
+2. cd into the lab_7/python/ directory:
 ```
-cd ~/SRv6_dCloud_Lab/lab_7
+cd ~/SRv6_dCloud_Lab/lab_7/python/
 ```
 2. Everything is the same as on the Rome VM with some different parameters in amsterdam.json:
 ```
-cat amsterdam.json
+cat ../amsterdam.json
 ```
 3. Amsterdam has a Linux veth pair connecting kernel forwarding to its onboard VPP instance. The VM has preconfigured ip routes (see /etc/netplan/00-installer-config.yaml) pointing to VPP via its "ams-out" interface:
 ```
