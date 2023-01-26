@@ -17,10 +17,9 @@ def add_linux_route(dst, srv6_sid, prefix_sid, intf, encap):
         subprocess.call(['ip', 'route'])
 
 def add_vpp_route(dst, srv6_sid, prefix_sid, encap):
-    #dt4 = srv6_sid
-    print("adding vpp route/sr-policy to: ", dst, ", with SRv6 encap: ", srv6_sid, "or SR stack", prefix_sid)
 
     if encap == "srv6":
+        print("adding vpp sr-policy to: ", dst, ", with SRv6 encap: ", srv6_sid)
         subprocess.call(['sudo', 'vppctl', 'ip route del', dst])
         subprocess.call(['sudo', 'vppctl', 'sr steer del l3', dst])
         subprocess.call(['sudo', 'vppctl', 'sr policy del bsid 101::101', dst])
@@ -29,6 +28,7 @@ def add_vpp_route(dst, srv6_sid, prefix_sid, encap):
         subprocess.call(['sudo', 'vppctl', 'show', 'ip', 'fib', dst])
 
     if encap == "sr":
+        print("adding vpp route to: ", dst, "with SR label stack", prefix_sid)
         label_stack = ' '.join([str(elem) for elem in prefix_sid])
         print(label_stack)
         subprocess.call(['sudo', 'vppctl', 'ip route del', dst])
