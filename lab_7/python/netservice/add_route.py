@@ -25,6 +25,7 @@ def add_vpp_route(dst, srv6_sid, prefix_sid, encap):
         subprocess.call(['sudo', 'vppctl', 'sr policy del bsid 101::101', dst])
         subprocess.call(['sudo', 'vppctl', 'sr', 'policy', 'add', 'bsid', '101::101', 'next', srv6_sid, 'encap'])
         subprocess.call(['sudo', 'vppctl', 'sr', 'steer', 'l3', dst, 'via', 'bsid', '101::101'])
+        print("Display VPP FIB entry: ")
         subprocess.call(['sudo', 'vppctl', 'show', 'ip', 'fib', dst])
 
     if encap == "sr":
@@ -32,6 +33,8 @@ def add_vpp_route(dst, srv6_sid, prefix_sid, encap):
         label_stack = ' '.join([str(elem) for elem in prefix_sid])
         print(label_stack)
         subprocess.call(['sudo', 'vppctl', 'ip route del', dst])
+        subprocess.call(['sudo', 'vppctl', 'sr steer del l3', dst])
+        subprocess.call(['sudo', 'vppctl', 'sr policy del bsid 101::101', dst])
         subprocess.call(['sudo', 'vppctl', 'ip route add', dst, 'via 10.101.1.2 GigabitEthernetb/0/0 out-labels', label_stack])
         print("Display VPP FIB entry: ")
         subprocess.call(['sudo', 'vppctl', 'show', 'ip', 'fib', dst])
