@@ -1,23 +1,32 @@
 ## Lab 7: Host-Based SR/SRv6 and building your own SDN App (BYO-SDN-App)
 
 ### Description
-The goal of the Jalapeno model is to enable applications to directly control their network experience. We envision a process where the application or endpoint requests some Jalapeno network service for its traffic. The Jalapeno network-service queries the DB and provides a response, which includes an SR-MPLS or SRv6 SID stack. The application or endpoint would then encapsulate its own outbound traffic; aka, the SR or SRv6 encapsulation/decapsulation would be performed at the host where the Application resides. The host-based SR/SRv6 encap/decap could be executed at the Linux networking layer, by an onboard dataplane element such as a vSwitch or VPP, or by a CNI dataplane such as eBPF. The encapsulated traffic, once transmitted from the host will reach the SR/SRv6 transport network and will be statelessly forwarded per the SR/SRv6 encapsulation, thus executing the requested network service treatment. Essentially the application or endpoint will be steering its own traffic through the network and thus executing its own SR/SRv6 network program.
+The goal of the Jalapeno model is to enable applications to directly control their network experience. We envision a process where the application or endpoint requests some Jalapeno *network service* for its traffic. The Jalapeno network-service queries the DB and provides a response, which includes an SR-MPLS or SRv6 SID stack. The application or endpoint would then encapsulate its own outbound traffic; aka, the SR or SRv6 encapsulation/decapsulation would be performed at the host where the Application resides. 
 
+The host-based SR/SRv6 encap/decap could be executed at the Linux networking layer, or by an onboard dataplane element such as a vSwitch or VPP, or by a CNI dataplane such as eBPF. The encapsulated traffic, once transmitted from the host, will reach the SR/SRv6 transport network and will be statelessly forwarded per the SR/SRv6 encapsulation, thus executing the requested network service. 
+
+With Host-Based SR/SRv6 the application or endpoint essentially gets to steer its own traffic through the network, thus empowering the app and app-owner, and enabling massive service scale as network state gets distributed beyond the often resource constrained routing elements in the network.
 
 ## Contents
 - [Lab Objectives](#lab-objectives)
-- [XRd SR Support for VMs](#enable-xrd-router-support-for-sr-vm-traffic)
-- [Rome SR Configuration](#rome-sr-configuration)
-
+- [XRd forwarding of host-sourced SR traffic](#enable-xrd-forwarding-of-host-sourced-sr-mpls-traffic)
+- [Rome VM - SR and SRv6 on Linux](#rome-vm-segment-routing--srv6-on-linux)
+  - [Preliminary steps on Rome VM](#preliminary-steps-for-srsrv6-on-rome-vm)
+- [Jalapeno python client](#jalapeno-python-client)
+- [Network Services](#network-services)
+  - [Get All Paths (GP)](#get-all-paths)
+  - [Least Utilized Path (LU)](#least-utilized-path)
+  - [Low Latency Path](#low-latency-path)
+  - [Data Sovereignty Path](#data-sovereignty-path)
 
 ## Lab Objectives
-The student upon completion of Lab 6 should have achieved the following objectives:
+The student upon completion of Lab 7 should have achieved the following objectives:
 
 * Understanding of the SR & SRv6 stack available in Linux
 * Understanding the use of VPP as a host-based SR and/or SRv6 forwarding element 
-* How to query Jalapeno from Python for SR data
-* Using Python craft specific SR headers for traffic routing
-* Using Python to create and program your own SR-MPLS and SRv6 network path
+* How to query Jalapeno from Python for network topology and SR/SRv6 data
+* Using Python to craft specific SR/SRv6 headers for traffic steering or other use cases
+* Using Python to to program SR-MPLS or SRv6 forwarding entries on a Linux host
 
 *Note: the python code used in this lab has a dependency on the python-arango module. The module has been preinstalled on both the Rome and Amsterdam VMs, however, if one wishes to recreate this lab in their own environment, any client node will need to install the module:*
 ```
@@ -25,7 +34,7 @@ sudo apt install python3-pip
 pip install python-arango 
 ```
 
-## Enable XRd router support for SR VM Traffic
+## Enable XRd forwarding of host-sourced SR-MPLS traffic
 Both the Rome and Amsterdam VM's are pre-loaded with a python client (jalapeno.py) that will execute our Jalapeno network service per the process described above. As the client is run it will program a local route or SR-policy with SR/SRv6 encapsulation, which will allow the VM to "self-encapsulate" its outbound traffic, The xrd network will statelessly forward the traffic per the SR/SRv6 encapsulation.
 
 In order to forward inbound labeled packets received from the Rome and Amsterdam VMs we'll need to enable MPLS forwarding on xrd01's and xrd07's VM-facing interfaces:
@@ -51,7 +60,7 @@ GigabitEthernet0/0/0/1     No       No       No       Yes
 GigabitEthernet0/0/0/2     No       No       No       Yes
 ```
 
-## Rome VM: Linux-based Segment Routing & SRv6 
+## Rome VM: Segment Routing & SRv6 on Linux
 
 The Rome VM is simulating a user host or endpoint and will use its Linux dataplane to perform SR or SRv6 traffic encapsulation:
 
@@ -109,7 +118,7 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
    - Reference: https://linuxize.com/post/lsmod-command-in-linux/
 
 
-### Jalapeno python client:
+## Jalapeno python client:
 A host or endpoint with this client can request a network service between a given source and destination. The client's currently supported services are: 
 
  - Low Latency Path
@@ -309,7 +318,8 @@ default via 198.18.128.1 dev ens160 proto static
 7. Repeat, or just spot-check the ping and tcpdump steps describe in 3 - 5
 
 ### Low Latency Path
-The procedure is the same as Least Utilized Path
+Low latency path is the most commonly used example when discussing traffic steering use cases.
+The procedure for testing/running the Low Latency Path service is the same as the one we followed with Least Utilized Path.
 
 1. SR on Rome VM:
 ```
