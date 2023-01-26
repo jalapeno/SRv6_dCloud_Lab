@@ -29,10 +29,11 @@ The student upon completion of Lab 7 should have achieved the following objectiv
 * Using Python to craft specific SR/SRv6 headers for traffic steering or other use cases
 * Using Python to to program SR-MPLS or SRv6 forwarding entries on a Linux host
 
-*Note: the python code used in this lab has a dependency on the python-arango module. The module has been preinstalled on both the Rome and Amsterdam VMs, however, if one wishes to recreate this lab in their own environment, any client node will need to install the module:*
+*Note: the python code used in this lab has a dependency on the python-arango module. The module has been preinstalled on both the Rome and Amsterdam VMs, however, if one wishes to recreate this lab in their own environment, any client node will need to install the module. We also suggest upgrading the http 'requests' library as that will eliminate some cosmetic http error codes.*
 ```
 sudo apt install python3-pip
 pip install python-arango 
+pip3 install --upgrade requests
 ```
 
 ## Enable XRd forwarding of SR-MPLS traffic coming from Linux hosts
@@ -374,6 +375,7 @@ ping 10.101.2.1 -i .4
 ./tcpdump.sh xrd05-xrd06
 ./tcpdump.sh xrd01-xrd05
 ```
+
 
 ## Amsterdam VM
 ## POC host-based SRv6 and SR-MPLS SDN using the VPP dataplane
