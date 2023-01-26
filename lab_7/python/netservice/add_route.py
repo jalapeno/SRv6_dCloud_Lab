@@ -31,7 +31,7 @@ def add_vpp_route(dst, srv6_sid, prefix_sid, encap):
     if encap == "sr":
         print("adding vpp route to: ", dst, "with SR label stack", prefix_sid)
         label_stack = ' '.join([str(elem) for elem in prefix_sid])
-        print(label_stack)
+        print("label stack: ", label_stack)
         subprocess.call(['sudo', 'vppctl', 'ip route del', dst])
         subprocess.call(['sudo', 'vppctl', 'sr steer del l3', dst])
         subprocess.call(['sudo', 'vppctl', 'sr policy del bsid 101::101', dst])
