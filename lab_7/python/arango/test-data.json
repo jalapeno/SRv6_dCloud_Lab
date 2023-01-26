@@ -1,0 +1,71 @@
+[
+	{ 
+ 		"SID": "fc00:0:1111::",
+ 		"Behavior": "uN (PSP/USD)",
+ 		"Context":  "default:4369",
+ 		"Owner": "sidmgr"
+	},
+	{ 
+ 		"SID": "fc00:0:1111:e000::",
+ 		"Behavior": "uA (PSP/USD)",
+ 		"Context":  "[Gi0/0/0/1, Link-Local]:0:P",
+ 		"Owner": "isis-100"
+	},
+	{ 
+ 		"SID": "fc00:0:1111:e001::",
+ 		"Behavior": "uA (PSP/USD)",
+ 		"Context":  "[Gi0/0/0/1, Link-Local]:0",
+ 		"Owner": "isis-100"
+	},
+	{ 
+ 		"SID": "fc00:0:1111:e002::",
+ 		"Behavior": "uA (PSP/USD)",
+ 		"Context":  "[Gi0/0/0/2, Link-Local]:0:P",
+ 		"Owner": "isis-100"
+	},
+	{ 
+ 		"SID": "fc00:0:1111:e003::",
+ 		"Behavior": "uA (PSP/USD)",
+ 		"Context":  "[Gi0/0/0/2, Link-Local]:0",
+ 		"Owner": "isis-100"
+	},
+	{ 
+ 		"SID": "fc00:0:1111:e004::",
+ 		"Behavior": "uDT4",
+ 		"Context":  "carrots",
+ 		"Owner": "bgp-65000"
+	},
+	{ 
+ 		"SID": "fc00:0:1111:e005::",
+ 		"Behavior": "uDT6",
+ 		"Context":  "carrots",
+ 		"Owner": "bgp-65000"
+	},
+	{ 
+ 		"SID": "fc00:0:1111:e006::",
+ 		"Behavior": "uB6 (Insert.Red)",
+ 		"Context":  "srte_c_50_ep_fc00:0:7777::1' (50, fc00:0:7777::1)",
+ 		"Owner": "xrc_srv6"
+	},
+	{ 
+ 		"SID": "fc00:0:1111:e007::",
+ 		"Behavior": "uB6 (Insert.Red)",
+ 		"Context":  "'srte_c_40_ep_fc00:0:7777::1' (40, fc00:0:7777::1)",
+ 		"Owner": "xrc_srv6"
+	},
+	{ 
+ 		"SID": "fc00:0:1111:e008::",
+ 		"Behavior": "uDT4",
+ 		"Context":  "default",
+ 		"Owner": "bgp-65000"
+	},
+	{ 
+ 		"SID": "fc00:0:1111:e009::",
+ 		"Behavior": "uDT6",
+ 		"Context":  "default",
+ 		"Owner": "bgp-65000"
+	}
+]
+
+
+
