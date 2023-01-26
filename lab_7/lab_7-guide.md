@@ -231,6 +231,7 @@ python3 jalapeno.py -f rome.json -e sr -s lu
 ```
  - The client's command line output should display the new route in the routing table:
 ```
+cisco@rome:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f rome.json -e sr -s lu
 src data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'src_peer': '10.0.0.7'}]
 dest data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'dst_peer': '10.0.0.1'}]
 Least Utilized Service
@@ -239,21 +240,22 @@ prefix_sids:  [100006, 100002, 100001]
 srv6 sid:  fc00:0:6666:2222:1111::
 adding linux SR route: ip route add 10.101.2.0/24 encap mpls 100006/100002/100001 via 10.107.1.2 dev ens192
 RTNETLINK answers: File exists
+show linux route table: 
 default via 198.18.128.1 dev ens160 proto static 
 10.0.0.0/24 via 10.107.1.2 dev ens192 proto static 
 10.1.1.0/24 via 10.107.1.2 dev ens192 proto static 
 10.101.1.0/24 via 10.107.1.2 dev ens192 proto static 
-10.101.2.0/24  encap mpls  100006/100002/100001 via 10.107.1.2 dev ens192         <-------------------
+10.101.2.0/24  encap mpls  100006/100002/100001 via 10.107.1.2 dev ens192    <------------
 10.101.2.0/24 via 10.107.1.2 dev ens192 proto static 
 10.101.3.0/24 via 10.107.2.2 dev ens224 proto static 
 10.107.1.0/24 dev ens192 proto kernel scope link src 10.107.1.1 
 10.107.2.0/24 dev ens224 proto kernel scope link src 10.107.2.1 
-198.18.128.0/18 dev ens160 proto kernel scope link src 198.18.128.103 
+198.18.128.0/18 dev ens160 proto kernel scope link src 198.18.128.103  
 ```
 
 2. Check log output and linux ip route:
  ```
-cat log/least_utilized.json
+cat log/least_util.json
 
 ip route
 
@@ -277,8 +279,6 @@ tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
 listening on ens192, link-type EN10MB (Ethernet), capture size 262144 bytes
 04:15:48.834889 MPLS (label 100006, exp 0, ttl 64) (label 100002, exp 0, ttl 64) (label 100001, exp 0, [S], ttl 64) IP 20.0.0.1 > 10.101.2.1: ICMP echo request, id 11, seq 1, length 64
 04:15:48.843360 IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 11, seq 1, length 64
-04:15:49.136057 MPLS (label 100006, exp 0, ttl 64) (label 100002, exp 0, ttl 64) (label 100001, exp 0, [S], ttl 64) IP 20.0.0.1 > 10.101.2.1: ICMP echo request, id 11, seq 2, length 64
-04:15:49.147006 IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 11, seq 2, length 64
 ```
 
 5. Return to an SSH session on the XRD VM and use tcpdump.sh <xrd0x-xrd0y>" to capture packets along the path from Rome VM to Amsterdam VM. Given the label stack seen above, we'll monitor the linux bridges linking xrd07 to xrd06, xrd06 to xrd02, then xrd02 to xrd01:
@@ -299,16 +299,14 @@ listening on br-07e02174172b, link-type EN10MB (Ethernet), capture size 262144 b
 23:19:39.315326 MPLS (label 100007, exp 0, ttl 61) (label 24009, exp 0, [S], ttl 62) IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 11, seq 767, length 64
 23:19:39.610924 MPLS (label 100001, exp 0, [S], ttl 62) IP 20.0.0.1 > 10.101.2.1: ICMP echo request, id 11, seq 768, length 64
 23:19:39.667534 MPLS (label 100007, exp 0, ttl 61) (label 24009, exp 0, [S], ttl 62) IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 11, seq 768, length 64
-23:19:39.911902 MPLS (label 100001, exp 0, [S], ttl 62) IP 20.0.0.1 > 10.101.2.1: ICMP echo request, id 11, seq 769, length 64
-23:19:39.924014 MPLS (label 100007, exp 0, ttl 61) (label 24009, exp 0, [S], ttl 62) IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 11, seq 769, length 64
 ```
 
 6. Cleanup Rome's routes and execute the least utilized path service with SRv6 encapsulation
 ```
-./cleanup_rome_routes.sh 
-python3 client.py -f rome.json -e srv6 -s lu
+../cleanup_rome_routes.sh 
+python3 jalapeno.py -f rome.json -e srv6 -s lu
 ```
-Expected client.py console output:
+Expected console output:
 ```
 cisco@rome:~/SRv6_dCloud_Lab/lab_7$ python3 client.py -f rome.json -e srv6 -s lu
 src data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'src_peer': '10.0.0.7'}]
