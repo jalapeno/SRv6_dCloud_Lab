@@ -204,7 +204,7 @@ The Amsterdam VM represents a server belonging to a cloud, CDN, or gaming compan
 1. SSH to Amsterdam Client VM from your laptop. 
 
 ```
-ssh cisco@198.18.128.103
+ssh cisco@198.18.128.102
 ```
 
 2. Check that the VPP interface facing Ubuntu (host-vpp-in) and the interface facing router xrd01 (GigabitEthernetb/0/0) are `UP` and have their assigned IP addresses. GigabitEthernetb/0/0: `10.101.1.1/24`, and host-vpp-in: `10.101.2.2/24` 
