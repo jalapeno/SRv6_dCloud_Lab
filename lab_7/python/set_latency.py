@@ -113,7 +113,5 @@ record = srt.get(link_EtoW[args.l])
 record['latency'] = args.ms
 srt.update(record)
 
-#r= srt.get("2_0_0_0_0000.0000.0001_10.1.1.0_0000.0000.0002_10.1.1.1")
-
 
 
