@@ -228,7 +228,7 @@ ssh cisco@198.18.128.102
     Statistics: 5 sent, 5 received, 0% packet loss
     cisco@amsterdam:~$ 
     ```
-4. Check connectivity from Amsterday to Jalapeno VM
+4. Check connectivity from Amsterdam to Jalapeno VM
 ```
 cisco@amsterdam:~$ ping -c 1 198.18.128.101
 PING 198.18.128.101 (198.18.128.101) 56(84) bytes of data.
@@ -323,11 +323,11 @@ The Cisco IOS-XR 7.5 Configuration guide for SR and ISIS can be found here: [LIN
 ping 10.0.0.7 source lo0
 ping fc00:0000:7777::1 source lo0
 ```
- - Note: normally pinging xrd-to-xrd in this dockerized environment would result in ping times of ~1-3ms. However, we have injected synthetic latency in the underlying Linux links using the [netem](https://wiki.linuxfoundation.org/networking/netem) 'tc' command line tool, so you'll see a ping RTT of anywhere from ~60ms to ~150ms. This synthetic latency will allow us to really see the effect of later traffic steering execises.
+ - Note: normally pinging xrd-to-xrd in this dockerized environment would result in ping times of ~1-3ms. However, the util/nets.sh script, which was triggered at setup, added synthetic latency to the underlying Linux links using the [netem](https://wiki.linuxfoundation.org/networking/netem) 'tc' command line tool. So you'll see a ping RTT of anywhere from ~60ms to ~150ms. This synthetic latency will allow us to really see the effect of later traffic steering execises.
 
-    Example from the util/nets.sh script:
+    Command to see the added synthetic latency:
     ```
-    sudo tc qdisc add dev $veth6to7 root netem delay 28000
+    sudo tc qdisc list | grep delay
     ```
 
 ## Validate BGP Topology
