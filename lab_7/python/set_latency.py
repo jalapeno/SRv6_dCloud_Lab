@@ -5,7 +5,7 @@ import sys
 from arango import ArangoClient
 
 # Append python path search
-sys.path.append("/home/cisco/.local/lib/python3.8/site-packages")
+#sys.path.append("/home/cisco/.local/lib/python3.8/site-packages")
 
 # Variables to create ArangoDb connection
 user = "root"
@@ -63,7 +63,8 @@ for i in c:
 
 # Program the upated latency value for the Linux bridge
 # Create tc option list
-tc_command = "tc qdisc change dev "+interface +" root netem delay " + str(args.ms) +"ms"
+#tc_command = "tc qdisc change dev "+interface +" root netem delay " + str(args.ms) +"ms"
+tc_command = "sudo tc qdisc change dev "+interface +" root netem delay " + str(args.ms) +"ms"
 
 # program the bridge interface with new latency value
 result = subprocess.run([tc_command], capture_output=True, shell = True)
