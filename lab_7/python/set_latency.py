@@ -3,18 +3,11 @@ import subprocess
 import re
 from arango import ArangoClient
 
-# Function to create ArangoDb connection
-class Arrango:
-    def __init__ (self):
-        self.user = "root"
-        self.password = "jalapeno"
-        self.dbname = "jalapeno"
+# Variables to create ArangoDb connection
+user = "root"
+password = "jalapeno"
+dbname = "jalapeno"
     
-    def open(self):
-        client = ArangoClient(hosts='http://198.18.128.101:30852')
-        __db = client.db(self.dbname, username=self.user, password=self.password)
-        return __db
-
 # Handle cli options passed in
 link_options = ['A','B','C','D','E','F','G','H','I']
 parser = argparse.ArgumentParser(
@@ -77,7 +70,8 @@ else:
 	print ("Link programming failed")
 
 # Connect to ArangoDb
-db = Arrango.open
+client = ArangoClient(hosts='http://198.18.128.101:30852')
+db = client.db(dbname, username=user, password=password)
 
 # Set the document in Arango
 srt = db.collection('sr_topology')
