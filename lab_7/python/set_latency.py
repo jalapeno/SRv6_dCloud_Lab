@@ -62,7 +62,7 @@ for i in c:
 tc_command = "tc qdisc change dev "+interface +" root netem delay " + str(args.ms) +"ms"
 
 # program the bridge interface with new latency value
-result = subprocess.run([tc_command], capture_output=True, shell = True)
+result = subprocess.run(['sudo', tc_command], capture_output=True, shell = True)
 
 if result.returncode == 0:
 	print ("Link " + args.l + " programmed successfully for " + str(args.ms) + "ms of latency.")
