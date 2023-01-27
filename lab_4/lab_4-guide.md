@@ -369,7 +369,7 @@ segment-routing
 ```
 ### Validate SRv6-TE steering of L3VPN traffic
 #### Validate bulk traffic takes the non-shortest path: xrd01 -> 02 -> 03 -> 04 -> 07 
-1. Run the tcpdump.sh script in the util directory on the following links in the network
+1. Run the tcpdump.sh script in the util directory on the following links in the network. These can either be run sequentially while executing the ping in step 2, or you can open individual ssh sessions and run the tcpdumps simultaneously.
   
     ```
     ./tcpdump.sh xrd01-xrd02
@@ -387,14 +387,13 @@ segment-routing
 
     Example: tcpdump.sh output should look something like below on the xrd02-xrd03 link with both outer SRv6 uSID header and inner IPv4/6 headers. Note in this case the outbound traffic is taking a non-shortest path.  We don't have a specific policy for return traffic so it will take one of the ECMP shortest paths; thus we do not see replies in the tcpdump output:
     ```
-    16:37:30.292761 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e004::: IP 10.9.1.1 > 40.0.0.1: ICMP echo request, id 56816, seq 0, length 80
-    16:37:30.298145 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e004::: IP 10.9.1.1 > 40.0.0.1: ICMP echo request, id 56816, seq 1, length 80
-    16:37:30.302781 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e004::: IP 10.9.1.1 > 40.0.0.1: ICMP echo request, id 56816, seq 2, length 80
+    18:43:55.837052 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e004::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 2, seq 1, length 64
+    18:43:56.238255 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e004::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 2, seq 2, length 64
+    18:43:56.638935 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e004::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 2, seq 3, length 64
 
-
-    16:38:10.502018 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e005::: IP6 10:9:1::1 > fc00:0:40::1: ICMP6, echo request, seq 0, length 60
-    16:38:10.506355 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e005::: IP6 10:9:1::1 > fc00:0:40::1: ICMP6, echo request, seq 1, length 60
-    16:38:10.510069 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e005::: IP6 10:9:1::1 > fc00:0:40::1: ICMP6, echo request, seq 2, length 60
+    18:44:13.268208 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e005::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:40::1: ICMP6, echo request, seq 1, length 64
+    18:44:13.668766 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e005::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:40::1: ICMP6, echo request, seq 2, length 64
+    18:44:14.069430 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e005::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:40::1: ICMP6, echo request, seq 3, length 64
     ```
 
 #### Validate low latency traffic takes the path: xrd01 -> 05 -> 06 -> 07 
@@ -406,27 +405,22 @@ segment-routing
     ./tcpdump.sh xrd06-xrd07
     ```
 
-2. Ping from xrd01 to Rome's low latency destination IPv4 and IPv6 addresses:
+2. Ping from Amsterdam to Rome's low latency destination IPv4 and IPv6 addresses:
 
     ```
-    ping vrf carrots 50.0.0.1 count 3
-    ping vrf carrots fc00:0:50::1 count 3
+    ping 50.0.0.1 -i .4
+    ping fc00:0:50::1 -i .4
     ```
 
     Example: tcpdump.sh output should look something like below on the xrd05-xrd06 link. In this case xrd05 -> 06 -> 07 is one of the IGP shortest paths. In this example the IPv4 ping replies are taking the same return path, however the IPv6 ping replies have been hashed onto one of the other ECMP paths. Your results may vary depending on how the XRd nodes have hashed their flows:
     ```
-    16:50:26.667875 IP6 fc00:0:1111::1 > fc00:0:6666:7777:e004::: IP 10.9.1.1 > 50.0.0.1: ICMP echo request, id 59290, seq 0, length 80
-    16:50:26.670199 IP6 fc00:0:7777::1 > fc00:0:1111:e004::: IP 50.0.0.1 > 10.9.1.1: ICMP echo reply, id 59290, seq 0, length 80
-    16:50:26.672654 IP6 fc00:0:1111::1 > fc00:0:6666:7777:e004::: IP 10.9.1.1 > 50.0.0.1: ICMP echo request, id 59290, seq 1, length 80
-    16:50:26.674647 IP6 fc00:0:7777::1 > fc00:0:1111:e004::: IP 50.0.0.1 > 10.9.1.1: ICMP echo reply, id 59290, seq 1, length 80
-    16:50:26.676429 IP6 fc00:0:1111::1 > fc00:0:6666:7777:e004::: IP 10.9.1.1 > 50.0.0.1: ICMP echo request, id 59290, seq 2, length 80
-    16:50:26.677974 IP6 fc00:0:7777::1 > fc00:0:1111:e004::: IP 50.0.0.1 > 10.9.1.1: ICMP echo reply, id 59290, seq 2, length 80
+    18:47:20.342018 IP6 fc00:0:1111::1 > fc00:0:6666:7777:e004::: IP 10.101.3.1 > 50.0.0.1: ICMP echo request, id 4, seq 1, length 64
+    18:47:20.742775 IP6 fc00:0:1111::1 > fc00:0:6666:7777:e004::: IP 10.101.3.1 > 50.0.0.1: ICMP echo request, id 4, seq 2, length 64
+    18:47:21.143986 IP6 fc00:0:1111::1 > fc00:0:6666:7777:e004::: IP 10.101.3.1 > 50.0.0.1: ICMP echo request, id 4, seq 3, length 64
 
-
-    16:50:37.953305 IP6 fc00:0:1111::1 > fc00:0:6666:7777:e005::: IP6 10:9:1::1 > fc00:0:50::1: ICMP6, echo request, seq 0, length 60
-    16:50:37.958148 IP6 fc00:0:1111::1 > fc00:0:6666:7777:e005::: IP6 10:9:1::1 > fc00:0:50::1: ICMP6, echo request, seq 1, length 60
-    16:50:37.961713 IP6 fc00:0:1111::1 > fc00:0:6666:7777:e005::: IP6 10:9:1::1 > fc00:0:50::1: ICMP6, echo request, seq 2, length 60
-    16:50:42.047007 IS-IS, p2p IIH, src-id 0000.0000.0006, length 1497
+    18:48:18.593766 IP6 fc00:0:1111::1 > fc00:0:6666:7777:e005::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:50::1: ICMP6, echo request, seq 1, length 64
+    18:48:18.995022 IP6 fc00:0:1111::1 > fc00:0:6666:7777:e005::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:50::1: ICMP6, echo request, seq 2, length 64
+    18:48:19.396048 IP6 fc00:0:1111::1 > fc00:0:6666:7777:e005::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:50::1: ICMP6, echo request, seq 3, length 64
 
     ```
     Here we found the return traffic for the IPv6 ping:
@@ -435,12 +429,10 @@ segment-routing
     sudo tcpdump -ni br-9c9433e006cf
     tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
     listening on br-9c9433e006cf, link-type EN10MB (Ethernet), capture size 262144 bytes
-    16:55:37.491924 IS-IS, p2p IIH, src-id 0000.0000.0005, length 1497
-    16:55:38.814093 IP6 fc00:0:7777::1 > fc00:0:1111:e005::: IP6 fc00:0:50::1 > 10:9:1::1: ICMP6, echo reply, seq 0, length 60
-    16:55:38.817918 IP6 fc00:0:7777::1 > fc00:0:1111:e005::: IP6 fc00:0:50::1 > 10:9:1::1: ICMP6, echo reply, seq 1, length 60
-    16:55:38.821203 IP6 fc00:0:7777::1 > fc00:0:1111:e005::: IP6 fc00:0:50::1 > 10:9:1::1: ICMP6, echo reply, seq 2, length 60
+    18:48:55.216409 IP6 fc00:0:7777::1 > fc00:0:1111:e004::: IP6 fc00:0:50::1 > fc00:0:101:3:250:56ff:fe97:22cc: ICMP6, echo reply, seq 1, length 64
+    18:48:55.625467 IP6 fc00:0:7777::1 > fc00:0:1111:e004::: IP6 fc00:0:50::1 > fc00:0:101:3:250:56ff:fe97:22cc: ICMP6, echo reply, seq 2, length 64
+    18:48:56.025653 IP6 fc00:0:7777::1 > fc00:0:1111:e004::: IP6 fc00:0:50::1 > fc00:0:101:3:250:56ff:fe97:22cc: ICMP6, echo reply, seq 3, length 64
     ```
-
 
 ### End of Lab 4
 Please proceed to [Lab 5](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_5/lab_5-guide.md)

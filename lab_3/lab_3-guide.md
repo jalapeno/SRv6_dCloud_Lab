@@ -76,7 +76,7 @@ xrd01 and xrd07
   commit
   ```
 
-route refelctors xrd05 and xrd07
+route reflectors xrd05 and xrd06
   ```
   router bgp 65000
   neighbor-group xrd-ipv4-peer
@@ -100,6 +100,7 @@ Now lets get the Rome and Amsterdam subnets advertised across our routing topolo
   router bgp 65000            
   address-family ipv4 unicast 
     network 20.0.0.0/24
+    network 30.0.0.0/24
   commit
   ```
 
@@ -123,25 +124,30 @@ You should now see BGP update the new route being installed in xrd01 and xrd07. 
 ```
 show bgp ipv4 labeled-unicast labels
 show bgp ipv4 labeled-unicast 20.0.0.0/24
+show bgp ipv4 labeled-unicast 30.0.0.0/24
 show cef 20.0.0.0/24
+show cef 30.0.0.0/24
 ```
 1. Examine the bgp label table to confirm prefixes and label allocation. See the truncated example output below.
 
   ```
   RP/0/RP0/CPU0:xrd01#show bgp ipv4 labeled-unicast labels 
-
+     ### truncated output ###
   Status codes: s suppressed, d damped, h history, * valid, > best
                 i - internal, r RIB-failure, S stale, N Nexthop-discard
   Origin codes: i - IGP, e - EGP, ? - incomplete
     Network            Next Hop        Rcvd Label      Local Label
   *> 10.0.0.1/32        0.0.0.0         nolabel         3
-  * i10.0.0.5/32        10.0.0.5        nolabel         24006
-  *>i                   10.0.0.5        3               24006
-  *>i10.0.0.7/32        10.0.0.7        3               24009
+  *>i10.0.0.5/32        10.0.0.5        3               24006
+  *>i10.0.0.6/32        10.0.0.6        3               24008
+  *>i10.0.0.7/32        10.0.0.7        3               24007
+  * i                   10.0.0.7        3               24007
   *> 10.101.1.0/24      0.0.0.0         nolabel         3
-  *> 10.101.2.0/24      10.101.1.1      nolabel         24008
-  *>i10.107.1.0/24      10.0.0.7        3               24010
-  *>i20.0.0.0/24        10.0.0.7        24007           24007
+  *> 10.101.2.0/24      10.101.1.1      nolabel         24010
+  *>i20.0.0.0/24        10.0.0.7        24009           24009
+  * i                   10.0.0.7        24009           24009
+  *>i30.0.0.0/24        10.0.0.7        24012           24011
+  * i                   10.0.0.7        24012           24011
   ```
 2. Next on xrd01 we can look at BGP-LU prefix specific attributes to validate that we received the route from both BGP route reflectors xrd05(10.0.0.5) and xrd06(10.0.0.6) and again you will see that it is associated with local label *24007*
 
@@ -182,21 +188,17 @@ show cef 20.0.0.0/24
                 i - internal, r RIB-failure, S stale, N Nexthop-discard
   Origin codes: i - IGP, e - EGP, ? - incomplete
     Network            Next Hop        Rcvd Label      Local Label
-  *>i10.0.0.1/32        10.0.0.1        3               24009
-  * i                   10.0.0.1        nolabel         24009
-  * i10.0.0.5/32        10.0.0.5        nolabel         24008
-  *>i                   10.0.0.5        3               24008
-  * i10.0.0.6/32        10.0.0.6        nolabel         24006
-  *>i                   10.0.0.6        3               24006
+  *>i10.0.0.1/32        10.0.0.1        3               24006
+  * i                   10.0.0.1        3               24006
+  *>i10.0.0.5/32        10.0.0.5        3               24007
+  *>i10.0.0.6/32        10.0.0.6        3               24008
   *> 10.0.0.7/32        0.0.0.0         nolabel         3
   *>i10.101.1.0/24      10.0.0.1        3               24010
-  * i                   10.0.0.1        nolabel         24010
-  *>i10.101.2.0/24      10.0.0.1        24008           24011
-  * i                   10.0.0.1        nolabel         24011
-  *> 10.107.1.0/24      0.0.0.0         nolabel         3
-  *> 20.0.0.0/24        10.107.1.1      nolabel         24007
-
-  Processed 8 prefixes, 13 paths
+  * i                   10.0.0.1        3               24010
+  *>i10.101.2.0/24      10.0.0.1        24010           24011
+  * i                   10.0.0.1        24010           24011
+  *> 20.0.0.0/24        10.107.1.1      nolabel         24009
+  *> 30.0.0.0/24        10.107.1.1      nolabel         24012
   ```
 
 4. Last we will look at the CEF table on xrd01 to verify the prefix is installed for labeled forwarding:
@@ -261,8 +263,6 @@ tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
 listening on br-613d9944c678, link-type EN10MB (Ethernet), capture size 262144 bytes
 13:26:32.704104 MPLS (label 100007, exp 0, ttl 62) (label 24007, exp 0, [S], ttl 62) IP 10.101.2.1 > 20.0.0.1: ICMP echo request, id 20, seq 39, length 64
 13:26:32.706566 MPLS (label 24008, exp 0, [S], ttl 61) IP 20.0.0.1 > 10.101.2.1: ICMP echo reply, id 20, seq 39, length 64
-13:26:32.903937 MPLS (label 100007, exp 0, ttl 62) (label 24007, exp 0, [S], ttl 62) IP 10.101.2.1 > 20.0.0.1: ICMP echo request, id 20, seq 40, length 64
-13:26:32.906271 MPLS (label 24008, exp 0, [S], ttl 61) IP 20.0.0.1 > 10.101.2.1: ICMP echo reply, id 20, seq 40, length 64
 ```
 3. We can run the tcpdump.sh script against any of the underlying links in the network:
 
@@ -305,22 +305,22 @@ Amsterdam VM
   ```
   cisco@amsterdam:~$ iperf3 -c 20.0.0.1
   Connecting to host 20.0.0.1, port 5201
-  [  5] local 10.101.2.1 port 41106 connected to 20.0.0.1 port 5201
+  [  5] local 10.101.2.1 port 50706 connected to 20.0.0.1 port 5201
   [ ID] Interval           Transfer     Bitrate         Retr  Cwnd
-  [  5]   0.00-1.00   sec   107 KBytes   877 Kbits/sec   15   2.82 KBytes       
-  [  5]   1.00-2.00   sec  0.00 Bytes  0.00 bits/sec   15   2.82 KBytes       
-  [  5]   2.00-3.00   sec  93.1 KBytes   763 Kbits/sec   32   2.82 KBytes       
-  [  5]   3.00-4.00   sec   124 KBytes  1.02 Mbits/sec   30   2.82 KBytes       
-  [  5]   4.00-5.00   sec   124 KBytes  1.02 Mbits/sec   30   2.82 KBytes       
-  [  5]   5.00-6.00   sec  93.1 KBytes   762 Kbits/sec   28   2.82 KBytes       
-  [  5]   6.00-7.00   sec   124 KBytes  1.02 Mbits/sec   30   2.82 KBytes       
-  [  5]   7.00-8.00   sec   124 KBytes  1.02 Mbits/sec   30   2.82 KBytes       
-  [  5]   8.00-9.00   sec  93.1 KBytes   762 Kbits/sec   30   2.82 KBytes       
-  [  5]   9.00-10.00  sec   124 KBytes  1.02 Mbits/sec   30   2.82 KBytes       
+  [  5]   0.00-1.00   sec  76.4 KBytes   625 Kbits/sec    1   1.41 KBytes       
+  [  5]   1.00-2.00   sec  0.00 Bytes  0.00 bits/sec    1   1.41 KBytes       
+  [  5]   2.00-3.00   sec  0.00 Bytes  0.00 bits/sec    1   1.41 KBytes       
+  [  5]   3.00-4.00   sec  0.00 Bytes  0.00 bits/sec    0   1.41 KBytes       
+  [  5]   4.00-5.00   sec  0.00 Bytes  0.00 bits/sec    1   1.41 KBytes       
+  [  5]   5.00-6.00   sec  0.00 Bytes  0.00 bits/sec    0   1.41 KBytes       
+  [  5]   6.00-7.00   sec  0.00 Bytes  0.00 bits/sec    0   1.41 KBytes       
+  [  5]   7.00-8.00   sec  0.00 Bytes  0.00 bits/sec    0   1.41 KBytes       
+  [  5]   8.00-9.00   sec  0.00 Bytes  0.00 bits/sec    1   1.41 KBytes       
+  [  5]   9.00-10.00  sec  0.00 Bytes  0.00 bits/sec    0   1.41 KBytes       
   - - - - - - - - - - - - - - - - - - - - - - - - -
   [ ID] Interval           Transfer     Bitrate         Retr
-  [  5]   0.00-10.00  sec  1007 KBytes   825 Kbits/sec  270             sender
-  [  5]   0.00-10.01  sec   948 KBytes   776 Kbits/sec                  receiver
+  [  5]   0.00-10.00  sec  76.4 KBytes  62.5 Kbits/sec    5             sender
+  [  5]   0.00-10.06  sec  0.00 Bytes  0.00 bits/sec                  receiver
 
   iperf Done.
   ```
@@ -419,8 +419,7 @@ listening on br-65c7870958c4, link-type EN10MB (Ethernet), capture size 262144 b
 13:30:17.006509 MPLS (label 100007, exp 0, ttl 61) (label 24007, exp 0, [S], ttl 62) IP 10.101.2.1.43938 > 20.0.0.1.5201: Flags [S], seq 3759648417, win 64240, options [mss 1460,sackOK,TS val 1262297038 ecr 0,nop,wscale 7], length 0
 13:30:17.008579 MPLS (label 100001, exp 0, ttl 62) (label 24008, exp 0, [S], ttl 63) IP 20.0.0.1.5201 > 10.101.2.1.43938: Flags [S.], seq 399849138, ack 3759648418, win 65160, options [mss 1460,sackOK,TS val 1943388697 ecr 1262297038,nop,wscale 7], length 0
 13:30:17.014429 MPLS (label 100007, exp 0, ttl 61) (label 24007, exp 0, [S], ttl 62) IP 10.101.2.1.43938 > 20.0.0.1.5201: Flags [.], ack 1, win 502, options [nop,nop,TS val 1262297045 ecr 1943388697], length 0
-13:30:17.014448 MPLS (label 100007, exp 0, ttl 61) (label 24007, exp 0, [S], ttl 62) IP 10.101.2.1.43938 > 20.0.0.1.5201: Flags [P.], seq 1:38, ack 1, win 502, options [nop,nop,TS val 1262297045 ecr 1943388697], length 37
-13:30:17.016005 MPLS (label 100001, exp 0, ttl 62) (label 24008, exp 0, [S], ttl 63) IP 20.0.0.1.5201 > 10.101.2.1.43938: Flags [.], ack 38, win 509, options [nop,nop,TS val 1943388705 ecr 1262297045], length 0
+
 ```
 
 ### End of Lab 3
