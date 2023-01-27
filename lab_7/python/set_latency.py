@@ -1,20 +1,17 @@
 import argparse
 import subprocess
 import re
+import sys
 from arango import ArangoClient
 
-# Function to create ArangoDb connection
-class Arrango:
-    def __init__ (self):
-        self.user = "root"
-        self.password = "jalapeno"
-        self.dbname = "jalapeno"
-    
-    def open(self):
-        client = ArangoClient(hosts='http://198.18.128.101:30852')
-        __db = client.db(self.dbname, username=self.user, password=self.password)
-        return __db
+# Append python path search
+#sys.path.append("/home/cisco/.local/lib/python3.8/site-packages")
 
+# Variables to create ArangoDb connection
+user = "root"
+password = "jalapeno"
+dbname = "jalapeno"
+    
 # Handle cli options passed in
 link_options = ['A','B','C','D','E','F','G','H','I']
 parser = argparse.ArgumentParser(
@@ -66,7 +63,8 @@ for i in c:
 
 # Program the upated latency value for the Linux bridge
 # Create tc option list
-tc_command = "tc qdisc change dev "+interface +" root netem delay " + str(args.ms) +"ms"
+#tc_command = "tc qdisc change dev "+interface +" root netem delay " + str(args.ms) +"ms"
+tc_command = "sudo tc qdisc change dev "+interface +" root netem delay " + str(args.ms) +"ms"
 
 # program the bridge interface with new latency value
 result = subprocess.run([tc_command], capture_output=True, shell = True)
@@ -76,13 +74,44 @@ if result.returncode == 0:
 else:
 	print ("Link programming failed")
 
+# Updating the ArangoDb with user defined latency
+# Create a dictionary lookup of key values 
+link_WtoE ={
+    'A':'2_0_0_0_0000.0000.0001_10.1.1.0_0000.0000.0002_10.1.1.1',
+    'B':'2_0_0_0_0000.0000.0001_10.1.1.8_0000.0000.0005_10.1.1.9',
+    'C':'2_0_0_0_0000.0000.0002_10.1.1.10_0000.0000.0006_10.1.1.11',
+    'D':'2_0_0_0_0000.0000.0005_10.1.1.12_0000.0000.0004_10.1.1.13',
+    'E':'2_0_0_0_0000.0000.0002_10.1.1.2_0000.0000.0003_10.1.1.3',
+    'F':'2_0_0_0_0000.0000.0003_10.1.1.4_0000.0000.0004_10.1.1.5',
+    'G':'2_0_0_0_0000.0000.0005_10.1.1.14_0000.0000.0006_10.1.1.15',
+    'H':'2_0_0_0_0000.0000.0004_10.1.1.6_0000.0000.0007_10.1.1.7'
+}
+link_EtoW ={
+    'A':'2_0_0_0_0000.0000.0002_10.1.1.1_0000.0000.0001_10.1.1.0',
+    'B':'2_0_0_0_0000.0000.0005_10.1.1.9_0000.0000.0001_10.1.1.8',
+    'C':'2_0_0_0_0000.0000.0006_10.1.1.11_0000.0000.0002_10.1.1.10',
+    'D':'2_0_0_0_0000.0000.0004_10.1.1.13_0000.0000.0005_10.1.1.12',
+    'E':'2_0_0_0_0000.0000.0003_10.1.1.3_0000.0000.0002_10.1.1.2',
+    'F':'2_0_0_0_0000.0000.0004_10.1.1.5_0000.0000.0003_10.1.1.4',
+    'G':'2_0_0_0_0000.0000.0006_10.1.1.15_0000.0000.0005_10.1.1.14',
+    'H':'2_0_0_0_0000.0000.0007_10.1.1.7_0000.0000.0006_10.1.1.6'
+}
 # Connect to ArangoDb
-db = Arrango.open
+client = ArangoClient(hosts='http://198.18.128.101:30852')
+db = client.db(dbname, username=user, password=password)
 
 # Set the document in Arango
 srt = db.collection('sr_topology')
 
-r= srt.get("2_0_0_0_0000.0000.0001_10.1.1.0_0000.0000.0002_10.1.1.1")
-print (r)
+# Set West to East Link Latency
+record = srt.get(link_WtoE[args.l])
+record['latency'] = args.ms
+srt.update(record)
+
+# Set East to West Link Latency
+record = srt.get(link_EtoW[args.l])
+record['latency'] = args.ms
+srt.update(record)
+
 
 
