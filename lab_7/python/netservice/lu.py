@@ -8,8 +8,8 @@ def lu_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane, encap):
     client = ArangoClient(hosts='http://198.18.128.101:30852')
     db = client.db(dbname, username=user, password=pw)
     cursor = db.aql.execute("""for v, e in outbound shortest_path """ + '"%s"' % src_id + """ \
-        TO """ + '"%s"' % dst_id + """ sr_topology \
-            OPTIONS { weightAttribute: 'percent_util_out' } filter e.mt_id != 2 \
+        to """ + '"%s"' % dst_id + """ sr_topology \
+            options { weightAttribute: 'percent_util_out' } filter e.mt_id != 2 \
                 return { node: v._key, name: v.name, sid: e.srv6_sid, prefix_sid: e.prefix_sid, util: e.percent_util_out } """)
     path = [doc for doc in cursor]
 
