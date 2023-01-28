@@ -319,6 +319,10 @@ In this exercise we are going to stitch together several elements that we have w
     ```
     This query will return ALL records in the sr_node collection. In our lab topology you should expect 7 records. 
 
+    Note: after running a query you will need to either comment it out or delete it before running the next query. To comment-out use two forward slashes // as shown in this pic:
+
+    <img src="images/arango-query.png" width="600">
+
     Next lets get the AQL to return only the key:value field we are interested in. We will query the name of all nodes in the sr_node collection with the below query. To reference a specific key field we use use the format *x.key* syntax.
     ```
     for x in sr_node return x.name
@@ -359,25 +363,25 @@ In this exercise we are going to stitch together several elements that we have w
     return {Name: x.name, SID: x.srv6_sid}
     ```
 
-    Note: after running a query you will need to comment it out before running the next query using two forward slashes //
-
-    Some additional Example's
-
-    <img src="images/arango-query.png" width="600">
-
     More sample queries:
     ```
-    for l in ls_link return l
+    // query all IGP links in the DB:
+    for x in ls_link return x
 
-    for l in ls_link filter l.mt_id_tlv.mt_id !=2 return l
+    // query for all IPv4 IGP links:
+    for x in ls_link filter x.mt_id_tlv.mt_id !=2 return x
 
-    for l in ls_link filter l.mt_id_tlv.mt_id !=2 return { key: l._key, router_id: l.router_id, igp_id: l.igp_router_id, local_ip: l.local_link_ip, remote_ip: l.remote_link_ip }
+    // qeury for all IPv4 IGP links and return specific k:v pairs:
+    for x in ls_link filter x.mt_id_tlv.mt_id !=2 return { key: x._key, router_id: x.router_id, igp_id: x.igp_router_id, local_ip: x.local_link_ip, remote_ip: x.remote_link_ip }
 
-    for l in ls_node_edge return l
+    // query for the IGP topology (should match the xrd router topology):
+    for x in ls_node_edge return x
 
-    for l in sr_topology return l
+    // query for the entire network topology (should match the xrd topology plus some spokes out to attached BGP networks):
+    for x in sr_topology return x
 
-    for l in sr_node return { node: l.router_id, name: l.name, prefix_sid: l.prefix_attr_tlvs.ls_prefix_sid, srv6sid: l.srv6_sid }
+    // query the sr_node dataset and return specific k:v pairs:
+    for x in sr_node return { node: x.router_id, name: x.name, prefix_sid: x.prefix_attr_tlvs.ls_prefix_sid, srv6sid: x.srv6_sid }
     ```
 
 4. Graph Collections within 
@@ -390,14 +394,14 @@ The *add_meta_data.py* python script will connect to the ArangoDB and populate e
 
 1. Return to the ssh session on the Jalapeno VM and add meta data to the DB:
 ```
-cd ~/SRv6_dCloud_Lab/lab_6/
+cd ~/SRv6_dCloud_Lab/lab_6/python/
 python3 add_meta_data.py
 ```
 
 2. Validate meta data with an ArangoDB query:
 ```
-for l in sr_topology return { key: l._key, from: l._from, to: l._to, latency: l.latency, 
-    utilization: l.percent_util_out, country_codes: l.country_codes }
+for x in sr_topology return { key: x._key, from: x._from, to: x._to, latency: x.latency, 
+    utilization: x.percent_util_out, country_codes: x.country_codes }
 ```
  - Note: only the ISIS links in the DB have latency and utilization numbers. The Amsterdam and Rome VMs are directly connected to PEs **xrd01** and **xrd07**, so their "edge connections" in the DB are effectively zero latency. 
   - The *add_meta_data.py* script has also populated country codes for all the countries a give link traverses from one node to its adjacent peer. Example: **xrd01** is in Amsterdam, and **xrd02** is in Berlin. Thus the **xrd01** <--> **xrd02** link traverses [NLD, DEU]

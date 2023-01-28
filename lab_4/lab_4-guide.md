@@ -367,6 +367,70 @@ segment-routing
     preference 100
      explicit segment-list xrd567
 ```
+
+5. Validate xrd01's SRv6-TE SID is allocated and that policy is up:
+```
+show segment-routing srv6 sid
+show segment-routing traffic-eng policy 
+```
+Example output:
+```
+RP/0/RP0/CPU0:xrd01# show segment-routing srv6 sid
+Sat Jan 28 00:04:48.017 UTC
+
+*** Locator: 'MyLocator' *** 
+
+SID                         Behavior          Context                           Owner               State  RW
+--------------------------  ----------------  --------------------------------  ------------------  -----  --
+fc00:0:1111::               uN (PSP/USD)      'default':4369                    sidmgr              InUse  Y 
+fc00:0:1111:e000::          uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0:P       isis-100            InUse  Y 
+fc00:0:1111:e001::          uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0         isis-100            InUse  Y 
+fc00:0:1111:e002::          uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0:P       isis-100            InUse  Y 
+fc00:0:1111:e003::          uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0         isis-100            InUse  Y 
+fc00:0:1111:e004::          uDT6              'carrots'                         bgp-65000           InUse  Y 
+fc00:0:1111:e005::          uDT4              'carrots'                         bgp-65000           InUse  Y 
+fc00:0:1111:e006::          uB6 (Insert.Red)  'srte_c_50_ep_fc00:0:7777::1' (50, fc00:0:7777::1)  xtc_srv6            InUse  Y 
+fc00:0:1111:e007::          uB6 (Insert.Red)  'srte_c_40_ep_fc00:0:7777::1' (40, fc00:0:7777::1)  xtc_srv6            InUse  Y 
+
+RP/0/RP0/CPU0:xrd01#show segment-routing traffic-eng policy 
+Sat Jan 28 00:06:23.479 UTC
+
+SR-TE policy database
+---------------------
+
+Color: 50, End-point: fc00:0:7777::1
+  Name: srte_c_50_ep_fc00:0:7777::1
+  Status:
+    Admin: up  Operational: up for 00:23:59 (since Jan 27 23:42:24.041)
+  Candidate-paths:
+    Preference: 100 (configuration) (active)
+      Name: low-latency
+      Requested BSID: dynamic
+      Constraints:
+        Protection Type: protected-preferred
+        Maximum SID Depth: 19 
+      Explicit: segment-list xrd567 (valid)
+        Weight: 1, Metric Type: TE
+          SID[0]: fc00:0:5555::/48
+                  Format: f3216
+                  LBL:32 LNL:16 FL:0 AL:80
+          SID[1]: fc00:0:6666::/48
+                  Format: f3216
+                  LBL:32 LNL:16 FL:0 AL:80
+      SRv6 Information:
+        Locator: MyLocator
+        Binding SID requested: Dynamic
+        Binding SID behavior: End.B6.Insert.Red
+  Attributes:
+    Binding SID: fc00:0:1111:e006::
+    Forward Class: Not Configured
+    Steering labeled-services disabled: no
+    Steering BGP disabled: no
+    IPv6 caps enable: yes
+    Invalidation drop enabled: no
+    Max Install Standby Candidate Paths: 0
+```
+
 ### Validate SRv6-TE steering of L3VPN traffic
 #### Validate bulk traffic takes the non-shortest path: xrd01 -> 02 -> 03 -> 04 -> 07 
 1. Run the tcpdump.sh script in the util directory on the following links in the network. These can either be run sequentially while executing the ping in step 2, or you can open individual ssh sessions and run the tcpdumps simultaneously.
