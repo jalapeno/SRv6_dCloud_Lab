@@ -430,7 +430,7 @@ Reference this document on the shortest path algorithim in AQL [HERE](https://ww
 
    3. Run a shortest path query from source prefix (Amsterdam) to destination prefix (Rome):
    ```
-    for v, e in any shortest_path 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' sr_topology return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, sid: v.srv6_sid, latency: e.latency }
+    for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' sr_topology return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, sid: v.srv6_sid, latency: e.latency }
    ```
    4. Query for the return path:
    ```
@@ -484,7 +484,7 @@ Backups, data replication, other bulk transfers can oftentimes take a non-best p
        return distinct { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*],
        latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
    ```
-   We no longer see the UI render a topology, but we do get a nice subnet of the output data:
+   We no longer see the UI render a topology, but we do get a nice subset of the output data:
     
    - Note the least utilized path should be **xrd01** -> **xrd02** -> **xrd03** -> **xrd04** -> **xrd07**. This also happens to be the longest path geographically in our network (Netherlands proceeding east and south through Germany, Poland, Ukraine, Turkey, etc.). Any traffic taking this path will be subject to the longest latency in our network.
 
@@ -499,14 +499,14 @@ Backups, data replication, other bulk transfers can oftentimes take a non-best p
 
    The previous queries provided paths up to 5 or 6-hops in length. We can increase or decrease the number of hops a graph traversal may use:
 
-   5. Let's constrain the traversal to only consider a path 6 hops in length:
+   5. Let's constrain the traversal to *only* consider a path 6 hops in length:
 
    ```
    for v, e, p in 6..6 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
        options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
        return distinct p
    ```
-   6. Increase the length of the traversal (should provide more valid results)
+   6. Increase the length of the traversal with filtered output (should provide more valid results)
    ```
     for v, e, p in 1..8 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
         options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
