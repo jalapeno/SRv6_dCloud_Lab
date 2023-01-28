@@ -345,13 +345,13 @@ The Low Latency Path service will calculate an SR/SRv6 encapsulation instruction
 ```
 ./cleanup_rome_routes.sh 
 python3 jalapeno.py -f rome.json -e sr -s ll
-ping 10.101.2.1 -i .4
+ping 10.101.2.1 -I 20.0.0.1 -i .3
 ```
 2. Low latency SRv6 service on Rome VM:
 ```
 ./cleanup_rome_routes.sh 
 python3 jalapeno.py -f rome.json -e srv6 -s ll
-ping 10.101.2.1 -i .4
+ping 10.101.2.1 -I 20.0.0.1 -i .3
 ```
 3. Run the tcpdump scripts On the XRD VM to see labeled or SRv6 encapsulated traffic traverse the network:
 ```
@@ -369,13 +369,13 @@ The procedure for testing/running the Data Sovereignty Service is the same as th
 ```
 ./cleanup_rome_routes.sh 
 python3 jalapeno.py -f rome.json -e sr -s ds
-ping 10.101.2.1 -i .4
+ping 10.101.2.1 -I 20.0.0.1 -i .3
 ```
 2. SRv6 on Rome VM:
 ```
 ./cleanup_rome_routes.sh 
 python3 jalapeno.py -f rome.json -e srv6 -s ds
-ping 10.101.2.1 -i .4
+ping 10.101.2.1 -I 20.0.0.1 -i .3
 ```
 3. tcpdump on XRD VM:
 ```
