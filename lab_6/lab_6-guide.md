@@ -312,7 +312,7 @@ In this exercise we are going to stitch together several elements that we have w
     ArangoDB uses AQL as it's query syntax language. It likely is new to you so we have provides some basic explanations:
     For a the most basic query below *x* is a object variable with each key field in a record populated as a child object.
 
-        for *x* in *collection* return *x*
+    for *x* in *collection* return *x*
 
     ```
     for x in sr_node return x
@@ -404,7 +404,7 @@ for x in sr_topology return { key: x._key, from: x._from, to: x._to, latency: x.
     utilization: x.percent_util_out, country_codes: x.country_codes }
 ```
  - Note: only the ISIS links in the DB have latency and utilization numbers. The Amsterdam and Rome VMs are directly connected to PEs **xrd01** and **xrd07**, so their "edge connections" in the DB are effectively zero latency. 
-  - The *add_meta_data.py* script has also populated country codes for all the countries a give link traverses from one node to its adjacent peer. Example: **xrd01** is in Amsterdam, and **xrd02** is in Berlin. Thus the **xrd01** <--> **xrd02** link traverses [NLD, DEU]
+  - The *add_meta_data.py* script has also populated country codes for all the countries a given link traverses from one node to its adjacent peer. Example: **xrd01** is in Amsterdam, and **xrd02** is in Berlin. Thus the **xrd01** <--> **xrd02** link traverses [NLD, DEU]
 
 3. Run the get_nodes.py script to get a listing of nodes in the network, their addresses, and SR/SRv6 SID data:
 ```
@@ -438,7 +438,7 @@ Reference this document on the shortest path algorithim in AQL [HERE](https://ww
    ```
    Thus far all of these shortest path query results are based purely on hop count. Also note, in the case where the graph has multiple equal cost shortest paths, the Arango query will return the first one it finds. 
 
-   Basic shortest path by hop count is fine, however, the graphDB also allows us to run a 'weighted shortest path query' based on any metric or other piece of meta data in the graph!
+   Basic shortest path by hop count is fine, however, the graphDB also allows us to run a *`weighted shortest path query`* based on any metric or other piece of meta data in the graph!
 
    ### Shortest path queries using metrics other than hop count
 
@@ -446,7 +446,7 @@ Reference this document on the shortest path algorithim in AQL [HERE](https://ww
    ```
    for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' sr_topology OPTIONS {weightAttribute: 'latency' } return  { prefix: v.prefix, name: v.name, sid: e.srv6_sid, latency: e.latency }
    ```
-   Lowest latency return path:
+   #### Lowest latency return path:
    ```
    for v, e in outbound shortest_path 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' TO 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology OPTIONS {weightAttribute: 'latency' } return { prefix: v.prefix, name: v.name, sid: e.srv6_sid, latency: e.latency }
    ```
@@ -460,7 +460,8 @@ For our purposes we can use Graph Traversal to run a limited or bounded shortest
 Backups, data replication, other bulk transfers can oftentimes take a non-best path through the network. In theory the least utilized path could be many hops in length, so we're going to build the query such that the traversal limits itself to a maximum of 6 hops from the source vertex.
 
    1. Graph traversal query for the least utilized path. The 1..6 notation indicates the query can consider paths with 6 or few hops.
-    - Query for full path data:
+    - Query for full path data. We expect to see the Arango UI render a topology that includes all seven routers:
+
    ```
    FOR v, e, p in 1..6 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
        options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
@@ -484,7 +485,7 @@ Backups, data replication, other bulk transfers can oftentimes take a non-best p
        return distinct { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*],
        latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
    ```
-   We no longer see the UI render a topology, but we do get a nice subset of the output data:
+   We no longer see the UI render a topology, but we do get a nice subset of the output data. Also note the *return* instruction in the query specifies that it should add up the `latency` values, and do an average calculation on `percent_util_out` values.
     
    - Note the least utilized path should be **xrd01** -> **xrd02** -> **xrd03** -> **xrd04** -> **xrd07**. This also happens to be the longest path geographically in our network (Netherlands proceeding east and south through Germany, Poland, Ukraine, Turkey, etc.). Any traffic taking this path will be subject to the longest latency in our network.
 
