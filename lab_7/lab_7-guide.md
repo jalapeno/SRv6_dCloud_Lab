@@ -205,10 +205,14 @@ src data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'src_peer': '10.0.0
 dest data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'dst_peer': '10.0.0.1'}]
 Get All Paths Service
 number of paths found:  4
-locators along path:  [None, 'fc00:0:4444::', 'fc00:0:5555::', 'fc00:0:1111::', None]
-locators along path:  [None, 'fc00:0:6666::', 'fc00:0:2222::', 'fc00:0:1111::', None]
-locators along path:  [None, 'fc00:0:6666::', 'fc00:0:5555::', 'fc00:0:1111::', None]
-locators along path:  [None, 'fc00:0:4444::', 'fc00:0:3333::', 'fc00:0:2222::', 'fc00:0:1111::', None]
+SRv6 locators for path:  ['fc00:0:4444::', 'fc00:0:5555::', 'fc00:0:1111::']
+SR prefix sids for path:  [100004, 100005, 100001]
+SRv6 locators for path:  ['fc00:0:6666::', 'fc00:0:2222::', 'fc00:0:1111::']
+SR prefix sids for path:  [100006, 100002, 100001]
+SRv6 locators for path:  ['fc00:0:6666::', 'fc00:0:5555::', 'fc00:0:1111::']
+SR prefix sids for path:  [100006, 100005, 100001]
+SRv6 locators for path:  ['fc00:0:4444::', 'fc00:0:3333::', 'fc00:0:2222::', 'fc00:0:1111::']
+SR prefix sids for path:  [100004, 100003, 100002, 100001]
 All paths data from unicast_prefix_v4/20.0.0.0_24_10.0.0.7 to unicast_prefix_v4/10.101.2.0_24_10.0.0.1 logged to log/get_paths.json
 ```
 Like in Lab 6 we can also experiment with the script's graph traversal parameters to limit or expand the number of vertex 'hops' the query will search for. Note: ArangoDB considers the source and destination vertices as 'hops' when doing its graph traversal.
@@ -353,19 +357,15 @@ Looking at the below diagram the low latency path from Rome to Amsterdam across 
 
 For full size image see [LINK](/topo_drawings/low-latency-path.png)
 
-1. Low latency SR service on Rome VM:
-```
-./cleanup_rome_routes.sh 
-python3 jalapeno.py -f rome.json -e sr -s ll
-ping 10.101.2.1 -I 20.0.0.1 -i .3
-```
-2. Low latency SRv6 service on Rome VM:
+#### While jalapeno.py supports both SR and SRv6 for its Network Services, for the remainder of Lab 7 we will focus just on SRv6
+
+1. Low latency SRv6 service on Rome VM:
 ```
 ./cleanup_rome_routes.sh 
 python3 jalapeno.py -f rome.json -e srv6 -s ll
 ping 10.101.2.1 -I 20.0.0.1 -i .3
 ```
-3. Run the tcpdump scripts On the XRD VM to see labeled or SRv6 encapsulated traffic traverse the network:
+2. Run the tcpdump scripts On the XRD VM to see labeled or SRv6 encapsulated traffic traverse the network:
 ```
 ./tcpdump.sh xrd06-xrd07
 ./tcpdump.sh xrd05-xrd06
@@ -422,7 +422,7 @@ Rome VM
   iperf Done.
   ```
 
-1. Run the tcpdump scripts On the XRD VM to see labeled or SRv6 encapsulated traffic traverse the network:
+4. Optional: run the tcpdump scripts On the XRD VM to see the SRv6 encapsulated traffic traverse the network:
 ```
 ./tcpdump.sh xrd06-xrd07
 ./tcpdump.sh xrd05-xrd06
@@ -435,13 +435,7 @@ The Data Sovereignty service enables the user or application to steer their traf
 
 The procedure for testing/running the Data Sovereignty Service is the same as the one we followed with Least Utilized and Low Latency Path.
  
-1. SR on Rome VM:
-```
-./cleanup_rome_routes.sh 
-python3 jalapeno.py -f rome.json -e sr -s ds
-ping 10.101.2.1 -I 20.0.0.1 -i .3
-```
-2. SRv6 on Rome VM:
+1. SRv6 on Rome VM:
 ```
 ./cleanup_rome_routes.sh 
 python3 jalapeno.py -f rome.json -e srv6 -s ds
@@ -562,7 +556,7 @@ The Get All Paths Service will query the DB for all paths which meet certain par
 
 1. Run the 'gp' service from Amsterdam:
 ``` 
-python3 jalapeno.py -f amsterdam.json -e sr -s gp
+python3 jalapeno.py -f amsterdam.json -e srv6 -s gp
 ```
  - check log output:
 ```
@@ -572,15 +566,19 @@ more log/get_paths.json
  - Expected console output:
 
 ```
-cisco@amsterdam:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f amsterdam.json -e sr -s gp
+cisco@amsterdam:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f amsterdam.json -e srv6 -s gp
 src data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'src_peer': '10.0.0.1'}]
 dest data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'dst_peer': '10.0.0.7'}]
 Get All Paths Service
 number of paths found:  4
-locators along path:  [None, 'fc00:0:2222::', 'fc00:0:6666::', 'fc00:0:7777::', None]
-locators along path:  [None, 'fc00:0:5555::', 'fc00:0:4444::', 'fc00:0:7777::', None]
-locators along path:  [None, 'fc00:0:5555::', 'fc00:0:6666::', 'fc00:0:7777::', None]
-locators along path:  [None, 'fc00:0:2222::', 'fc00:0:3333::', 'fc00:0:4444::', 'fc00:0:7777::', None]
+SRv6 locators for path:  ['fc00:0:2222::', 'fc00:0:6666::', 'fc00:0:7777::']
+SR prefix sids for path:  [100002, 100006, 100007]
+SRv6 locators for path:  ['fc00:0:5555::', 'fc00:0:4444::', 'fc00:0:7777::']
+SR prefix sids for path:  [100005, 100004, 100007]
+SRv6 locators for path:  ['fc00:0:5555::', 'fc00:0:6666::', 'fc00:0:7777::']
+SR prefix sids for path:  [100005, 100006, 100007]
+SRv6 locators for path:  ['fc00:0:2222::', 'fc00:0:3333::', 'fc00:0:4444::', 'fc00:0:7777::']
+SR prefix sids for path:  [100002, 100003, 100004, 100007]
 All paths data from unicast_prefix_v4/10.101.2.0_24_10.0.0.1 to unicast_prefix_v4/20.0.0.0_24_10.0.0.7 logged to log/get_paths.json
 ```
 
@@ -648,6 +646,7 @@ cisco@xrd:~/SRv6_dCloud_Lab/util$ sudo tcpdump -ni ens224
 
 5. Continuing on the XRd VM use the tcpdump.sh <xrd0x-xrd0y> script to capture packets along the path from Amsterdam VM to Rome VM. Given the label stack seen above, we'll monitor the linux bridges along this path: xrd01 --> xrd02 --> xrd03 --> xrd04 --> xrd07
  - restart the ping if it is stopped
+ - you can run all the listed tcpdumps, or simply spot check
 ```
 ./tcpdump.sh xrd01-xrd02
 ./tcpdump.sh xrd02-xrd03
@@ -690,19 +689,40 @@ ipv4-VRF:0, fib_index:0, flow hash:[src dst sport dport proto flowlabel ] epoch:
 7. Repeat, or just spot-check, steps 2 - 5
 
 ### Low Latency Path
-The procedure on Amsterdam is the same as Least Utilized Path
+The procedure on Amsterdam is the same as Least Utilized Path. As with Rome, we'll focus on SRv6 for these final steps.
 
-1. SR on Amsterdam VM:
-```
-python3 jalapeno.py -f amsterdam.json -e sr -s ll
-ping 20.0.0.1 -i .4
-```
-2. SRv6 on Amsterdam VM:
+1. Low latency SRv6 path on Amsterdam VM:
 ```
 python3 jalapeno.py -f amsterdam.json -e srv6 -s ll
 ping 20.0.0.1 -i .4
 ```
-3. The Low latency path should be xrd01 -> xrd05 -> xrd06 -> xrd07 -> Rome. So we can run the tcpdump script On XRD VM as follows:
+Example output:
+```
+cisco@amsterdam:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f amsterdam.json -e srv6 -s ll
+src data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'src_peer': '10.0.0.1'}]
+dest data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'dst_peer': '10.0.0.7'}]
+Low Latency Service
+locators:  ['fc00:0:5555::', 'fc00:0:6666::', 'fc00:0:7777::']
+prefix_sids:  [100005, 100006, 100007]
+srv6 sid:  fc00:0:5555:6666:7777::
+adding vpp sr-policy to:  20.0.0.0/24 , with SRv6 encap:  fc00:0:5555:6666:7777::
+unknown input `20.0.0.0/24'
+Display VPP FIB entry: 
+ipv4-VRF:0, fib_index:0, flow hash:[src dst sport dport proto flowlabel ] epoch:0 flags:none locks:[adjacency:1, default-route:1, ]
+20.0.0.0/24 fib:0 index:33 locks:2
+  SR refs:1 entry-flags:uRPF-exempt, src-flags:added,contributing,active,
+    path-list:[37] locks:2 flags:shared, uPRF-list:36 len:0 itfs:[]
+      path:[45] pl-index:37 ip6 weight=1 pref=0 recursive:  oper-flags:resolved,
+        via 101::101 in fib:2 via-fib:30 via-dpo:[dpo-load-balance:32]
+
+ forwarding:   unicast-ip4-chain
+  [@0]: dpo-load-balance: [proto:ip4 index:35 buckets:1 uRPF:37 to:[0:0]]
+    [0] [@15]: dpo-load-balance: [proto:ip4 index:32 buckets:1 uRPF:-1 to:[0:0]]
+          [0] [@14]: SR: Segment List index:[0]
+	Segments:< fc00:0:5555:6666:7777:: > - Weight: 1
+```
+
+3. The Low latency path should be xrd01 -> xrd05 -> xrd06 -> xrd07 -> Rome. So we can run the tcpdump script On XRD VM as follows (or just check one or two tcpdumps):
 ```
 ./tcpdump.sh xrd01-xrd05
 ./tcpdump.sh xrd05-xrd06
@@ -713,42 +733,7 @@ ping 20.0.0.1 -i .4
 
 The procedure on Amsterdam is the same as the previous two services. In amsterdam.json we've specified 'FRA' as the country to avoid, so all results should avoid xrd06.
  
-1. SR on Amsterdam VM:
-```
-python3 jalapeno.py -f amsterdam.json -e sr -s ds
-ping 20.0.0.1 -i .4
-```
-Example output:
-```
-cisco@amsterdam:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f amsterdam.json -e sr -s ds
-src data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'src_peer': '10.0.0.1'}]
-dest data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'dst_peer': '10.0.0.7'}]
-Data Sovereignty Service
-dst:  20.0.0.0/24
-path:  [{'path': [None, 'xrd05', 'xrd04', 'xrd07', None], 'sid': [None, 'fc00:0:5555::', 'fc00:0:4444::', 'fc00:0:7777::', None], 'prefix_sid': [None, 100005, 100004, 100007, None], 'countries_traversed': [[], ['NLD', 'GBR'], ['GBR', 'BEL', 'DEU', 'AUT', 'HUN', 'SRB', 'BGR', 'TUR'], ['TUR', 'GRC', 'ITA'], []], 'latency': 95, 'percent_util_out': 33.333333333333336}]
-locators:  ['fc00:0:5555::', 'fc00:0:4444::', 'fc00:0:7777::']
-srv6 sid:  fc00:0:5555:4444:7777::
-prefix_sids:  [100005, 100004, 100007]
-adding vpp route to:  20.0.0.0/24 with SR label stack [100005, 100004, 100007]
-label stack:  100005 100004 100007
-unknown input `20.0.0.0/24'
-Display VPP FIB entry: 
-ipv4-VRF:0, fib_index:0, flow hash:[src dst sport dport proto flowlabel ] epoch:0 flags:none locks:[adjacency:1, default-route:1, ]
-20.0.0.0/24 fib:0 index:22 locks:2
-  CLI refs:1 src-flags:added,contributing,active,
-    path-list:[22] locks:8 flags:shared, uPRF-list:20 len:1 itfs:[1, ]
-      path:[32] pl-index:22 ip4 weight=1 pref=0 attached-nexthop:  oper-flags:resolved,
-        10.101.1.2 GigabitEthernetb/0/0
-      [@0]: ipv4 via 10.101.1.2 GigabitEthernetb/0/0: mtu:9000 next:3 flags:[] 02420a6501020050569722bb0800
-    Extensions:
-     path:32  labels:[[100005 pipe ttl:0 exp:0][100004 pipe ttl:0 exp:0][100007 pipe ttl:0 exp:0]]
- forwarding:   unicast-ip4-chain
-  [@0]: dpo-load-balance: [proto:ip4 index:24 buckets:1 uRPF:20 to:[0:0]]
-    [0] [@13]: mpls-label[@1]:[100005:64:0:neos][100004:64:0:neos][100007:64:0:eos]      <--------------------------
-        [@1]: mpls via 10.101.1.2 GigabitEthernetb/0/0: mtu:9000 next:2 flags:[] 02420a6501020050569722bb8847
-```
-
-2. SRv6 on Amsterdam VM:
+1. Data Sovereignty via SRv6 path from Amsterdam VM:
 ```
 python3 jalapeno.py -f amsterdam.json -e srv6 -s ds
 ping 20.0.0.1 -i .4
@@ -781,7 +766,7 @@ ipv4-VRF:0, fib_index:0, flow hash:[src dst sport dport proto flowlabel ] epoch:
           [0] [@14]: SR: Segment List index:[0]
 	Segments:< fc00:0:5555:4444:7777:: > - Weight: 1
 ```
-3. tcpdump on XRD VM:
+3. tcpdump options on XRD VM:
 ```
 ./tcpdump.sh xrd01-xrd05
 ./tcpdump.sh xrd05-xrd04
