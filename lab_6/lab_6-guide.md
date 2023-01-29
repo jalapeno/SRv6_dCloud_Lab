@@ -543,9 +543,9 @@ https://www.arangodb.com/docs/stable/aql/graphs-kshortest-paths.html
 
    - The results in the query response should not traverse any links containing the FRA country code
 
-  <img src="images/network-map.png" width="800">
+   - Feel free to run queries to `avoid` other countries as well. Just replace *`FRA`* in the query string with any of these country codes:  *`GBR`*, *`DEU`*, *`BRU`*, *`POL`*, *`TUR`*, *`UKR`*, *`MDA`*, *`BGR`*, *`AUT`*, *`HUN`*, *`SRB`*. You'll notice interesting results on some queries where the *xrd05 - xrd04* link traverses many countries.
 
-   - Feel free to run queries to `avoid` other countries as well. Just replace *`FRA`* in the query string with any of these country codes:  *`GBR`*, *`DEU`*, *`POL`*, *`TUR`*, *`UKR`*, *`MDA`*, *`BGR`*, *`AUT`*, *`HUN`*, *`SRB`*. You'll notice interesting results on some queries where the *xrd05 - xrd04* link traverses many countries.
+  <img src="images/network-map.png" width="800">
 
 ### End of lab 6
 Please proceed to [Lab 7](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_7/lab_7-guide.md)
