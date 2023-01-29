@@ -347,7 +347,7 @@ default via 198.18.128.1 dev ens160 proto static
 ### Low Latency Path
 The Low Latency Path service will calculate an SR/SRv6 encapsulation instruction for sending traffic over the lowest latency path from a source to a given destination. The procedure for testing/running the Low Latency Path service is the same as the one we followed with Least Utilized Path. 
 
-Looking at the below diagram the low latency path from Rome to Amsterdam across the network should follow the path in the below diagram. Traffic should flow in the direction of **xrd07** -> **xrd06** -> **xrd05** -> **xrd01
+Looking at the below diagram the low latency path from Rome to Amsterdam across the network should follow the path in the below diagram. Traffic should flow in the direction of **xrd07** -> **xrd06** -> **xrd05** -> **xrd01**
 
 ![Low Latency Path](/topo_drawings/low-latency-path.png)
 
