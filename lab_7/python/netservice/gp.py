@@ -31,15 +31,16 @@ def gp_calc(src, dst, user, pw, dbname):
                     #print("prefix_sids: ", prefix_sid)
 
             ### process SRv6 sids
+            if key == "prefix_sid":
+                print("SR prefix sids for path: ", prefix_sid)
             if key == "sid":
                 #print("sid: ", path[index][key])
                 locators = path[index][key]
                 usid_block = 'fc00:0:'
-                print("locators along path: ", locators)
                 for sid in list(locators):
                     if sid == None:
                         locators.remove(sid)
-                #print("locators: ", locators)
+                print("SRv6 locators for path: ", locators)
                 usid = []
                 for s in locators:
                     if s != None and usid_block in s:
