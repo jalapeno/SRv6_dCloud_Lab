@@ -170,15 +170,16 @@ We'll first establish a BMP session between our route-reflectors and the open-so
     ```
     http://198.18.128.101:30852/
     ```
+    ```
     user: root
-    
     password: jalapeno
-
+    DB: jalapeno
+    ```
     Once logged in choose the 'jalapeno' DB. The UI should then show you its 'collections' view, which should look something like:
 
   <img src="images/arango-collections.png" width="1000">
 
-4. Feel free to spot check the various data collections in Arango. Several will be empty as they are for future use. With successfuly BMP processing we would expect to see data in all the following collections:
+4. Feel free to spot check the various data collections in Arango. Several will be empty as they are for future use. With successful BMP processing we would expect to see data in all the following collections:
 
  - l3vpn_v4_prefix
  - l3vpn_v6_prefix

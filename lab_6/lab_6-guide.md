@@ -312,7 +312,7 @@ In this exercise we are going to stitch together several elements that we have w
     ArangoDB uses AQL as it's query syntax language. It likely is new to you so we have provides some basic explanations:
     For a the most basic query below *x* is a object variable with each key field in a record populated as a child object.
 
-    for *x* in *collection* return *x*
+        for *x* in *collection* return *x*
 
     ```
     for x in sr_node return x
