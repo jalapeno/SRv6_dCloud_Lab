@@ -392,6 +392,7 @@ ping 10.101.2.1 -I 20.0.0.1 -i .3
 ```
 
 3. Run an iPerf3 test
+
 Amsterdam VM
   ```
   cisco@rome:~$ iperf3 -s -D
@@ -421,7 +422,7 @@ Rome VM
   iperf Done.
   ```
 
-5. Run the tcpdump scripts On the XRD VM to see labeled or SRv6 encapsulated traffic traverse the network:
+1. Run the tcpdump scripts On the XRD VM to see labeled or SRv6 encapsulated traffic traverse the network:
 ```
 ./tcpdump.sh xrd06-xrd07
 ./tcpdump.sh xrd05-xrd06
