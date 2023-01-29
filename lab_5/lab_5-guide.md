@@ -178,6 +178,19 @@ We'll first establish a BMP session between our route-reflectors and the open-so
 
   <img src="images/arango-collections.png" width="1000">
 
+4. Feel free to spot check the various data collections in Arango. Several will be empty as they are for future use. With successfuly BMP processing we would expect to see data in all the following collections:
+
+ - l3vpn_v4_prefix
+ - l3vpn_v6_prefix
+ - ls_link
+ - ls_node
+ - ls_node_edge
+ - ls_prefix
+ - ls_srv6_sid
+ - peer
+ - unicast_prefix_v4
+ - unicast_prefix_v6
+
 ## Configure a BGP SRv6 locator
 When we get to lab 7 we'll be sending SRv6 encapsulated traffic directly to/from Amsterdam and Rome. We'll need an SRv6 end.DT4/6 function at the egress nodes (xrd01 and xrd07) to be able to pop the SRv6 encap and perform a global table lookup on the underlying payload. Configuring an SRv6 locator under BGP will trigger creation of the end.DT4/6 functions:
 
@@ -200,24 +213,24 @@ When we get to lab 7 we'll be sending SRv6 encapsulated traffic directly to/from
 
     Expected output on xrd01:  
     ```
-RP/0/RP0/CPU0:xrd01#sho segment-routing srv6 sid 
-Sun Jan 29 03:29:03.559 UTC
+    RP/0/RP0/CPU0:xrd01#sho segment-routing srv6 sid 
+    Sun Jan 29 03:29:03.559 UTC
 
-*** Locator: 'MyLocator' *** 
+    *** Locator: 'MyLocator' *** 
 
-SID                         Behavior          Context                           Owner               State  RW
---------------------------  ----------------  --------------------------------  ------------------  -----  --
-fc00:0:1111::               uN (PSP/USD)      'default':4369                    sidmgr              InUse  Y 
-fc00:0:1111:e000::          uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0:P       isis-100            InUse  Y 
-fc00:0:1111:e001::          uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0         isis-100            InUse  Y 
-fc00:0:1111:e002::          uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0:P       isis-100            InUse  Y 
-fc00:0:1111:e003::          uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0         isis-100            InUse  Y 
-fc00:0:1111:e004::          uDT4              'carrots'                         bgp-65000           InUse  Y 
-fc00:0:1111:e005::          uDT6              'carrots'                         bgp-65000           InUse  Y 
-fc00:0:1111:e006::          uB6 (Insert.Red)  'srte_c_50_ep_fc00:0:7777::1' (50, fc00:0:7777::1)  xtc_srv6            InUse  Y 
-fc00:0:1111:e007::          uB6 (Insert.Red)  'srte_c_40_ep_fc00:0:7777::1' (40, fc00:0:7777::1)  xtc_srv6            InUse  Y 
-fc00:0:1111:e008::          uDT4              'default'                         bgp-65000           InUse  Y 
-fc00:0:1111:e009::          uDT6              'default'                         bgp-65000           InUse  Y 
+    SID                         Behavior          Context                           Owner               State  RW
+    --------------------------  ----------------  --------------------------------  ------------------  -----  --
+    fc00:0:1111::               uN (PSP/USD)      'default':4369                    sidmgr              InUse  Y 
+    fc00:0:1111:e000::          uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0:P       isis-100            InUse  Y 
+    fc00:0:1111:e001::          uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0         isis-100            InUse  Y 
+    fc00:0:1111:e002::          uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0:P       isis-100            InUse  Y 
+    fc00:0:1111:e003::          uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0         isis-100            InUse  Y 
+    fc00:0:1111:e004::          uDT4              'carrots'                         bgp-65000           InUse  Y 
+    fc00:0:1111:e005::          uDT6              'carrots'                         bgp-65000           InUse  Y 
+    fc00:0:1111:e006::          uB6 (Insert.Red)  'srte_c_50_ep_fc00:0:7777::1' (50, fc00:0:7777::1)  xtc_srv6            InUse  Y 
+    fc00:0:1111:e007::          uB6 (Insert.Red)  'srte_c_40_ep_fc00:0:7777::1' (40, fc00:0:7777::1)  xtc_srv6            InUse  Y 
+    fc00:0:1111:e008::          uDT4              'default'                         bgp-65000           InUse  Y 
+    fc00:0:1111:e009::          uDT6              'default'                         bgp-65000           InUse  Y 
     ``` 
 ## Install Jalapeno SR-Processors
 The SR-Processors are a pair of proof-of-concept data processors that mine Jalapeno's graphDB and create a pair of new data collections. The sr-node processor loops through various link-state data collections and gathers relevant SR/SRv6 data for each node in the network. The sr-topology processor generates a graph of the entire network topology (internal and external links, nodes, peers, prefixes, etc.) and populates relevant SR/SRv6 data within the graph collection.
@@ -252,8 +265,9 @@ The SR-Processors are a pair of proof-of-concept data processors that mine Jalap
     topology-678ddb8bb4-rt9jg                     1/1     Running   3 (11m ago)   12m
     zookeeper-0                                   1/1     Running   0             12m
     ```
+3. Check ArangoDB for new *`sr_node`* and *`sr_topology`* data collections, and that they contain data. For example, *`sr_node`* should look something like this with seven entries:
 
-
+  <img src="images/sr_node.png" width="1000">
 
 ### End of Lab 5
 Please proceed to [Lab 6](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_6/lab_6-guide.md)
