@@ -211,9 +211,9 @@ locators along path:  [None, 'fc00:0:6666::', 'fc00:0:5555::', 'fc00:0:1111::', 
 locators along path:  [None, 'fc00:0:4444::', 'fc00:0:3333::', 'fc00:0:2222::', 'fc00:0:1111::', None]
 All paths data from unicast_prefix_v4/20.0.0.0_24_10.0.0.7 to unicast_prefix_v4/10.101.2.0_24_10.0.0.1 logged to log/get_paths.json
 ```
-You can also experiment with the script's graph traversal parameters to limit or expand the number of vertex 'hops' the query will search for. Note: ArangoDB considers the source and destination vertices as 'hops' when doing its graph traversal.
+Like in Lab 6 we can also experiment with the script's graph traversal parameters to limit or expand the number of vertex 'hops' the query will search for. Note: ArangoDB considers the source and destination vertices as 'hops' when doing its graph traversal.
 
-2. Change the 'gp' service's hopcount parameters. Open the netservice/gp.py file in a text editor (vi, vim) and change parameters in line 9: 
+2. Optional: change the 'gp' service's hopcount parameters. Open the netservice/gp.py file in a text editor (vi, vim) and change parameters in line 9: 
 
 https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_7/python/netservice/gp.py#L9
 
@@ -228,7 +228,7 @@ Example:
 locators along path:  [None, 'fc00:0:4444::', 'fc00:0:3333::', 'fc00:0:2222::', 'fc00:0:1111::', None]
 ```
 
-3. Try increasing the number of hops the graph may traverse:
+3. Optional: try increasing the number of hops the graph may traverse:
 
  ```
  for v, e, p in 1..8 outbound
