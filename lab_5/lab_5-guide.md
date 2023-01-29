@@ -8,10 +8,10 @@ After installing the Jalapeno package the student will then configure BGP Monito
 ## Contents
 1. [Lab Objectives](#lab-objectives)
 2. [Jalapeno Overview](#jalapeno-overview)
-2. [Install Jalapeno](#install-jalapeno)
-3. [Install Jalapeno SR-Processors](#install-jalapeno-sr-processors)
+3. [Install Jalapeno](#install-jalapeno)
 4. [BGP Monitoring Protocol BMP](#bgp-monitoring-protocol-bmp)
 5. [BGP SRv6 Locator](#configure-a-bgp-srv6-locator)
+6. [Install Jalapeno SR-Processors](#install-jalapeno-sr-processors)
 
 ## Lab Objectives
 The student upon completion of Lab 5 should have achieved the following objectives:
@@ -171,11 +171,12 @@ We'll first establish a BMP session between our route-reflectors and the open-so
     http://198.18.128.101:30852/
     ```
     user: root
+    
     password: jalapeno
 
     Once logged in choose the 'jalapeno' DB. The UI should then show you its 'collections' view, which should look something like:
 
-  <img src="images/arango-collections.png" width="800">
+  <img src="images/arango-collections.png" width="1000">
 
 ## Configure a BGP SRv6 locator
 When we get to lab 7 we'll be sending SRv6 encapsulated traffic directly to/from Amsterdam and Rome. We'll need an SRv6 end.DT4/6 function at the egress nodes (xrd01 and xrd07) to be able to pop the SRv6 encap and perform a global table lookup on the underlying payload. Configuring an SRv6 locator under BGP will trigger creation of the end.DT4/6 functions:
@@ -221,11 +222,13 @@ When we get to lab 7 we'll be sending SRv6 encapsulated traffic directly to/from
 ## Install Jalapeno SR-Processors
 The SR-Processors are a pair of proof-of-concept data processors that mine Jalapeno's graphDB and create a pair of new data collections. The sr-node processor loops through various link-state data collections and gathers relevant SR/SRv6 data for each node in the network. The sr-topology processor generates a graph of the entire network topology (internal and external links, nodes, peers, prefixes, etc.) and populates relevant SR/SRv6 data within the graph collection.
 
+#### Return to the ssh session on the Jalapeno VM
+
 1. Install SR-Processors:
   The below command *`kubectl apply`* will input a yaml template file and launch the specified pods.
 
     ```
-    cd ~/SRv6_dCloud_Lab/lab_6/sr-processors
+    cd ~/SRv6_dCloud_Lab/lab_5/sr-processors
     kubectl apply -f sr-node.yaml 
     kubectl apply -f sr-topology.yaml 
     ```
