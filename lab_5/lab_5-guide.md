@@ -118,37 +118,6 @@ One of the primary goals of the Jalapeno project is to be flexible and extensibl
 
     example: kubectl describe pod -n jalapeno topology-678ddb8bb4-rt9jg
     ```
-## Install Jalapeno SR-Processors
-The SR-Processors are a pair of proof-of-concept data processors that mine Jalapeno's graphDB and create a pair of new data collections. The sr-node processor loops through various link-state data collections and gathers relevant SR/SRv6 data for each node in the network. The sr-topology processor generates a graph of the entire network topology (internal and external links, nodes, peers, prefixes, etc.) and populates relevant SR/SRv6 data within the graph collection.
-
-1. Install SR-Processors:
-  The below command *`kubectl apply`* will input a yaml template file and launch the specified pods.
-
-    ```
-    cd ~/SRv6_dCloud_Lab/lab_6/sr-processors
-    kubectl apply -f sr-node.yaml 
-    kubectl apply -f sr-topology.yaml 
-    ```
-2. Validate the pods are up and running in the 'jalapeno' namespace:
-    ```
-    kubectl get pods -n jalapeno
-    ```
-    #### Expected output:  
-    Look for the new 
-    ```
-    cisco@jalapeno:~/sr-processors$ kubectl get pods -n jalapeno
-    NAME                                          READY   STATUS    RESTARTS      AGE
-    arangodb-0                                    1/1     Running   0             12m
-    grafana-deployment-565756bd74-x2szz           1/1     Running   0             12m
-    influxdb-0                                    1/1     Running   0             12m
-    kafka-0                                       1/1     Running   0             12m
-    lslinknode-edge-b954577f9-k8w6l               1/1     Running   4 (11m ago)   12m
-    sr-node-8487488c9f-ftj59                      1/1     Running   0             40s     <--------
-    sr-topology-6b45d48c8-h8zns                   1/1     Running   0             33s     <--------
-    telegraf-egress-deployment-5795ffdd9c-t8xrp   1/1     Running   2 (12m ago)   12m
-    topology-678ddb8bb4-rt9jg                     1/1     Running   3 (11m ago)   12m
-    zookeeper-0                                   1/1     Running   0             12m
-    ```
 
 ## BGP Monitoring Protocol (BMP)
 
@@ -196,6 +165,18 @@ We'll first establish a BMP session between our route-reflectors and the open-so
 
     ```
 
+3. Validate Jalapeno has populated the Arango graphDB with BMP data. Open the Arango web UI at:
+
+    ```
+    http://198.18.128.101:30852/
+    ```
+    user: root
+    password: jalapeno
+
+    Once logged in choose the 'jalapeno' DB. The UI should then show you its 'collections' view, which should look something like:
+
+  <img src="images/arango-collections.png" width="800">
+
 ## Configure a BGP SRv6 locator
 When we get to lab 7 we'll be sending SRv6 encapsulated traffic directly to/from Amsterdam and Rome. We'll need an SRv6 end.DT4/6 function at the egress nodes (xrd01 and xrd07) to be able to pop the SRv6 encap and perform a global table lookup on the underlying payload. Configuring an SRv6 locator under BGP will trigger creation of the end.DT4/6 functions:
 
@@ -237,6 +218,39 @@ When we get to lab 7 we'll be sending SRv6 encapsulated traffic directly to/from
     fc00:0:1111:e008::          uB6 (Insert.Red)  'srte_c_50_ep_fc00:0:7777::1' (50, fc00:0:7777::1)  xtc_srv6            InUse  Y 
     fc00:0:1111:e009::          uB6 (Insert.Red)  'srte_c_40_ep_fc00:0:7777::1' (40, fc00:0:7777::1)  xtc_srv6            InUse  Y 
     ``` 
+## Install Jalapeno SR-Processors
+The SR-Processors are a pair of proof-of-concept data processors that mine Jalapeno's graphDB and create a pair of new data collections. The sr-node processor loops through various link-state data collections and gathers relevant SR/SRv6 data for each node in the network. The sr-topology processor generates a graph of the entire network topology (internal and external links, nodes, peers, prefixes, etc.) and populates relevant SR/SRv6 data within the graph collection.
+
+1. Install SR-Processors:
+  The below command *`kubectl apply`* will input a yaml template file and launch the specified pods.
+
+    ```
+    cd ~/SRv6_dCloud_Lab/lab_6/sr-processors
+    kubectl apply -f sr-node.yaml 
+    kubectl apply -f sr-topology.yaml 
+    ```
+2. Validate the pods are up and running in the 'jalapeno' namespace:
+    ```
+    kubectl get pods -n jalapeno
+    ```
+    #### Expected output:  
+    Look for the new 
+    ```
+    cisco@jalapeno:~/sr-processors$ kubectl get pods -n jalapeno
+    NAME                                          READY   STATUS    RESTARTS      AGE
+    arangodb-0                                    1/1     Running   0             12m
+    grafana-deployment-565756bd74-x2szz           1/1     Running   0             12m
+    influxdb-0                                    1/1     Running   0             12m
+    kafka-0                                       1/1     Running   0             12m
+    lslinknode-edge-b954577f9-k8w6l               1/1     Running   4 (11m ago)   12m
+    sr-node-8487488c9f-ftj59                      1/1     Running   0             40s     <--------
+    sr-topology-6b45d48c8-h8zns                   1/1     Running   0             33s     <--------
+    telegraf-egress-deployment-5795ffdd9c-t8xrp   1/1     Running   2 (12m ago)   12m
+    topology-678ddb8bb4-rt9jg                     1/1     Running   3 (11m ago)   12m
+    zookeeper-0                                   1/1     Running   0             12m
+    ```
+
+
 
 ### End of Lab 5
 Please proceed to [Lab 6](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_6/lab_6-guide.md)
