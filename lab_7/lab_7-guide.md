@@ -9,23 +9,29 @@ The host-based SR/SRv6 encap/decap could be executed at the Linux networking lay
 
 
 ## Contents
+- [Lab 7: Host-Based SR/SRv6 and building your own SDN App (BYO-SDN-App)](#lab-7-host-based-srsrv6-and-building-your-own-sdn-app-byo-sdn-app)
+  - [Description](#description)
+- [Contents](#contents)
 - [Lab Objectives](#lab-objectives)
-- [XRd forwarding of host-sourced SR traffic](#enable-xrd-forwarding-of-sr-mpls-traffic-coming-from-linux-hosts)
-- [Rome VM - SR and SRv6 on Linux](#rome-vm-segment-routing--srv6-on-linux)
-  - [Preliminary steps on Rome VM](#preliminary-steps-for-srsrv6-on-rome-vm)
-  - [Jalapeno python client](#jalapeno-python-client)
-  - [Rome Network Services](#rome-network-services)
-    - [Get All Paths (GP)](#get-all-paths)
-    - [Least Utilized Path (LU)](#least-utilized-path)
-    - [Low Latency Path (LL)](#low-latency-path)
-    - [Data Sovereignty Path (DS)](#data-sovereignty-path)
-- [Amsterdam VM - SR and SRv6 using VPP](#amsterdam-vm)
-  - [Jalapeno python client](#jalapeno-sdn-client)
-  - [Amsterdam Network Services](#amsterdam-network-services)
-    - [Get All Paths](#get-all-paths-1)
-    - [Least Utilized Path](#least-utilized-path-1)
-    - [Low Latency Path](#low-latency-path-1)
-    - [Data Sovereignty Path](#data-sovereignty-path-1)
+- [Enable XRd forwarding of SR-MPLS traffic coming from Linux hosts](#enable-xrd-forwarding-of-sr-mpls-traffic-coming-from-linux-hosts)
+- [Rome VM: Segment Routing \& SRv6 on Linux](#rome-vm-segment-routing--srv6-on-linux)
+  - [Preliminary steps for SR/SRv6 on Rome VM](#preliminary-steps-for-srsrv6-on-rome-vm)
+- [Jalapeno python client:](#jalapeno-python-client)
+- [Rome Network Services](#rome-network-services)
+  - [Get All Paths](#get-all-paths)
+  - [Least Utilized Path](#least-utilized-path)
+  - [Low Latency Path](#low-latency-path)
+  - [Low Latency Re-Route](#low-latency-re-route)
+  - [Data Sovereignty Path](#data-sovereignty-path)
+- [Amsterdam VM](#amsterdam-vm)
+  - [POC host-based SRv6 and SR-MPLS SDN using the VPP dataplane](#poc-host-based-srv6-and-sr-mpls-sdn-using-the-vpp-dataplane)
+  - [Jalapeno SDN client:](#jalapeno-sdn-client)
+- [Amsterdam Network Services](#amsterdam-network-services)
+  - [Get All Paths](#get-all-paths-1)
+  - [Least Utilized Path](#least-utilized-path-1)
+  - [Low Latency Path](#low-latency-path-1)
+  - [Data Sovereignty Path](#data-sovereignty-path-1)
+  - [You have reached the end of LTRSPG-2212, hooray!](#you-have-reached-the-end-of-ltrspg-2212-hooray)
 
 ## Lab Objectives
 The student upon completion of Lab 7 should have achieved the following objectives:
@@ -341,6 +347,12 @@ default via 198.18.128.1 dev ens160 proto static
 ### Low Latency Path
 The Low Latency Path service will calculate an SR/SRv6 encapsulation instruction for sending traffic over the lowest latency path from a source to a given destination. The procedure for testing/running the Low Latency Path service is the same as the one we followed with Least Utilized Path. 
 
+Looking at the below diagram the low latency path from Rome to Amsterdam across the network should follow the path in the below diagram. Traffic should flow in the direction of **xrd07** -> **xrd06** -> **xrd05** -> **xrd01
+
+![Low Latency Path](/topo_drawings/low-latency-path.png)
+
+For full size image see [LINK](/topo_drawings/low-latency-path.png)
+
 1. Low latency SR service on Rome VM:
 ```
 ./cleanup_rome_routes.sh 
@@ -359,6 +371,63 @@ ping 10.101.2.1 -I 20.0.0.1 -i .3
 ./tcpdump.sh xrd05-xrd06
 ./tcpdump.sh xrd01-xrd05
 ```
+
+### Low Latency Re-Route
+Now we are going to simulate a recalculation of the SRv6 topology. The *Sub-Standard Construction Company* has taken out fiber link "G" with a backhoe. Luckily you have paid for optical path redundancy and the link has failed to a geographicaly different route path. The result though is that the primary path latency of *5ms* has increased to *25 ms*. This should cause a new low latency route. Time to test it out!
+
+![Low Latency Path](/topo_drawings/low-latency-alternate-path.png)
+
+For full size image see [LINK](/topo_drawings/low-latency-alternate-path.png)
+
+1. Link "G" needs to have the latency in your topology updated. We will use the Python script located in /lab_7/python/set_latency.py to change the link latency in the lab and then update the ArangoDb topology database with the new value. Set latency has two cli requirements -l (link letter) [A,B,C,D,E,F,G,H,I] and -ms (milliseconds latency) xxx values.
+
+```
+python3 set_latency.py -l G -ms 25
+```
+2. Low latency SRv6 service on Rome VM:
+```
+./cleanup_rome_routes.sh 
+python3 jalapeno.py -f rome.json -e srv6 -s ll
+ping 10.101.2.1 -I 20.0.0.1 -i .3
+```
+
+3. Run an iPerf3 test
+Amsterdam VM
+  ```
+  cisco@rome:~$ iperf3 -s -D
+  ```
+
+Rome VM
+  ```
+  cisco@amsterdam:~$ iperf3 -c 10.101.2.1
+  Connecting to host 10.101.2.1, port 5201
+  [  5] local 10.101.2.1 port 50706 connected to 20.0.0.1 port 5201
+  [ ID] Interval           Transfer     Bitrate         Retr  Cwnd
+  [  5]   0.00-1.00   sec  76.4 KBytes   625 Kbits/sec    1   1.41 KBytes       
+  [  5]   1.00-2.00   sec  0.00 Bytes  0.00 bits/sec    1   1.41 KBytes       
+  [  5]   2.00-3.00   sec  0.00 Bytes  0.00 bits/sec    1   1.41 KBytes       
+  [  5]   3.00-4.00   sec  0.00 Bytes  0.00 bits/sec    0   1.41 KBytes       
+  [  5]   4.00-5.00   sec  0.00 Bytes  0.00 bits/sec    1   1.41 KBytes       
+  [  5]   5.00-6.00   sec  0.00 Bytes  0.00 bits/sec    0   1.41 KBytes       
+  [  5]   6.00-7.00   sec  0.00 Bytes  0.00 bits/sec    0   1.41 KBytes       
+  [  5]   7.00-8.00   sec  0.00 Bytes  0.00 bits/sec    0   1.41 KBytes       
+  [  5]   8.00-9.00   sec  0.00 Bytes  0.00 bits/sec    1   1.41 KBytes       
+  [  5]   9.00-10.00  sec  0.00 Bytes  0.00 bits/sec    0   1.41 KBytes       
+  - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ ID] Interval           Transfer     Bitrate         Retr
+  [  5]   0.00-10.00  sec  76.4 KBytes  62.5 Kbits/sec    5             sender
+  [  5]   0.00-10.06  sec  0.00 Bytes  0.00 bits/sec                  receiver
+
+  iperf Done.
+  ```
+
+5. Run the tcpdump scripts On the XRD VM to see labeled or SRv6 encapsulated traffic traverse the network:
+```
+./tcpdump.sh xrd06-xrd07
+./tcpdump.sh xrd05-xrd06
+./tcpdump.sh xrd01-xrd05
+```
+
 
 ### Data Sovereignty Path
 The Data Sovereignty service enables the user or application to steer their traffic through a path or geography that is considered safe per legal guidelines or other regulatory framework. In our case the "DS" service allows us to choose a country (or countries) to avoid when transmitting traffic from a source to a given destination. The country to avoid is specified as a country code in the rome.json and amsterdam.json files. In our testing we've specified that traffic should avoid France (FRA). xrd06 is located in Paris, so all requests to the DS service should produce a shortest-path result that avoids xrd06.
