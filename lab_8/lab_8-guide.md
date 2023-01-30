@@ -1,4 +1,56 @@
+## Lab 8: Host-Based SR/SRv6 and building your own SDN App (BYO-SDN-App)
+
+### Description
+Lab 8 is divided into two primary parts. Part 1 is host-based SR/SRv6 using Linux kernel capabilities on the Rome VM. Part 2 will be host-based SR/SRv6 using VPP on the Amsterdam VM.
+
+The goal of the Jalapeno model is to enable applications to directly control their network experience. We envision a process where the application or endpoint requests some Jalapeno *network service* for its traffic. The Jalapeno network-service queries the DB and provides a response, which includes an SR-MPLS or SRv6 SID stack. The application or endpoint would then encapsulate its own outbound traffic; aka, the SR or SRv6 encapsulation/decapsulation would be performed at the host where the Application resides. 
+
+The host-based SR/SRv6 encap/decap could be executed at the Linux networking layer, or by an onboard dataplane element such as a vSwitch or VPP, or by a CNI dataplane such as eBPF. The encapsulated traffic, once transmitted from the host, will reach the SR/SRv6 transport network and will be statelessly forwarded per the SR/SRv6 encapsulation, thus executing the requested network service. 
+
+
+## Contents
+- [Lab 8: Host-Based SR/SRv6 and building your own SDN App (BYO-SDN-App)](#lab-7-host-based-srsrv6-and-building-your-own-sdn-app-byo-sdn-app)
+  - [Description](#description)
+- [Contents](#contents)
+- [Lab Objectives](#lab-objectives)
+- [Enable XRd forwarding of SR-MPLS traffic coming from Linux hosts](#enable-xrd-forwarding-of-sr-mpls-traffic-coming-from-linux-hosts)
+- [Rome VM: Segment Routing \& SRv6 on Linux](#rome-vm-segment-routing--srv6-on-linux)
+  - [Preliminary steps for SR/SRv6 on Rome VM](#preliminary-steps-for-srsrv6-on-rome-vm)
+- [Jalapeno python client:](#jalapeno-python-client)
+- [Rome Network Services](#rome-network-services)
+  - [Get All Paths](#get-all-paths)
+  - [Least Utilized Path](#least-utilized-path)
+  - [Low Latency Path](#low-latency-path)
+  - [Low Latency Re-Route](#low-latency-re-route)
+  - [Data Sovereignty Path](#data-sovereignty-path)
+- [Amsterdam VM](#amsterdam-vm)
+  - [POC host-based SRv6 and SR-MPLS SDN using the VPP dataplane](#poc-host-based-srv6-and-sr-mpls-sdn-using-the-vpp-dataplane)
+  - [Jalapeno SDN client:](#jalapeno-sdn-client)
+- [Amsterdam Network Services](#amsterdam-network-services)
+  - [Get All Paths](#get-all-paths-1)
+  - [Least Utilized Path](#least-utilized-path-1)
+  - [Low Latency Path](#low-latency-path-1)
+  - [Data Sovereignty Path](#data-sovereignty-path-1)
+  - [You have reached the end of LTRSPG-2212, hooray!](#you-have-reached-the-end-of-ltrspg-2212-hooray)
+
+## Lab Objectives
+The student upon completion of Lab 8 should have achieved the following objectives:
+
+* Understanding of the SR & SRv6 stack available in Linux
+* Understanding the use of VPP as a host-based SR and/or SRv6 forwarding element 
+* How to query Jalapeno from Python for network topology and SR/SRv6 data
+* Using Python to craft specific SR/SRv6 headers for traffic steering or other use cases
+* Using Python to to program SR-MPLS or SRv6 forwarding entries on a Linux host
+
+*Note: the python code used in this lab has a dependency on the python-arango module. The module has been preinstalled on both the Rome and Amsterdam VMs, however, if one wishes to recreate this lab in their own environment, any client node will need to install the module. We also suggest upgrading the http 'requests' library as that will eliminate some cosmetic http error codes.*
+```
+sudo apt install python3-pip
+pip install python-arango 
+pip3 install --upgrade requests
+```
+
 ## Harvest SRv6 End.DT data into Arango
+This is a workaround set of steps to workaround the fact that XRd 7.8.1 does not yet support DT4/6 functions on SRv6 Locator USD packets.
 
 1. Configure streaming telemety on xrd01 and xrd07 using [this config](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/lab7/lab_8/mdt.cfg)
 
@@ -56,58 +108,6 @@ document added:  xrd07_fc00:0:7777:e007::
 5. Check that Arango as an *`srv6_local_sids`* data collection, and that it is populated
 6. you can now kill the processor with ctrl-c. It'll kick out python errors, but no worries...
 
-### We can now execute the Lab 7 tasks here in Lab 8:
-
-## Lab 8: Host-Based SR/SRv6 and building your own SDN App (BYO-SDN-App)
-
-### Description
-Lab 8 is divided into two primary parts. Part 1 is host-based SR/SRv6 using Linux kernel capabilities on the Rome VM. Part 2 will be host-based SR/SRv6 using VPP on the Amsterdam VM.
-
-The goal of the Jalapeno model is to enable applications to directly control their network experience. We envision a process where the application or endpoint requests some Jalapeno *network service* for its traffic. The Jalapeno network-service queries the DB and provides a response, which includes an SR-MPLS or SRv6 SID stack. The application or endpoint would then encapsulate its own outbound traffic; aka, the SR or SRv6 encapsulation/decapsulation would be performed at the host where the Application resides. 
-
-The host-based SR/SRv6 encap/decap could be executed at the Linux networking layer, or by an onboard dataplane element such as a vSwitch or VPP, or by a CNI dataplane such as eBPF. The encapsulated traffic, once transmitted from the host, will reach the SR/SRv6 transport network and will be statelessly forwarded per the SR/SRv6 encapsulation, thus executing the requested network service. 
-
-
-## Contents
-- [Lab 8: Host-Based SR/SRv6 and building your own SDN App (BYO-SDN-App)](#lab-7-host-based-srsrv6-and-building-your-own-sdn-app-byo-sdn-app)
-  - [Description](#description)
-- [Contents](#contents)
-- [Lab Objectives](#lab-objectives)
-- [Enable XRd forwarding of SR-MPLS traffic coming from Linux hosts](#enable-xrd-forwarding-of-sr-mpls-traffic-coming-from-linux-hosts)
-- [Rome VM: Segment Routing \& SRv6 on Linux](#rome-vm-segment-routing--srv6-on-linux)
-  - [Preliminary steps for SR/SRv6 on Rome VM](#preliminary-steps-for-srsrv6-on-rome-vm)
-- [Jalapeno python client:](#jalapeno-python-client)
-- [Rome Network Services](#rome-network-services)
-  - [Get All Paths](#get-all-paths)
-  - [Least Utilized Path](#least-utilized-path)
-  - [Low Latency Path](#low-latency-path)
-  - [Low Latency Re-Route](#low-latency-re-route)
-  - [Data Sovereignty Path](#data-sovereignty-path)
-- [Amsterdam VM](#amsterdam-vm)
-  - [POC host-based SRv6 and SR-MPLS SDN using the VPP dataplane](#poc-host-based-srv6-and-sr-mpls-sdn-using-the-vpp-dataplane)
-  - [Jalapeno SDN client:](#jalapeno-sdn-client)
-- [Amsterdam Network Services](#amsterdam-network-services)
-  - [Get All Paths](#get-all-paths-1)
-  - [Least Utilized Path](#least-utilized-path-1)
-  - [Low Latency Path](#low-latency-path-1)
-  - [Data Sovereignty Path](#data-sovereignty-path-1)
-  - [You have reached the end of LTRSPG-2212, hooray!](#you-have-reached-the-end-of-ltrspg-2212-hooray)
-
-## Lab Objectives
-The student upon completion of Lab 8 should have achieved the following objectives:
-
-* Understanding of the SR & SRv6 stack available in Linux
-* Understanding the use of VPP as a host-based SR and/or SRv6 forwarding element 
-* How to query Jalapeno from Python for network topology and SR/SRv6 data
-* Using Python to craft specific SR/SRv6 headers for traffic steering or other use cases
-* Using Python to to program SR-MPLS or SRv6 forwarding entries on a Linux host
-
-*Note: the python code used in this lab has a dependency on the python-arango module. The module has been preinstalled on both the Rome and Amsterdam VMs, however, if one wishes to recreate this lab in their own environment, any client node will need to install the module. We also suggest upgrading the http 'requests' library as that will eliminate some cosmetic http error codes.*
-```
-sudo apt install python3-pip
-pip install python-arango 
-pip3 install --upgrade requests
-```
 
 ## Enable XRd forwarding of SR-MPLS traffic coming from Linux hosts
 In order to forward inbound labeled packets received from the Rome and Amsterdam VMs we'll need to enable MPLS forwarding on xrd01's and xrd07's VM-facing interfaces:
