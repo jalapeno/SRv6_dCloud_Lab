@@ -54,7 +54,7 @@ ssh cisco@198.18.128.100
 2. Change to the Git repository directory
     - The lab repository folder is found in the home directory ~/SRv6_dCloud_Lab/
 
-3. Validate there are no docker containers running or docker networks for **XRD**
+3. Validate there are no docker containers running or docker networks for the XRd topology
     ```
     cisco@xrd:~/SRv6_dCloud_Lab/lab_1$ docker ps
     CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
@@ -346,7 +346,7 @@ ping fc00:0000:7777::1 source lo0
 
 ## Validate BGP Topology
 
-In lab 1 BGP is only exchanging IPv6 prefixes and BGP-LS data. We will setup IPv4 labeled-unicast and SRv6-L3VPN in later lab exercises. In the topology we are running a single ASN 65000 with BGP running on **xrd01**, xrd05, xrd06, xrd07.  Routers xrd05 and xrd06 are functioning as route reflectors and xrd01 and xrd07 are clients. The student will want to confirm that they see a full BGP topology.
+In lab 1 BGP is only exchanging IPv6 prefixes and BGP-LS data. We will setup IPv4 labeled-unicast and SRv6-L3VPN in later lab exercises. In the topology we are running a single ASN 65000 with BGP running on **xrd01**, **xrd05**, **xrd06**, **xrd07**.  Routers **xrd05** and **xrd06** are functioning as route reflectors and xrd01 and xrd07 are clients. The student will want to confirm that they see a full BGP topology.
 
 ![BGP Topology](/topo_drawings/bgp-topology-medium.png)
 
@@ -362,7 +362,7 @@ For full size image see [LINK](/topo_drawings/bgp-topology-large.png)
     fc00:0000:5555::1       0 65000 iBGPv6 to xrd05 RR                   00:22:02 Established 
     fc00:0000:6666::1       0 65000 iBGPv6 to xrd06 RR                   00:21:16 Established 
     ``` 
-2. Verify that router xrd01 is advertising the attached ipv6 network ```fc00:0:101:1::/64``` 
+2. Verify that router **xrd01** is advertising the attached ipv6 network ```fc00:0:101:1::/64``` 
     ```
     RP/0/RP0/CPU0:xrd01#show bgp ipv6 unicast advertised summary
     Tue Jan 10 21:40:56.812 UTC
@@ -374,7 +374,7 @@ For full size image see [LINK](/topo_drawings/bgp-topology-large.png)
 
     Processed 2 prefixes, 4 paths
     ```
-3. Verify that router xrd07 is advertising the attached network ```fc00:0:107:1::/64```   
+3. Verify that router **xrd07** is advertising the attached network ```fc00:0:107:1::/64```   
     ```
     RP/0/RP0/CPU0:xrd07#show bgp ipv6 unicast advertised summary
     Tue Jan 10 21:46:43.311 UTC
@@ -386,7 +386,7 @@ For full size image see [LINK](/topo_drawings/bgp-topology-large.png)
 
     Processed 2 prefixes, 4 paths
     ```
-4. Verify that router xrd01 has received route ```fc00:0:107:1::/64``` from the route reflectors xrd05 and xrd07. Look for ```Paths: (2 available)```
+4. Verify that router xrd01 has received route ```fc00:0:107:1::/64``` from the route reflectors **xrd05** and **xrd07*. Look for ```Paths: (2 available)```
     ```
     RP/0/RP0/CPU0:xrd01#show bgp ipv6 unicast fc00:0:107:1::/64
     Tue Jan 10 21:47:51.153 UTC
@@ -412,7 +412,7 @@ For full size image see [LINK](/topo_drawings/bgp-topology-large.png)
         Received Path ID 0, Local Path ID 0, version 0
         Originator: 10.0.0.7, Cluster list: 10.0.0.6
     ```
-5. Verify that router xrd07 has received route ```fc00:0:101:1::/64``` from the route reflectors xrd05 and xrd07. Look for ```Paths: (2 available)```
+5. Verify that router xrd07 has received route ```fc00:0:101:1::/64``` from the route reflectors **xrd05** and **xrd07**. Look for ```Paths: (2 available)```
     ```
     RP/0/RP0/CPU0:xrd07#show bgp ipv6 unicast fc00:0:101:1::/64
     Tue Jan 10 21:48:45.627 UTC
@@ -439,7 +439,7 @@ For full size image see [LINK](/topo_drawings/bgp-topology-large.png)
         Originator: 10.0.0.1, Cluster list: 10.0.0.6
     ```
 
-6. Verify the route-reflectors have received BGP-LS NLRIs from xrd01 and xrd07:
+6. Verify the route-reflectors have received BGP-LS NLRIs from **xrd01** and **xrd07**:
     ```
     RP/0/RP0/CPU0:xrd05#show bgp link-state link-state sum
     Tue Jan 10 21:49:40.069 UTC
