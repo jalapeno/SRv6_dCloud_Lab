@@ -19,7 +19,7 @@ topology all subsequent lab exercises. Second, they will validate that the pre-c
     - [Connect to Routers](#connect-to-routers)
   - [Validate ISIS Topology](#validate-isis-topology)
   - [Validate BGP Topology](#validate-bgp-topology)
-    - [End of Lab 1](#end-of-lab-1)
+  - [End of Lab 1](#end-of-lab-1)
   
 ## Lab Objectives
 The student upon completion of Lab 1 should have achieved the following objectives:
@@ -518,5 +518,5 @@ For full size image see [LINK](/topo_drawings/bgp-topology-large.png)
     <<< output truncated >>>
     ```
 
-### End of Lab 1
+## End of Lab 1
 Please proceed to [Lab 2](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_2/lab_2-guide.md)

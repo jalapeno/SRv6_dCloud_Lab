@@ -1,13 +1,20 @@
-# Lab 2: SR-MPLS and SRv6 Install
+# Lab 2: SR-MPLS and SRv6 Install   [20 Min]
 
 ### Description: 
 In Lab 2 the student will perform the basic configuration of SR-MPLS and SRv6 on the lab routers. This will allow for a compare and contrast between the two segment routing standards. You will create and confirm PE and P roles for SR-MPLS. Second you will create basic SRv6 configuration on routers 1-7 and confirm connectivity. 
 
 ## Contents
-1. [Lab Objectives](#lab-objectives)
-2. [SR-MPLS Background](#sr-mpls-background)
-3. [Configure and validate SRv6](#srv6)
-4. [Validate XRd end to end connectivity for both SR-MPLS and SRv6](#end-to-end-connectivity)
+- [Lab 2: SR-MPLS and SRv6 Install   \[20 Min\]](#lab-2-sr-mpls-and-srv6-install---20-min)
+    - [Description:](#description)
+  - [Contents](#contents)
+  - [Lab Objectives](#lab-objectives)
+  - [SR-MPLS Background](#sr-mpls-background)
+    - [Validate SR-MPLS is running correctly](#validate-sr-mpls-is-running-correctly)
+  - [SRv6](#srv6)
+    - [Configuration Steps SRv6](#configuration-steps-srv6)
+      - [Configure SRv6 on all routers (xrd01 - xrd07) in the network](#configure-srv6-on-all-routers-xrd01---xrd07-in-the-network)
+  - [End-to-End Connectivity](#end-to-end-connectivity)
+  - [End of Lab 2](#end-of-lab-2)
   
 
 ## Lab Objectives
@@ -224,5 +231,5 @@ listening on br-1be0f9f81cbd, link-type EN10MB (Ethernet), capture size 262144 b
 21:59:08.129554 IP6 fc00:0000:7777::1 > fc00:0000:1111::1: ICMP6, echo reply, seq 1, length 60
 ```
 
-### End of Lab 2
+## End of Lab 2
 Please proceed to [Lab 3](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_3/lab_3-guide.md)
