@@ -9,10 +9,11 @@ The host-based SR/SRv6 encap/decap could be executed at the Linux networking lay
 
 
 ## Contents
-- [Lab 8: Host-Based SR/SRv6 and building your own SDN App (BYO-SDN-App)](#lab-7-host-based-srsrv6-and-building-your-own-sdn-app-byo-sdn-app)
+- [Lab 8: Host-Based SR/SRv6 and building your own SDN App (BYO-SDN-App)](#lab-8-host-based-srsrv6-and-building-your-own-sdn-app-byo-sdn-app)
   - [Description](#description)
 - [Contents](#contents)
 - [Lab Objectives](#lab-objectives)
+- [Harvest SRv6 End.DT data into Arango](#harvest-srv6-enddt-data-into-arango)
 - [Enable XRd forwarding of SR-MPLS traffic coming from Linux hosts](#enable-xrd-forwarding-of-sr-mpls-traffic-coming-from-linux-hosts)
 - [Rome VM: Segment Routing \& SRv6 on Linux](#rome-vm-segment-routing--srv6-on-linux)
   - [Preliminary steps for SR/SRv6 on Rome VM](#preliminary-steps-for-srsrv6-on-rome-vm)
@@ -21,6 +22,7 @@ The host-based SR/SRv6 encap/decap could be executed at the Linux networking lay
   - [Get All Paths](#get-all-paths)
   - [Least Utilized Path](#least-utilized-path)
   - [Low Latency Path](#low-latency-path)
+    - [While jalapeno.py supports both SR and SRv6 for its Network Services, for the remainder of Lab 8 we will focus just on SRv6](#while-jalapenopy-supports-both-sr-and-srv6-for-its-network-services-for-the-remainder-of-lab-8-we-will-focus-just-on-srv6)
   - [Low Latency Re-Route](#low-latency-re-route)
   - [Data Sovereignty Path](#data-sovereignty-path)
 - [Amsterdam VM](#amsterdam-vm)
