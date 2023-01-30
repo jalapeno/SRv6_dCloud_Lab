@@ -107,17 +107,16 @@ The Cisco IOS-XR 7.5 Configuration guide for SRv6 can be found here: [LINK](http
 
 SRv6 uSID locator and source address information for nodes in the lab:
 
-```
-    | Router Name | Loopback Int|    Locator Prefix    |    Source-address    |                                           
-    |:------------|:-----------:|:--------------------:|:--------------------:|                          
-    | xrd01       | loopback 0  | fc00:0000:1111::/48  | fc00:0000:1111::1    |
-    | xrd02       | loopback 0  | fc00:0000:2222::/48  | fc00:0000:2222::1    |
-    | xrd03       | loopback 0  | fc00:0000:3333::/48  | fc00:0000:3333::1    |
-    | xrd04       | loopback 0  | fc00:0000:4444::/48  | fc00:0000:4444::1    |
-    | xrd05       | loopback 0  | fc00:0000:5555::/48  | fc00:0000:5555::1    |
-    | xrd06       | loopback 0  | fc00:0000:6666::/48  | fc00:0000:6666::1    |
-    | xrd07       | loopback 0  | fc00:0000:7777::/48  | fc00:0000:7777::1    |
-```
+| Router Name | Loopback Int|    Locator Prefix    |    Source-address    |                                           
+|:------------|:-----------:|:--------------------:|:--------------------:|                          
+| xrd01       | loopback 0  | fc00:0000:1111::/48  | fc00:0000:1111::1    |
+| xrd02       | loopback 0  | fc00:0000:2222::/48  | fc00:0000:2222::1    |
+| xrd03       | loopback 0  | fc00:0000:3333::/48  | fc00:0000:3333::1    |
+| xrd04       | loopback 0  | fc00:0000:4444::/48  | fc00:0000:4444::1    |
+| xrd05       | loopback 0  | fc00:0000:5555::/48  | fc00:0000:5555::1    |
+| xrd06       | loopback 0  | fc00:0000:6666::/48  | fc00:0000:6666::1    |
+| xrd07       | loopback 0  | fc00:0000:7777::/48  | fc00:0000:7777::1    |
+
     
 ### Configuration Steps SRv6
 #### Configure SRv6 on all routers (xrd01 - xrd07) in the network
@@ -134,6 +133,7 @@ SRv6 uSID locator and source address information for nodes in the lab:
           locator MyLocator
             micro-segment behavior unode psp-usd
             prefix fc00:0000:1111::/48
+       commit
     ```
 
 2. Enable SRv6 for ISIS Procotol. 
@@ -142,39 +142,45 @@ SRv6 uSID locator and source address information for nodes in the lab:
       address-family ipv6 unicast
          segment-routing srv6
            locator MyLocator
+       commit
     ```
   - Note: once you've configured one or two routers using the above steps, the full lab 2 configs for each router can be found [HERE](/lab_2/config/lab_2-configs.md) for quick copy-and-pasting
 
 3. Validation SRv6 configuration and reachability
     ```
+    show segment-routing srv6 sid
+    ```
+    ```
     RP/0/RP0/CPU0:xrd01#show segment-routing srv6 sid
 
     *** Locator: 'MyLocator' *** 
 
-    SID                         Behavior          Context                           Owner               State  RW
-    --------------------------  ----------------  --------------------------------  ------------------  -----  --
-    fc00:0000:1111::                  uN (PSP/USD)      'default':1                       sidmgr              InUse  Y 
-    fc00:0:1:e000::             uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0:P       isis-100            InUse  Y 
-    fc00:0:1:e001::             uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0         isis-100            InUse  Y 
-    fc00:0:1:e002::             uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0:P       isis-100            InUse  Y 
-    fc00:0:1:e003::             uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0         isis-100            InUse  Y 
-    RP/0/RP0/CPU0:xrd01#
+       SID                      Behavior          Context                           Owner               State  RW
+       -----------------------  ----------------  --------------------------------  ------------------  -----  --
+       fc00:0:1111::            uN (PSP/USD)      'default':4369                    sidmgr              InUse  Y 
+       fc00:0:1111:e000         uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0:P       isis-100            InUse  Y 
+       fc00:0:1111:e001::       uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0         isis-100            InUse  Y 
+       fc00:0:1111:e002::       uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0:P       isis-100            InUse  Y 
+       fc00:0:1111:e003::       uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0         isis-100            InUse  Y 
     ```
 
     - Validate the SRv6 prefix-SID configuration. As example for xrd01 look for ```SID value: fc00:0000:1111::```
 
+    ```
+    show isis segment-routing srv6 locators detail 
+    ```
     ```
     RP/0/RP0/CPU0:xrd01#show isis segment-routing srv6 locators detail 
 
     IS-IS 100 SRv6 Locators
     Name                  ID       Algo  Prefix                    Status
     ------                ----     ----  ------                    ------
-    MyLocator                  1        0     fc00:0000:1111::/48             Active
+    MyLocator             1        0     fc00:0000:1111::/48       Active
     Advertised Level: level-1-2   
     Level: level-1      Metric: 1        Administrative Tag: 0         
     Level: level-2-only Metric: 1        Administrative Tag: 0         
     SID behavior: uN (PSP/USD)
-    SID value:    fc00:0000:1111::
+    SID value:    fc00:0000:1111::                      <------------ HERE
     Block Length: 32, Node Length: 16, Func Length: 0, Args Length: 80
     ```
 
@@ -184,7 +190,7 @@ In lab_1 When we ran the XRd topology setup script it called the 'nets.sh' subsc
 
 We'll use 'tcpdump.sh' shell script in the util directory to monitor traffic as it traverses the XRd network. Running "./tcpdump.sh xrd0x-xrd0y" will execute Linux TCPdump on the specified Linux bridge instance that links a pair of XRd routers. Note traffic through the network may travel via one or more ECMP paths, so we may need to try tcpdump.sh on different links before we see anything meaningful in the output
 
-1. Open a new ssh session on the XRD VM and cd into the lab's util directory:
+1. Open a new ssh session on the **XRD** VM and cd into the lab's util directory:
 ```
 cd ~/SRv6_dCloud_Lab/util/
 ```
@@ -192,18 +198,22 @@ cd ~/SRv6_dCloud_Lab/util/
 ```
 ./tcpdump.sh xrd05-xrd06
 ```
-3. Run some pings from xrd01 to xrd07:
+3. Run some pings from **xrd01** to **xrd07**:
 ```
 ping 10.0.0.7 source lo0
+```
+```
 ping fc00:0000:7777::1 source lo0
 ```
-If nothing shows up on the tcpdump output try tcpdumping on the xrd02-xrd06 or xrd04-xrd05 link:
-Note: the ./tcpdump.sh break sequence is *`ctrl z`*
+If nothing shows up on the tcpdump output try tcpdumping on the *`xrd02-xrd06`* OR *`xrd04-xrd05*` link:
+Note: the ./tcpdump.sh break sequence is *ctrl-z*
 ```
-./tcpdump.sh xrd02-xrd06
-./tcpdump.sh xrd04-xrd05
+sudo ./tcpdump.sh xrd02-xrd06
 ```
-Eventually pings should show up as tcpdump output. We should see SR-MPLS labels on IPv4 pings, something like this:
+```
+sudo ./tcpdump.sh xrd04-xrd05
+```
+Eventually pings should show up as tcpdump output. We should see SR-MPLS labels on IPv4 pings, example output below:
 ```
 cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd04-xrd05 
 sudo tcpdump -ni br-1be0f9f81cbd
