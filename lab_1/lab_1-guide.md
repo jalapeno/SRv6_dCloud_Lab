@@ -215,10 +215,10 @@ ssh cisco@198.18.128.102
     ```
     cisco@amsterdam:~$ sudo vppctl show interface address
     GigabitEthernetb/0/0 (up):
-    L3 10.101.1.1/24
+    L3 10.101.1.1/24        <-------<strong>HERE</strong>
     L3 fc00:0:101:1::1/64
     host-vpp-in (up):
-    L3 10.101.2.2/24
+    L3 10.101.2.2/24        <-------HERE
     ```
 3. Check connectivity from Amsterdam to xrd01 - we'll issue a ping from VPP itself:
     ```
