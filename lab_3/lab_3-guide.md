@@ -5,14 +5,20 @@ In lab 3 the student will extend the routing topology to include sites Amsterdam
 
 
 ## Contents
-1. [Lab Objectives](#lab-objectives)
-2. [Learn Default ISIS Path](#learn-default-isis-path)
-3. [BGP-LU over SR-MPLS](#bgp-labeled-unicast-bgp-lu-over-sr-mpls-network-routing)
-    - [Validate Local Network](#configure-remote-test-networks)
+- [Lab 3: BGP-LU over SR-MPLS](#lab-3-bgp-lu-over-sr-mpls)
+    - [Description:](#description)
+  - [Contents](#contents)
+  - [Lab Objectives](#lab-objectives)
+  - [Learn Default ISIS Path](#learn-default-isis-path)
+  - [BGP Labeled Unicast (BGP-LU) over SR-MPLS Network Routing](#bgp-labeled-unicast-bgp-lu-over-sr-mpls-network-routing)
+    - [Configure Remote Test Networks](#configure-remote-test-networks)
     - [Enable BGP Labeled Unicast](#enable-bgp-labeled-unicast)
-    - [Advertise BGP-LU Prefixes](#advertise-bgp-lu-prefixes)
+    - [Advertise BGP-LU prefixes](#advertise-bgp-lu-prefixes)
     - [Validate BGP routes](#validate-bgp-routes)
-4. [Validate End to End Connectivity](#validate-end-to-end-connectivity)
+      - [The next section uses the following validation commands:](#the-next-section-uses-the-following-validation-commands)
+    - [Validate end to end connectivity](#validate-end-to-end-connectivity)
+    - [Amsterdam to Rome Test using iPerf](#amsterdam-to-rome-test-using-iperf)
+    - [End of Lab 3](#end-of-lab-3)
   
 
 ## Lab Objectives
