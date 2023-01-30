@@ -179,7 +179,7 @@ ssh cisco@198.18.128.103
     cisco@rome:~$ ip address show ens192
     3: ens192: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
         link/ether 00:50:56:aa:ab:cf brd ff:ff:ff:ff:ff:ff
-        inet <strong>10.107.1.1/24</strong> brd 10.107.1.255 scope global ens192
+        inet <strong>10.107.1.1/24</strong> brd 10.107.1.255 scope global ens192  <stonrg><------- Here</strong>
         valid_lft forever preferred_lft forever
         inet6 fc00:0:107:1:250:56ff:feaa:abcf/64 scope global dynamic mngtmpaddr noprefixroute 
         valid_lft 2591929sec preferred_lft 604729sec
