@@ -224,7 +224,8 @@ listening on br-1be0f9f81cbd, link-type EN10MB (Ethernet), capture size 262144 b
 21:56:27.732243 IS-IS, p2p IIH, src-id 0000.0000.0005, length 1497
 21:56:29.539521 MPLS (<mark>label 100007</mark>, exp 0, [S], ttl 254) IP 10.0.0.1 > 10.0.0.7: ICMP echo request, id 5699, seq 0, length 80
 21:56:29.541126 MPLS (label 100001, exp 0, [S], ttl 254) IP 10.0.0.7 > 10.0.0.1: ICMP echo reply, id 5699, seq 0, length 80
-<pre></code>
+</code></pre>
+
 IPv6 pings will not invoke SRv6 encapsulation at this time. And with ECMP there's always a chance the return traffic takes a different path:
 ```
 cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd02-xrd06 
