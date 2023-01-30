@@ -1,25 +1,14 @@
 ### xrd01 config
 ```
 router isis 100
- address-family ipv4 unicast
-   segment-routing mpls
- !
  address-family ipv6 unicast
   segment-routing srv6
    locator MyLocator
    !
   !
  !
- interface Loopback0
-  passive
-  address-family ipv4 unicast
-   prefix-sid index 1 
-   !
-  !
- !
 !
 segment-routing
- global-block 100000 163999
  srv6
   encapsulation
    source-address fc00:0000:1111::1
@@ -37,25 +26,14 @@ segment-routing
 
 ```
 router isis 100
- address-family ipv4 unicast
-   segment-routing mpls
- !
  address-family ipv6 unicast
   segment-routing srv6
    locator MyLocator
    !
   !
  !
- interface Loopback0
-  passive
-  address-family ipv4 unicast
-   prefix-sid index 2 
-   !
-  !
- !
 !
 segment-routing
- global-block 100000 163999
  srv6
   encapsulation
    source-address fc00:0000:2222::1
@@ -71,25 +49,14 @@ segment-routing
  ### xrd03 config
 ```
 router isis 100
- address-family ipv4 unicast
-   segment-routing mpls
- !
  address-family ipv6 unicast
   segment-routing srv6
    locator MyLocator
    !
   !
  !
- interface Loopback0
-  passive
-  address-family ipv4 unicast
-   prefix-sid index 3 
-   !
-  !
- !
 !
 segment-routing
- global-block 100000 163999
  srv6
   encapsulation
    source-address fc00:0000:3333::1
@@ -105,25 +72,14 @@ segment-routing
  ### xrd04 config
 ```
 router isis 100
- address-family ipv4 unicast
-   segment-routing mpls
- !
  address-family ipv6 unicast
   segment-routing srv6
    locator MyLocator
    !
   !
  !
- interface Loopback0
-  passive
-  address-family ipv4 unicast
-   prefix-sid index 4 
-   !
-  !
- !
 !
 segment-routing
- global-block 100000 163999
  srv6
   encapsulation
    source-address fc00:0000:4444::1
@@ -139,25 +95,14 @@ segment-routing
  ### xrd05 config
 ```
 router isis 100
- address-family ipv4 unicast
-   segment-routing mpls
- !
  address-family ipv6 unicast
   segment-routing srv6
    locator MyLocator
    !
   !
  !
- interface Loopback0
-  passive
-  address-family ipv4 unicast
-   prefix-sid index 5 
-   !
-  !
- !
 !
 segment-routing
- global-block 100000 163999
  srv6
   encapsulation
    source-address fc00:0000:5555::1
@@ -173,25 +118,14 @@ segment-routing
  ### xrd06 config
 ```
 router isis 100
- address-family ipv4 unicast
-   segment-routing mpls
- !
  address-family ipv6 unicast
   segment-routing srv6
    locator MyLocator
    !
   !
  !
- interface Loopback0
-  passive
-  address-family ipv4 unicast
-   prefix-sid index 6
-   !
-  !
- !
 !
 segment-routing
- global-block 100000 163999
  srv6
   encapsulation
    source-address fc00:0000:6666::1
@@ -207,25 +141,14 @@ segment-routing
  ### xrd07 config
 ```
 router isis 100
- address-family ipv4 unicast
-   segment-routing mpls
- !
  address-family ipv6 unicast
   segment-routing srv6
    locator MyLocator
    !
   !
  !
- interface Loopback0
-  passive
-  address-family ipv4 unicast
-   prefix-sid index 7 
-   !
-  !
- !
 !
 segment-routing
- global-block 100000 163999
  srv6
   encapsulation
    source-address fc00:0000:7777::1

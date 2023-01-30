@@ -4,72 +4,32 @@
 In Lab 2 the student will perform the basic configuration of SR-MPLS and SRv6 on the lab routers. This will allow for a compare and contrast between the two segment routing standards. You will create and confirm PE and P roles for SR-MPLS. Second you will create basic SRv6 configuration on routers 1-7 and confirm connectivity. 
 
 ## Contents
-1. [Configure and validate SR-MPLS](#sr-mpls)
-2. [Configure and validate SRv6](#srv6)
-3. [Validate XRd end to end connectivity for both SR-MPLS and SRv6](#end-to-end-connectivity)
+1. [Lab Objectives](#lab-objectives)
+2. [SR-MPLS Background](#sr-mpls-background)
+3. [Configure and validate SRv6](#srv6)
+4. [Validate XRd end to end connectivity for both SR-MPLS and SRv6](#end-to-end-connectivity)
   
 
 ## Lab Objectives
 The student upon completion of Lab 2 should have achieved the following objectives:
 
-* Understanding of basic configuration for SR-MPLS
+* Validation of SR-MPLS setup and forwarding
 * Understanding of basic configuration for SRv6
    
 
-## SR-MPLS 
+## SR-MPLS Background
 
-Segment Routing (SR) is a source-based routing architecture. A node chooses a path and steers a packet through the network via that path by inserting an ordered list of segments, instructing how subsequent nodes in the path that receive the packet should process it. This simplifies operations and reduces resource requirements in the network by removing network state information from intermediary nodes as path information is encoded via the label stack at the ingress node. In addition to this, because the shortest-path segment includes all Equal-Cost Multi-Path (ECMP) paths to the related node, SR supports the ECMP nature of IP by design. In Lab 1 we will enable SR-MPLS forwarding on routers xrd01 -> xrd07. 
+Segment Routing (SR) is a source-based routing architecture. A node chooses a path and steers a packet through the network via that path by inserting an ordered list of segments, instructing how subsequent nodes in the path that receive the packet should process it. This simplifies operations and reduces resource requirements in the network by removing network state information from intermediary nodes as path information is encoded via the label stack at the ingress node. In addition to this, because the shortest-path segment includes all Equal-Cost Multi-Path (ECMP) paths to the related node, SR supports the ECMP nature of IP by design. All nodes in the lab xrd01 - xrd07 have SR-MPLS pre-configured.
 
 For a full overview of SR-MPLS please see the Wiki here: [LINK](/SR-MPLS.md)  
 The Cisco IOS-XR 7.5 Configuration guide for SR-MPLS can be found here: [LINK](https://www.cisco.com/c/en/us/td/docs/iosxr/cisco8000/segment-routing/75x/b-segment-routing-cg-cisco8000-75x/configuring-segment-routing-for-is-is-protocol.html)
 
-### Configuration Steps SR-MPLS
-1. Enable SR-MPLS globally and define an SRGB (we use 100000 - 163999 for easy reading)
+### Validate SR-MPLS is running correctly
+1. On xrd01 (and perhaps xrd07) verify ISIS segment routing and MPLS forwarding are established:
     ```
-    segment-routing 
-      global-block 100000 163999
-    commit
+    show isis segment-routing label table 
     ```
-
-2. Enable SR-MPLS for ISIS Procotol. 
-    ```
-    router isis 100    
-      address-family ipv4
-        segment-routing mpls
-    commit
-    ```
-
-3. Configure a Prefix-SID on ISIS Loopback Interface
-    A prefix segment identifier (SID) is associated with an IP prefix. The prefix SID is manually configured from the segment routing global block. A prefix SID is configured under the loopback interface with the loopback address of the node as the prefix. The prefix segment steers the traffic along the shortest path to its destination. In our lab configurations we will be using Prefix SID Indexes. Consult the table below then configure the prefix SID on routes xrd01 -> xrd07
-
-
-    | Router Name | Loopback Int| Prefix-SID |                                           
-    |:------------|:-----------:|:----------:|                          
-    | xrd01       | loopback 0  | 1          |
-    | xrd02       | loopback 0  | 2          |
-    | xrd03       | loopback 0  | 3          |
-    | xrd04       | loopback 0  | 4          |
-    | xrd05       | loopback 0  | 5          |
-    | xrd06       | loopback 0  | 6          |
-    | xrd07       | loopback 0  | 7          |
-
-    Configuration example:
-    ```
-    router isis 100
-      interface loopback 0
-        address-family ipv4 unicast 
-        prefix-sid index 1
-    commit
-    ```
-
-4. Verify that ISIS Prefix-SID configuartion. As example for xrd01 look for ```Prefix-SID Index: 1```
-    ```
-    RP/0/RP0/CPU0:xrd01#show isis database verbose | i Prefix-SID
-        Prefix-SID Index: 1, Algorithm:0, R:0 N:1 P:0 E:0 V:0 L:0
-        Prefix-SID Index: 1, Algorithm:0, R:0 N:1 P:0 E:0 V:0 L:0
-    RP/0/RP0/CPU0:xrd01#
-    ```
-   - other validations
+    - Expected output:
     ```
     RP/0/RP0/CPU0:xrd07#show isis segment-routing label table                
 
@@ -84,7 +44,11 @@ The Cisco IOS-XR 7.5 Configuration guide for SR-MPLS can be found here: [LINK](h
     100006        10.0.0.6/32              
     100007        10.0.0.7/32              Loopback0
     ```
-    Validate the mpls forwarding table
+    - MPLS forwarding:
+    ```
+    show mpls forwarding
+    ```
+    - Expected output:
     ```
     RP/0/RP0/CPU0:xrd07#show mpls forwarding 
 
@@ -149,7 +113,7 @@ SRv6 uSID locator and source address information for nodes in the lab:
 ```
     
 ### Configuration Steps SRv6
-1. Enable SRv6 globally and define SRv6 locator and source address for outbound encapsulation 
+1. On xrd01 - xrd07 enable SRv6 globally and define SRv6 locator and source address for outbound encapsulation 
    - the source address should match the router's loopback0 ipv6 address
    - locator should match the first 48-bits of the router's loopback0
    - to keep things simple we're using the same locator name, 'MyLocator', on all nodes in the network
@@ -171,7 +135,8 @@ SRv6 uSID locator and source address information for nodes in the lab:
          segment-routing srv6
            locator MyLocator
     ```
- 3. Validation SRv6 configuration and reachability
+
+3. Validation SRv6 configuration and reachability
     ```
     RP/0/RP0/CPU0:xrd01#show segment-routing srv6 sid
 
@@ -203,6 +168,8 @@ SRv6 uSID locator and source address information for nodes in the lab:
     SID value:    fc00:0000:1111::
     Block Length: 32, Node Length: 16, Func Length: 0, Args Length: 80
     ```
+4. Once you've configured one or two routers using this procedure, full lab 2 configs for each router can be found [HERE](/lab_2/lab_2-configs.md) for quick copy-and-pasting
+
 ## End-to-End Connectivity
 
 In lab_1 When we ran the XRd topology setup script it called the 'nets.sh' subscript in the ~/SRv6_dCloud_Lab/util directory. The nets.sh resolved the underlying docker network IDs and wrote them to text files in the util directory. As an example link "A" in the topology has a mapped file called xrd01-xrd02 which contains the linux network id we need.
