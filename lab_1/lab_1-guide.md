@@ -214,15 +214,23 @@ ssh cisco@198.18.128.102
 ```
 
 2. Check that the VPP interface facing Ubuntu (host-vpp-in) and the interface facing router xrd01 (GigabitEthernetb/0/0) are `UP` and have their assigned IP addresses. GigabitEthernetb/0/0: `10.101.1.1/24`, and host-vpp-in: `10.101.2.2/24` 
+    
+    ```
+    sudo vppctl show interface address
+    ```
     ```
     cisco@amsterdam:~$ sudo vppctl show interface address
     GigabitEthernetb/0/0 (up):
-    L3 10.101.1.1/24        <-------<strong>HERE</strong>
+    L3 10.101.1.1/24        <-------HERE
     L3 fc00:0:101:1::1/64
     host-vpp-in (up):
     L3 10.101.2.2/24        <-------HERE
     ```
 3. Check connectivity from Amsterdam to xrd01 - we'll issue a ping from VPP itself:
+    ```
+    sudo vppctl ping 10.101.1.2
+    ```
+    
     ```
     cisco@amsterdam:~$ sudo vppctl ping 10.101.1.2
     116 bytes from 10.101.1.2: icmp_seq=1 ttl=255 time=2.7229 ms
