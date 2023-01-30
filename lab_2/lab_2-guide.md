@@ -168,7 +168,7 @@ SRv6 uSID locator and source address information for nodes in the lab:
     SID value:    fc00:0000:1111::
     Block Length: 32, Node Length: 16, Func Length: 0, Args Length: 80
     ```
-4. Once you've configured one or two routers using this procedure, full lab 2 configs for each router can be found [HERE](/lab_2/lab_2-configs.md) for quick copy-and-pasting
+4. Once you've configured one or two routers using this procedure, full lab 2 configs for each router can be found [HERE](/lab_2/config/lab_2-configs.md) for quick copy-and-pasting
 
 ## End-to-End Connectivity
 
