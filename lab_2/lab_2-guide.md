@@ -113,7 +113,8 @@ SRv6 uSID locator and source address information for nodes in the lab:
 ```
     
 ### Configuration Steps SRv6
-1. On xrd01 - xrd07 enable SRv6 globally and define SRv6 locator and source address for outbound encapsulation 
+#### Configure SRv6 on all routers (xrd01 - xrd07) in the network
+1. Enable SRv6 globally and define SRv6 locator and source address for outbound encapsulation 
    - the source address should match the router's loopback0 ipv6 address
    - locator should match the first 48-bits of the router's loopback0
    - to keep things simple we're using the same locator name, 'MyLocator', on all nodes in the network
@@ -135,6 +136,7 @@ SRv6 uSID locator and source address information for nodes in the lab:
          segment-routing srv6
            locator MyLocator
     ```
+  - Note: once you've configured one or two routers using the above steps, the full lab 2 configs for each router can be found [HERE](/lab_2/config/lab_2-configs.md) for quick copy-and-pasting
 
 3. Validation SRv6 configuration and reachability
     ```
@@ -168,7 +170,6 @@ SRv6 uSID locator and source address information for nodes in the lab:
     SID value:    fc00:0000:1111::
     Block Length: 32, Node Length: 16, Func Length: 0, Args Length: 80
     ```
-4. Once you've configured one or two routers using this procedure, full lab 2 configs for each router can be found [HERE](/lab_2/config/lab_2-configs.md) for quick copy-and-pasting
 
 ## End-to-End Connectivity
 
@@ -190,6 +191,7 @@ ping 10.0.0.7 source lo0
 ping fc00:0000:7777::1 source lo0
 ```
 If nothing shows up on the tcpdump output try tcpdumping on the xrd02-xrd06 or xrd04-xrd05 link:
+Note: the ./tcpdump.sh break sequence is *`ctrl z`*
 ```
 ./tcpdump.sh xrd02-xrd06
 ./tcpdump.sh xrd04-xrd05
