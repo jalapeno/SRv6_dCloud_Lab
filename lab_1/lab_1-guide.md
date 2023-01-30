@@ -6,14 +6,20 @@ In Lab 1 the student will launch the XRd topology and validate it is up and runn
 topology all subsequent lab exercises. Second, they will validate that the pre-configured ISIS and BGP routing protocols are running and seeing the correct topology. 
 
 ## Contents
-1. [Lab Objectives](#lab-objectives)
-2. [Validate Device Access](#validate-device-access)
-    - [Launch and Validate XRD Topology](#validate-xrd)
-    - [Validate Jalapeno VM](#validate-jalapeno)
+- [Lab 1 Guide: XRd Topology Setup and Validation](#lab-1-guide-xrd-topology-setup-and-validation)
+    - [Description:](#description)
+  - [Contents](#contents)
+  - [Lab Objectives](#lab-objectives)
+  - [Validate Device Access](#validate-device-access)
+    - [User Credentials](#user-credentials)
+    - [Management Network Topology](#management-network-topology)
+    - [Launch and Validate XRD Topology](#launch-and-validate-xrd-topology)
+    - [Validate Jalapeno VM](#validate-jalapeno-vm)
     - [Validate Client VMs](#validate-client-vms)
     - [Connect to Routers](#connect-to-routers)
-3. [Validate ISIS Topology](#validate-isis-topology)
-4. [Validate BGP Topology](#validate-bgp-topology)
+  - [Validate ISIS Topology](#validate-isis-topology)
+  - [Validate BGP Topology](#validate-bgp-topology)
+    - [End of Lab 1](#end-of-lab-1)
   
 ## Lab Objectives
 The student upon completion of Lab 1 should have achieved the following objectives:
@@ -169,11 +175,11 @@ ssh cisco@198.18.128.103
 ```
 
 2. Check that the interface to router xrd07 is `UP` and has the assigned IP `10.107.1.1/24`
-    ```
+    <pre><code>
     cisco@rome:~$ ip address show ens192
     3: ens192: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
         link/ether 00:50:56:aa:ab:cf brd ff:ff:ff:ff:ff:ff
-        inet 10.107.1.1/24 brd 10.107.1.255 scope global ens192
+        inet <strong>10.107.1.1/24</strong> brd 10.107.1.255 scope global ens192
         valid_lft forever preferred_lft forever
         inet6 fc00:0:107:1:250:56ff:feaa:abcf/64 scope global dynamic mngtmpaddr noprefixroute 
         valid_lft 2591929sec preferred_lft 604729sec
@@ -181,7 +187,7 @@ ssh cisco@198.18.128.103
         valid_lft forever preferred_lft forever
         inet6 fe80::250:56ff:feaa:abcf/64 scope link 
         valid_lft forever preferred_lft forever
-    ```
+    </code></pre>
 3. Check connectivity from Rome to xrd07
     ```
     cisco@rome:~$ ping -c 3 10.107.1.2
