@@ -1,7 +1,67 @@
-## Lab 7: Host-Based SR/SRv6 and building your own SDN App (BYO-SDN-App)
+## Harvest SRv6 End.DT data into Arango
+
+1. Configure streaming telemety on xrd01 and xrd07 using [this config](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/lab7/lab_8/mdt.cfg)
+
+2. On Jalapeno VM replace the Telegraf collector:
+
+```
+kubectl delete -f ~/jalapeno/install/collectors/telegraf-ingress/telegraf_ingress_cfg.yaml
+kubectl delete -f ~/jalapeno/install/collectors/telegraf-ingress/telegraf_ingress_svc_np.yaml 
+kubectl delete -f ~/jalapeno/install/collectors/telegraf-ingress/telegraf_ingress_dp.yaml 
+
+kubectl create -f ~/SRv6_dCloud_Lab/lab_8/telegraf_ingress_cfg.yaml
+kubectl create -f ~/jalapeno/install/collectors/telegraf-ingress/telegraf_ingress_svc_np.yaml 
+kubectl create -f ~/jalapeno/install/collectors/telegraf-ingress/telegraf_ingress_dp.yaml 
+```
+
+3. Verify Telegraf ingress pod is running:
+```
+kubectl get pods -n jalapeno-collectors
+```
+```
+cisco@jalapeno:~/SRv6_dCloud_Lab/lab_8/srv6-localsids/localsids$ kubectl get pods -n jalapeno-collectors
+NAME                                           READY   STATUS    RESTARTS        AGE
+gobmp-5db68bd644-2t6s7                         1/1     Running   9 (5h21m ago)   6d6h
+telegraf-ingress-deployment-5b456574dc-ft4xm   1/1     Running   0               11s
+```
+
+4. Deploy the srv6-localsids-processor
+```
+cd ~/SRv6_dCloud_Lab/lab_8/python/
+python3 srv6-localsids-processor.py
+```
+Expected output:
+```
+document added:  xrd01_fc00:0:1111::
+document added:  xrd01_fc00:0:1111:e000::
+document added:  xrd01_fc00:0:1111:e001::
+document added:  xrd01_fc00:0:1111:e002::
+document added:  xrd01_fc00:0:1111:e003::
+document added:  xrd01_fc00:0:1111:e004::
+document added:  xrd01_fc00:0:1111:e005::
+document added:  xrd01_fc00:0:1111:e006::
+document added:  xrd01_fc00:0:1111:e007::
+document added:  xrd01_fc00:0:1111:e008::
+document added:  xrd01_fc00:0:1111:e009::
+document added:  xrd07_fc00:0:7777::
+document added:  xrd07_fc00:0:7777:e000::
+document added:  xrd07_fc00:0:7777:e001::
+document added:  xrd07_fc00:0:7777:e002::
+document added:  xrd07_fc00:0:7777:e003::
+document added:  xrd07_fc00:0:7777:e004::
+document added:  xrd07_fc00:0:7777:e005::
+document added:  xrd07_fc00:0:7777:e006::
+document added:  xrd07_fc00:0:7777:e007::
+```
+5. Check that Arango as an *`srv6_local_sids`* data collection, and that it is populated
+6. you can now kill the processor with ctrl-c. It'll kick out python errors, but no worries...
+
+### We can now execute the Lab 7 tasks here in Lab 8:
+
+## Lab 8: Host-Based SR/SRv6 and building your own SDN App (BYO-SDN-App)
 
 ### Description
-Lab 7 is divided into two primary parts. Part 1 is host-based SR/SRv6 using Linux kernel capabilities on the Rome VM. Part 2 will be host-based SR/SRv6 using VPP on the Amsterdam VM.
+Lab 8 is divided into two primary parts. Part 1 is host-based SR/SRv6 using Linux kernel capabilities on the Rome VM. Part 2 will be host-based SR/SRv6 using VPP on the Amsterdam VM.
 
 The goal of the Jalapeno model is to enable applications to directly control their network experience. We envision a process where the application or endpoint requests some Jalapeno *network service* for its traffic. The Jalapeno network-service queries the DB and provides a response, which includes an SR-MPLS or SRv6 SID stack. The application or endpoint would then encapsulate its own outbound traffic; aka, the SR or SRv6 encapsulation/decapsulation would be performed at the host where the Application resides. 
 
@@ -9,7 +69,7 @@ The host-based SR/SRv6 encap/decap could be executed at the Linux networking lay
 
 
 ## Contents
-- [Lab 7: Host-Based SR/SRv6 and building your own SDN App (BYO-SDN-App)](#lab-7-host-based-srsrv6-and-building-your-own-sdn-app-byo-sdn-app)
+- [Lab 8: Host-Based SR/SRv6 and building your own SDN App (BYO-SDN-App)](#lab-7-host-based-srsrv6-and-building-your-own-sdn-app-byo-sdn-app)
   - [Description](#description)
 - [Contents](#contents)
 - [Lab Objectives](#lab-objectives)
@@ -34,7 +94,7 @@ The host-based SR/SRv6 encap/decap could be executed at the Linux networking lay
   - [You have reached the end of LTRSPG-2212, hooray!](#you-have-reached-the-end-of-ltrspg-2212-hooray)
 
 ## Lab Objectives
-The student upon completion of Lab 7 should have achieved the following objectives:
+The student upon completion of Lab 8 should have achieved the following objectives:
 
 * Understanding of the SR & SRv6 stack available in Linux
 * Understanding the use of VPP as a host-based SR and/or SRv6 forwarding element 
@@ -87,9 +147,9 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
    ssh cisco@198.18.128.103
    ```
 
-   2. On the Rome VM cd into the lab_7 directory where the jalapeno.py client resides:
+   2. On the Rome VM cd into the lab_8 directory where the jalapeno.py client resides:
    ```
-   cd ~/SRv6_dCloud_Lab/lab_7/python
+   cd ~/SRv6_dCloud_Lab/lab_8
    ```
    3. Get familiar with files in the directory; specifically:
    ```
@@ -152,14 +212,14 @@ For ease of use the currently supported network services are abbreviated:
  - lu = least_utilized
  - ds = data_sovereignty
 
-1. cd into the lab_7 python directory and access client help with the *-h* argument:
+1. cd into the lab_8 python directory and access client help with the *-h* argument:
     ```
-    cd ~/SRv6_dCloud_Lab/lab_7/python
+    cd ~/SRv6_dCloud_Lab/lab_8/python
     python3 jalapeno.py -h
     ``` 
     Expected output:
     ```
-    cisco@rome:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -h
+    cisco@rome:~/SRv6_dCloud_Lab/lab_8/python$ python3 jalapeno.py -h
     usage: Jalapeno client [-h] [-e E] [-f F] [-s S]
 
     takes command line input and calls path calculator functions
@@ -178,7 +238,7 @@ For ease of use the currently supported network services are abbreviated:
     python3 jalapeno.py -f rome.json -e srv6 -s lu
     ```
 
-The client's network service modules are located in the lab_7 *python/netservice/* directory. When invoked the client first calls the src_dst.py module, which queries the graphDB and returns database ID info for the source and destination prefixes. The client then runs the selected service module (gp, ll, lu, or ds) queries and calculates an SRv6 uSID or SR label stack, which will satisfy the network service request. The netservice module then calls the add_route.py module to create the local SR or SRv6 route or policy.
+The client's network service modules are located in the lab_8 *python/netservice/* directory. When invoked the client first calls the src_dst.py module, which queries the graphDB and returns database ID info for the source and destination prefixes. The client then runs the selected service module (gp, ll, lu, or ds) queries and calculates an SRv6 uSID or SR label stack, which will satisfy the network service request. The netservice module then calls the add_route.py module to create the local SR or SRv6 route or policy.
 
 ## Rome Network Services
 ### Get All Paths
@@ -189,18 +249,18 @@ The Get All Paths Service will query the DB for all paths up to 6-hops in length
 ``` 
 python3 jalapeno.py -f rome.json -s gp -e sr
 ```
- - All the jalapeno network services will output some data to the console. More verbose data will be logged to the lab_7/python/log directory. Check log output:
+ - All the jalapeno network services will output some data to the console. More verbose data will be logged to the lab_8/python/log directory. Check log output:
 ```
 more log/get_paths.json
 ```
  - We can expect to see a json file with source, destination, and path data which includes srv6 sids and sr label stack info
  - The code contains a number of console logging instances that are commented out, and some that are active. Note this line which provides a summary of the relevant paths by outputing the SRv6 locators along each path:
 
- https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_7/python/netservice/gp.py#L38
+ https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_8/python/netservice/gp.py#L38
 
   - Sample command line output:
 ```
-cisco@rome:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f rome.json -s gp -e sr
+cisco@rome:~/SRv6_dCloud_Lab/lab_8/python$ python3 jalapeno.py -f rome.json -s gp -e sr
 src data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'src_peer': '10.0.0.7'}]
 dest data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'dst_peer': '10.0.0.1'}]
 Get All Paths Service
@@ -219,7 +279,7 @@ Like in Lab 6 we can also experiment with the script's graph traversal parameter
 
 2. Optional: change the 'gp' service's hopcount parameters. Open the netservice/gp.py file in a text editor (vi, vim) and change parameters in line 9: 
 
-https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_7/python/netservice/gp.py#L9
+https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_8/python/netservice/gp.py#L9
 
 Change it to read:
 ```
@@ -249,7 +309,7 @@ python3 jalapeno.py -f rome.json -e sr -s lu
 ```
  - The client's command line output should display the new route in the routing table:
 ```
-cisco@rome:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f rome.json -e sr -s lu
+cisco@rome:~/SRv6_dCloud_Lab/lab_8/python$ python3 jalapeno.py -f rome.json -e sr -s lu
 src data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'src_peer': '10.0.0.7'}]
 dest data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'dst_peer': '10.0.0.1'}]
 Least Utilized Service
@@ -326,7 +386,7 @@ python3 jalapeno.py -f rome.json -e srv6 -s lu
 ```
 Expected console output:
 ```
-cisco@rome:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f rome.json -e srv6 -s lu
+cisco@rome:~/SRv6_dCloud_Lab/lab_8/python$ python3 jalapeno.py -f rome.json -e srv6 -s lu
 src data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'src_peer': '10.0.0.7'}]
 dest data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'dst_peer': '10.0.0.1'}]
 Least Utilized Service
@@ -357,7 +417,7 @@ Looking at the below diagram the low latency path from Rome to Amsterdam across 
 
 For full size image see [LINK](/topo_drawings/low-latency-path.png)
 
-#### While jalapeno.py supports both SR and SRv6 for its Network Services, for the remainder of Lab 7 we will focus just on SRv6
+#### While jalapeno.py supports both SR and SRv6 for its Network Services, for the remainder of Lab 8 we will focus just on SRv6
 
 1. Low latency SRv6 service on Rome VM:
 ```
@@ -379,16 +439,14 @@ Now we are going to simulate a recalculation of the SRv6 topology. The *Sub-Stan
 
 For full size image see [LINK](/topo_drawings/low-latency-alternate-path.png)
 
-1. Link "G" needs to have the latency in your topology updated. We will use the Python script located in /lab_7/python/set_latency.py to change the link latency in the lab and then update the ArangoDb topology database with the new value. Set latency has two cli requirements -l (link letter) [A,B,C,D,E,F,G,H,I] and -ms (milliseconds latency) xxx values.
+1. Link "G" needs to have the latency in your topology updated. We will use the Python script located in /lab_8/python/set_latency.py to change the link latency in the lab and then update the ArangoDb topology database with the new value. Set latency has two cli requirements -l (link letter) [A,B,C,D,E,F,G,H,I] and -ms (milliseconds latency) xxx values.
 
-On **XRD VM** run the comand
 ```
-cd /home/cisco/SRv6_dCloud_Lab/lab_7/python
 python3 set_latency.py -l G -ms 25
 ```
-
-2. Low latency SRv6 service on **Rome VM**:
+2. Low latency SRv6 service on Rome VM:
 ```
+./cleanup_rome_routes.sh 
 python3 jalapeno.py -f rome.json -e srv6 -s ll
 ping 10.101.2.1 -I 20.0.0.1 -i .3
 ```
@@ -397,12 +455,12 @@ ping 10.101.2.1 -I 20.0.0.1 -i .3
 
 Amsterdam VM
   ```
-  iperf3 -s -D
+  cisco@rome:~$ iperf3 -s -D
   ```
 
 Rome VM
   ```
-  cisco@rome:~$ iperf3 -c 10.101.2.1
+  cisco@amsterdam:~$ iperf3 -c 10.101.2.1
   Connecting to host 10.101.2.1, port 5201
   [  5] local 10.101.2.1 port 50706 connected to 20.0.0.1 port 5201
   [ ID] Interval           Transfer     Bitrate         Retr  Cwnd
@@ -462,9 +520,9 @@ Like the Rome VM, Amsterdam has the same python client that can query Jalapeno f
 ssh cisco@198.18.128.102
 ```
 
-2. cd into the lab_7/python/ directory:
+2. cd into the lab_8/python/ directory:
 ```
-cd ~/SRv6_dCloud_Lab/lab_7/python/
+cd ~/SRv6_dCloud_Lab/lab_8/python/
 ```
 2. Everything is the same as on the Rome VM with some different parameters in amsterdam.json:
 ```
@@ -472,11 +530,11 @@ cat ./amsterdam.json
 ```
 3. Amsterdam has a Linux veth pair connecting kernel forwarding to its onboard VPP instance. The VM has preconfigured ip routes (see /etc/netplan/00-installer-config.yaml) pointing to VPP via its "ams-out" interface:
 ```
-cisco@amsterdam:~/SRv6_dCloud_Lab/lab_7$ ip link | grep ams-out
+cisco@amsterdam:~/SRv6_dCloud_Lab/lab_8$ ip link | grep ams-out
 4: vpp-in@ams-out: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
 5: ams-out@vpp-in: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
 
-cisco@amsterdam:~/SRv6_dCloud_Lab/lab_7$ ip route
+cisco@amsterdam:~/SRv6_dCloud_Lab/lab_8$ ip route
 default via 198.18.128.1 dev ens160 proto static 
 default via 198.18.128.1 dev ens160 proto static metric 100 
 10.0.0.0/24 via 10.101.2.2 dev ams-out proto static 
@@ -512,7 +570,7 @@ dpdk {
 
 5. VPP's CLI may be invoked directly:
 ```
-cisco@amsterdam:~/SRv6_dCloud_Lab/lab_7/python$ sudo vppctl
+cisco@amsterdam:~/SRv6_dCloud_Lab/lab_8/python$ sudo vppctl
     _______    _        _   _____  ___ 
  __/ __/ _ \  (_)__    | | / / _ \/ _ \
  _/ _// // / / / _ \   | |/ / ___/ ___/
@@ -527,11 +585,11 @@ host-vpp-in (up):
 local0 (dn):
 vpp#  
 vpp# quit
-cisco@amsterdam:~/SRv6_dCloud_Lab/lab_7/python$
+cisco@amsterdam:~/SRv6_dCloud_Lab/lab_8/python$
 ```
 6. Or driven from the Linux command line:
 ```
-cisco@amsterdam:~/SRv6_dCloud_Lab/lab_7$ sudo vppctl show interface address
+cisco@amsterdam:~/SRv6_dCloud_Lab/lab_8$ sudo vppctl show interface address
 GigabitEthernetb/0/0 (up):
   L3 10.101.1.1/24
   L3 fc00:0:101:1::1/64
@@ -568,7 +626,7 @@ more log/get_paths.json
  - Expected console output:
 
 ```
-cisco@amsterdam:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f amsterdam.json -e srv6 -s gp
+cisco@amsterdam:~/SRv6_dCloud_Lab/lab_8/python$ python3 jalapeno.py -f amsterdam.json -e srv6 -s gp
 src data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'src_peer': '10.0.0.1'}]
 dest data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'dst_peer': '10.0.0.7'}]
 Get All Paths Service
@@ -597,7 +655,7 @@ python3 jalapeno.py -f amsterdam.json -e sr -s lu
 ```
  - The client's command line output will include info on VPP's new forwarding table:
 ```
-cisco@amsterdam:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f amsterdam.json -e sr -s lu
+cisco@amsterdam:~/SRv6_dCloud_Lab/lab_8/python$ python3 jalapeno.py -f amsterdam.json -e sr -s lu
 src data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'src_peer': '10.0.0.1'}]
 dest data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'dst_peer': '10.0.0.7'}]
 Least Utilized Service
@@ -664,7 +722,7 @@ python3 jalapeno.py -f amsterdam.json -e srv6 -s lu
 
 Expected output:
 ```
-cisco@amsterdam:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f amsterdam.json -e srv6 -s lu
+cisco@amsterdam:~/SRv6_dCloud_Lab/lab_8/python$ python3 jalapeno.py -f amsterdam.json -e srv6 -s lu
 src data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'src_peer': '10.0.0.1'}]
 dest data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'dst_peer': '10.0.0.7'}]
 Least Utilized Service
@@ -700,7 +758,7 @@ ping 20.0.0.1 -i .4
 ```
 Example output:
 ```
-cisco@amsterdam:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f amsterdam.json -e srv6 -s ll
+cisco@amsterdam:~/SRv6_dCloud_Lab/lab_8/python$ python3 jalapeno.py -f amsterdam.json -e srv6 -s ll
 src data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'src_peer': '10.0.0.1'}]
 dest data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'dst_peer': '10.0.0.7'}]
 Low Latency Service
@@ -742,7 +800,7 @@ ping 20.0.0.1 -i .4
 ```
 Example output:
 ```
-cisco@amsterdam:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f amsterdam.json -e srv6 -s ds
+cisco@amsterdam:~/SRv6_dCloud_Lab/lab_8/python$ python3 jalapeno.py -f amsterdam.json -e srv6 -s ds
 src data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'src_peer': '10.0.0.1'}]
 dest data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'dst_peer': '10.0.0.7'}]
 Data Sovereignty Service

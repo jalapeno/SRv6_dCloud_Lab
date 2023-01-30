@@ -22,6 +22,8 @@ if db.has_collection('sr_topology'):
 sr.properties()
 srt.properties()
 
+print("calculating prefix SIDs")
+
 r01 = sr.get('2_0_0_0000.0000.0001')
 src = (r01['ls_sr_capabilities'])
 srctlv = (src['sr_capability_subtlv'])
@@ -142,6 +144,8 @@ r07['address'] = "Via dei Tizii, 2C, 00185 Roma Italy"
 sr.update(r07)
 
 # Outbound path (left to right on diagram)
+
+print("adding location, country codes, latency, and link utilization data")
 
 srt0102 = srt.get("2_0_0_0_0000.0000.0001_10.1.1.0_0000.0000.0002_10.1.1.1")
 srt0102['prefix_sid'] = prefix_sid02
@@ -270,3 +274,5 @@ srt0706['latency'] = 30
 srt0706['percent_util_out'] = 25
 srt0706['country_codes'] = ['FRA', 'ITA']
 srt.update(srt0706)
+
+print("meta data added")
