@@ -382,15 +382,14 @@ For full size image see [LINK](/topo_drawings/low-latency-alternate-path.png)
 
 1. Link "G" needs to have the latency in your topology updated. We will use the Python script located in /lab_7/python/set_latency.py to change the link latency in the lab and then update the ArangoDb topology database with the new value. Set latency has two cli requirements -l (link letter) [A,B,C,D,E,F,G,H,I] and -ms (milliseconds latency) xxx values.
 
-On XRD VM run the comand
+On **XRD VM** run the comand
 ```
 cd /home/cisco/SRv6_dCloud_Lab/lab_7/python
 python3 set_latency.py -l G -ms 25
 ```
 
-2. Low latency SRv6 service on Rome VM:
+2. Low latency SRv6 service on **Rome VM**:
 ```
-./cleanup_rome_routes.sh 
 python3 jalapeno.py -f rome.json -e srv6 -s ll
 ping 10.101.2.1 -I 20.0.0.1 -i .3
 ```
@@ -399,12 +398,12 @@ ping 10.101.2.1 -I 20.0.0.1 -i .3
 
 Amsterdam VM
   ```
-  cisco@rome:~$ iperf3 -s -D
+  iperf3 -s -D
   ```
 
 Rome VM
   ```
-  cisco@amsterdam:~$ iperf3 -c 10.101.2.1
+  cisco@rome:~$ iperf3 -c 10.101.2.1
   Connecting to host 10.101.2.1, port 5201
   [  5] local 10.101.2.1 port 50706 connected to 20.0.0.1 port 5201
   [ ID] Interval           Transfer     Bitrate         Retr  Cwnd
