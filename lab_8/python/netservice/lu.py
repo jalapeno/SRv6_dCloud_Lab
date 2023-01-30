@@ -1,6 +1,6 @@
 import json
 from arango import ArangoClient
-from . import add_route
+from . import add_route, local_sid
 
 # Query DB for least utilized path parameters and return srv6 and sr sid info
 def lu_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane, encap):
@@ -47,28 +47,17 @@ def lu_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane, encap):
     ### From here we're going to get the end.dt localsid and add it to the uSID dest
     locator = locators[-1]
     print("egress node locator: ", locator)
-    locv = locator.replace(usid_block, '')
-    print("locv: ", locv)
-    locvar = "%" + locv
-    print(locvar)
-    locvar1 = locvar.replace("::", ":")
-    print(locvar1)
-    locvar2 = locvar1 + "%" 
-    print(locvar2)
-
-    cursor = db.aql.execute("""for x in srv6_local_sids \
-        filter x.fields.table_id == 3758096384 && x.fields.sid like """ + '"%s"' % locvar2 + """ return x.fields.sid """)
-    localsidlist = [doc for doc in cursor]
-    print("end.dt SID: ", localsidlist)
-    localsid = localsidlist[0]
-    enddt = localsid.replace(usid_block, '')
-    print(enddt)
+    localsid = local_sid.localsid(user, pw, dbname,locator, usid_block)
+    print("lu calc localsid: ", localsid)
+    
+    usd = locator.replace(usid_block, '')
+    print("usd: ", usd)
 
     ### this is from original
     srv6_sid = usid_block + sidlist + ipv6_separator
 
-    ### end.dt stuff
-    newsid = srv6_sid.replace(locv, enddt)
+    ### replace usd sid with end.dt 
+    newsid = srv6_sid.replace(usd, localsid)
     print("newsid: ", newsid)
 
     ### Return to original code

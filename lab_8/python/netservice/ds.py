@@ -1,6 +1,6 @@
 import json
 from arango import ArangoClient
-from . import add_route
+from . import add_route, local_sid
 
 ### SRv6 Data Sovereignty
 # Query DB for a path that avoids a given country and return srv6 and sr sid info
@@ -45,12 +45,30 @@ def ds_calc(src_id, dst_id, dst, user, pw, dbname, ctr, intf, dataplane, encap):
     for word in usid:
         sidlist += str(word) + ":"
 
+    ### From here we're going to get the end.dt localsid and add it to the uSID dest
+    locator = locators[-1]
+    print("egress node locator: ", locator)
+    localsid = local_sid.localsid(user, pw, dbname,locator, usid_block)
+    print("lu calc localsid: ", localsid)
+    
+    usd = locator.replace(usid_block, '')
+    print("usd: ", usd)
+
+    ### this is from original
     srv6_sid = usid_block + sidlist + ipv6_separator
+
+    ### replace usd sid with end.dt 
+    newsid = srv6_sid.replace(usd, localsid)
+    print("newsid: ", newsid)
+
+    ### Return to original code
     print("srv6 sid: ", srv6_sid)
-    #print("path: ", path)
+
+    ### from here on replace "srv6_sid" variable with "newsid"
+
 
     siddict = {}
-    siddict['srv6_sid'] = srv6_sid
+    siddict['srv6_sid'] = newsid
     path.append(siddict)
 
     ### SR MPLS processing
@@ -64,15 +82,15 @@ def ds_calc(src_id, dst_id, dst, user, pw, dbname, ctr, intf, dataplane, encap):
             'statusCode': 200,
             'source': src_id,
             'destination': dst_id,
-            'sid': srv6_sid,
+            'sid': newsid,
             'sr_label_stack': prefix_sid,
             'path': path
         }    
     #print("route_add parameters = sid: ", srv6_sid, "sr_label_stack: ", prefix_sid, "dest: ", dst, "intf: ", intf, "dataplane: ", dataplane)
     if dataplane == "linux":
-        route_add = add_route.add_linux_route(dst, srv6_sid, prefix_sid, intf, encap)
+        route_add = add_route.add_linux_route(dst, newsid, prefix_sid, intf, encap)
     if dataplane == "vpp":
-        route_add = add_route.add_vpp_route(dst, srv6_sid, prefix_sid, encap)
+        route_add = add_route.add_vpp_route(dst, newsid, prefix_sid, encap)
     pathobj = json.dumps(pathdict, indent=4)
     return(pathobj)
 
