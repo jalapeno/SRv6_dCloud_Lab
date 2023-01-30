@@ -27,5 +27,5 @@ print("""
 querying for sr nodes and writing to file 'nodes.json'
 """)
 nodesObj = json.dumps(nodes, indent=4)
-with open("nodes.json", "w") as outfile:
+with open("~/SRv6_dCloud_Lab/lab_6/python/nodes.json", "w") as outfile:
     outfile.write(nodesObj)

@@ -409,7 +409,7 @@ for x in sr_topology return { key: x._key, from: x._from, to: x._to, latency: x.
 3. Run the get_nodes.py script to get a listing of nodes in the network, their addresses, and SR/SRv6 SID data:
 ```
 python3 ~/SRv6_dCloud_Lab/lab_6/python/get_nodes.py
-cat nodes.json
+cat ~/SRv6_dCloud_Lab/lab_6/python/nodes.json
 ```
 
 ### Arango Graph traversals and shortest path queries
