@@ -1,14 +1,15 @@
-# Lab 3: BGP-LU over SR-MPLS
+# Lab 3: BGP-LU over SR-MPLS [Optional] [25 Min]
 
 ### Description: 
 In lab 3 the student will extend the routing topology to include sites Amsterdam and Rome. In addition BGP-LU/SR-MPLS will be used to create a baseline end to end routing between the two locations. With SR-MPLS the student will then use show commands and tools like TCPDump to validate how traffic is routed through the network. This is important as in later labs we will override the SR-MPLS behaviour with host-based SR and/or SRv6 encapsulations.
 
 
 ## Contents
-- [Lab 3: BGP-LU over SR-MPLS](#lab-3-bgp-lu-over-sr-mpls)
+- [Lab 3: BGP-LU over SR-MPLS \[Optional\] \[25 Min\]](#lab-3-bgp-lu-over-sr-mpls-optional-25-min)
     - [Description:](#description)
   - [Contents](#contents)
   - [Lab Objectives](#lab-objectives)
+  - [Bypass Lab 3 Validation](#bypass-lab-3-validation)
   - [Learn Default ISIS Path](#learn-default-isis-path)
   - [BGP Labeled Unicast (BGP-LU) over SR-MPLS Network Routing](#bgp-labeled-unicast-bgp-lu-over-sr-mpls-network-routing)
     - [Configure Remote Test Networks](#configure-remote-test-networks)
@@ -29,6 +30,10 @@ The student upon completion of Lab 3 should have achieved the following objectiv
 * End to end routing between Amsterdam and Rome
 * Diagnostic tools to validate path routing
 
+## Bypass Lab 3 Validation
+For this lab we can bypass the majority of lab 3 configuration steps and validation by bulk loading the configurations on the needed routers in the topology. If you wish as an optional lab you can go through each of the configuration/validation steps to gain a better understanding of SR-MPLS.
+
+For the Lab 3 bulk configuration page click [HERE](./lab_3_quick_config.md)
 
 ## Learn Default ISIS Path
 
