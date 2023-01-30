@@ -47,14 +47,20 @@ For full size image see [LINK](/topo_drawings/management-network.png)
 
 ### Launch and Validate XRD Topology
 1. SSH to the Ubuntu VM **XRD** where we will launch the XRd routers
-```
-ssh cisco@198.18.128.100
-```
+    ```
+    ssh cisco@198.18.128.100
+    ```
 
 2. Change to the Git repository directory
-    - The lab repository folder is found in the home directory ~/SRv6_dCloud_Lab/
+    - The lab repository folder is found in the home directory *`~/SRv6_dCloud_Lab/`*
+    ```
+    cd ~/SRv6_dCloud_Lab/
+    ```
 
 3. Validate there are no docker containers running or docker networks for the XRd topology
+    ```
+    docker ps
+    ```
     ```
     cisco@xrd:~/SRv6_dCloud_Lab/lab_1$ docker ps
     CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
@@ -68,12 +74,11 @@ ssh cisco@198.18.128.100
 4.  Run the setup script, which should clean up any existing XRd containers and docker networks, then launch the topology into the "beginning of lab 1" configuration state 
     - change to the lab_1 directory
     ```
-    cisco@xrd:~/SRv6_dCloud_Lab$ cd lab_1
-    cisco@xrd:~/SRv6_dCloud_Lab/lab_1$
+    cd lab_1
     ```
-    - run setup script
+    - run the XRd topology setup script
     ``` 
-    sudo ./setup-lab_1.sh
+    ./setup-lab_1.sh
     ```
     - Look for the below output from the end of the script confirming XRD instances 1-7 were created
     ```
@@ -89,6 +94,9 @@ ssh cisco@198.18.128.100
 
 5. Check that the docker containers were created and running
     ```
+    docker ps
+    ```
+    ```
     cisco@xrd:~/SRv6_dCloud_Lab/lab_1$ docker ps
     CONTAINER ID   IMAGE                            COMMAND                  CREATED              STATUS              PORTS     NAMES
     37960e0fea97   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd07
@@ -100,6 +108,9 @@ ssh cisco@198.18.128.100
     7d0436c26cc8   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd06
     ```
 6. Confirm the docker networks were created. 
+    ```
+    docker network ls
+    ```
     ```
     cisco@xrd:~/SRv6_dCloud_Lab/lab_1$ docker network ls
     NETWORK ID     NAME                  DRIVER    SCOPE
@@ -127,9 +138,12 @@ ssh cisco@198.18.128.100
     b48429454f4c   xrd06-gi0-xrd07-gi2   bridge    local
     84b7ddd7e018   xrd07-gi3             bridge    local
     ```
-Note the docker Network IDs are unique on creation. Docker's network/bridge naming logic is such that the actual Linux bridge instance names are not predictable. Rather than go through some re-naming process the lab setup script calls another small script 'nets.sh' that resolves the bridge name and writes it to a file that we'll use later for running tcpdump on the virtual links between routers in our topology.
+Note the docker Network IDs are unique on creation. Docker's network/bridge naming logic is such that the actual Linux bridge instance names are not predictable. Rather than go through some re-naming process the lab setup script calls another small script called 'nets.sh' that resolves the bridge name and writes it to a file that we'll use later for running tcpdump on the virtual links between routers in our topology.
 
  - The scripts and files reside in the lab 'util' directory:
+```
+ls ~/SRv6_dCloud_Lab/util/
+```
 ```
 cisco@xrd:~/SRv6_dCloud_Lab$ ls ~/SRv6_dCloud_Lab/util/
 nets.sh     xrd01-xrd02  xrd02-xrd03  xrd03-xrd04  xrd04-xrd07  xrd06-xrd07
@@ -138,27 +152,27 @@ tcpdump.sh  xrd01-xrd05  xrd02-xrd06  xrd04-xrd05  xrd05-xrd06
 ```
 Later we'll use "tcpdump.sh **xrd0x-xrd0y**" to capture packets along the path through the network. 
 
-7. The XRD router instances should be available for access 2 minutes after spin up.
+1. The XRD router instances should be available for SSH access 2 minutes after spin up.
 
 ### Validate Jalapeno VM
 The Ubuntu VM Jalapeno has Kubernetes pre-installed and running. Later in lab exercise 5 we will install the open-source Jalapeno application.
 
-Jalapeno will collect BGP Monitoring Protocol (BMP) and streaming telemetry data from the routers, and will serve as a data repository for the SDN clients we'll have running on the Amsterdam and Rome VMs (Labs 5-7).
+Jalapeno will collect BGP Monitoring Protocol (BMP) and streaming telemetry data from the routers, and will serve as a data repository for the SDN clients we'll have running on the Amsterdam and Rome VMs (Lab 7).
 
-1. Validate router reachability to Jalapeno VM (no need to check all routers, but will be good to validate **xrd01** , **xrd05**, **xrd06**, and **xrd07**):
+1. Validate router reachability to Jalapeno VM (no need to check all routers, but will be good to validate **xrd05** and **xrd06**):
+
 ```
-cisco@xrd:~$ ssh xrd01
-Warning: Permanently added 'xrd01,10.254.254.101' (ECDSA) to the list of known hosts.
+cisco@xrd:~$ ssh xrd05
+Warning: Permanently added 'xrd05,10.254.254.105' (ECDSA) to the list of known hosts.
 Password: 
-Last login: Fri Jan  6 21:45:12 2023 from 10.254.254.1
+Last login: Sun Jan 29 22:44:15 2023 from 10.254.254.1
 
-RP/0/RP0/CPU0:xrd01#ping 198.18.128.101
-Fri Jan  6 22:25:45.006 UTC
+RP/0/RP0/CPU0:xrd05#ping 198.18.128.101
+Mon Jan 30 23:22:17.371 UTC
 Type escape sequence to abort.
 Sending 5, 100-byte ICMP Echos to 198.18.128.101 timeout is 2 seconds:
 !!!!!
-Success rate is 100 percent (5/5), round-trip min/avg/max = 1/1/2 ms
-RP/0/RP0/CPU0:xrd01#
+Success rate is 100 percent (5/5), round-trip min/avg/max = 1/8/39 ms
 
 ```
 
@@ -445,19 +459,8 @@ For full size image see [LINK](/topo_drawings/bgp-topology-large.png)
 6. Verify the route-reflectors have received BGP-LS NLRIs from **xrd01** and **xrd07**:
     ```
     RP/0/RP0/CPU0:xrd05#show bgp link-state link-state sum
-    Tue Jan 10 21:49:40.069 UTC
-    BGP router identifier 10.0.0.5, local AS number 65000
-    BGP generic scan interval 60 secs
-    Non-stop routing is enabled
-    BGP table state: Active
-    Table ID: 0x0   RD version: 187
-    BGP main routing table version 187
-    BGP NSR Initial initsync version 1 (Reached)
-    BGP NSR/ISSU Sync-Group versions 0/0
-    BGP scan interval 60 secs
 
-    BGP is operating in STANDALONE mode.
-
+    ### output truncated ###
 
     Process       RcvTblVer   bRIB/RIB   LabelVer  ImportVer  SendTblVer  StandbyVer
     Speaker             187        187        187        187         187           0
@@ -465,60 +468,6 @@ For full size image see [LINK](/topo_drawings/bgp-topology-large.png)
     Neighbor        Spk    AS MsgRcvd MsgSent   TblVer  InQ OutQ  Up/Down  St/PfxRcd
     10.0.0.1          0 65000      55      21      187    0    0 00:18:49         93
     10.0.0.7          0 65000      55      21      187    0    0 00:18:16         93
-    ```
-
-7. Optional: display the entire BGP-LS table on the RRs:
-    ```
-    RP/0/RP0/CPU0:xrd05#show bgp link-state link-state
-    Tue Jan 10 21:50:37.406 UTC
-    BGP router identifier 10.0.0.5, local AS number 65000
-    BGP generic scan interval 60 secs
-    Non-stop routing is enabled
-    BGP table state: Active
-    Table ID: 0x0   RD version: 187
-    BGP main routing table version 187
-    BGP NSR Initial initsync version 1 (Reached)
-    BGP NSR/ISSU Sync-Group versions 0/0
-    BGP scan interval 60 secs
-
-    Status codes: s suppressed, d damped, h history, * valid, > best
-                i - internal, r RIB-failure, S stale, N Nexthop-discard
-    Origin codes: i - IGP, e - EGP, ? - incomplete
-    Prefix codes: E link, V node, T IP reacheable route, S SRv6 SID, u/U unknown
-                I Identifier, N local node, R remote node, L link, P prefix, S SID
-                L1/L2 ISIS level-1/level-2, O OSPF, D direct, S static/peer-node
-                a area-ID, l link-ID, t topology-ID, s ISO-ID,
-                c confed-ID/ASN, b bgp-identifier, r router-ID, s SID
-                i if-address, n nbr-address, o OSPF Route-type, p IP-prefix
-                d designated router address
-    Network            Next Hop            Metric LocPrf Weight Path
-    *>i[V][L2][I0x0][N[c65000][b0.0.0.0][s0000.0000.0001.00]]/328
-                        10.0.0.1                      100      0 i
-    * i                   10.0.0.7                      100      0 i
-    *>i[V][L2][I0x0][N[c65000][b0.0.0.0][s0000.0000.0002.00]]/328
-                        10.0.0.1                      100      0 i
-    * i                   10.0.0.7                      100      0 i
-    *>i[V][L2][I0x0][N[c65000][b0.0.0.0][s0000.0000.0003.00]]/328
-                        10.0.0.1                      100      0 i
-    * i                   10.0.0.7                      100      0 i
-    *>i[V][L2][I0x0][N[c65000][b0.0.0.0][s0000.0000.0004.00]]/328
-                        10.0.0.1                      100      0 i
-    * i                   10.0.0.7                      100      0 i
-    *>i[V][L2][I0x0][N[c65000][b0.0.0.0][s0000.0000.0005.00]]/328
-                        10.0.0.1                      100      0 i
-    * i                   10.0.0.7                      100      0 i
-    *>i[V][L2][I0x0][N[c65000][b0.0.0.0][s0000.0000.0006.00]]/328
-                        10.0.0.1                      100      0 i
-    * i                   10.0.0.7                      100      0 i
-    *>i[V][L2][I0x0][N[c65000][b0.0.0.0][s0000.0000.0007.00]]/328
-                        10.0.0.1                      100      0 i
-    * i                   10.0.0.7                      100      0 i
-    *>i[E][L2][I0x0][N[c65000][b0.0.0.0][s0000.0000.0001.00]][R[c65000][b0.0.0.0][s0000.0000.0002.00]][L[i10.1.1.0][n10.1.1.1]]/696
-                        10.0.0.1                      100      0 i
-    * i                   10.0.0.7                      100      0 i
-    *>i[E][L2][I0x0][N[c65000][b0.0.0.0][s0000.0000.0001.00]][R[c65000][b0.0.0.0][s0000.0000.0002.00]][L[i2001:1:1:1::][n2001:1:1:1::1][t0x0002]]/936
-    --More-- 
-    <<< output truncated >>>
     ```
 
 ## End of Lab 1
