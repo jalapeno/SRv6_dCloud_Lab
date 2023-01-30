@@ -133,6 +133,7 @@ SRv6 uSID locator and source address information for nodes in the lab:
           locator MyLocator
             micro-segment behavior unode psp-usd
             prefix fc00:0000:1111::/48
+       commit
     ```
 
 2. Enable SRv6 for ISIS Procotol. 
@@ -141,10 +142,14 @@ SRv6 uSID locator and source address information for nodes in the lab:
       address-family ipv6 unicast
          segment-routing srv6
            locator MyLocator
+       commit
     ```
   - Note: once you've configured one or two routers using the above steps, the full lab 2 configs for each router can be found [HERE](/lab_2/config/lab_2-configs.md) for quick copy-and-pasting
 
 3. Validation SRv6 configuration and reachability
+    ```
+    show segment-routing srv6 sid
+    ```
     ```
     RP/0/RP0/CPU0:xrd01#show segment-routing srv6 sid
 
@@ -162,6 +167,9 @@ SRv6 uSID locator and source address information for nodes in the lab:
 
     - Validate the SRv6 prefix-SID configuration. As example for xrd01 look for ```SID value: fc00:0000:1111::```
 
+    ```
+    show isis segment-routing srv6 locators detail 
+    ```
     ```
     RP/0/RP0/CPU0:xrd01#show isis segment-routing srv6 locators detail 
 
@@ -196,15 +204,17 @@ cd ~/SRv6_dCloud_Lab/util/
 ping 10.0.0.7 source lo0
 ping fc00:0000:7777::1 source lo0
 ```
-If nothing shows up on the tcpdump output try tcpdumping on the xrd02-xrd06 or xrd04-xrd05 link:
+If nothing shows up on the tcpdump output try tcpdumping on the xrd02-xrd06 OR xrd04-xrd05 link:
 Note: the ./tcpdump.sh break sequence is *`ctrl z`*
 ```
-./tcpdump.sh xrd02-xrd06
-./tcpdump.sh xrd04-xrd05
+sudo ./tcpdump.sh xrd02-xrd06
 ```
-Eventually pings should show up as tcpdump output. We should see SR-MPLS labels on IPv4 pings, something like this:
 ```
-cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd04-xrd05 
+sudo ./tcpdump.sh xrd04-xrd05
+```
+Eventually pings should show up as tcpdump output. We should see SR-MPLS labels on IPv4 pings, example output below:
+```
+cisco@xrd:~/SRv6_dCloud_Lab/util$sudo ./tcpdump.sh xrd04-xrd05 
 sudo tcpdump -ni br-1be0f9f81cbd
 tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
 listening on br-1be0f9f81cbd, link-type EN10MB (Ethernet), capture size 262144 bytes

@@ -279,6 +279,9 @@ ping fc00:0:107:1::1
 
 5. Validate adjacencies and traffic passing on each router. Use the topology diagram to determine neighbors. The client devices **Amsterdam** and **Rome** are not running CDP.
     ```
+    show cdp neighbors
+    ```
+    ```
     RP/0/RP0/CPU0:xrd05#show cdp neighbors 
     Wed Dec 21 18:16:57.657 UTC
     Capability Codes: R - Router, T - Trans Bridge, B - Source Route Bridge
