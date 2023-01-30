@@ -107,15 +107,15 @@ The Cisco IOS-XR 7.5 Configuration guide for SRv6 can be found here: [LINK](http
 
 SRv6 uSID locator and source address information for nodes in the lab:
 
-    | Router Name | Loopback Int|    Locator Prefix    |    Source-address    |                                           
-    |:------------|:-----------:|:--------------------:|:--------------------:|                          
-    | xrd01       | loopback 0  | fc00:0000:1111::/48  | fc00:0000:1111::1    |
-    | xrd02       | loopback 0  | fc00:0000:2222::/48  | fc00:0000:2222::1    |
-    | xrd03       | loopback 0  | fc00:0000:3333::/48  | fc00:0000:3333::1    |
-    | xrd04       | loopback 0  | fc00:0000:4444::/48  | fc00:0000:4444::1    |
-    | xrd05       | loopback 0  | fc00:0000:5555::/48  | fc00:0000:5555::1    |
-    | xrd06       | loopback 0  | fc00:0000:6666::/48  | fc00:0000:6666::1    |
-    | xrd07       | loopback 0  | fc00:0000:7777::/48  | fc00:0000:7777::1    |
+| Router Name | Loopback Int|    Locator Prefix    |    Source-address    |                                           
+|:------------|:-----------:|:--------------------:|:--------------------:|                          
+| xrd01       | loopback 0  | fc00:0000:1111::/48  | fc00:0000:1111::1    |
+| xrd02       | loopback 0  | fc00:0000:2222::/48  | fc00:0000:2222::1    |
+| xrd03       | loopback 0  | fc00:0000:3333::/48  | fc00:0000:3333::1    |
+| xrd04       | loopback 0  | fc00:0000:4444::/48  | fc00:0000:4444::1    |
+| xrd05       | loopback 0  | fc00:0000:5555::/48  | fc00:0000:5555::1    |
+| xrd06       | loopback 0  | fc00:0000:6666::/48  | fc00:0000:6666::1    |
+| xrd07       | loopback 0  | fc00:0000:7777::/48  | fc00:0000:7777::1    |
 
     
 ### Configuration Steps SRv6
