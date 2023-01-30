@@ -355,6 +355,7 @@ For full size image see [LINK](/topo_drawings/low-latency-path.png)
 
 1. Low latency SR service on Rome VM:
 ```
+cd /home/cisco/SRv6_dCloud_Lab/lab_7
 ./cleanup_rome_routes.sh 
 python3 jalapeno.py -f rome.json -e sr -s ll
 ping 10.101.2.1 -I 20.0.0.1 -i .3
