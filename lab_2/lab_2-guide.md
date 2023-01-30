@@ -216,13 +216,12 @@ sudo ./tcpdump.sh xrd02-xrd06
 sudo ./tcpdump.sh xrd04-xrd05
 ```
 Eventually pings should show up as tcpdump output. We should see SR-MPLS labels on IPv4 pings, example output below:
-<pre><code>
-cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd04-xrd05 
+<pre><code>cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd04-xrd05 
 sudo tcpdump -ni br-1be0f9f81cbd
 tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
 listening on br-1be0f9f81cbd, link-type EN10MB (Ethernet), capture size 262144 bytes
 21:56:27.732243 IS-IS, p2p IIH, src-id 0000.0000.0005, length 1497
-21:56:29.539521 MPLS (<mark>label 100007</mark>, exp 0, [S], ttl 254) IP 10.0.0.1 > 10.0.0.7: ICMP echo request, id 5699, seq 0, length 80
+21:56:29.539521 MPLS (<mark style="background-color: lightblue">label 100007</mark>, exp 0, [S], ttl 254) IP 10.0.0.1 > 10.0.0.7: ICMP echo request, id 5699, seq 0, length 80
 21:56:29.541126 MPLS (label 100001, exp 0, [S], ttl 254) IP 10.0.0.7 > 10.0.0.1: ICMP echo reply, id 5699, seq 0, length 80
 </code></pre>
 
