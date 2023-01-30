@@ -1,4 +1,4 @@
-# Lab 1 Guide: XRd Topology Setup and Validation
+# Lab 1 Guide: XRd Topology Setup and Validation   [30 Min]
 The Cisco Live LTRSPG-2212 lab makes heavy use of the relatively new Dockerized IOS-XR router known as XRd. If you wish to explore XRd and its uses beyond the scope of this lab the xrdocs team has posted a number of XRd tutorials here: https://xrdocs.io/virtual-routing/tags/#xrd-tutorial-series
 
 ### Description: 
@@ -6,7 +6,7 @@ In Lab 1 the student will launch the XRd topology and validate it is up and runn
 topology all subsequent lab exercises. Second, they will validate that the pre-configured ISIS and BGP routing protocols are running and seeing the correct topology. 
 
 ## Contents
-- [Lab 1 Guide: XRd Topology Setup and Validation](#lab-1-guide-xrd-topology-setup-and-validation)
+- [Lab 1 Guide: XRd Topology Setup and Validation   \[30 Min\]](#lab-1-guide-xrd-topology-setup-and-validation---30-min)
     - [Description:](#description)
   - [Contents](#contents)
   - [Lab Objectives](#lab-objectives)
@@ -230,7 +230,7 @@ ssh cisco@198.18.128.102
     ```
     sudo vppctl ping 10.101.1.2
     ```
-    
+
     ```
     cisco@amsterdam:~$ sudo vppctl ping 10.101.1.2
     116 bytes from 10.101.1.2: icmp_seq=1 ttl=255 time=2.7229 ms
