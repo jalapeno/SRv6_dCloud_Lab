@@ -44,22 +44,50 @@ def lu_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane, encap):
         sidlist += str(word) + ":"
     #print(sidlist)
 
+    ### From here we're going to get the end.dt localsid and add it to the uSID dest
+    locator = locators[-1]
+    print("egress node locator: ", locator)
+    locv = locator.replace(usid_block, '')
+    print("locv: ", locv)
+    locvar = "%" + locv
+    print(locvar)
+    locvar1 = locvar.replace("::", ":")
+    print(locvar1)
+    locvar2 = locvar1 + "%" 
+    print(locvar2)
+
+    cursor = db.aql.execute("""for x in srv6_local_sids \
+        filter x.fields.table_id == 3758096384 && x.fields.sid like """ + '"%s"' % locvar2 + """ return x.fields.sid """)
+    localsidlist = [doc for doc in cursor]
+    print("end.dt SID: ", localsidlist)
+    localsid = localsidlist[0]
+    enddt = localsid.replace(usid_block, '')
+    print(enddt)
+
+    ### this is from original
     srv6_sid = usid_block + sidlist + ipv6_separator
+
+    ### end.dt stuff
+    newsid = srv6_sid.replace(locv, enddt)
+    print("newsid: ", newsid)
+
+    ### Return to original code
     print("srv6 sid: ", srv6_sid)
 
+    ### from here on replace "srv6_sid" variable with "newsid"
     pathdict = {
             'statusCode': 200,
             'source': src_id,
             'destination': dst_id,
-            'sid': srv6_sid,
+            'sid': newsid,
             'path': path
         }
 
     #print("route_add parameters = sid: ", srv6_sid, "sr_label_stack: ", prefix_sid, "dest: ", dst, "intf: ", intf, "dataplane: ", dataplane)
     if dataplane == "linux":
-        route_add = add_route.add_linux_route(dst, srv6_sid, prefix_sid, intf, encap)
+        route_add = add_route.add_linux_route(dst, newsid, prefix_sid, intf, encap)
     if dataplane == "vpp":
-        route_add = add_route.add_vpp_route(dst, srv6_sid, prefix_sid, encap)
+        route_add = add_route.add_vpp_route(dst, newsid, prefix_sid, encap)
     pathobj = json.dumps(pathdict, indent=4)
     return(pathobj)
 
