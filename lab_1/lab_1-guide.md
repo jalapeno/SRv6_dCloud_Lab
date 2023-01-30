@@ -1,4 +1,4 @@
-# Lab 1 Guide: XRd Topology Setup and Validation   [30 Min]
+# Lab 1 Guide: XRd Topology Setup and Validation [30 Min]
 The Cisco Live LTRSPG-2212 lab makes heavy use of the relatively new Dockerized IOS-XR router known as XRd. If you wish to explore XRd and its uses beyond the scope of this lab the xrdocs team has posted a number of XRd tutorials here: https://xrdocs.io/virtual-routing/tags/#xrd-tutorial-series
 
 ### Description: 
@@ -6,7 +6,7 @@ In Lab 1 the student will launch the XRd topology and validate it is up and runn
 topology all subsequent lab exercises. Second, they will validate that the pre-configured ISIS and BGP routing protocols are running and seeing the correct topology. 
 
 ## Contents
-- [Lab 1 Guide: XRd Topology Setup and Validation   \[30 Min\]](#lab-1-guide-xrd-topology-setup-and-validation---30-min)
+- [Lab 1 Guide: XRd Topology Setup and Validation \[30 Min\]](#lab-1-guide-xrd-topology-setup-and-validation-30-min)
     - [Description:](#description)
   - [Contents](#contents)
   - [Lab Objectives](#lab-objectives)
@@ -46,7 +46,7 @@ User: cisco, Password: cisco123
 For full size image see [LINK](/topo_drawings/management-network.png)
 
 ### Launch and Validate XRD Topology
-1. SSH to the Ubuntu VM XRD where we will launch the XRd routers
+1. SSH to the Ubuntu VM **XRD** where we will launch the XRd routers
 ```
 ssh cisco@198.18.128.100
 ```
@@ -54,7 +54,7 @@ ssh cisco@198.18.128.100
 2. Change to the Git repository directory
     - The lab repository folder is found in the home directory ~/SRv6_dCloud_Lab/
 
-3. Validate there are no docker containers running or docker networks for XRD
+3. Validate there are no docker containers running or docker networks for **XRD**
     ```
     cisco@xrd:~/SRv6_dCloud_Lab/lab_1$ docker ps
     CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
@@ -85,7 +85,7 @@ ssh cisco@198.18.128.100
     Creating xrd07 ... done
     Creating xrd01 ... done
     ```
-    Look for status of `done` for each xrd 01 -> 07
+    Look for status of `done` for each **xrd 01 -> 07**
 
 5. Check that the docker containers were created and running
     ```
@@ -136,7 +136,7 @@ nets.sh     xrd01-xrd02  xrd02-xrd03  xrd03-xrd04  xrd04-xrd07  xrd06-xrd07
 tcpdump.sh  xrd01-xrd05  xrd02-xrd06  xrd04-xrd05  xrd05-xrd06
 
 ```
-Later we'll use "tcpdump.sh xrd0x-xrd0y" to capture packets along the path through the network. 
+Later we'll use "tcpdump.sh **xrd0x-xrd0y**" to capture packets along the path through the network. 
 
 7. The XRD router instances should be available for access 2 minutes after spin up.
 
@@ -145,7 +145,7 @@ The Ubuntu VM Jalapeno has Kubernetes pre-installed and running. Later in lab ex
 
 Jalapeno will collect BGP Monitoring Protocol (BMP) and streaming telemetry data from the routers, and will serve as a data repository for the SDN clients we'll have running on the Amsterdam and Rome VMs (Labs 5-7).
 
-1. Validate router reachability to Jalapeno VM (no need to check all routers, but will be good to validate xrd01, 05, 06, and 07):
+1. Validate router reachability to Jalapeno VM (no need to check all routers, but will be good to validate **xrd01** , **xrd05**, **xrd06**, and **xrd07**):
 ```
 cisco@xrd:~$ ssh xrd01
 Warning: Permanently added 'xrd01,10.254.254.101' (ECDSA) to the list of known hosts.
@@ -267,17 +267,17 @@ ssh cisco@xrd01
     GigabitEthernet0/0/0/2         10.1.1.8        Up              Up       default 
     GigabitEthernet0/0/0/3         unassigned      Shutdown        Down     default
     ```
-3. Validate IPv6 connectivity from xrd01 to Amsterdam VM: 
+3. Validate IPv6 connectivity from **xrd01** to **Amsterdam**VM: 
 ```
 ping fc00:0:101:1::1
 ```
 
-4. SSH to xrd07 and validate IPv6 connectivity to the Rome VM: 
+4. SSH to **xrd07** and validate IPv6 connectivity to the **Rome** VM: 
 ```
 ping fc00:0:107:1::1
 ```
 
-5. Validate adjacencies and traffic passing on each router. Use the topology diagram to determine neighbors. The client devices Amsterdam and Rome are not running CDP.
+5. Validate adjacencies and traffic passing on each router. Use the topology diagram to determine neighbors. The client devices **Amsterdam** and **Rome** are not running CDP.
     ```
     RP/0/RP0/CPU0:xrd05#show cdp neighbors 
     Wed Dec 21 18:16:57.657 UTC
@@ -292,7 +292,7 @@ ping fc00:0:107:1::1
 
 ## Validate ISIS Topology
 
-In this lab we are using ISIS as the underlying IGP to establish link connectivity across routers xrd01 -> xrd07. ISIS has basic settings pre-configured at startup in lab 1. The student will want to confirm that they see a full ISIS topology.
+In this lab we are using ISIS as the underlying IGP to establish link connectivity across routers **xrd01** -> **xrd07**. ISIS has basic settings pre-configured at startup in lab 1. The student will want to confirm that they see a full ISIS topology.
 
 ![ISIS Topology](/topo_drawings/isis-topology-medium.png)
 
@@ -332,7 +332,7 @@ The Cisco IOS-XR 7.5 Configuration guide for SR and ISIS can be found here: [LIN
     xrd06              2         xrd02              Gi0/0/0/0       *PtoP*        
     xrd07              2         xrd04              Gi0/0/0/1       *PtoP* 
     ```
-3. On xrd01 validate end-to-end ISIS reachability:
+3. On **xrd01** validate end-to-end ISIS reachability:
 ```
 ping 10.0.0.7 source lo0
 ping fc00:0000:7777::1 source lo0
@@ -346,7 +346,7 @@ ping fc00:0000:7777::1 source lo0
 
 ## Validate BGP Topology
 
-In lab 1 BGP is only exchanging IPv6 prefixes and BGP-LS data. We will setup IPv4 labeled-unicast and SRv6-L3VPN in later lab exercises. In the topology we are running a single ASN 65000 with BGP running on xrd01, xrd05, xrd06, xrd07.  Routers xrd05 and xrd06 are functioning as route reflectors and xrd01 and xrd07 are clients. The student will want to confirm that they see a full BGP topology.
+In lab 1 BGP is only exchanging IPv6 prefixes and BGP-LS data. We will setup IPv4 labeled-unicast and SRv6-L3VPN in later lab exercises. In the topology we are running a single ASN 65000 with BGP running on **xrd01**, xrd05, xrd06, xrd07.  Routers xrd05 and xrd06 are functioning as route reflectors and xrd01 and xrd07 are clients. The student will want to confirm that they see a full BGP topology.
 
 ![BGP Topology](/topo_drawings/bgp-topology-medium.png)
 
