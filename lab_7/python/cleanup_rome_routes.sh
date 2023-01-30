@@ -25,4 +25,4 @@ result=$(bash -c 'sudo ip route del 10.0.0.1/32 encap mpls 100006/100005/100001 
 result=$(bash -c 'sudo ip route del 10.0.0.1/32 encap mpls 100004/100003/100002/100001 via 10.107.1.2 dev ens192' 2>&1)
 result=$(bash -c 'sudo ip route del 10.0.0.1/32 encap mpls 100004/100005/100001 via 10.107.1.2 dev ens192' 2>&1)
 result=$(bash -c 'sudo ip route del 10.0.0.1/32 encap mpls 100003/100001 via 10.107.1.2 dev ens192' 2>&1)
-echo "Route cleanpu complete"
+echo "Route cleanup complete"
