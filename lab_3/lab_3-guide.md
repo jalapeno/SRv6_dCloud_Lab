@@ -69,7 +69,7 @@ The location Rome has the network 20.0.0.0/24 which we will advertise via BGP-LU
 
 We will also advertise a pair of Amsterdam networks from **xrd01**: VPP-outside 10.101.1.0/24 and **Amsterdam** VM "ams-out" 10.101.2.0/24. We validated **xrd01** reachability to these networks earlier in Lab 1. 
 
-[SR-MPLS Topology](/topo_drawings/sr-mpls-medium.png)
+![SR-MPLS Topology](/topo_drawings/sr-mpls-medium.png)
 For full size image see [LINK](/topo_drawings/sr-mpls-large.png)
 
 ### Enable BGP Labeled Unicast

@@ -42,14 +42,14 @@ SRv6-based L3VPN functionality interconnects multiple sites to resemble a privat
 
 In this lab the BGP SID will be allocated in per-VRF mode and provides End.DT4 or End.DT6 support. End.DT4/6 represents the Endpoint with decapsulation and IPv4 or v6 table lookup.
 
-https://datatracker.ietf.org/doc/html/rfc8986#name-enddt6-decapsulation-and-sp
+For more details on the End.DT6 standard see this [LINK](https://datatracker.ietf.org/doc/html/rfc8986#name-enddt6-decapsulation-and-sp)
 
 BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4/6 L3VPN Network Layer Reachability Information (NLRI) and advertises it to IPv6 peering over an SRv6 network. The Ingress PE (provider edge) router encapsulates the VRF IPv4/6 traffic with the SRv6 VPN SID and sends it over the SRv6 network.
 
 For more details on SRv6 please see this [LINK](/SRv6.md)
 
   ### Configure VRF
-  This lab will use the VRF *carrots* for IPv4 and IPv6 vpn. The *carrots* vrf needs to be only configured on the two edge routers in our SP network: xrd01 and xrd07. Intermediate routers do not need to be vrf aware and are instead forwarding on the SRv6 data plane.
+  This lab will use the VRF *carrots* for IPv4 and IPv6 vpn. The *carrots* vrf is configured only on the two edge routers in our SP network: **xrd01** and **xrd07**. Intermediate routers do not need to be vrf aware and are instead forwarding on the SRv6 data plane.
 
   Configure the VRF on **xrd01** and **xrd07**:
 
@@ -66,10 +66,12 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
       9:9
       export route-target
       9:9
+
+    commit
   ```
 
   ### Add VRF to router interfaces for L3VPN
-  Now that our vrf *carrots* has been created lets get the vrf added to the applicable interfaces. For xrd01 we will use  interface *GigabitEthernet0/0/0/3* which connects to Amsterdam over link *M*. For xrd07 we will use interface *GigabitEthernet0/0/0/3* which connects to Rome over link *K*.
+  Now that our vrf *carrots* has been created lets get the vrf added to the applicable interfaces. For **xrd01** we will use  interface *GigabitEthernet0/0/0/3* which connects to Amsterdam over link *M*. For **xrd07** we will use interface *GigabitEthernet0/0/0/3* which connects to Rome over link *K*.
 
  1. Add VRF to interfaces
 
@@ -80,6 +82,7 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
       ipv4 address 10.101.3.2 255.255.255.0
       ipv6 address fc00:0:101:3::2/64
       no shutdown
+    commit
     ```
 
     **xrd07**  
@@ -89,11 +92,12 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
       ipv4 address 10.107.2.2 255.255.255.0
       ipv6 address fc00:0:107:2::2/64
       no shutdown
+    commit
     ```
 
 
  2. Add VRF static routes  
-     In addition to configuring *GigabitEthernet0/0/0/3* to be a member of VRF carrots, xrd07 will need a pair of static routes for reachability to Rome's "40" and "50" network prefixes:  
+     In addition to configuring *GigabitEthernet0/0/0/3* to be a member of VRF carrots, **xrd07** will need a pair of static routes for reachability to **Rome's** "40" and "50" network prefixes:  
     **xrd07**
     ```
     router static
@@ -104,6 +108,7 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
         address-family ipv6 unicast
           fc00:0:40::/64 fc00:0:107:2::1
           fc00:0:50::/64 fc00:0:107:2::1
+        commit
     ```
 
 3. Verify Rome VRF prefix reachability  
