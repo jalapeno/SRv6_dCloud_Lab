@@ -4,16 +4,21 @@
 In lab 4 we will establish a Layer-3 VPN named "carrots" which will use SRv6 transport and will have endpoints on xrd01, and xrd07. Both nodes' gi 0/0/0/3 interfaces will be added to the VRF as they connect to secondary NICs on the Amsterdam and Rome VMs respectively. Once the L3VPN is established and has run some test traffic we will then setup SRv6-TE traffic steering from Amsterdam to specific Rome prefixes.
 
 ## Contents
-1. [Lab Objectives](#lab-objectives)
-2. [SRv6 L3VPN](#configure-srv6-l3vpn)
+- [Lab 4: Configure SRv6-L3VPN and perform SRv6-TE steering of L3VPN prefixes](#lab-4-configure-srv6-l3vpn-and-perform-srv6-te-steering-of-l3vpn-prefixes)
+    - [Description](#description)
+  - [Contents](#contents)
+  - [Lab Objectives](#lab-objectives)
+  - [Configure SRv6 L3VPN](#configure-srv6-l3vpn)
     - [Configure VRF](#configure-vrf)
-    - [Add VRF to Router Interfaces](#add-vrf-to-router-interfaces-for-l3vpn)
+    - [Add VRF to router interfaces for L3VPN](#add-vrf-to-router-interfaces-for-l3vpn)
     - [Configure BGP L3VPN Peering](#configure-bgp-l3vpn-peering)
-    - [Validate SRv6 L3VPN](#validate-srv6-l3vpn)
-3. [Configure SRv6-TE steering for L3VPN](#configure-srv6-te-steering-for-l3vpn)
-4. [Validate SRv6-TE steering of L3VPN traffic](#validate-srv6-te-steering-of-l3vpn-traffic)
-    - [Create TE Steering Policy](#reate-testeering-policy)
-    - [Validate TE Policy](#validate-te-policy)
+  - [Validate SRv6 L3VPN](#validate-srv6-l3vpn)
+  - [Configure SRv6-TE steering for L3VPN](#configure-srv6-te-steering-for-l3vpn)
+    - [Create TE steering policy](#create-te-steering-policy)
+    - [Validate SRv6-TE steering of L3VPN traffic](#validate-srv6-te-steering-of-l3vpn-traffic)
+      - [Validate bulk traffic takes the non-shortest path: xrd01 -\> 02 -\> 03 -\> 04 -\> 07](#validate-bulk-traffic-takes-the-non-shortest-path-xrd01---02---03---04---07)
+      - [Validate low latency traffic takes the path: xrd01 -\> 05 -\> 06 -\> 07](#validate-low-latency-traffic-takes-the-path-xrd01---05---06---07)
+    - [End of Lab 4](#end-of-lab-4)
 
 ## Lab Objectives
 The student upon completion of Lab 4 should have achieved the following objectives:
@@ -349,6 +354,8 @@ segment-routing
 4. On xrd01 configure our bulk transport and low latency SRv6 steering policies. Low latency traffic will be forced over the xrd01-05-06-07 path, and bulk transport traffic will take the longer xrd01-02-03-04-07 path:
 **xrd01**
 ```
+segment-routing
+ traffic-eng
   policy bulk-transfer
    srv6
     locator MyLocator binding-sid dynamic behavior ub6-insert-reduced
