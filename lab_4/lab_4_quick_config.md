@@ -9,19 +9,60 @@
 ```
 conf t
 
-router bgp 65000
+vrf carrots
  address-family ipv4 unicast
-  network 10.101.1.0/24
-  network 10.101.2.0/24
-  allocate-label all
+  import route-target
+   9:9
+  !
+  export route-target
+   9:9
+  !
  !
- neighbor-group xrd-ipv4-peer
-  address-family ipv4 labeled-unicast
+ address-family ipv6 unicast
+  import route-target
+   9:9
+  !
+  export route-target
+   9:9
+  !
+ !
+!
+interface GigabitEthernet0/0/0/3
+ vrf carrots
+ ipv4 address 10.101.3.2 255.255.255.0
+ ipv6 address fc00:0:101:3::2/64
+ no shutdown
+!
+router bgp 65000
+ neighbor-group xrd-ipv6-peer
+  address-family vpnv4 unicast
+   next-hop-self
+  !
+  address-family vpnv6 unicast
    next-hop-self
   !
  !
 !
+ vrf carrots
+  rd auto
+  address-family ipv4 unicast
+   segment-routing srv6
+    locator MyLocator
+    alloc mode per-vrf
+   !
+   redistribute connected
+  !
+  address-family ipv6 unicast
+   segment-routing srv6
+    locator MyLocator
+    alloc mode per-vrf
+   !
+   redistribute connected
+  !
+ !
+!
 commit
+
 ```
 
 ## xrd05
@@ -29,13 +70,17 @@ commit
 conf t
 
 router bgp 65000
- neighbor-group xrd-ipv4-peer
-  address-family ipv4 labeled-unicast
+ neighbor-group xrd-ipv6-peer
+  address-family vpnv4 unicast
+   route-reflector-client
+  !
+  address-family vpnv6 unicast
    route-reflector-client
   !
  !
 !
 commit
+
 ```
 
 ## xrd06
@@ -43,30 +88,90 @@ commit
 conf t
 
 router bgp 65000
- neighbor-group xrd-ipv4-peer
-  address-family ipv4 labeled-unicast
+ neighbor-group xrd-ipv6-peer
+  address-family vpnv4 unicast
+   route-reflector-client
+  !
+  address-family vpnv6 unicast
    route-reflector-client
   !
  !
 !
 commit
+
 ```
 
 ## xrd07
 ```
 conf t
 
-router bgp 65000
+vrf carrots
  address-family ipv4 unicast
-  network 20.0.0.0/24
-  network 30.0.0.0/24
-  allocate-label all
+  import route-target
+   9:9
+  !
+  export route-target
+   9:9
+  !
  !
- neighbor-group xrd-ipv4-peer
-  address-family ipv4 labeled-unicast
+ address-family ipv6 unicast
+  import route-target
+   9:9
+  !
+  export route-target
+   9:9
+  !
+ !
+!
+interface GigabitEthernet0/0/0/3
+ vrf carrots
+ ipv4 address 10.107.2.2 255.255.255.0
+ ipv6 address fc00:0:107:2::2/64
+ no shutdown
+!
+router static
+ vrf carrots
+  address-family ipv4 unicast
+   40.0.0.0/24 10.107.2.1
+   50.0.0.0/24 10.107.2.1
+  !       
+  address-family ipv6 unicast
+   fc00:0:40::/64 fc00:0:107:2::1
+   fc00:0:50::/64 fc00:0:107:2::1
+  !
+ !
+!
+router bgp 65000
+ neighbor-group xrd-ipv6-peer
+  address-family vpnv4 unicast
+   next-hop-self
+  !
+  address-family vpnv6 unicast
    next-hop-self
   !
  !
 !
+router bgp 65000
+ vrf carrots
+  rd auto
+  address-family ipv4 unicast
+   segment-routing srv6
+    locator MyLocator
+    alloc mode per-vrf
+   !
+   redistribute connected
+   redistribute static
+  !
+  address-family ipv6 unicast
+   segment-routing srv6
+    locator MyLocator
+    alloc mode per-vrf
+   !
+   redistribute connected
+   redistribute static
+  !
+ !
+!
 commit
+
 ```
