@@ -115,6 +115,7 @@ For additional help on Kafka see this external CLI cheat sheet [HERE](https://me
     gobmp.parsed.unicast_prefix_v6
     gobmp.parsed.unicast_prefix_v6_events
     jalapeno.ls_node_edge_events
+    jalapeno.srv6
     jalapeno.telemetry
     ```
 

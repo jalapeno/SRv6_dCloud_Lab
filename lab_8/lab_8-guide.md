@@ -13,7 +13,6 @@ The host-based SR/SRv6 encap/decap could be executed at the Linux networking lay
   - [Description](#description)
 - [Contents](#contents)
 - [Lab Objectives](#lab-objectives)
-- [Harvest SRv6 End.DT data into Arango](#harvest-srv6-enddt-data-into-arango)
 - [Enable XRd forwarding of SR-MPLS traffic coming from Linux hosts](#enable-xrd-forwarding-of-sr-mpls-traffic-coming-from-linux-hosts)
 - [Rome VM: Segment Routing \& SRv6 on Linux](#rome-vm-segment-routing--srv6-on-linux)
   - [Preliminary steps for SR/SRv6 on Rome VM](#preliminary-steps-for-srsrv6-on-rome-vm)
@@ -51,35 +50,8 @@ pip install python-arango
 pip3 install --upgrade requests
 ```
 
-## Harvest SRv6 End.DT data into Arango
-This is a workaround set of steps to workaround the fact that XRd 7.8.1 does not yet support DT4/6 functions on SRv6 Locator USD packets.
 
-1. Configure streaming telemety on xrd01 and xrd07 using [this config](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/lab7/lab_8/mdt.cfg)
-
-2. On Jalapeno VM replace the Telegraf collector:
-
-```
-kubectl delete -f ~/jalapeno/install/collectors/telegraf-ingress/telegraf_ingress_cfg.yaml
-kubectl delete -f ~/jalapeno/install/collectors/telegraf-ingress/telegraf_ingress_svc_np.yaml 
-kubectl delete -f ~/jalapeno/install/collectors/telegraf-ingress/telegraf_ingress_dp.yaml 
-
-kubectl create -f ~/SRv6_dCloud_Lab/lab_8/telegraf_ingress_cfg.yaml
-kubectl create -f ~/jalapeno/install/collectors/telegraf-ingress/telegraf_ingress_svc_np.yaml 
-kubectl create -f ~/jalapeno/install/collectors/telegraf-ingress/telegraf_ingress_dp.yaml 
-```
-
-3. Verify Telegraf ingress pod is running:
-```
-kubectl get pods -n jalapeno-collectors
-```
-```
-cisco@jalapeno:~/SRv6_dCloud_Lab/lab_8/srv6-localsids/localsids$ kubectl get pods -n jalapeno-collectors
-NAME                                           READY   STATUS    RESTARTS        AGE
-gobmp-5db68bd644-2t6s7                         1/1     Running   9 (5h21m ago)   6d6h
-telegraf-ingress-deployment-5b456574dc-ft4xm   1/1     Running   0               11s
-```
-
-4. Deploy the srv6-localsids-processor
+1. Deploy the srv6-localsids-processor
 ```
 cd ~/SRv6_dCloud_Lab/lab_8/python/
 python3 srv6-localsids-processor.py
@@ -107,8 +79,8 @@ document added:  xrd07_fc00:0:7777:e005::
 document added:  xrd07_fc00:0:7777:e006::
 document added:  xrd07_fc00:0:7777:e007::
 ```
-5. Check that Arango as an *`srv6_local_sids`* data collection, and that it is populated
-6. you can now kill the processor with ctrl-c. It'll kick out python errors, but no worries...
+1. Check that Arango as an *`srv6_local_sids`* data collection, and that it is populated
+2. you can now kill the processor with ctrl-c. It'll kick out python errors, but no worries...
 
 
 ## Enable XRd forwarding of SR-MPLS traffic coming from Linux hosts

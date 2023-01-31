@@ -268,7 +268,7 @@ default via 198.18.128.1 dev ens160 proto static
 10.0.0.0/24 via 10.107.1.2 dev ens192 proto static 
 10.1.1.0/24 via 10.107.1.2 dev ens192 proto static 
 10.101.1.0/24 via 10.107.1.2 dev ens192 proto static 
-10.101.2.0/24  encap seg6 mode encap segs 1 [ fc00:0:6666:2222:1111:: ] dev ens192 scope link  <------------
+10.101.2.0/24  encap seg6 mode encap segs 1 [ fc00:0:6666:2222:1111:: ] dev ens192 scope link     <--------HERE
 10.101.3.0/24 via 10.107.2.2 dev ens224 proto static 
 10.107.1.0/24 dev ens192 proto kernel scope link src 20.0.0.1 
 10.107.2.0/24 dev ens224 proto kernel scope link src 10.107.2.1 
