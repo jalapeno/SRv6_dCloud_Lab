@@ -435,13 +435,13 @@ Reference this document on the shortest path algorithim in AQL [HERE](https://ww
        srv6sid: v.srv6_sid }
    ```
 
-   3. Run a shortest path query from source prefix (Amsterdam) to destination prefix (Rome):
+   3. Run a shortest path query from source prefix (Amsterdam) to destination prefix (Rome), include hop by hop latency:
    ```
     for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7'
         sr_topology return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, 
         srv6sid: v.srv6_sid, latency: e.latency }
    ```
-   4. Query for the return path:
+   4. Query for the return path, include hop by hop latency:
    ```
    for v, e in outbound shortest_path 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' TO 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1'
        sr_topology return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, 
@@ -457,13 +457,13 @@ Reference this document on the shortest path algorithim in AQL [HERE](https://ww
    ```
    for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
        sr_topology OPTIONS {weightAttribute: 'latency' } 
-       return  { prefix: v.prefix, name: v.name, sid: e.srv6_sid, latency: e.latency }
+       return  { prefix: v.prefix, name: v.name, prefix_sid: v.prefix_sid, srv6sid: e.srv6_sid, latency: e.latency }
    ```
    #### Lowest latency return path:
    ```
    for v, e in outbound shortest_path 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' TO 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' 
        sr_topology OPTIONS {weightAttribute: 'latency' } 
-       return { prefix: v.prefix, name: v.name, sid: e.srv6_sid, latency: e.latency }
+       return { prefix: v.prefix, name: v.name, prefix_sid: v.prefix_sid, srv6sid: e.srv6_sid, latency: e.latency }
    ```
 ### Graph Traversals
 A traversal starts at one specific document (startVertex) and follows all edges connected to this document. For all documents (vertices) that are targeted by these edges it will again follow all edges connected to them and so on. It is possible to define how many of these follow iterations should be executed at least (min depth) and at most (max depth). Or in network-engineer-speak "fewest hops" and "most hops"
