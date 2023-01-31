@@ -247,33 +247,32 @@ Save the file and re-run the script. You should see 8 total path options in the 
 ### Least Utilized Path
 Many segment routing and other SDN solutions focus on the low latency path as their primary use case. We absolutely feel low latency is an important network service, especially for real time applications. However, we believe one of the use cases which deliver the most bang for the buck is "Least Utilized Path". The idea behind this use case is that the routing protocol's chosen best path is usually *The Best Path*. Thus the *Least Utilized* service looks to steer lower priority traffic (backups, content replication, etc.) to lesser used paths and preserve the routing protocol's best path for higher priority traffic.
 
-1. Cleanup any stale routes on the VM and execute the least utilized path service with SR encapsulation
-``` 
+
+1. Cleanup Rome's routes and execute the least utilized path service with SRv6 encapsulation
+```
 ./cleanup_rome_routes.sh 
-python3 jalapeno.py -f rome.json -e sr -s lu
+python3 jalapeno.py -f rome.json -e srv6 -s lu
 ```
- - The client's command line output should display the new route in the routing table:
+Expected console output:
 ```
-cisco@rome:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f rome.json -e sr -s lu
+cisco@rome:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f rome.json -e srv6 -s lu
 src data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'src_peer': '10.0.0.7'}]
 dest data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'dst_peer': '10.0.0.1'}]
 Least Utilized Service
 locators:  ['fc00:0:6666::', 'fc00:0:2222::', 'fc00:0:1111::']
 prefix_sids:  [100006, 100002, 100001]
 srv6 sid:  fc00:0:6666:2222:1111::
-adding linux SR route: ip route add 10.101.2.0/24 encap mpls 100006/100002/100001 via 10.107.1.2 dev ens192
-RTNETLINK answers: File exists
-show linux route table: 
+adding linux SRv6 route: ip route add 10.101.2.0/24 encap seg6 mode encap segs fc00:0:6666:2222:1111:: dev ens192
+Show Linux Route Table: 
 default via 198.18.128.1 dev ens160 proto static 
 10.0.0.0/24 via 10.107.1.2 dev ens192 proto static 
 10.1.1.0/24 via 10.107.1.2 dev ens192 proto static 
 10.101.1.0/24 via 10.107.1.2 dev ens192 proto static 
-10.101.2.0/24  encap mpls  100006/100002/100001 via 10.107.1.2 dev ens192    <------------
-10.101.2.0/24 via 10.107.1.2 dev ens192 proto static 
+10.101.2.0/24  encap seg6 mode encap segs 1 [ fc00:0:6666:2222:1111:: ] dev ens192 scope link  <------------
 10.101.3.0/24 via 10.107.2.2 dev ens224 proto static 
 10.107.1.0/24 dev ens192 proto kernel scope link src 20.0.0.1 
 10.107.2.0/24 dev ens224 proto kernel scope link src 10.107.2.1 
-198.18.128.0/18 dev ens160 proto kernel scope link src 198.18.128.103  
+198.18.128.0/18 dev ens160 proto kernel scope link src 198.18.128.103 
 ```
 
 2. Check log output and linux ip route:
@@ -324,34 +323,36 @@ listening on br-07e02174172b, link-type EN10MB (Ethernet), capture size 262144 b
 23:19:39.667534 MPLS (label 100007, exp 0, ttl 61) (label 24009, exp 0, [S], ttl 62) IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 11, seq 768, length 64
 ```
 
-6. Cleanup Rome's routes and execute the least utilized path service with SRv6 encapsulation
-```
+6. Optional: run the least utilized path service with SR encapsulation
+``` 
 ./cleanup_rome_routes.sh 
-python3 jalapeno.py -f rome.json -e srv6 -s lu
+python3 jalapeno.py -f rome.json -e sr -s lu
 ```
-Expected console output:
+ - The client's command line output should display the new route in the routing table:
 ```
-cisco@rome:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f rome.json -e srv6 -s lu
+cisco@rome:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f rome.json -e sr -s lu
 src data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'src_peer': '10.0.0.7'}]
 dest data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'dst_peer': '10.0.0.1'}]
 Least Utilized Service
 locators:  ['fc00:0:6666::', 'fc00:0:2222::', 'fc00:0:1111::']
 prefix_sids:  [100006, 100002, 100001]
 srv6 sid:  fc00:0:6666:2222:1111::
-adding linux SRv6 route: ip route add 10.101.2.0/24 encap seg6 mode encap segs fc00:0:6666:2222:1111:: dev ens192
-Show Linux Route Table: 
+adding linux SR route: ip route add 10.101.2.0/24 encap mpls 100006/100002/100001 via 10.107.1.2 dev ens192
+RTNETLINK answers: File exists
+show linux route table: 
 default via 198.18.128.1 dev ens160 proto static 
 10.0.0.0/24 via 10.107.1.2 dev ens192 proto static 
 10.1.1.0/24 via 10.107.1.2 dev ens192 proto static 
 10.101.1.0/24 via 10.107.1.2 dev ens192 proto static 
-10.101.2.0/24  encap seg6 mode encap segs 1 [ fc00:0:6666:2222:1111:: ] dev ens192 scope link  <------------
+10.101.2.0/24  encap mpls  100006/100002/100001 via 10.107.1.2 dev ens192    <------------
+10.101.2.0/24 via 10.107.1.2 dev ens192 proto static 
 10.101.3.0/24 via 10.107.2.2 dev ens224 proto static 
 10.107.1.0/24 dev ens192 proto kernel scope link src 20.0.0.1 
 10.107.2.0/24 dev ens224 proto kernel scope link src 10.107.2.1 
-198.18.128.0/18 dev ens160 proto kernel scope link src 198.18.128.103 
+198.18.128.0/18 dev ens160 proto kernel scope link src 198.18.128.103  
 ```
 
-7. Repeat, or just spot-check the ping and tcpdump steps describe in 3 - 5
+7. Optional: repeat, or just spot-check the ping and tcpdump steps described in 3 - 5
 
 ### Low Latency Path
 The Low Latency Path service will calculate an SR/SRv6 encapsulation instruction for sending traffic over the lowest latency path from a source to a given destination. The procedure for testing/running the Low Latency Path service is the same as the one we followed with Least Utilized Path. 
