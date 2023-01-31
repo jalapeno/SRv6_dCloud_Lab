@@ -18,7 +18,6 @@ In lab 3 the student will extend the routing topology to include sites Amsterdam
     - [Validate BGP routes](#validate-bgp-routes)
       - [The next section uses the following validation commands:](#the-next-section-uses-the-following-validation-commands)
     - [Validate end to end connectivity](#validate-end-to-end-connectivity)
-    - [Amsterdam to Rome Test using iPerf](#amsterdam-to-rome-test-using-iperf)
     - [End of Lab 3](#end-of-lab-3)
   
 
@@ -45,7 +44,7 @@ In referencing the ISIS topology diagram below we will examine the routing table
 
 For full size image see [LINK](/topo_drawings/isis-ecmp-large.png)
 
-What we are looking for is xrd07 route 10.0.0.7/32 (Lo0) advertised through ISIS. Seeing the routing table below you will see that xrd01 has two ECMP equal cost paths to both next hops xrd02 and xrd05. So for normal flows traffic passing through xrd01 for networks sourced from xrd07 will get ECMP hashed. In the below command output you can see the two next hop routes installed into the routing table.
+What we are looking for is xrd07 route 10.0.0.7/32 (Lo0) advertised through ISIS. Seeing the routing table below you will see that xrd01 has two ECMP equal cost paths to both next hops **xrd02** and **xrd05**. So for normal flows traffic passing through **xrd01** for networks sourced from xrd07 will get ECMP hashed. In the below command output you can see the two next hop routes installed into the routing table.
 
   ```
     RP/0/RP0/CPU0:xrd01#show ip route 10.0.0.7/32
@@ -66,9 +65,9 @@ First we are going to need networks that are advertised through BGP-LU over the 
 For further reference the Cisco IOS-XR 7.5 Configuration guide for SR and BGP can be found here: [LINK](https://www.cisco.com/c/en/us/td/docs/iosxr/cisco8000/segment-routing/75x/b-segment-routing-cg-cisco8000-75x/configuring-segment-routing-for-bgp.html)
 
 ### Configure Remote Test Networks
-The location Rome has the network 20.0.0.0/24 which we will advertise via BGP-LU on router xrd07. First log into xrd07 and validate that you can reach network 20.0.0.0/24 by pinging the ip address 20.0.0.1/24 in Rome. Once you have confirmed connectivity across the Rome metro link xrd07 gi 0/0/0/0 head to the next step.
+The location Rome has the network 20.0.0.0/24 which we will advertise via BGP-LU on router **xrd07**. First log into **xrd07** and validate that you can reach network 20.0.0.0/24 by pinging the ip address 20.0.0.1/24 in Rome. Once you have confirmed connectivity across the Rome metro link **xrd07** gi 0/0/0/0 head to the next step.
 
-We will also advertise a pair of Amsterdam networks from xrd01: VPP-outside 10.101.1.0/24 and Amsterdam-VM "ams-out" 10.101.2.0/24. We validated xrd01 reachability to these networks earlier in lab 1. 
+We will also advertise a pair of Amsterdam networks from **xrd01**: VPP-outside 10.101.1.0/24 and **Amsterdam** VM "ams-out" 10.101.2.0/24. We validated xrd01 reachability to these networks earlier in lab 1. 
 
 ![SR-MPLS Topology](/topo_drawings/sr-mpls-medium.png)
 For full size image see [LINK](/topo_drawings/sr-mpls-large.png)
@@ -76,7 +75,7 @@ For full size image see [LINK](/topo_drawings/sr-mpls-large.png)
 ### Enable BGP Labeled Unicast
 BGP Labeled Unicast (BGP-LU) is needed to advertise the label information we will need to enable SR-MPLS routing of our desired network traffic 20.0.0.0/24. First lets enable BGP-LU on our PE routers xrd01 and xrd07 plus our BGP route reflectors xrd05 and xrd06. The command *allocate-label all* under the ipv4 unicast address family instructs bgp to advertise the networks in the global ipv4 table as labeled routes. Next you will add enable labeled unicast with the command *address-family ipv4 labeled-unicast* under neighbor-group xrd-ipv4-peer group.
 
-xrd01 and xrd07
+**xrd01** and **xrd07**
   ```
   router bgp 65000
   address-family ipv4 unicast
@@ -87,7 +86,7 @@ xrd01 and xrd07
   commit
   ```
 
-route reflectors xrd05 and xrd06
+route reflectors **xrd05** and **xrd06**
   ```
   router bgp 65000
   neighbor-group xrd-ipv4-peer
@@ -96,7 +95,7 @@ route reflectors xrd05 and xrd06
   commit
 ```
 
-Now lets get the Rome and Amsterdam subnets advertised across our routing topology. We've preconfigured static routes on xrd01 and xrd07, so from here we'll only need to at network statements to BGP. 
+Now lets get the Rome and Amsterdam subnets advertised across our routing topology. We've preconfigured static routes on **xrd01** and **xrd07**, so from here we'll only need to at network statements to BGP. 
 
 1. First log into router xrd01 and enable routing table debugging. This will allow us to see when xrd01 installs the route 20.0.0./24 into the table.
 
@@ -106,7 +105,7 @@ Now lets get the Rome and Amsterdam subnets advertised across our routing topolo
   ```
 ### Advertise BGP-LU prefixes
 
-2. xrd07 - Routes for Rome
+2. **xrd07** - Routes for Rome
   ```
   router bgp 65000            
   address-family ipv4 unicast 
@@ -115,7 +114,7 @@ Now lets get the Rome and Amsterdam subnets advertised across our routing topolo
   commit
   ```
 
-3. xrd01 - Routes for Amsterdam (optional: enable route table debugging on xrd07)
+3. **xrd01** - Routes for Amsterdam (optional: enable route table debugging on **xrd07)
   ```
   router bgp 65000            
   address-family ipv4 unicast 
@@ -125,7 +124,7 @@ Now lets get the Rome and Amsterdam subnets advertised across our routing topolo
   ```
 
 ### Validate BGP routes
-You should now see BGP update the new route being installed in xrd01 and xrd07. Notice in this example for xrd01 that route 20.0.0.0/24 was installed with local label *24007*
+You should now see BGP update the new route being installed in **xrd01** and **xrd07**. Notice in this example for **xrd01** that route 20.0.0.0/24 was installed with local label *24007*
 
   ```
   ipv4_rib[1154]: RIB Routing: Vrf: "default", Tbl: "default" IPv4 Unicast, Add active route 20.0.0.0/24 via 10.0.0.7 interface None, metric [200/0] weight 0 (fl: 0x10008/0x2600) label 24007, by client bgp
@@ -155,9 +154,9 @@ show cef 30.0.0.0/24
   * i                   10.0.0.7        3               24007
   *> 10.101.1.0/24      0.0.0.0         nolabel         3
   *> 10.101.2.0/24      10.101.1.1      nolabel         24010
-  *>i20.0.0.0/24        10.0.0.7        24009           24009
+  *>i20.0.0.0/24        10.0.0.7        24009           24009  <------- HERE
   * i                   10.0.0.7        24009           24009
-  *>i30.0.0.0/24        10.0.0.7        24012           24011
+  *>i30.0.0.0/24        10.0.0.7        24012           24011  <------- HERE
   * i                   10.0.0.7        24012           24011
   ```
 2. Next on xrd01 we can look at BGP-LU prefix specific attributes to validate that we received the route from both BGP route reflectors xrd05(10.0.0.5) and xrd06(10.0.0.6) and again you will see that it is associated with local label *24007*
@@ -169,7 +168,7 @@ show cef 30.0.0.0/24
   Versions:
     Process           bRIB/RIB  SendTblVer
     Speaker                  58           58
-      Local Label: 24007
+      Local Label: 24007                    <-------------- HERE
   Last Modified: Jan  6 21:16:38.204 for 00:03:24
   Paths: (2 available, best #1)
     Not advertised to any peer
@@ -208,88 +207,90 @@ show cef 30.0.0.0/24
   * i                   10.0.0.1        3               24010
   *>i10.101.2.0/24      10.0.0.1        24010           24011
   * i                   10.0.0.1        24010           24011
-  *> 20.0.0.0/24        10.107.1.1      nolabel         24009
-  *> 30.0.0.0/24        10.107.1.1      nolabel         24012
+  *> 20.0.0.0/24        10.107.1.1      nolabel         24009 <------- HERE
+  *> 30.0.0.0/24        10.107.1.1      nolabel         24012 <------- HERE
   ```
 
 4. Last we will look at the CEF table on xrd01 to verify the prefix is installed for labeled forwarding:
 
-```
-RP/0/RP0/CPU0:xrd01#sho cef 20.0.0.0/24
-Sat Jan  7 18:11:21.229 UTC
-20.0.0.0/24, version 175, internal 0x5000001 0x40 (ptr 0x87303a80) [1], 0x600 (0x879794a0), 0xa08 (0x89d5e648)
- Updated Jan  7 17:55:22.234
- Prefix Len 24, traffic index 0, precedence n/a, priority 4
-  gateway array (0x877e1b40) reference count 6, flags 0x78, source rib (7), 0 backups
-                [3 type 5 flags 0x8441 (0x89ddd7c8) ext 0x0 (0x0)]
-  LW-LDI[type=5, refc=3, ptr=0x879794a0, sh-ldi=0x89ddd7c8]
-  gateway array update type-time 1 Jan  7 17:55:22.234
- LDI Update time Jan  7 17:55:22.234
- LW-LDI-TS Jan  7 17:55:22.234
-   via 10.0.0.7/32, 3 dependencies, recursive [flags 0x6000]
-    path-idx 0 NHID 0x0 [0x87348230 0x0]
-    recursion-via-/32
-    next hop 10.0.0.7/32 via 100007/0/21
-     local label 24010 
-     next hop 10.1.1.1/32 Gi0/0/0/1    labels imposed {100007 24007}
-     next hop 10.1.1.9/32 Gi0/0/0/2    labels imposed {100007 24007}
+  ```
+  RP/0/RP0/CPU0:xrd01#sho cef 20.0.0.0/24
+  Sat Jan  7 18:11:21.229 UTC
+  20.0.0.0/24, version 175, internal 0x5000001 0x40 (ptr 0x87303a80) [1], 0x600 (0x879794a0), 0xa08 (0x89d5e648)
+  Updated Jan  7 17:55:22.234
+  Prefix Len 24, traffic index 0, precedence n/a, priority 4
+    gateway array (0x877e1b40) reference count 6, flags 0x78, source rib (7), 0 backups
+                  [3 type 5 flags 0x8441 (0x89ddd7c8) ext 0x0 (0x0)]
+    LW-LDI[type=5, refc=3, ptr=0x879794a0, sh-ldi=0x89ddd7c8]
+    gateway array update type-time 1 Jan  7 17:55:22.234
+  LDI Update time Jan  7 17:55:22.234
+  LW-LDI-TS Jan  7 17:55:22.234
+    via 10.0.0.7/32, 3 dependencies, recursive [flags 0x6000]
+      path-idx 0 NHID 0x0 [0x87348230 0x0]
+      recursion-via-/32
+      next hop 10.0.0.7/32 via 100007/0/21
+      local label 24010 
+      next hop 10.1.1.1/32 Gi0/0/0/1    labels imposed {100007 24007}
+      next hop 10.1.1.9/32 Gi0/0/0/2    labels imposed {100007 24007}
 
-    Load distribution: 0 (refcount 3)
+      Load distribution: 0 (refcount 3)
 
-    Hash  OK  Interface                 Address
-    0     Y   recursive                 100007/0       
-RP/0/RP0/CPU0:xrd01#
-```
+      Hash  OK  Interface                 Address
+      0     Y   recursive                 100007/0       
+  RP/0/RP0/CPU0:xrd01#
+  ```
 
 ### Validate end to end connectivity
 Let's next use what we learned in step one of the lab guide about how xrd01 will use ECMP to load balance flows towards xrd07. We will test connectivity by initiating a ping from xrd01 to the address 20.0.0.1 in Rome. What we don't know is which path it will take as the next-hop could be either xrd02 or xrd05. In addition, we want to confirm that the path is using SR-MPLS forwarding.
 
 Lets use the tcpdump.sh script to validate our configuration and SR-MPLS forwarding:
 1. Open up two new ssh sessions to the XRD VM and change to the *~/SRv6_dCloud_Lab/util* directory. 
-```
-cd ~/SRv6_dCloud_Lab/util
-```
+  ```
+  cd ~/SRv6_dCloud_Lab/util
+  ```
 
-2. In terminal window-1 run the command *./tcpdump.sh xrd01-xrd02*
+2. In terminal window-1 run the command:
+   ```
+    ./tcpdump.sh xrd01-xrd02
+    ```
 
-3. In terminal window-2 run the command *./tcpdump.sh xrd01-xrd05*
+3. In terminal window-2 run the command:
 
-```
-./tcpdump.sh xrd01-xrd02
-./tcpdump.sh xrd01-xrd05
-```
+  ```
+  ./tcpdump.sh xrd01-xrd05
+  ```
 
 4. Initiate a ping from Amsterdam to Rome 20.0.0.1 (or from xrd01 to Rome)
-```
-cisco@amsterdam:~$ ping 20.0.0.1 -i .4
-```
+  ```
+  cisco@amsterdam:~$ ping 20.0.0.1 -i .4
+  ```
 
-We should see TCPDump output something like this:
+  We should see TCPDump output something like this:
 
-```
-cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd01-xrd02 
-sudo tcpdump -ni br-613d9944c678
-[sudo] password for cisco: 
-tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
-listening on br-613d9944c678, link-type EN10MB (Ethernet), capture size 262144 bytes
-13:26:32.704104 MPLS (label 100007, exp 0, ttl 62) (label 24007, exp 0, [S], ttl 62) IP 10.101.2.1 > 20.0.0.1: ICMP echo request, id 20, seq 39, length 64
-13:26:32.706566 MPLS (label 24008, exp 0, [S], ttl 61) IP 20.0.0.1 > 10.101.2.1: ICMP echo reply, id 20, seq 39, length 64
-```
+  ```
+  cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd01-xrd02 
+  sudo tcpdump -ni br-613d9944c678
+  [sudo] password for cisco: 
+  tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+  listening on br-613d9944c678, link-type EN10MB (Ethernet), capture size 262144 bytes
+  13:26:32.704104 MPLS (label 100007, exp 0, ttl 62) (label 24007, exp 0, [S], ttl 62) IP 10.101.2.1 > 20.0.0.1: ICMP echo request, id 20, seq 39, length 64
+  13:26:32.706566 MPLS (label 24008, exp 0, [S], ttl 61) IP 20.0.0.1 > 10.101.2.1: ICMP echo reply, id 20, seq 39, length 64
+  ```
 3. We can run the tcpdump.sh script against any of the underlying links in the network:
 
-```
-./tcpdump.sh xrd02-xrd06
-./tcpdump.sh xrd06-xrd07
-```
-Example output
-```
-cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd02-xrd06
-sudo tcpdump -ni br-65c7870958c4
-tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
-listening on br-65c7870958c4, link-type EN10MB (Ethernet), capture size 262144 bytes
-13:28:02.047690 MPLS (label 100007, exp 0, ttl 61) (label 24007, exp 0, [S], ttl 62) IP 10.101.2.1 > 20.0.0.1: ICMP echo request, id 20, seq 484, length 64
-13:28:02.050055 MPLS (label 100001, exp 0, ttl 62) (label 24008, exp 0, [S], ttl 63) IP 20.0.0.1 > 10.101.2.1: ICMP echo reply, id 20, seq 484, length 64
-```
+  ```
+  ./tcpdump.sh xrd02-xrd06
+  ./tcpdump.sh xrd06-xrd07
+  ```
+  Example output
+  ```
+  cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd02-xrd06
+  sudo tcpdump -ni br-65c7870958c4
+  tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+  listening on br-65c7870958c4, link-type EN10MB (Ethernet), capture size 262144 bytes
+  13:28:02.047690 MPLS (label 100007, exp 0, ttl 61) (label 24007, exp 0, [S], ttl 62) IP 10.101.2.1 > 20.0.0.1: ICMP echo request, id 20, seq 484, length 64
+  13:28:02.050055 MPLS (label 100001, exp 0, ttl 62) (label 24008, exp 0, [S], ttl 63) IP 20.0.0.1 > 10.101.2.1: ICMP echo reply, id 20, seq 484, length 64
+  ```
 
 ### Amsterdam to Rome Test using iPerf
 An alternate quick way to look for the flow of traffic through the network is to clear counters on the router's potential egress interfaces and then run a measurable amount of traffic and see which interface packet counters increment. To continue in our validation from the previous step we will go to router xrd02 and determine if our packet flow next-hops to router xrd03 or xrd06.
@@ -307,12 +308,12 @@ Lets get our test setup ready. For this test we will be using a tool called iPer
 
 See the command output that demonstrates this test below. Some output truncated for brevity:
 
-Rome VM
+**Rome** VM
   ```
   cisco@rome:~$ iperf3 -s -D
   ```
 
-Amsterdam VM
+**Amsterdam** VM
   ```
   cisco@amsterdam:~$ iperf3 -c 20.0.0.1
   Connecting to host 20.0.0.1, port 5201
@@ -338,7 +339,7 @@ Amsterdam VM
 
 The command output below demonstrates that our iPerf traffic was forward from xrd02 out interface gi0/0/0/2 to xrd06
 
-On xrd02: 
+On **xrd02**: 
   ```
   RP/0/RP0/CPU0:xrd02#clear counter int gi 0/0/0/1
   Clear "show interface" counters on this interface [confirm] 
