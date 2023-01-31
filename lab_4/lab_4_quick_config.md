@@ -22,7 +22,6 @@ router bgp 65000
  !
 !
 commit
-
 ```
 
 ## xrd05
@@ -37,7 +36,6 @@ router bgp 65000
  !
 !
 commit
-
 ```
 
 ## xrd06
@@ -52,7 +50,6 @@ router bgp 65000
  !
 !
 commit
-
 ```
 
 ## xrd07
@@ -72,5 +69,4 @@ router bgp 65000
  !
 !
 commit
-
 ```

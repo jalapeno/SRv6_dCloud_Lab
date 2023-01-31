@@ -33,6 +33,7 @@ segment-routing
   !
  !
  commit
+ 
  ```
 
 ## xrd02
@@ -60,6 +61,7 @@ segment-routing
   !
  !
  commit
+
 ```
 
 ## xrd03
@@ -86,6 +88,8 @@ segment-routing
    !
   !
  !
+ commit
+
 ```
 
 ## xrd04
@@ -113,6 +117,7 @@ segment-routing
   !
  !
  commit
+
 ```
 
 ## xrd05
@@ -140,6 +145,7 @@ segment-routing
   !
  !
  commit
+
 ```
 
 ## xrd06
@@ -167,6 +173,7 @@ segment-routing
   !
  !
  commit
+
 ```
 
 ## xrd07
@@ -194,4 +201,5 @@ segment-routing
   !
  !
  commit
+
  ```
