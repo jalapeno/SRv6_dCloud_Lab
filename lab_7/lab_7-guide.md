@@ -192,15 +192,6 @@ The Get All Paths Service will query the DB for all paths up to 6-hops in length
 ``` 
 python3 jalapeno.py -f rome.json -s gp -e srv6
 ```
- - All the jalapeno network services will output some data to the console. More verbose data will be logged to the lab_7/python/log directory. Check log output:
-```
-more log/get_paths.json
-```
- - We can expect to see a json file with source, destination, and path data which includes srv6 sids and sr label stack info
- - The code contains a number of console logging instances that are commented out, and some that are active. Note this line which provides a summary of the relevant paths by outputing the SRv6 locators along each path:
-
- https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_7/python/netservice/gp.py#L43
-
   - Sample command line output:
 ```
 cisco@rome:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f rome.json -s gp -e srv6
@@ -218,6 +209,17 @@ SRv6 locators for path:  ['fc00:0:4444::', 'fc00:0:3333::', 'fc00:0:2222::', 'fc
 SR prefix sids for path:  [100004, 100003, 100002, 100001]
 All paths data from unicast_prefix_v4/20.0.0.0_24_10.0.0.7 to unicast_prefix_v4/10.101.2.0_24_10.0.0.1 logged to log/get_paths.json
 ```
+ - The code contains a number of console logging instances that are commented out, and some that are active (hence the output above). Note this line which provides a summary of the relevant paths by outputing the SRv6 locators along each path:
+
+ https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_7/python/netservice/gp.py#L43
+
+
+ - All the jalapeno network services will output some data to the console. More verbose data will be logged to the lab_7/python/log directory. Check log output:
+```
+more log/get_paths.json
+```
+ - We can expect to see a json file with source, destination, and path data which includes srv6 sids and sr label stack info
+
 Like in Lab 6 we can also experiment with the script's graph traversal parameters to limit or expand the number of vertex 'hops' the query will search for. Note: ArangoDB considers the source and destination vertices as 'hops' when doing its graph traversal.
 
 2. Optional: change the 'gp' service's hopcount parameters. Open the netservice/gp.py file in a text editor (vi, vim) and change parameters in line 9: 
