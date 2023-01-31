@@ -146,7 +146,7 @@ SRv6 uSID locator and source address information for nodes in the lab:
            locator MyLocator
        commit
     ```
-  - Note: once you've configured one or two routers using the above steps, the full lab 2 configs for each router can be found [HERE](/lab_2/config/lab_2-configs.md) for quick copy-and-pasting
+  - Note: once you've configured one or two routers using the above steps, the full lab 2 configs for each router can be found in the 'quick config' [HERE](/lab_2/lab_2_quick_config.md) for quick copy-and-pasting
 
 3. Validation SRv6 configuration and reachability
     ```
