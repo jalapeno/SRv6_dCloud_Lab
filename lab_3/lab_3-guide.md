@@ -14,10 +14,10 @@ In lab 3 the student will extend the routing topology to include sites Amsterdam
   - [BGP Labeled Unicast (BGP-LU) over SR-MPLS Network Routing](#bgp-labeled-unicast-bgp-lu-over-sr-mpls-network-routing)
     - [Configure Remote Test Networks](#configure-remote-test-networks)
     - [Enable BGP Labeled Unicast](#enable-bgp-labeled-unicast)
-    - [Advertise BGP-LU prefixes](#advertise-bgp-lu-prefixes)
     - [Validate BGP routes](#validate-bgp-routes)
       - [The next section uses the following validation commands:](#the-next-section-uses-the-following-validation-commands)
     - [Validate end to end connectivity](#validate-end-to-end-connectivity)
+    - [Amsterdam to Rome Test using iPerf](#amsterdam-to-rome-test-using-iperf)
     - [End of Lab 3](#end-of-lab-3)
   
 
@@ -67,9 +67,9 @@ For further reference the Cisco IOS-XR 7.5 Configuration guide for SR and BGP ca
 ### Configure Remote Test Networks
 The location Rome has the network 20.0.0.0/24 which we will advertise via BGP-LU on router **xrd07**. First log into **xrd07** and validate that you can reach network 20.0.0.0/24 by pinging the ip address 20.0.0.1/24 in Rome. Once you have confirmed connectivity across the Rome metro link **xrd07** gi 0/0/0/0 head to the next step.
 
-We will also advertise a pair of Amsterdam networks from **xrd01**: VPP-outside 10.101.1.0/24 and **Amsterdam** VM "ams-out" 10.101.2.0/24. We validated **xrd01** reachability to these networks earlier in lab 1. 
+We will also advertise a pair of Amsterdam networks from **xrd01**: VPP-outside 10.101.1.0/24 and **Amsterdam** VM "ams-out" 10.101.2.0/24. We validated **xrd01** reachability to these networks earlier in Lab 1. 
 
-![SR-MPLS Topology](/topo_drawings/sr-mpls-medium.png)
+[SR-MPLS Topology](/topo_drawings/sr-mpls-medium.png)
 For full size image see [LINK](/topo_drawings/sr-mpls-large.png)
 
 ### Enable BGP Labeled Unicast
@@ -86,7 +86,7 @@ BGP Labeled Unicast (BGP-LU) is needed to advertise the label information we wil
   commit
   ```
 
-route reflectors **xrd05** and **xrd06**
+Route reflectors **xrd05** and **xrd06**
   ```
   router bgp 65000
   neighbor-group xrd-ipv4-peer
@@ -103,7 +103,7 @@ Now lets get the Rome and Amsterdam subnets advertised across our routing topolo
   RP/0/RP0/CPU0:xrd01#terminal monitor
   RP/0/RP0/CPU0:xrd01#debug ip routing 
   ```
-### Advertise BGP-LU prefixes
+Advertise BGP-LU prefixes
 
 2. **xrd07** - Routes for Rome
   ```
@@ -124,7 +124,7 @@ Now lets get the Rome and Amsterdam subnets advertised across our routing topolo
   ```
 
 ### Validate BGP routes
-You should now see BGP update the new route being installed in **xrd01** and **xrd07**. Notice in this example for **xrd01** that route 20.0.0.0/24 was installed with local label *24007*
+You should now see BGP update the new route being installed in **xrd01** and **xrd07**. Notice in this example debug output for **xrd01** that route 20.0.0.0/24 was installed with local label *24007*
 
   ```
   ipv4_rib[1154]: RIB Routing: Vrf: "default", Tbl: "default" IPv4 Unicast, Add active route 20.0.0.0/24 via 10.0.0.7 interface None, metric [200/0] weight 0 (fl: 0x10008/0x2600) label 24007, by client bgp
@@ -230,8 +230,8 @@ show cef 30.0.0.0/24
       recursion-via-/32
       next hop 10.0.0.7/32 via 100007/0/21
       local label 24010 
-      next hop 10.1.1.1/32 Gi0/0/0/1    labels imposed {100007 24007}
-      next hop 10.1.1.9/32 Gi0/0/0/2    labels imposed {100007 24007}
+      next hop 10.1.1.1/32 Gi0/0/0/1    labels imposed {100007 24007}  <-------------- HERE
+      next hop 10.1.1.9/32 Gi0/0/0/2    labels imposed {100007 24007}  <-------------- HERE
 
       Load distribution: 0 (refcount 3)
 
@@ -245,20 +245,19 @@ Let's next use what we learned in step one of the lab guide about how xrd01 will
 
 Lets use the tcpdump.sh script to validate our configuration and SR-MPLS forwarding:
 1. Open up two new ssh sessions to the XRD VM and change to the *~/SRv6_dCloud_Lab/util* directory. 
-  ```
-  cd ~/SRv6_dCloud_Lab/util
-  ```
-
-2. In terminal window-1 run the command:
-   ```
-    ./tcpdump.sh xrd01-xrd02
+    ```
+    cd ~/SRv6_dCloud_Lab/util
     ```
 
-3. In terminal window-2 run the command:
+2. In terminal window-1 run the command:
+  ```
+    ./tcpdump.sh xrd01-xrd02
+  ```
 
-  ```
-  ./tcpdump.sh xrd01-xrd05
-  ```
+3. In terminal window-2 run the command:=
+    ```
+    ./tcpdump.sh xrd01-xrd05
+    ```
 
 4. Initiate a ping from Amsterdam to Rome 20.0.0.1 (or from xrd01 to Rome)
   ```
