@@ -431,13 +431,15 @@ Reference this document on the shortest path algorithim in AQL [HERE](https://ww
    2. Run the query against the return path:
    ```
    for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0007' TO 'sr_node/2_0_0_0000.0000.0001' sr_topology 
-       return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, srv6sid: v.srv6_sid }
+       return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, 
+           srv6sid: v.srv6_sid }
    ```
 
    3. Run a shortest path query from source prefix (Amsterdam) to destination prefix (Rome):
    ```
     for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' sr_topology 
-        return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, sid: v.srv6_sid, latency: e.latency }
+        return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, 
+        srv6sid: v.srv6_sid, latency: e.latency }
    ```
    4. Query for the return path:
    ```
