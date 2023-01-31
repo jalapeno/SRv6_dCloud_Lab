@@ -18,5 +18,6 @@ spec:
       containers:
       - name: srv6-localsids
         image: iejalapeno/srv6-localsids:latest
+        imagePullPolicy: IfNotPresent
       imagePullSecrets:
         - name: regcred

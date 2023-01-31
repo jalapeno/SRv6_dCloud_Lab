@@ -204,7 +204,26 @@ When we get to lab 7 we'll be sending SRv6 encapsulated traffic directly to/from
     fc00:0:1111:e009::          uDT6              'default'                         bgp-65000           InUse  Y 
     ``` 
 ## Install Jalapeno SR-Processors
-The SR-Processors are a pair of proof-of-concept data processors that mine Jalapeno's graphDB and create a pair of new data collections. The sr-node processor loops through various link-state data collections and gathers relevant SR/SRv6 data for each node in the network. The sr-topology processor generates a graph of the entire network topology (internal and external links, nodes, peers, prefixes, etc.) and populates relevant SR/SRv6 data within the graph collection.
+The SR-Processors are a pair of proof-of-concept data processors that mine Jalapeno's graphDB and create a pair of new data collections. The *`sr-node processor`* loops through various link-state data collections and gathers relevant SR/SRv6 data for each node in the network. The *`sr-topology`* processor generates a graph of the entire network topology (internal and external links, nodes, peers, prefixes, etc.) and populates relevant SR/SRv6 data within the graph collection.
+
+The *`srv6-localsids`* processor is harvesting SRv6 SID data from a kafka streaming telemetry topic. This data is needed to construct full End.DT SIDs in lab 7 and is not available via BMP.  Example:
+
+```
+RP/0/RP0/CPU0:xrd01#sho segment-routing srv6 sid
+Tue Jan 31 23:41:06.675 UTC
+
+*** Locator: 'MyLocator' *** 
+
+SID                         Behavior          Context                           Owner              
+--------------------------  ----------------  --------------------------------  ------------
+fc00:0:1111::               uN (PSP/USD)      'default':4369                    sidmgr    <------ Collected via BMP
+fc00:0:1111:e000::          uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0:P       isis-100  <----|   
+fc00:0:1111:e001::          uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0         isis-100       |  Not available via BMP
+fc00:0:1111:e002::          uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0:P       isis-100       |  We collect and process
+fc00:0:1111:e003::          uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0         isis-100       |  these SIDs via streaming
+fc00:0:1111:e004::          uDT4              'carrots'                         bgp-65000      |  telemetry and the 
+fc00:0:1111:e005::          uDT6              'carrots'                         bgp-65000 <----|  srv6-localsids processor
+```
 
 #### Return to the ssh session on the Jalapeno VM
 
@@ -215,6 +234,7 @@ The SR-Processors are a pair of proof-of-concept data processors that mine Jalap
     cd ~/SRv6_dCloud_Lab/lab_5/sr-processors
     kubectl apply -f sr-node.yaml 
     kubectl apply -f sr-topology.yaml 
+    kubectl apply -f srv6-localsids.yaml
     ```
 2. Validate the pods are up and running in the 'jalapeno' namespace:
     ```
