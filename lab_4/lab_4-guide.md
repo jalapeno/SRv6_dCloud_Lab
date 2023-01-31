@@ -1,10 +1,10 @@
-# Lab 4: Configure SRv6-L3VPN and perform SRv6-TE steering of L3VPN prefixes
+# Lab 4: Configure SRv6 and TE for L3VPN [30 Min]
 
 ### Description
 In lab 4 we will establish a Layer-3 VPN named "carrots" which will use SRv6 transport and will have endpoints on xrd01, and xrd07. Both nodes' gi 0/0/0/3 interfaces will be added to the VRF as they connect to secondary NICs on the Amsterdam and Rome VMs respectively. Once the L3VPN is established and has run some test traffic we will then setup SRv6-TE traffic steering from Amsterdam to specific Rome prefixes.
 
 ## Contents
-- [Lab 4: Configure SRv6-L3VPN and perform SRv6-TE steering of L3VPN prefixes](#lab-4-configure-srv6-l3vpn-and-perform-srv6-te-steering-of-l3vpn-prefixes)
+- [Lab 4: Configure SRv6 and TE for L3VPN \[30 Min\]](#lab-4-configure-srv6-and-te-for-l3vpn-30-min)
     - [Description](#description)
   - [Contents](#contents)
   - [Lab Objectives](#lab-objectives)
@@ -32,11 +32,11 @@ The student upon completion of Lab 4 should have achieved the following objectiv
 The SRv6-based IPv4/IPv6 L3VPN feature enables deployment of IPv4/IPv6 L3VPN over a SRv6 data plane. Traditionally L3VPN has been operated over MPLS or SR-MPLS based systems. SRv6-based L3VPN uses the locator/function aspect of SRv6 Segment IDs (SIDs)  instead of PE + VPN labels. 
 
 Example: 
-```
+
 |     Locator    | Function |                                         
 |:---------------|:--------:|
 | fc00:0000:7777:|   e004:: |
-```
+
 
 SRv6-based L3VPN functionality interconnects multiple sites to resemble a private network service over public or multi-tenant infrastructure. The basic SRv6 configuration was completed in [Lab 2](/lab_2/lab_2-guide.md).
 
