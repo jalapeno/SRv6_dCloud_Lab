@@ -61,6 +61,51 @@ router bgp 65000
   !
  !
 !
+segment-routing
+ traffic-eng
+  segment-lists
+   srv6
+    sid-format usid-f3216
+   !
+   segment-list xrd567
+    srv6
+     index 10 sid fc00:0:5555::
+     index 20 sid fc00:0:6666::
+    !
+   !
+   segment-list xrd2347
+    srv6
+     index 10 sid fc00:0:3333::
+     index 20 sid fc00:0:4444::
+    !
+   !
+  !
+  policy low-latency
+   srv6
+    locator MyLocator binding-sid dynamic behavior ub6-insert-reduced
+   !
+   color 50 end-point ipv6 fc00:0:7777::1
+   candidate-paths
+    preference 100
+     explicit segment-list xrd567
+     !
+    !
+   !
+  !
+  policy bulk-transfer
+   srv6
+    locator MyLocator binding-sid dynamic behavior ub6-insert-reduced
+   !
+   color 40 end-point ipv6 fc00:0:7777::1
+   candidate-paths
+    preference 100
+     explicit segment-list xrd2347
+     !
+    !
+   !
+  !
+ !
+!
 commit
 
 ```
@@ -169,6 +214,40 @@ router bgp 65000
    !
    redistribute connected
    redistribute static
+  !
+ !
+!
+extcommunity-set opaque low-latency
+  50
+end-set
+!
+extcommunity-set opaque bulk-transfer
+  40
+end-set
+!
+route-policy set-color
+  if destination in (40.0.0.0/24) then
+    set extcommunity color bulk-transfer
+  endif
+  if destination in (50.0.0.0/24) then
+    set extcommunity color low-latency
+  endif
+  if destination in (fc00:0:40::/64) then
+    set extcommunity color bulk-transfer
+  endif
+  if destination in (fc00:0:50::/64) then
+    set extcommunity color low-latency
+  endif
+  pass
+end-policy
+!
+router bgp 65000
+ neighbor-group xrd-ipv6-peer
+  address-family vpnv4 unicast
+   route-policy set-color out
+  !       
+  address-family vpnv6 unicast
+   route-policy set-color out
   !
  !
 !
