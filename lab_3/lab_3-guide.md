@@ -410,12 +410,12 @@ On **xrd02**:
     Last clearing of "show interface" counters 00:00:42
     5 minute input rate 0 bits/sec, 0 packets/sec
     5 minute output rate 0 bits/sec, 0 packets/sec
-      691 packets input, 73245 bytes, 0 total input drops        <---------------
+      691 packets input, 73245 bytes, 0 total input drops        <--------------- HERE
       0 drops for unrecognized upper-level protocol
       Received 0 broadcast packets, 6 multicast packets
                 0 runts, 0 giants, 0 throttles, 0 parity
       0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored, 0 abort
-      841 packets output, 1059352 bytes, 0 total output drops    <---------------
+      841 packets output, 1059352 bytes, 0 total output drops    <--------------- HERE
       Output 0 broadcast packets, 7 multicast packets
       0 output errors, 0 underruns, 0 applique, 0 resets
       0 output buffer failures, 0 output buffers swapped out
