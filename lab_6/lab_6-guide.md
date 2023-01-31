@@ -21,6 +21,7 @@ In Lab 6 we will explore the Jalapeno system running on Kubernetes. We will log 
     - [Shortest Path](#shortest-path)
   - [Shortest path queries using metrics other than hop count](#shortest-path-queries-using-metrics-other-than-hop-count)
     - [Query for the lowest latency path:](#query-for-the-lowest-latency-path)
+    - [Lowest latency return path:](#lowest-latency-return-path)
   - [Graph Traversals](#graph-traversals)
     - [Query for the least utilized path](#query-for-the-least-utilized-path)
   - [K Shortest Paths](#k-shortest-paths)
@@ -372,7 +373,8 @@ In this exercise we are going to stitch together several elements that we have w
     for x in ls_link filter x.mt_id_tlv.mt_id !=2 return x
 
     // qeury for all IPv4 IGP links and return specific k:v pairs:
-    for x in ls_link filter x.mt_id_tlv.mt_id !=2 return { key: x._key, router_id: x.router_id, igp_id: x.igp_router_id, local_ip: x.local_link_ip, remote_ip: x.remote_link_ip }
+    for x in ls_link filter x.mt_id_tlv.mt_id !=2 return { key: x._key, router_id: x.router_id, 
+        igp_id: x.igp_router_id, local_ip: x.local_link_ip, remote_ip: x.remote_link_ip }
 
     // query for the IGP topology (should match the xrd router topology):
     for x in ls_node_edge return x
@@ -381,7 +383,8 @@ In this exercise we are going to stitch together several elements that we have w
     for x in sr_topology return x
 
     // query the sr_node dataset and return specific k:v pairs:
-    for x in sr_node return { node: x.router_id, name: x.name, prefix_sid: x.prefix_attr_tlvs.ls_prefix_sid, srv6sid: x.srv6_sid }
+    for x in sr_node return { node: x.router_id, name: x.name, 
+        prefix_sid: x.prefix_attr_tlvs.ls_prefix_sid, srv6sid: x.srv6_sid }
     ```
 
 4. Graph Collections within 
@@ -422,20 +425,24 @@ Reference this document on the shortest path algorithim in AQL [HERE](https://ww
 
    1. Return to the ArangoDB browser UI and run a shortest path query from **xrd01** to **xrd07**, and have it return SR and SRv6 SID data:
    ```
-   for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0001' TO 'sr_node/2_0_0_0000.0000.0007' sr_topology return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, srv6sid: v.srv6_sid }
+   for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0001' TO 'sr_node/2_0_0_0000.0000.0007' sr_topology 
+       return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, srv6sid: v.srv6_sid }
    ```
    2. Run the query against the return path:
    ```
-   for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0007' TO 'sr_node/2_0_0_0000.0000.0001' sr_topology return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, srv6sid: v.srv6_sid }
+   for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0007' TO 'sr_node/2_0_0_0000.0000.0001' sr_topology 
+       return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, srv6sid: v.srv6_sid }
    ```
 
    3. Run a shortest path query from source prefix (Amsterdam) to destination prefix (Rome):
    ```
-    for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' sr_topology return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, sid: v.srv6_sid, latency: e.latency }
+    for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' sr_topology 
+        return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, sid: v.srv6_sid, latency: e.latency }
    ```
    4. Query for the return path:
    ```
-   for v, e in outbound shortest_path 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' TO 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, sid: v.srv6_sid, latency: e.latency }
+   for v, e in outbound shortest_path 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' TO 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
+       return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, sid: v.srv6_sid, latency: e.latency }
    ```
    Thus far all of these shortest path query results are based purely on hop count. Also note, in the case where the graph has multiple equal cost shortest paths, the Arango query will return the first one it finds. 
 
@@ -445,11 +452,13 @@ Reference this document on the shortest path algorithim in AQL [HERE](https://ww
 
    #### Query for the lowest latency path:
    ```
-   for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' sr_topology OPTIONS {weightAttribute: 'latency' } return  { prefix: v.prefix, name: v.name, sid: e.srv6_sid, latency: e.latency }
+   for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' sr_topology 
+       OPTIONS {weightAttribute: 'latency' } return  { prefix: v.prefix, name: v.name, sid: e.srv6_sid, latency: e.latency }
    ```
    #### Lowest latency return path:
    ```
-   for v, e in outbound shortest_path 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' TO 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology OPTIONS {weightAttribute: 'latency' } return { prefix: v.prefix, name: v.name, sid: e.srv6_sid, latency: e.latency }
+   for v, e in outbound shortest_path 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' TO 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
+       OPTIONS {weightAttribute: 'latency' } return { prefix: v.prefix, name: v.name, sid: e.srv6_sid, latency: e.latency }
    ```
 ### Graph Traversals
 A traversal starts at one specific document (startVertex) and follows all edges connected to this document. For all documents (vertices) that are targeted by these edges it will again follow all edges connected to them and so on. It is possible to define how many of these follow iterations should be executed at least (min depth) and at most (max depth). Or in network-engineer-speak "fewest hops" and "most hops"
