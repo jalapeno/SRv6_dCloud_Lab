@@ -1,7 +1,7 @@
 ## Lab 7: Host-Based SR/SRv6 and building your own SDN App (BYO-SDN-App)
 
 ### Description
-Lab 7 is divided into two primary parts. Part 1 is host-based SR/SRv6 using Linux kernel capabilities on the Rome VM. Part 2 will be host-based SR/SRv6 using VPP on the Amsterdam VM.
+Lab 7 is divided into two primary parts. Part 1 is host-based SRv6 using Linux kernel capabilities on the Rome VM. Part 2 will be host-based SRv6 using VPP on the Amsterdam VM.
 
 The goal of the Jalapeno model is to enable applications to directly control their network experience. We envision a process where the application or endpoint requests some Jalapeno *network service* for its traffic. The Jalapeno network-service queries the DB and provides a response, which includes an SR-MPLS or SRv6 SID stack. The application or endpoint would then encapsulate its own outbound traffic; aka, the SR or SRv6 encapsulation/decapsulation would be performed at the host where the Application resides. 
 
@@ -21,6 +21,7 @@ The host-based SR/SRv6 encap/decap could be executed at the Linux networking lay
   - [Get All Paths](#get-all-paths)
   - [Least Utilized Path](#least-utilized-path)
   - [Low Latency Path](#low-latency-path)
+    - [While jalapeno.py supports both SR and SRv6 for its Network Services, for the remainder of Lab 7 we will focus just on SRv6](#while-jalapenopy-supports-both-sr-and-srv6-for-its-network-services-for-the-remainder-of-lab-7-we-will-focus-just-on-srv6)
   - [Low Latency Re-Route](#low-latency-re-route)
   - [Data Sovereignty Path](#data-sovereignty-path)
 - [Amsterdam VM](#amsterdam-vm)
@@ -180,6 +181,8 @@ For ease of use the currently supported network services are abbreviated:
 
 The client's network service modules are located in the lab_7 *python/netservice/* directory. When invoked the client first calls the src_dst.py module, which queries the graphDB and returns database ID info for the source and destination prefixes. The client then runs the selected service module (gp, ll, lu, or ds) queries and calculates an SRv6 uSID or SR label stack, which will satisfy the network service request. The netservice module then calls the add_route.py module to create the local SR or SRv6 route or policy.
 
+Note: the jalapeno.py client supports both SR and SRv6 encapsulation, however, for the purposes of this lab we'll focus primarily on SRv6. 
+
 ## Rome Network Services
 ### Get All Paths
 
@@ -187,7 +190,7 @@ The Get All Paths Service will query the DB for all paths up to 6-hops in length
 
 1. Run the 'gp' service (you can specify either sr or srv6 for encap):
 ``` 
-python3 jalapeno.py -f rome.json -s gp -e sr
+python3 jalapeno.py -f rome.json -s gp -e srv6
 ```
  - All the jalapeno network services will output some data to the console. More verbose data will be logged to the lab_7/python/log directory. Check log output:
 ```
@@ -196,11 +199,11 @@ more log/get_paths.json
  - We can expect to see a json file with source, destination, and path data which includes srv6 sids and sr label stack info
  - The code contains a number of console logging instances that are commented out, and some that are active. Note this line which provides a summary of the relevant paths by outputing the SRv6 locators along each path:
 
- https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_7/python/netservice/gp.py#L38
+ https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_7/python/netservice/gp.py#L43
 
   - Sample command line output:
 ```
-cisco@rome:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f rome.json -s gp -e sr
+cisco@rome:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f rome.json -s gp -e srv6
 src data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'src_peer': '10.0.0.7'}]
 dest data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'dst_peer': '10.0.0.1'}]
 Get All Paths Service

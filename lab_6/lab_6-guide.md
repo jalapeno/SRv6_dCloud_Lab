@@ -553,7 +553,7 @@ https://www.arangodb.com/docs/stable/aql/graphs-kshortest-paths.html
     ```
     for p in outbound k_shortest_paths  'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' to 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7'
         sr_topology filter p.edges[*].country_codes !like "%FRA%" return distinct { path: p.edges[*].remote_node_name, 
-        sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency),
+        sid: p.edges[*].srv6_sid, countries_traversed: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency),
         percent_util_out: avg(p.edges[*].percent_util_out)}
     ```
 
