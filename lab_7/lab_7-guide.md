@@ -1,7 +1,7 @@
 ## Lab 7: Host-Based SR/SRv6 and building your own SDN App (BYO-SDN-App)
 
 ### Description
-Lab 7 is divided into two primary parts. Part 1 is host-based SR/SRv6 using Linux kernel capabilities on the Rome VM. Part 2 will be host-based SR/SRv6 using VPP on the Amsterdam VM.
+Lab 7 is divided into two primary parts. Part 1 is host-based SRv6 using Linux kernel capabilities on the Rome VM. Part 2 will be host-based SRv6 using VPP on the Amsterdam VM.
 
 The goal of the Jalapeno model is to enable applications to directly control their network experience. We envision a process where the application or endpoint requests some Jalapeno *network service* for its traffic. The Jalapeno network-service queries the DB and provides a response, which includes an SR-MPLS or SRv6 SID stack. The application or endpoint would then encapsulate its own outbound traffic; aka, the SR or SRv6 encapsulation/decapsulation would be performed at the host where the Application resides. 
 
@@ -21,6 +21,7 @@ The host-based SR/SRv6 encap/decap could be executed at the Linux networking lay
   - [Get All Paths](#get-all-paths)
   - [Least Utilized Path](#least-utilized-path)
   - [Low Latency Path](#low-latency-path)
+    - [While jalapeno.py supports both SR and SRv6 for its Network Services, for the remainder of Lab 7 we will focus just on SRv6](#while-jalapenopy-supports-both-sr-and-srv6-for-its-network-services-for-the-remainder-of-lab-7-we-will-focus-just-on-srv6)
   - [Low Latency Re-Route](#low-latency-re-route)
   - [Data Sovereignty Path](#data-sovereignty-path)
 - [Amsterdam VM](#amsterdam-vm)
@@ -180,6 +181,8 @@ For ease of use the currently supported network services are abbreviated:
 
 The client's network service modules are located in the lab_7 *python/netservice/* directory. When invoked the client first calls the src_dst.py module, which queries the graphDB and returns database ID info for the source and destination prefixes. The client then runs the selected service module (gp, ll, lu, or ds) queries and calculates an SRv6 uSID or SR label stack, which will satisfy the network service request. The netservice module then calls the add_route.py module to create the local SR or SRv6 route or policy.
 
+Note: the jalapeno.py client supports both SR and SRv6 encapsulation, however, for the purposes of this lab we'll focus primarily on SRv6. 
+
 ## Rome Network Services
 ### Get All Paths
 
@@ -187,20 +190,11 @@ The Get All Paths Service will query the DB for all paths up to 6-hops in length
 
 1. Run the 'gp' service (you can specify either sr or srv6 for encap):
 ``` 
-python3 jalapeno.py -f rome.json -s gp -e sr
+python3 jalapeno.py -f rome.json -s gp -e srv6
 ```
- - All the jalapeno network services will output some data to the console. More verbose data will be logged to the lab_7/python/log directory. Check log output:
-```
-more log/get_paths.json
-```
- - We can expect to see a json file with source, destination, and path data which includes srv6 sids and sr label stack info
- - The code contains a number of console logging instances that are commented out, and some that are active. Note this line which provides a summary of the relevant paths by outputing the SRv6 locators along each path:
-
- https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_7/python/netservice/gp.py#L38
-
   - Sample command line output:
 ```
-cisco@rome:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f rome.json -s gp -e sr
+cisco@rome:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f rome.json -s gp -e srv6
 src data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'src_peer': '10.0.0.7'}]
 dest data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'dst_peer': '10.0.0.1'}]
 Get All Paths Service
@@ -215,6 +209,17 @@ SRv6 locators for path:  ['fc00:0:4444::', 'fc00:0:3333::', 'fc00:0:2222::', 'fc
 SR prefix sids for path:  [100004, 100003, 100002, 100001]
 All paths data from unicast_prefix_v4/20.0.0.0_24_10.0.0.7 to unicast_prefix_v4/10.101.2.0_24_10.0.0.1 logged to log/get_paths.json
 ```
+ - The code contains a number of console logging instances that are commented out, and some that are active (hence the output above). Note this line which provides a summary of the relevant paths by outputing the SRv6 locators along each path:
+
+ https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_7/python/netservice/gp.py#L43
+
+
+ - All the jalapeno network services will output some data to the console. More verbose data will be logged to the lab_7/python/log directory. Check log output:
+```
+more log/get_paths.json
+```
+ - We can expect to see a json file with source, destination, and path data which includes srv6 sids and sr label stack info
+
 Like in Lab 6 we can also experiment with the script's graph traversal parameters to limit or expand the number of vertex 'hops' the query will search for. Note: ArangoDB considers the source and destination vertices as 'hops' when doing its graph traversal.
 
 2. Optional: change the 'gp' service's hopcount parameters. Open the netservice/gp.py file in a text editor (vi, vim) and change parameters in line 9: 
@@ -242,33 +247,32 @@ Save the file and re-run the script. You should see 8 total path options in the 
 ### Least Utilized Path
 Many segment routing and other SDN solutions focus on the low latency path as their primary use case. We absolutely feel low latency is an important network service, especially for real time applications. However, we believe one of the use cases which deliver the most bang for the buck is "Least Utilized Path". The idea behind this use case is that the routing protocol's chosen best path is usually *The Best Path*. Thus the *Least Utilized* service looks to steer lower priority traffic (backups, content replication, etc.) to lesser used paths and preserve the routing protocol's best path for higher priority traffic.
 
-1. Cleanup any stale routes on the VM and execute the least utilized path service with SR encapsulation
-``` 
+
+1. Cleanup Rome's routes and execute the least utilized path service with SRv6 encapsulation
+```
 ./cleanup_rome_routes.sh 
-python3 jalapeno.py -f rome.json -e sr -s lu
+python3 jalapeno.py -f rome.json -e srv6 -s lu
 ```
- - The client's command line output should display the new route in the routing table:
+Expected console output:
 ```
-cisco@rome:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f rome.json -e sr -s lu
+cisco@rome:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f rome.json -e srv6 -s lu
 src data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'src_peer': '10.0.0.7'}]
 dest data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'dst_peer': '10.0.0.1'}]
 Least Utilized Service
 locators:  ['fc00:0:6666::', 'fc00:0:2222::', 'fc00:0:1111::']
 prefix_sids:  [100006, 100002, 100001]
 srv6 sid:  fc00:0:6666:2222:1111::
-adding linux SR route: ip route add 10.101.2.0/24 encap mpls 100006/100002/100001 via 10.107.1.2 dev ens192
-RTNETLINK answers: File exists
-show linux route table: 
+adding linux SRv6 route: ip route add 10.101.2.0/24 encap seg6 mode encap segs fc00:0:6666:2222:1111:: dev ens192
+Show Linux Route Table: 
 default via 198.18.128.1 dev ens160 proto static 
 10.0.0.0/24 via 10.107.1.2 dev ens192 proto static 
 10.1.1.0/24 via 10.107.1.2 dev ens192 proto static 
 10.101.1.0/24 via 10.107.1.2 dev ens192 proto static 
-10.101.2.0/24  encap mpls  100006/100002/100001 via 10.107.1.2 dev ens192    <------------
-10.101.2.0/24 via 10.107.1.2 dev ens192 proto static 
+10.101.2.0/24  encap seg6 mode encap segs 1 [ fc00:0:6666:2222:1111:: ] dev ens192 scope link  <------------
 10.101.3.0/24 via 10.107.2.2 dev ens224 proto static 
 10.107.1.0/24 dev ens192 proto kernel scope link src 20.0.0.1 
 10.107.2.0/24 dev ens224 proto kernel scope link src 10.107.2.1 
-198.18.128.0/18 dev ens160 proto kernel scope link src 198.18.128.103  
+198.18.128.0/18 dev ens160 proto kernel scope link src 198.18.128.103 
 ```
 
 2. Check log output and linux ip route:
@@ -319,34 +323,36 @@ listening on br-07e02174172b, link-type EN10MB (Ethernet), capture size 262144 b
 23:19:39.667534 MPLS (label 100007, exp 0, ttl 61) (label 24009, exp 0, [S], ttl 62) IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 11, seq 768, length 64
 ```
 
-6. Cleanup Rome's routes and execute the least utilized path service with SRv6 encapsulation
-```
+6. Optional: run the least utilized path service with SR encapsulation
+``` 
 ./cleanup_rome_routes.sh 
-python3 jalapeno.py -f rome.json -e srv6 -s lu
+python3 jalapeno.py -f rome.json -e sr -s lu
 ```
-Expected console output:
+ - The client's command line output should display the new route in the routing table:
 ```
-cisco@rome:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f rome.json -e srv6 -s lu
+cisco@rome:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f rome.json -e sr -s lu
 src data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'src_peer': '10.0.0.7'}]
 dest data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'dst_peer': '10.0.0.1'}]
 Least Utilized Service
 locators:  ['fc00:0:6666::', 'fc00:0:2222::', 'fc00:0:1111::']
 prefix_sids:  [100006, 100002, 100001]
 srv6 sid:  fc00:0:6666:2222:1111::
-adding linux SRv6 route: ip route add 10.101.2.0/24 encap seg6 mode encap segs fc00:0:6666:2222:1111:: dev ens192
-Show Linux Route Table: 
+adding linux SR route: ip route add 10.101.2.0/24 encap mpls 100006/100002/100001 via 10.107.1.2 dev ens192
+RTNETLINK answers: File exists
+show linux route table: 
 default via 198.18.128.1 dev ens160 proto static 
 10.0.0.0/24 via 10.107.1.2 dev ens192 proto static 
 10.1.1.0/24 via 10.107.1.2 dev ens192 proto static 
 10.101.1.0/24 via 10.107.1.2 dev ens192 proto static 
-10.101.2.0/24  encap seg6 mode encap segs 1 [ fc00:0:6666:2222:1111:: ] dev ens192 scope link  <------------
+10.101.2.0/24  encap mpls  100006/100002/100001 via 10.107.1.2 dev ens192    <------------
+10.101.2.0/24 via 10.107.1.2 dev ens192 proto static 
 10.101.3.0/24 via 10.107.2.2 dev ens224 proto static 
 10.107.1.0/24 dev ens192 proto kernel scope link src 20.0.0.1 
 10.107.2.0/24 dev ens224 proto kernel scope link src 10.107.2.1 
-198.18.128.0/18 dev ens160 proto kernel scope link src 198.18.128.103 
+198.18.128.0/18 dev ens160 proto kernel scope link src 198.18.128.103  
 ```
 
-7. Repeat, or just spot-check the ping and tcpdump steps describe in 3 - 5
+7. Optional: repeat, or just spot-check the ping and tcpdump steps described in 3 - 5
 
 ### Low Latency Path
 The Low Latency Path service will calculate an SR/SRv6 encapsulation instruction for sending traffic over the lowest latency path from a source to a given destination. The procedure for testing/running the Low Latency Path service is the same as the one we followed with Least Utilized Path. 

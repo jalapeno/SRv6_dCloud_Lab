@@ -6,12 +6,18 @@ In Lab 5 we will install the open-source Jalapeno data infrastructure platform. 
 After installing the Jalapeno package the student will then configure BGP Monitoring Protocol (BMP) on our route reflectors. Last we will add an SRv6 Locator to BGP default/global tables, which will be used in a later exercise where Amsterdam and Rome perform SRv6 encapsulation of their own outbound traffic.
 
 ## Contents
-1. [Lab Objectives](#lab-objectives)
-2. [Jalapeno Overview](#jalapeno-overview)
-3. [Install Jalapeno](#install-jalapeno)
-4. [BGP Monitoring Protocol BMP](#bgp-monitoring-protocol-bmp)
-5. [BGP SRv6 Locator](#configure-a-bgp-srv6-locator)
-6. [Install Jalapeno SR-Processors](#install-jalapeno-sr-processors)
+- [Lab 5: Install Jalapeno and enable BMP](#lab-5-install-jalapeno-and-enable-bmp)
+    - [Description](#description)
+  - [Contents](#contents)
+  - [Lab Objectives](#lab-objectives)
+  - [Jalapeno Overview](#jalapeno-overview)
+    - [Jalapeno Architecture and Data Flow](#jalapeno-architecture-and-data-flow)
+  - [Install Jalapeno](#install-jalapeno)
+  - [BGP Monitoring Protocol (BMP)](#bgp-monitoring-protocol-bmp)
+  - [Configure a BGP SRv6 locator](#configure-a-bgp-srv6-locator)
+  - [Install Jalapeno SR-Processors](#install-jalapeno-sr-processors)
+      - [Return to the ssh session on the Jalapeno VM](#return-to-the-ssh-session-on-the-jalapeno-vm)
+    - [End of Lab 5](#end-of-lab-5)
 
 ## Lab Objectives
 The student upon completion of Lab 5 should have achieved the following objectives:
@@ -268,7 +274,7 @@ The SR-Processors are a pair of proof-of-concept data processors that mine Jalap
     ```
 3. Check ArangoDB for new *`sr_node`* and *`sr_topology`* data collections, and that they contain data. For example, *`sr_node`* should look something like this with seven entries:
 
-  <img src="images/sr_node.png" width="1000">
+  <img src="images/sr_node.png" width="1200">
 
 ### End of Lab 5
 Please proceed to [Lab 6](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_6/lab_6-guide.md)

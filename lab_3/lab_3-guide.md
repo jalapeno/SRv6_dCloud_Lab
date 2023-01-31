@@ -32,7 +32,7 @@ The student upon completion of Lab 3 should have achieved the following objectiv
 ## Bypass Lab 3 Validation
 For this lab we can bypass the majority of lab 3 configuration steps and validation by bulk loading the configurations on the needed routers in the topology. If you wish as an optional lab you can go through each of the configuration/validation steps to gain a better understanding of SR-MPLS.
 
-For the Lab 3 bulk configuration page click [HERE](./lab_3_quick_config.md)
+For the Lab 3 Quick Configuration page click [HERE](./lab_3_quick_config.md)
 
 ## Learn Default ISIS Path
 

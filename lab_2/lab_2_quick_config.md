@@ -1,5 +1,17 @@
-### xrd01 config
+## Contents
+- [Contents](#contents)
+- [xrd01](#xrd01)
+- [xrd02](#xrd02)
+- [xrd03](#xrd03)
+- [xrd04](#xrd04)
+- [xrd05](#xrd05)
+- [xrd06](#xrd06)
+- [xrd07](#xrd07)
+
+## xrd01
 ```
+conf t
+
 router isis 100
  address-family ipv6 unicast
   segment-routing srv6
@@ -20,11 +32,14 @@ segment-routing
    !
   !
  !
+ commit
+ 
  ```
 
-### xrd02 config
-
+## xrd02
 ```
+conf t
+
 router isis 100
  address-family ipv6 unicast
   segment-routing srv6
@@ -45,9 +60,14 @@ segment-routing
    !
   !
  !
+ commit
+
 ```
- ### xrd03 config
+
+## xrd03
 ```
+conf t
+
 router isis 100
  address-family ipv6 unicast
   segment-routing srv6
@@ -68,9 +88,14 @@ segment-routing
    !
   !
  !
+ commit
+
 ```
- ### xrd04 config
+
+## xrd04
 ```
+conf t
+
 router isis 100
  address-family ipv6 unicast
   segment-routing srv6
@@ -91,9 +116,14 @@ segment-routing
    !
   !
  !
+ commit
+
 ```
- ### xrd05 config
+
+## xrd05
 ```
+conf t
+
 router isis 100
  address-family ipv6 unicast
   segment-routing srv6
@@ -114,9 +144,14 @@ segment-routing
    !
   !
  !
+ commit
+
 ```
- ### xrd06 config
+
+## xrd06
 ```
+conf t
+
 router isis 100
  address-family ipv6 unicast
   segment-routing srv6
@@ -137,9 +172,14 @@ segment-routing
    !
   !
  !
+ commit
+
 ```
- ### xrd07 config
+
+## xrd07
 ```
+conf t
+
 router isis 100
  address-family ipv6 unicast
   segment-routing srv6
@@ -160,4 +200,6 @@ segment-routing
    !
   !
  !
+ commit
+
  ```
