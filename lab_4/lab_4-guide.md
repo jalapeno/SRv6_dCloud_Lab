@@ -113,7 +113,7 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
         commit
     ```
 
-3. Verify Rome VRF prefix reachability  
+3. Verify **Rome** VRF prefix reachability  
     Ping check from xrd07 gi 0/0/0/3 to Rome VM via 2nd NIC:  
     ```
     ping vrf carrots 10.107.2.1
@@ -124,8 +124,8 @@ For more details on SRv6 please see this [LINK](/SRv6.md)
     ping vrf carrots fc00:0:50::1
     ```
 
-4. Verify Amsterdam VRF prefix reachability  
-    Ping check from xrd01 gi 0/0/0/3 to Amsterdam VM via 2nd NIC:  
+4. Verify **Amsterdam** VRF prefix reachability  
+    Ping check from **xrd01** gi 0/0/0/3 to **Amsterdam **VM via 2nd NIC:  
     ```
     ping vrf carrots 10.101.3.1
     ping vrf carrots fc00:0:101:3::1
@@ -145,6 +145,7 @@ The next step is to add the L3VPN configuration into BGP. Because this is SRv6 L
 
         address-family vpnv6 unicast
         next-hop-self
+      commit
     ```
   We will now need to add the VRF/SRv6 configuration to BGP. We will add VRF *carrots* in BGP and enable SRv6 to each address family with the command *`segment-routing srv6`*. In addition we will tie the vrf to the SRv6 locator *`MyLocator`*. 
 
@@ -168,6 +169,7 @@ The next step is to add the L3VPN configuration into BGP. Because this is SRv6 L
           locator MyLocator
           alloc mode per-vrf
           redistribute connected
+        commit
     ```
 
     **xrd07**  
@@ -188,6 +190,7 @@ The next step is to add the L3VPN configuration into BGP. Because this is SRv6 L
           alloc mode per-vrf
           redistribute static
           redistribute connected
+        commit
       ```
 
 The BGP route reflectors will also need to have L3VPN capability added to their peering group.
@@ -201,13 +204,14 @@ The BGP route reflectors will also need to have L3VPN capability added to their 
       
       address-family vpnv6 unicast
       route-reflector-client
+    commit
     ```
 
 ## Validate SRv6 L3VPN
 
 Validation command output examples can be found at this [LINK](https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_5/validation-cmd-output.md)
 
-1. From xrd01 run the following set of validation commands:
+1. From **xrd01** run the following set of validation commands:
 
   ```
   show segment-routing srv6 sid
@@ -221,229 +225,231 @@ Validation command output examples can be found at this [LINK](https://github.co
   ping vrf carrots fc00:0:50::1
   ```
 ## Configure SRv6-TE steering for L3VPN
-Rome's L3VPN IPv4 and IPv6 prefixes are associated with two classes of traffic. The "40" destinations (40.0.0.0/24 and fc00:0:40::/64) are Bulk Transport destinations (content replication or data backups) and thus are latency and loss tolerant. The "50" destinations (50.0.0.0/24 and fc00:0:50::/64) are for real time traffic (live video, etc.) and thus require the lowest latency path available.
+**Rome's** L3VPN IPv4 and IPv6 prefixes are associated with two classes of traffic. The "40" destinations (40.0.0.0/24 and fc00:0:40::/64) are Bulk Transport destinations (content replication or data backups) and thus are latency and loss tolerant. The "50" destinations (50.0.0.0/24 and fc00:0:50::/64) are for real time traffic (live video, etc.) and thus require the lowest latency path available.
 
 We will use the below diagram for reference:
 
 ![L3VPN Topology](/topo_drawings/l3vpn-topology-large.png)
 
 ### Create TE steering policy
-For our SRv6-TE purposes we'll leverage the on-demand nexthop (ODN) feature set. Here is a nice example and explanation of ODN:
-https://xrdocs.io/design/blogs/latest-converged-sdn-transport-ig
+For our SRv6-TE purposes we'll leverage the on-demand nexthop (ODN) feature set. Here is a nice example and explanation of ODN: [HERE](https://xrdocs.io/design/blogs/latest-converged-sdn-transport-ig)
 
-Using the ODN method, our the egress PE, xrd07, will need to advertise its L3VPN routes with color extended communities. We'll do this by first defining the extcomms, then setting up route-policies to match on destination prefixes and set the extcomm values.
+Using the ODN method, our the egress PE, **xrd07**, will need to advertise its L3VPN routes with color extended communities. We'll do this by first defining the extcomms, then setting up route-policies to match on destination prefixes and set the extcomm values.
 
 The ingress PE, xrd01, will then be configured with SRv6 segment-lists and SRv6 ODN steering policies that match routes with the respective color and apply the appropriate SID stack on outbound traffic.
 
-1. On xrd07 advertise Rome's "40" and "50" prefixes with their respective color extended communities:
+1. On **xrd07** advertise Rome's "40" and "50" prefixes with their respective color extended communities:
 
-**xrd07**
-```
-extcommunity-set opaque bulk-transfer
-  40
-end-set
+  **xrd07**
+  ```
+  extcommunity-set opaque bulk-transfer
+    40
+  end-set
 
-extcommunity-set opaque low-latency
-  50
-end-set
+  extcommunity-set opaque low-latency
+    50
+  end-set
 
-route-policy set-color
-  if destination in (40.0.0.0/24) then
-    set extcommunity color bulk-transfer
-  endif
-  if destination in (50.0.0.0/24) then
-    set extcommunity color low-latency
-  endif
-  if destination in (fc00:0:40::/64) then
-    set extcommunity color bulk-transfer
-  endif
-  if destination in (fc00:0:50::/64) then
-    set extcommunity color low-latency
-  endif
-  pass
-end-policy
+  route-policy set-color
+    if destination in (40.0.0.0/24) then
+      set extcommunity color bulk-transfer
+    endif
+    if destination in (50.0.0.0/24) then
+      set extcommunity color low-latency
+    endif
+    if destination in (fc00:0:40::/64) then
+      set extcommunity color bulk-transfer
+    endif
+    if destination in (fc00:0:50::/64) then
+      set extcommunity color low-latency
+    endif
+    pass
+  end-policy
 
-router bgp 65000
- neighbor-group xrd-ipv6-peer
-  address-family vpnv4 unicast
-   route-policy set-color out
-  
-  address-family vpnv6 unicast
-   route-policy set-color out
- 
-```
+  router bgp 65000
+  neighbor-group xrd-ipv6-peer
+    address-family vpnv4 unicast
+    route-policy set-color out
+    
+    address-family vpnv6 unicast
+    route-policy set-color out
+  commit
+  ```
 
 2. Validate vpnv4 and v6 prefixes are received at xrd01 and that they have their color extcomms:  
-**xrd01**
-```
-show bgp vpnv4 uni vrf carrots 40.0.0.0/24
-show bgp vpnv4 uni vrf carrots 50.0.0.0/24
-show bgp vpnv6 uni vrf carrots fc00:0:40::/64
-show bgp vpnv6 uni vrf carrots fc00:0:50::/64
-```
-Examples:
-```
-RP/0/RP0/CPU0:xrd01#show bgp vpnv4 uni vrf carrots 40.0.0.0/24
-Sat Jan  7 21:27:26.645 UTC
-BGP routing table entry for 40.0.0.0/24, Route Distinguisher: 10.0.0.1:0
-Versions:
-  Process           bRIB/RIB  SendTblVer
-  Speaker                  58           58
-Last Modified: Jan  7 21:27:19.204 for 00:00:07
-Paths: (1 available, best #1)
-  Not advertised to any peer
-  Path #1: Received by speaker 0
-  Not advertised to any peer
-  Local
-    fc00:0:7777::1 (metric 3) from fc00:0:5555::1 (10.0.0.7)
-      Received Label 0xe0040
-      Origin incomplete, metric 0, localpref 100, valid, internal, best, group-best, import-candidate, imported
-      Received Path ID 0, Local Path ID 1, version 30
-      Extended community: Color:40 RT:9:9                      <-------------------
-      Originator: 10.0.0.7, Cluster list: 10.0.0.5
-      PSID-Type:L3, SubTLV Count:1
-       SubTLV:
-        T:1(Sid information), Sid:fc00:0:7777::, Behavior:63, SS-TLV Count:1
-         SubSubTLV:
-          T:1(Sid structure):
-      Source AFI: VPNv4 Unicast, Source VRF: default, Source Route Distinguisher: 10.0.0.7:0
 
-RP/0/RP0/CPU0:xrd01#show bgp vpnv6 uni vrf carrots fc00:0:50::/64
-Sat Jan  7 21:27:56.050 UTC
-BGP routing table entry for fc00:0:50::/64, Route Distinguisher: 10.0.0.1:0
-Versions:
-  Process           bRIB/RIB  SendTblVer
-  Speaker                  46           46
-Last Modified: Jan  7 21:27:19.204 for 00:00:36
-Paths: (1 available, best #1)
-  Not advertised to any peer
-  Path #1: Received by speaker 0
-  Not advertised to any peer
-  Local
-    fc00:0:7777::1 (metric 3) from fc00:0:5555::1 (10.0.0.7)
-      Received Label 0xe0050
-      Origin incomplete, metric 0, localpref 100, valid, internal, best, group-best, import-candidate, imported
-      Received Path ID 0, Local Path ID 1, version 34
-      Extended community: Color:50 RT:9:9                      <------------------- 
-      Originator: 10.0.0.7, Cluster list: 10.0.0.5
-      PSID-Type:L3, SubTLV Count:1
-       SubTLV:
-        T:1(Sid information), Sid:fc00:0:7777::, Behavior:62, SS-TLV Count:1
-         SubSubTLV:
-          T:1(Sid structure):
-      Source AFI: VPNv6 Unicast, Source VRF: default, Source Route Distinguisher: 10.0.0.7:0
+  **xrd01**
+  ```
+  show bgp vpnv4 uni vrf carrots 40.0.0.0/24
+  show bgp vpnv4 uni vrf carrots 50.0.0.0/24
+  show bgp vpnv6 uni vrf carrots fc00:0:40::/64
+  show bgp vpnv6 uni vrf carrots fc00:0:50::/64
+  ```
+  Examples:
+  ```
+  RP/0/RP0/CPU0:xrd01#show bgp vpnv4 uni vrf carrots 40.0.0.0/24
+  Sat Jan  7 21:27:26.645 UTC
+  BGP routing table entry for 40.0.0.0/24, Route Distinguisher: 10.0.0.1:0
+  Versions:
+    Process           bRIB/RIB  SendTblVer
+    Speaker                  58           58
+  Last Modified: Jan  7 21:27:19.204 for 00:00:07
+  Paths: (1 available, best #1)
+    Not advertised to any peer
+    Path #1: Received by speaker 0
+    Not advertised to any peer
+    Local
+      fc00:0:7777::1 (metric 3) from fc00:0:5555::1 (10.0.0.7)
+        Received Label 0xe0040
+        Origin incomplete, metric 0, localpref 100, valid, internal, best, group-best, import-candidate, imported
+        Received Path ID 0, Local Path ID 1, version 30
+        Extended community: Color:40 RT:9:9                      <------------------- HERE
+        Originator: 10.0.0.7, Cluster list: 10.0.0.5
+        PSID-Type:L3, SubTLV Count:1
+        SubTLV:
+          T:1(Sid information), Sid:fc00:0:7777::, Behavior:63, SS-TLV Count:1
+          SubSubTLV:
+            T:1(Sid structure):
+        Source AFI: VPNv4 Unicast, Source VRF: default, Source Route Distinguisher: 10.0.0.7:0
 
-```
+  RP/0/RP0/CPU0:xrd01#show bgp vpnv6 uni vrf carrots fc00:0:50::/64
+  Sat Jan  7 21:27:56.050 UTC
+  BGP routing table entry for fc00:0:50::/64, Route Distinguisher: 10.0.0.1:0
+  Versions:
+    Process           bRIB/RIB  SendTblVer
+    Speaker                  46           46
+  Last Modified: Jan  7 21:27:19.204 for 00:00:36
+  Paths: (1 available, best #1)
+    Not advertised to any peer
+    Path #1: Received by speaker 0
+    Not advertised to any peer
+    Local
+      fc00:0:7777::1 (metric 3) from fc00:0:5555::1 (10.0.0.7)
+        Received Label 0xe0050
+        Origin incomplete, metric 0, localpref 100, valid, internal, best, group-best, import-candidate, imported
+        Received Path ID 0, Local Path ID 1, version 34
+        Extended community: Color:50 RT:9:9                      <------------------- HERE
+        Originator: 10.0.0.7, Cluster list: 10.0.0.5
+        PSID-Type:L3, SubTLV Count:1
+        SubTLV:
+          T:1(Sid information), Sid:fc00:0:7777::, Behavior:62, SS-TLV Count:1
+          SubSubTLV:
+            T:1(Sid structure):
+        Source AFI: VPNv6 Unicast, Source VRF: default, Source Route Distinguisher: 10.0.0.7:0
+  ```
 
-3. On xrd01 configure a pair of SRv6-TE segment lists for steering traffic over these specific paths through the network: 
- - Segment list *xrd2347* will execute the explicit path: xrd01 -> 02 -> 03 -> 04 -> 07
- - Segment list *xrd567* will execute the explicit path: xrd01 -> 05 -> 06 -> 07
+3. On **xrd01** configure a pair of SRv6-TE segment lists for steering traffic over these specific paths through the network: 
+    - Segment list *xrd2347* will execute the explicit path: xrd01 -> 02 -> 03 -> 04 -> 07
+    - Segment list *xrd567* will execute the explicit path: xrd01 -> 05 -> 06 -> 07
 
-**xrd01**
-```
-segment-routing
- traffic-eng
-  segment-lists
-   srv6
-    sid-format usid-f3216
-   
-   segment-list xrd2347
+   **xrd01**
+   ```
+   segment-routing
+    traffic-eng
+     segment-lists
+      srv6
+       sid-format usid-f3216
+      
+      segment-list xrd2347
+       srv6
+        index 10 sid fc00:0:3333::
+        index 20 sid fc00:0:4444::
+
+      segment-list xrd567
+       srv6
+        index 10 sid fc00:0:5555::
+        index 20 sid fc00:0:6666::
+     commit
+   ```
+
+4. On **xrd01** configure our bulk transport and low latency SRv6 steering policies. Low latency traffic will be forced over the xrd01-05-06-07 path, and bulk transport traffic will take the longer xrd01-02-03-04-07 path:
+
+  **xrd01**
+  ```
+  segment-routing
+  traffic-eng
+    policy bulk-transfer
     srv6
-     index 10 sid fc00:0:3333::
-     index 20 sid fc00:0:4444::
-
-   segment-list xrd567
+      locator MyLocator binding-sid dynamic behavior ub6-insert-reduced
+    
+    color 40 end-point ipv6 fc00:0:7777::1
+    candidate-paths
+      preference 100
+      explicit segment-list xrd2347
+      
+    policy low-latency
     srv6
-     index 10 sid fc00:0:5555::
-     index 20 sid fc00:0:6666::
-```
+      locator MyLocator binding-sid dynamic behavior ub6-insert-reduced
+    
+    color 50 end-point ipv6 fc00:0:7777::1
+    candidate-paths
+      preference 100
+      explicit segment-list xrd567
+    commit
+  ```
 
-4. On xrd01 configure our bulk transport and low latency SRv6 steering policies. Low latency traffic will be forced over the xrd01-05-06-07 path, and bulk transport traffic will take the longer xrd01-02-03-04-07 path:
-**xrd01**
-```
-segment-routing
- traffic-eng
-  policy bulk-transfer
-   srv6
-    locator MyLocator binding-sid dynamic behavior ub6-insert-reduced
-   
-   color 40 end-point ipv6 fc00:0:7777::1
-   candidate-paths
-    preference 100
-     explicit segment-list xrd2347
-     
-  policy low-latency
-   srv6
-    locator MyLocator binding-sid dynamic behavior ub6-insert-reduced
-   
-   color 50 end-point ipv6 fc00:0:7777::1
-   candidate-paths
-    preference 100
-     explicit segment-list xrd567
-```
+5. Validate **xrd01's** SRv6-TE SID is allocated and that policy is up:
+  ```
+  show segment-routing srv6 sid
+  show segment-routing traffic-eng policy 
+  ```
+  Example output:
+  ```
+  RP/0/RP0/CPU0:xrd01# show segment-routing srv6 sid
+  Sat Jan 28 00:04:48.017 UTC
 
-5. Validate xrd01's SRv6-TE SID is allocated and that policy is up:
-```
-show segment-routing srv6 sid
-show segment-routing traffic-eng policy 
-```
-Example output:
-```
-RP/0/RP0/CPU0:xrd01# show segment-routing srv6 sid
-Sat Jan 28 00:04:48.017 UTC
+  *** Locator: 'MyLocator' *** 
 
-*** Locator: 'MyLocator' *** 
+  SID                         Behavior          Context                           Owner               State  RW
+  --------------------------  ----------------  --------------------------------  ------------------  -----  --
+  fc00:0:1111::               uN (PSP/USD)      'default':4369                    sidmgr              InUse  Y 
+  fc00:0:1111:e000::          uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0:P       isis-100            InUse  Y 
+  fc00:0:1111:e001::          uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0         isis-100            InUse  Y 
+  fc00:0:1111:e002::          uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0:P       isis-100            InUse  Y 
+  fc00:0:1111:e003::          uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0         isis-100            InUse  Y 
+  fc00:0:1111:e004::          uDT6              'carrots'                         bgp-65000           InUse  Y 
+  fc00:0:1111:e005::          uDT4              'carrots'                         bgp-65000           InUse  Y 
+  fc00:0:1111:e006::          uB6 (Insert.Red)  'srte_c_50_ep_fc00:0:7777::1' (50, fc00:0:7777::1)  xtc_srv6            InUse  Y 
+  fc00:0:1111:e007::          uB6 (Insert.Red)  'srte_c_40_ep_fc00:0:7777::1' (40, fc00:0:7777::1)  xtc_srv6            InUse  Y 
 
-SID                         Behavior          Context                           Owner               State  RW
---------------------------  ----------------  --------------------------------  ------------------  -----  --
-fc00:0:1111::               uN (PSP/USD)      'default':4369                    sidmgr              InUse  Y 
-fc00:0:1111:e000::          uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0:P       isis-100            InUse  Y 
-fc00:0:1111:e001::          uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0         isis-100            InUse  Y 
-fc00:0:1111:e002::          uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0:P       isis-100            InUse  Y 
-fc00:0:1111:e003::          uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0         isis-100            InUse  Y 
-fc00:0:1111:e004::          uDT6              'carrots'                         bgp-65000           InUse  Y 
-fc00:0:1111:e005::          uDT4              'carrots'                         bgp-65000           InUse  Y 
-fc00:0:1111:e006::          uB6 (Insert.Red)  'srte_c_50_ep_fc00:0:7777::1' (50, fc00:0:7777::1)  xtc_srv6            InUse  Y 
-fc00:0:1111:e007::          uB6 (Insert.Red)  'srte_c_40_ep_fc00:0:7777::1' (40, fc00:0:7777::1)  xtc_srv6            InUse  Y 
+  RP/0/RP0/CPU0:xrd01#show segment-routing traffic-eng policy 
+  Sat Jan 28 00:06:23.479 UTC
 
-RP/0/RP0/CPU0:xrd01#show segment-routing traffic-eng policy 
-Sat Jan 28 00:06:23.479 UTC
+  SR-TE policy database
+  ---------------------
 
-SR-TE policy database
----------------------
-
-Color: 50, End-point: fc00:0:7777::1
-  Name: srte_c_50_ep_fc00:0:7777::1
-  Status:
-    Admin: up  Operational: up for 00:23:59 (since Jan 27 23:42:24.041)
-  Candidate-paths:
-    Preference: 100 (configuration) (active)
-      Name: low-latency
-      Requested BSID: dynamic
-      Constraints:
-        Protection Type: protected-preferred
-        Maximum SID Depth: 19 
-      Explicit: segment-list xrd567 (valid)
-        Weight: 1, Metric Type: TE
-          SID[0]: fc00:0:5555::/48
-                  Format: f3216
-                  LBL:32 LNL:16 FL:0 AL:80
-          SID[1]: fc00:0:6666::/48
-                  Format: f3216
-                  LBL:32 LNL:16 FL:0 AL:80
-      SRv6 Information:
-        Locator: MyLocator
-        Binding SID requested: Dynamic
-        Binding SID behavior: End.B6.Insert.Red
-  Attributes:
-    Binding SID: fc00:0:1111:e006::
-    Forward Class: Not Configured
-    Steering labeled-services disabled: no
-    Steering BGP disabled: no
-    IPv6 caps enable: yes
-    Invalidation drop enabled: no
-    Max Install Standby Candidate Paths: 0
-```
+  Color: 50, End-point: fc00:0:7777::1
+    Name: srte_c_50_ep_fc00:0:7777::1
+    Status:
+      Admin: up  Operational: up for 00:23:59 (since Jan 27 23:42:24.041)
+    Candidate-paths:
+      Preference: 100 (configuration) (active)
+        Name: low-latency
+        Requested BSID: dynamic
+        Constraints:
+          Protection Type: protected-preferred
+          Maximum SID Depth: 19 
+        Explicit: segment-list xrd567 (valid)      <------------- HERE
+          Weight: 1, Metric Type: TE
+            SID[0]: fc00:0:5555::/48
+                    Format: f3216
+                    LBL:32 LNL:16 FL:0 AL:80
+            SID[1]: fc00:0:6666::/48
+                    Format: f3216
+                    LBL:32 LNL:16 FL:0 AL:80
+        SRv6 Information:
+          Locator: MyLocator
+          Binding SID requested: Dynamic
+          Binding SID behavior: End.B6.Insert.Red
+    Attributes:
+      Binding SID: fc00:0:1111:e006::
+      Forward Class: Not Configured
+      Steering labeled-services disabled: no
+      Steering BGP disabled: no
+      IPv6 caps enable: yes
+      Invalidation drop enabled: no
+      Max Install Standby Candidate Paths: 0
+  ```
 
 ### Validate SRv6-TE steering of L3VPN traffic
 #### Validate bulk traffic takes the non-shortest path: xrd01 -> 02 -> 03 -> 04 -> 07 
@@ -475,7 +481,7 @@ Color: 50, End-point: fc00:0:7777::1
     ```
 
 #### Validate low latency traffic takes the path: xrd01 -> 05 -> 06 -> 07 
-1. Run the tcpdump.sh script in the util directory against xrd01's outbound interfaces:
+1. Run the tcpdump.sh script in the util directory against **xrd01's** outbound interfaces:
 
     ```
     ./tcpdump.sh xrd01-xrd05
@@ -483,7 +489,7 @@ Color: 50, End-point: fc00:0:7777::1
     ./tcpdump.sh xrd06-xrd07
     ```
 
-2. Ping from Amsterdam to Rome's low latency destination IPv4 and IPv6 addresses:
+2. Ping from **Amsterdam** to **Rome's** low latency destination IPv4 and IPv6 addresses:
 
     ```
     ping 50.0.0.1 -i .4
