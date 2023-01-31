@@ -294,6 +294,9 @@ Lets use the tcpdump.sh script to validate our configuration and SR-MPLS forward
 ### Amsterdam to Rome Test using iPerf
 An alternate quick way to look for the flow of traffic through the network is to clear counters on the router's potential egress interfaces and then run a measurable amount of traffic and see which interface packet counters increment. To continue in our validation from the previous step we will go to router xrd02 and determine if our packet flow next-hops to router xrd03 or xrd06.
 
+
+![iPerf Test](/topo_drawings/iperf-sr-mpls.png)
+
 Lets get our test setup ready. For this test we will be using a tool called iPerf3 which allows us to do various types of traffic generation. 
 
   1. Log into the Rome VM with ssh.
