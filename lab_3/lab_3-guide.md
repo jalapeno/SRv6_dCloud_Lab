@@ -36,15 +36,15 @@ For the Lab 3 bulk configuration page click [HERE](./lab_3_quick_config.md)
 
 ## Learn Default ISIS Path
 
-ISIS is the underlying IGP in this lab and you validated in Lab 1 reachability between xrd routers. Now we want you to work on validate traffic routing behavior for the default ISIS and SR-MPLS so that we can compare and contrast with later traffic steering exercises. Throughout this lab we will be creating traffic flows generated from the Amsterdam VM and traveling to networks in Rome and vice-versa. 
+ISIS is the underlying IGP in this lab and you validated in Lab 1 reachability between xrd routers. Now we want you to work on validate traffic routing behavior for the default ISIS and SR-MPLS so that we can compare and contrast with later traffic steering exercises. Throughout this lab we will be creating traffic flows generated from the **Amsterdam** VM and traveling to networks in **Rome** and vice-versa. 
 
-In referencing the ISIS topology diagram below we will examine the routing table on xrd01.
+In referencing the ISIS topology diagram below we will examine the routing table on **xrd01**.
 
 ![ISIS Topology](/topo_drawings/isis-ecmp-medium.png)
 
 For full size image see [LINK](/topo_drawings/isis-ecmp-large.png)
 
-What we are looking for is xrd07 route 10.0.0.7/32 (Lo0) advertised through ISIS. Seeing the routing table below you will see that xrd01 has two ECMP equal cost paths to both next hops **xrd02** and **xrd05**. So for normal flows traffic passing through **xrd01** for networks sourced from xrd07 will get ECMP hashed. In the below command output you can see the two next hop routes installed into the routing table.
+What we are looking for is **xrd07** route 10.0.0.7/32 (Lo0) advertised through ISIS. Seeing the routing table below you will see that xrd01 has two ECMP equal cost paths to both next hops **xrd02** and **xrd05**. So for normal flows traffic passing through **xrd01** for networks sourced from xrd07 will get ECMP hashed. In the below command output you can see the two next hop routes installed into the routing table.
 
   ```
     RP/0/RP0/CPU0:xrd01#show ip route 10.0.0.7/32
@@ -67,13 +67,13 @@ For further reference the Cisco IOS-XR 7.5 Configuration guide for SR and BGP ca
 ### Configure Remote Test Networks
 The location Rome has the network 20.0.0.0/24 which we will advertise via BGP-LU on router **xrd07**. First log into **xrd07** and validate that you can reach network 20.0.0.0/24 by pinging the ip address 20.0.0.1/24 in Rome. Once you have confirmed connectivity across the Rome metro link **xrd07** gi 0/0/0/0 head to the next step.
 
-We will also advertise a pair of Amsterdam networks from **xrd01**: VPP-outside 10.101.1.0/24 and **Amsterdam** VM "ams-out" 10.101.2.0/24. We validated xrd01 reachability to these networks earlier in lab 1. 
+We will also advertise a pair of Amsterdam networks from **xrd01**: VPP-outside 10.101.1.0/24 and **Amsterdam** VM "ams-out" 10.101.2.0/24. We validated **xrd01** reachability to these networks earlier in lab 1. 
 
 ![SR-MPLS Topology](/topo_drawings/sr-mpls-medium.png)
 For full size image see [LINK](/topo_drawings/sr-mpls-large.png)
 
 ### Enable BGP Labeled Unicast
-BGP Labeled Unicast (BGP-LU) is needed to advertise the label information we will need to enable SR-MPLS routing of our desired network traffic 20.0.0.0/24. First lets enable BGP-LU on our PE routers xrd01 and xrd07 plus our BGP route reflectors xrd05 and xrd06. The command *allocate-label all* under the ipv4 unicast address family instructs bgp to advertise the networks in the global ipv4 table as labeled routes. Next you will add enable labeled unicast with the command *address-family ipv4 labeled-unicast* under neighbor-group xrd-ipv4-peer group.
+BGP Labeled Unicast (BGP-LU) is needed to advertise the label information we will need to enable SR-MPLS routing of our desired network traffic 20.0.0.0/24. First lets enable BGP-LU on our PE routers xrd01 and **xrd07** plus our BGP route reflectors **xrd05** and **rd06**. The command *allocate-label all* under the ipv4 unicast address family instructs bgp to advertise the networks in the global ipv4 table as labeled routes. Next you will add enable labeled unicast with the command *address-family ipv4 labeled-unicast* under neighbor-group xrd-ipv4-peer group.
 
 **xrd01** and **xrd07**
   ```
