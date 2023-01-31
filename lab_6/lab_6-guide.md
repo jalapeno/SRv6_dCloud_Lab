@@ -432,19 +432,20 @@ Reference this document on the shortest path algorithim in AQL [HERE](https://ww
    ```
    for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0007' TO 'sr_node/2_0_0_0000.0000.0001' sr_topology 
        return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, 
-           srv6sid: v.srv6_sid }
+       srv6sid: v.srv6_sid }
    ```
 
    3. Run a shortest path query from source prefix (Amsterdam) to destination prefix (Rome):
    ```
-    for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' sr_topology 
-        return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, 
+    for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7'
+        sr_topology return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, 
         srv6sid: v.srv6_sid, latency: e.latency }
    ```
    4. Query for the return path:
    ```
-   for v, e in outbound shortest_path 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' TO 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
-       return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, sid: v.srv6_sid, latency: e.latency }
+   for v, e in outbound shortest_path 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' TO 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1'
+       sr_topology return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, 
+       srv6sid: v.srv6_sid, latency: e.latency }
    ```
    Thus far all of these shortest path query results are based purely on hop count. Also note, in the case where the graph has multiple equal cost shortest paths, the Arango query will return the first one it finds. 
 
@@ -454,13 +455,15 @@ Reference this document on the shortest path algorithim in AQL [HERE](https://ww
 
    #### Query for the lowest latency path:
    ```
-   for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' sr_topology 
-       OPTIONS {weightAttribute: 'latency' } return  { prefix: v.prefix, name: v.name, sid: e.srv6_sid, latency: e.latency }
+   for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
+       sr_topology OPTIONS {weightAttribute: 'latency' } 
+       return  { prefix: v.prefix, name: v.name, sid: e.srv6_sid, latency: e.latency }
    ```
    #### Lowest latency return path:
    ```
-   for v, e in outbound shortest_path 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' TO 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
-       OPTIONS {weightAttribute: 'latency' } return { prefix: v.prefix, name: v.name, sid: e.srv6_sid, latency: e.latency }
+   for v, e in outbound shortest_path 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' TO 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' 
+       sr_topology OPTIONS {weightAttribute: 'latency' } 
+       return { prefix: v.prefix, name: v.name, sid: e.srv6_sid, latency: e.latency }
    ```
 ### Graph Traversals
 A traversal starts at one specific document (startVertex) and follows all edges connected to this document. For all documents (vertices) that are targeted by these edges it will again follow all edges connected to them and so on. It is possible to define how many of these follow iterations should be executed at least (min depth) and at most (max depth). Or in network-engineer-speak "fewest hops" and "most hops"
@@ -540,7 +543,8 @@ https://www.arangodb.com/docs/stable/aql/graphs-kshortest-paths.html
 
  - Full path data:
     ```
-    for p in outbound k_shortest_paths  'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' to 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' sr_topology options {uniqueVertices: "path"} filter p.edges[*].country_codes !like "%FRA%" return distinct p
+    for p in outbound k_shortest_paths  'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' to 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
+        sr_topology options {uniqueVertices: "path"} filter p.edges[*].country_codes !like "%FRA%" return distinct p
     ```
   The resulting graph shows our two paths that avoid going through France (xrd06 in Paris)
   <img src="images/data-sovereignty-query.png" width="600">
