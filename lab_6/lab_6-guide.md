@@ -497,7 +497,7 @@ Backups, data replication, other bulk transfers can oftentimes take a non-best p
    ```
    for v, e, p in 1..6 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
        options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
-       return distinct { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*],
+       return distinct { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, countries_traversed: p.edges[*].country_codes[*],
        latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
    ```
    We no longer see the UI render a topology, but we do get a nice subset of the output data. Also note the *return* instruction in the query specifies that it should add up the `latency` values, and do an average calculation on `percent_util_out` values.
@@ -508,7 +508,7 @@ Backups, data replication, other bulk transfers can oftentimes take a non-best p
    ```
    for v, e, p in 1..6 outbound 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' sr_topology 
        options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' 
-       return distinct { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*],
+       return distinct { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, countries_traversed: p.edges[*].country_codes[*],
        latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
    ```
    - Note: unlike latency, which we can expect to be roughly equivalent in either direction, average utilization could be quite different. In our network the least utilized Amsterdam to Rome path is different from the least utilized Rome to Amsterdam path: **xrd07** -> **xrd06** -> **xrd02** -> **xrd01**
