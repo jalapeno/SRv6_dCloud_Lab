@@ -12,7 +12,7 @@ After installing the Jalapeno package the student will then configure BGP Monito
   - [Lab Objectives](#lab-objectives)
   - [Jalapeno Overview](#jalapeno-overview)
     - [Jalapeno Architecture and Data Flow](#jalapeno-architecture-and-data-flow)
-  - [Install Jalapeno](#install-jalapeno)
+  - [Validate Jalapeno](#validate-jalapeno)
   - [BGP Monitoring Protocol (BMP)](#bgp-monitoring-protocol-bmp)
   - [Configure a BGP SRv6 locator](#configure-a-bgp-srv6-locator)
   - [Install Jalapeno SR-Processors](#install-jalapeno-sr-processors)
@@ -42,59 +42,22 @@ Jalapeno breaks the data collection and warehousing problem down into a series o
 
 One of the primary goals of the Jalapeno project is to be flexible and extensible. In the future we expect Jalapeno might support any number of data collectors and processors. For example the could be a collector/processor pair that creates an LLDP Topology model in the graphDB. Netflow data could be incorporated via a future integration with pmacct. Or an operator might already have a telemetry stack and could choose to selectively integrate Jalapeno's GoBMP/Topology/GraphDB modules into an existing environment running Kafka. We also envision future integrations with other API-driven data warehouses such as ThousandEyes: https://www.thousandeyes.com/
 
-## Install Jalapeno
+## Validate Jalapeno 
 
-1. In a separate terminal session ssh to the Jalapeno VM 
-    ```
-    cisco@198.18.128.101
-    pw = cisco123
-    ```
-2. Clone the Jalapeno repository at https://github.com/cisco-open/jalapeno, then cd into the repo and switch to the `cleu-srv6-lab` code branch:
-    ```
-    git clone https://github.com/cisco-open/jalapeno.git
-    
-    cd jalapeno
-    
-    git checkout cleu-srv6-lab
-    ```
+The Jalapeno package is preinstalled and running on the Jalapeno VM
 
-    Example output:  
-    ```
-    cisco@jalapeno:~/$ git clone https://github.com/cisco-open/jalapeno.git
-    Cloning into 'jalapeno'...
-    remote: Enumerating objects: 4808, done.
-    remote: Counting objects: 100% (1468/1468), done.
-    remote: Compressing objects: 100% (566/566), done.
-    remote: Total 4808 (delta 733), reused 1350 (delta 670), pack-reused 3340
-    Receiving objects: 100% (4808/4808), 17.43 MiB | 26.88 MiB/s, done.
-    Resolving deltas: 100% (2461/2461), done.
-
-    cisco@jalapeno:~/$ cd jalapeno/
-
-    cisco@jalapeno:~/jalapeno$ git checkout cleu-srv6-lab
-    Branch 'cleu-srv6-lab' set up to track remote branch 'cleu-srv6-lab' from 'origin'.
-    Switched to a new branch 'cleu-srv6-lab'
-    cisco@jalapeno:~/jalapeno$ 
-    ```
-
-3. Run the Jalapeno install script
-    ```
-    cd ~/jalapeno/install/
-    ./deploy_jalapeno.sh 
-    ```
-
-4. Verify k8s pods are running (note, some pods may initially be in a *CrashLoopBackOff* state. These should resolve after 2-3 minutes). For those students new to Kubernetes you can reference this cheat sheet [HERE](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)  
+1. Verify k8s pods are running (note, some pods may initially be in a *CrashLoopBackOff* state. These should resolve after 2-3 minutes). For those students new to Kubernetes you can reference this cheat sheet [HERE](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)  
 
     ```
     kubectl get pods -A
     ```
-    Expected output:  
+    Output should look something like:  
 
     ```
     cisco@jalapeno:~/jalapeno/install$ kubectl get pods -A
     NAMESPACE             NAME                                           READY   STATUS    RESTARTS        AGE
-    jalapeno-collectors   gobmp-5db68bd644-hzs82                         1/1     Running   3 (4m5s ago)    4m25s
-    jalapeno-collectors   telegraf-ingress-deployment-5b456574dc-wdhjk   1/1     Running   1 (4m2s ago)    4m25s
+    jalapeno-collectors   gobmp-5db68bd644-hzs82                         1/1     Running   3 (4m5s ago)    4m25s  
+    jalapeno-collectors   telegraf-ingress-deployment-5b456574dc-wdhjk   1/1     Running   1 (4m2s ago)    4m25s  
     jalapeno              arangodb-0                                     1/1     Running   0               4m33s
     jalapeno              grafana-deployment-565756bd74-x2szz            1/1     Running   0               4m32s
     jalapeno              influxdb-0                                     1/1     Running   0               4m32s
@@ -113,13 +76,14 @@ One of the primary goals of the Jalapeno project is to be flexible and extensibl
     kube-system           kube-proxy-pmwft                               1/1     Running   5 (16m ago)     14d
     kube-system           kube-scheduler-jalapeno                        1/1     Running   6 (16m ago)     14d
     ```
-5. Here are some additional k8s commands to try. Note the different outputs when specifying a particular namespace (-n option) vs. all namespaces (-A option):
+
+2. Here are some additional k8s commands to try. Note the different outputs when specifying a particular namespace (-n option) vs. all namespaces (-A option):
     ```
-    kubectl get pods -n jalapeno              <-------- display all pods/containers in the Jalapeno namespace
-    kubectl get pods -n jalapeno-collectors   <-------- display all pods/containers in the Jalapeno-Collectors namespace
-    kubectl get services -A                   <-------- display all externally reachable services (BMP, Arango, etc.)
-    kubectl get all -A                        <-------- display a summary of all cluster info
-    kubectl get nodes                         <-------- display cluster node info
+    kubectl get pods -n jalapeno                      <-------- display all pods/containers in the Jalapeno namespace
+    kubectl get pods -n jalapeno-collectors           <-------- display all pods/containers in the Jalapeno-Collectors namespace
+    kubectl get services -A                           <-------- display all externally reachable services (BMP, Arango, etc.)
+    kubectl get all -A                                <-------- display a summary of all cluster info
+    kubectl get nodes                                 <-------- display cluster node info
     kubectl describe pod -n <namespace> <pod name>    <-------- display detailed info about a pod
 
     example: kubectl describe pod -n jalapeno topology-678ddb8bb4-rt9jg
@@ -257,7 +221,7 @@ The SR-Processors are a pair of proof-of-concept data processors that mine Jalap
     kubectl get pods -n jalapeno
     ```
     #### Expected output:  
-    Look for the new 
+    Look for the new pods running in the jalapeno namespace
     ```
     cisco@jalapeno:~/sr-processors$ kubectl get pods -n jalapeno
     NAME                                          READY   STATUS    RESTARTS      AGE
