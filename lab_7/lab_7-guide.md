@@ -85,48 +85,48 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
 
 ### Preliminary steps for SR/SRv6 on Rome VM
    1.  Login to the Rome VM
-   ```
-   ssh cisco@198.18.128.103
-   ```
+    ```
+    ssh cisco@198.18.128.103
+    ```
 
    2. On the Rome VM cd into the lab_7 directory where the jalapeno.py client resides:
-   ```
-   cd ~/SRv6_dCloud_Lab/lab_7/python
-   ```
+    ```
+    cd ~/SRv6_dCloud_Lab/lab_7/python
+    ```
    3. Get familiar with files in the directory; specifically:
-   ```
-   cat rome.json                 <------- data jalapeno.py will use to execute its query and program its SR/SRv6 route
-   cat cleanup_rome_routes.sh    <------- script to cleanup any old SR/SRv6 routes
-   cat jalapeno.py               <------- python client that takes cmd line args to request/execute an SR/SRv6 network service
-   ls netservice/                <------- contains python libraries available to jalapeno.py for calculating SR/SRv6 route instructions
+    ```
+    cat rome.json                 <------- data jalapeno.py will use to execute its query and program its SR/SRv6 route
+    cat cleanup_rome_routes.sh    <------- script to cleanup any old SR/SRv6 routes
+    cat jalapeno.py               <------- python client that takes cmd line args to request/execute an SR/SRv6 network service
+    ls netservice/                <------- contains python libraries available to jalapeno.py for calculating SR/SRv6 route instructions
 
-   ```
+    ```
    4. For SRv6 outbound encapsulation we'll need to set Rome's SRv6 source address:
 
-   ```
-   sudo ip sr tunsrc set fc00:0:107:1::1
-   ```
+    ```
+    sudo ip sr tunsrc set fc00:0:107:1::1
+    ```
 
-   - Note: For host-based SR/MPLS the Linux MPLS modules aren't loaded by default, however, we already enabled them on the Rome VM. If you're setting up a similar lab in your own environment, here are the commands to load them: 
-   ```
-   sudo modprobe mpls_router
-   sudo modprobe mpls_iptunnel
-   ```
-   Unfortunately the modprobe commands don't return any response to the command line. So:
+    - Note: For host-based SR/MPLS the Linux MPLS modules aren't loaded by default, however, we already enabled them on the Rome VM. If you're setting up a similar lab in your own environment, here are the commands to load them: 
+    ```
+    sudo modprobe mpls_router
+    sudo modprobe mpls_iptunnel
+    ```
+    Unfortunately the modprobe commands don't return any response to the command line. So:
 
    5. Validate Rome VM's MPLS modules are loaded:
-   ```
-   lsmod | grep mpls
-   ```
-   Output should look something like this:
-   ```
-   cisco@rome:~$ lsmod | grep mpls
-    mpls_iptunnel          20480  0                    <----- Currently no MPLS tunnels/routes configured
-    mpls_router            40960  1 mpls_iptunnel
-    ip_tunnel              24576  1 mpls_router
-   ```
-  
-   - Reference: https://linuxize.com/post/lsmod-command-in-linux/
+    ```
+    lsmod | grep mpls
+    ```
+    Output should look something like this:
+    ```
+    cisco@rome:~$ lsmod | grep mpls
+      mpls_iptunnel          20480  0                    <----- Currently no MPLS tunnels/routes configured
+      mpls_router            40960  1 mpls_iptunnel
+      ip_tunnel              24576  1 mpls_router
+    ```
+    
+    - Reference: https://linuxize.com/post/lsmod-command-in-linux/
 
 
 ## Jalapeno python client:
@@ -186,173 +186,176 @@ Note: the jalapeno.py client supports both SR and SRv6 encapsulation, however, f
 The Get All Paths Service will query the DB for all paths up to 6-hops in length between a pair of source and destination prefixes.
 
 1. Run the 'gp' service (you can specify either sr or srv6 for encap):
-``` 
-python3 jalapeno.py -f rome.json -s gp -e srv6
-```
-  - Sample command line output:
-```
-cisco@rome:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f rome.json -s gp -e srv6
-src data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'src_peer': '10.0.0.7'}]
-dest data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'dst_peer': '10.0.0.1'}]
-Get All Paths Service
-number of paths found:  4
-SRv6 locators for path:  ['fc00:0:4444::', 'fc00:0:5555::', 'fc00:0:1111::']
-SR prefix sids for path:  [100004, 100005, 100001]
-SRv6 locators for path:  ['fc00:0:6666::', 'fc00:0:2222::', 'fc00:0:1111::']
-SR prefix sids for path:  [100006, 100002, 100001]
-SRv6 locators for path:  ['fc00:0:6666::', 'fc00:0:5555::', 'fc00:0:1111::']
-SR prefix sids for path:  [100006, 100005, 100001]
-SRv6 locators for path:  ['fc00:0:4444::', 'fc00:0:3333::', 'fc00:0:2222::', 'fc00:0:1111::']
-SR prefix sids for path:  [100004, 100003, 100002, 100001]
-All paths data from unicast_prefix_v4/20.0.0.0_24_10.0.0.7 to unicast_prefix_v4/10.101.2.0_24_10.0.0.1 logged to log/get_paths.json
-```
- - The code contains a number of console logging instances that are commented out, and some that are active (hence the output above). Note this line which provides a summary of the relevant paths by outputing the SRv6 locators along each path:
+  ``` 
+  python3 jalapeno.py -f rome.json -s gp -e srv6
+  ```
+    - Sample command line output:
+  ```
+  cisco@rome:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f rome.json -s gp -e srv6
+  src data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'src_peer': '10.0.0.7'}]
+  dest data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'dst_peer': '10.0.0.1'}]
+  Get All Paths Service
+  number of paths found:  4
+  SRv6 locators for path:  ['fc00:0:4444::', 'fc00:0:5555::', 'fc00:0:1111::']
+  SR prefix sids for path:  [100004, 100005, 100001]
+  SRv6 locators for path:  ['fc00:0:6666::', 'fc00:0:2222::', 'fc00:0:1111::']
+  SR prefix sids for path:  [100006, 100002, 100001]
+  SRv6 locators for path:  ['fc00:0:6666::', 'fc00:0:5555::', 'fc00:0:1111::']
+  SR prefix sids for path:  [100006, 100005, 100001]
+  SRv6 locators for path:  ['fc00:0:4444::', 'fc00:0:3333::', 'fc00:0:2222::', 'fc00:0:1111::']
+  SR prefix sids for path:  [100004, 100003, 100002, 100001]
+  All paths data from unicast_prefix_v4/20.0.0.0_24_10.0.0.7 to unicast_prefix_v4/10.101.2.0_24_10.0.0.1 logged to log/get_paths.json
+  ```
+  - The code contains a number of console logging instances that are commented out, and some that are active (hence the output above). Note this line which provides a summary of the relevant paths by outputing the SRv6 locators along each path:
 
-  https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_7/python/netservice/gp.py#L43
+    https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_7/python/netservice/gp.py#L43
 
 
- - All the jalapeno network services will output some data to the console. More verbose data will be logged to the lab_7/python/log directory. Check log output:
-```
-more log/get_paths.json
-```
- - We can expect to see a json file with source, destination, and path data which includes srv6 sids and sr label stack info
+  - All the jalapeno network services will output some data to the console. More verbose data will be logged to the lab_7/python/log directory. Check log output:
+  ```
+  more log/get_paths.json
+  ```
+  - We can expect to see a json file with source, destination, and path data which includes srv6 sids and sr label stack info
 
-Like in Lab 6 we can also experiment with the script's graph traversal parameters to limit or expand the number of vertex 'hops' the query will search for. Note: ArangoDB considers the source and destination vertices as 'hops' when doing its graph traversal.
+  Like in Lab 6 we can also experiment with the script's graph traversal parameters to limit or expand the number of vertex 'hops' the query will search for. Note: ArangoDB considers the source and destination vertices as 'hops' when doing its graph traversal.
 
-2. Optional: change the 'gp' service's hopcount parameters. Open the netservice/gp.py file in a text editor (vi, vim) and change parameters in line 9: 
+2. Optional: change the 'gp' service's hopcount parameters. 
+   Open the netservice/gp.py file in a text editor (vi, vim) and change parameters in line 9: 
+   
 
   https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_7/python/netservice/gp.py#L9
 
-Change it to read:
-```
-for v, e, p in 6..6 outbound
-```
-Save gp.py and re-run the script. The *`6..6`* syntax indicates the traversal should ONLY consider paths 6 hops in length. Given our topology a re-run of the client *`python3 jalapeno.py -f rome.json -s gp -e srv6`* you should output only a single path option in the command line output and log.
+  Change it to read:
+  ```
+  for v, e, p in 6..6 outbound
+  ```
+  Save gp.py and re-run the script. The *`6..6`* syntax indicates the traversal should ONLY consider paths 6 hops in length. Given our topology a re-run of the client *`python3 jalapeno.py -f rome.json -s gp -e srv6`* you should output only a single path option in the command line output and log.
 
-Example:
-```
-SRv6 locators for path:  [None, 'fc00:0:4444::', 'fc00:0:3333::', 'fc00:0:2222::', 'fc00:0:1111::', None]
-```
+  Example:
+  ```
+  SRv6 locators for path:  [None, 'fc00:0:4444::', 'fc00:0:3333::', 'fc00:0:2222::', 'fc00:0:1111::', None]
+  ```
 
 3. Optional: try increasing the number of hops the graph may traverse:
 
- ```
- for v, e, p in 1..8 outbound
- ```
-Save the file and re-run the script. You should see 8 total path options in the command line output and log.
+  ```
+  for v, e, p in 1..8 outbound
+  ```
+  Save the file and re-run the script. You should see 8 total path options in the command line output and log.
 
 ### Least Utilized Path
 Many segment routing and other SDN solutions focus on the low latency path as their primary use case. We absolutely feel low latency is an important network service, especially for real time applications. However, we believe one of the use cases which deliver the most bang for the buck is "Least Utilized Path". The idea behind this use case is that the routing protocol's chosen best path is usually *The Best Path*. Thus the *Least Utilized* service looks to steer lower priority traffic (backups, content replication, etc.) to lesser used paths and preserve the routing protocol's best path for higher priority traffic.
 
 
 1. Cleanup Rome's routes and execute the least utilized path service with SRv6 encapsulation
-```
-./cleanup_rome_routes.sh 
-python3 jalapeno.py -f rome.json -e srv6 -s lu
-```
-Expected console output:
-```
-cisco@rome:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f rome.json -e srv6 -s lu
-src data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'src_peer': '10.0.0.7'}]
-dest data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'dst_peer': '10.0.0.1'}]
-Least Utilized Service
-locators:  ['fc00:0:6666::', 'fc00:0:2222::', 'fc00:0:1111::']
-prefix_sids:  [100006, 100002, 100001]
-srv6 sid:  fc00:0:6666:2222:1111::
-adding linux SRv6 route: ip route add 10.101.2.0/24 encap seg6 mode encap segs fc00:0:6666:2222:1111:: dev ens192
-Show Linux Route Table: 
-default via 198.18.128.1 dev ens160 proto static 
-10.0.0.0/24 via 10.107.1.2 dev ens192 proto static 
-10.1.1.0/24 via 10.107.1.2 dev ens192 proto static 
-10.101.1.0/24 via 10.107.1.2 dev ens192 proto static 
-10.101.2.0/24  encap seg6 mode encap segs 1 [ fc00:0:6666:2222:1111:: ] dev ens192 scope link     <--------HERE
-10.101.3.0/24 via 10.107.2.2 dev ens224 proto static 
-10.107.1.0/24 dev ens192 proto kernel scope link src 20.0.0.1 
-10.107.2.0/24 dev ens224 proto kernel scope link src 10.107.2.1 
-198.18.128.0/18 dev ens160 proto kernel scope link src 198.18.128.103 
-```
+  ```
+  ./cleanup_rome_routes.sh 
+  python3 jalapeno.py -f rome.json -e srv6 -s lu
+  ```
+  Expected console output:
+  ```
+  cisco@rome:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f rome.json -e srv6 -s lu
+  src data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'src_peer': '10.0.0.7'}]
+  dest data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'dst_peer': '10.0.0.1'}]
+  Least Utilized Service
+  locators:  ['fc00:0:6666::', 'fc00:0:2222::', 'fc00:0:1111::']
+  prefix_sids:  [100006, 100002, 100001]
+  srv6 sid:  fc00:0:6666:2222:1111::
+  adding linux SRv6 route: ip route add 10.101.2.0/24 encap seg6 mode encap segs fc00:0:6666:2222:1111:: dev ens192
+  Show Linux Route Table: 
+  default via 198.18.128.1 dev ens160 proto static 
+  10.0.0.0/24 via 10.107.1.2 dev ens192 proto static 
+  10.1.1.0/24 via 10.107.1.2 dev ens192 proto static 
+  10.101.1.0/24 via 10.107.1.2 dev ens192 proto static 
+  10.101.2.0/24  encap seg6 mode encap segs 1 [ fc00:0:6666:2222:1111:: ] dev ens192 scope link     <--------HERE
+  10.101.3.0/24 via 10.107.2.2 dev ens224 proto static 
+  10.107.1.0/24 dev ens192 proto kernel scope link src 20.0.0.1 
+  10.107.2.0/24 dev ens224 proto kernel scope link src 10.107.2.1 
+  198.18.128.0/18 dev ens160 proto kernel scope link src 198.18.128.103 
+  ```
 
 2. Check log output and linux ip route:
- ```
-cat log/least_util.json
+  ```
+  cat log/least_util.json
 
-ip route
+  ip route
 
-```
+  ```
 
 3. Run a ping test 
  - Open up a second ssh session to the Rome VM
  - Start tcpdump on 2nd ssh session. This will capture packets outbound from Rome VM going toward xrd07:
-```
-sudo tcpdump -ni ens192
-```
- - Return to the first Rome ssh session and ping Amsterdam with Rome source address 20.0.0.1. The "-i .3" argument sets the ping interval to 300ms
-```
-ping 10.101.2.1 -I 20.0.0.1 -i .3
-```
-- Note: as of CLEU23 there is some issue where IPv6 neighbor instances between Rome Linux and the XRd MACVLAN attachment on *`xrd07`*. So if your ping doesn't work try pinging from *`xrd07`* to *`Rome`*. A successful ping should 'wake up' the IPv6 neighborship.
+  ```
+  sudo tcpdump -ni ens192
+  ```
+  - Return to the first Rome ssh session and ping Amsterdam with Rome source address 20.0.0.1. The "-i .3" argument sets the ping interval to 300ms
+  ```
+  ping 10.101.2.1 -I 20.0.0.1 -i .3
+  ```
+  - Note: as of CLEU23 there is some issue where IPv6 neighbor instances between Rome Linux and the XRd MACVLAN attachment on *`xrd07`*. So if your ping doesn't work try pinging from *`xrd07`* to *`Rome`*. A successful ping should 'wake up' the IPv6 neighborship.
 
-On *`xrd07`*:  
-```
-ping fc00:0:107:1::1
-```
-Output:
-```
-RP/0/RP0/CPU0:xrd07#ping fc00:0:107:1::1
-Wed Feb  1 04:21:15.980 UTC
-Type escape sequence to abort.
-Sending 5, 100-byte ICMP Echos to fc00:0:107:1::1, timeout is 2 seconds:
-!!!!!
-Success rate is 100 percent (5/5), round-trip min/avg/max = 1/2/5 ms
-```
+  On *`xrd07`*:  
+  ```
+  ping fc00:0:107:1::1
+  ```
+  Output:
+  ```
+  RP/0/RP0/CPU0:xrd07#ping fc00:0:107:1::1
+  Wed Feb  1 04:21:15.980 UTC
+  Type escape sequence to abort.
+  Sending 5, 100-byte ICMP Echos to fc00:0:107:1::1, timeout is 2 seconds:
+  !!!!!
+  Success rate is 100 percent (5/5), round-trip min/avg/max = 1/2/5 ms
+  ```
 
 4. Retry the Rome to Amsterdam ping test:
-```
-ping 10.101.2.1 -I 20.0.0.1 -i .3
-```
+  ```
+  ping 10.101.2.1 -I 20.0.0.1 -i .3
+  ```
 
 5. Check the Rome tcpdump to validate traffic is encapsulated with the SRv6 SID. Expected output will be something like:
-```
-cisco@rome:~$ sudo tcpdump -ni ens192
-tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
-listening on ens192, link-type EN10MB (Ethernet), capture size 262144 bytes
-04:27:26.773904 IP6 fc00:0:107:1::1 > fc00:0:6666:2222:1111:e006::: srcrt (len=2, type=4, segleft=0[|srcrt]
-04:27:26.841619 IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 3, seq 3, length 64
-04:27:27.074262 IP6 fc00:0:107:1::1 > fc00:0:6666:2222:1111:e006::: srcrt (len=2, type=4, segleft=0[|srcrt]
-04:27:27.145618 IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 3, seq 4, length 64
-```
+  ```
+  cisco@rome:~$ sudo tcpdump -ni ens192
+  tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+  listening on ens192, link-type EN10MB (Ethernet), capture size 262144 bytes
+  04:27:26.773904 IP6 fc00:0:107:1::1 > fc00:0:6666:2222:1111:e006::: srcrt (len=2, type=4, segleft=0[|srcrt]
+  04:27:26.841619 IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 3, seq 3, length 64
+  04:27:27.074262 IP6 fc00:0:107:1::1 > fc00:0:6666:2222:1111:e006::: srcrt (len=2, type=4, segleft=0[|srcrt]
+  04:27:27.145618 IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 3, seq 4, length 64
+  ```
 
 6. Return to an SSH session on the XRD VM and use tcpdump.sh <xrd0x-xrd0y>" to capture packets along the path from Rome VM to Amsterdam VM. Given the SRv6 Micro-SID combination seen above, we'll monitor the linux bridges linking *`xrd07`* to *`xrd06`*, *`xrd06`* to *`xrd02`*, then *`xrd02`* to *`xrd01`*:
- - restart the ping if it is stopped
+        
+    - restart the ping if it is stopped
 
-*`xrd07`* to *`xrd06`*
-```
-cd cd ~/SRv6_dCloud_Lab/util/
-./tcpdump.sh xrd06-xrd07
-```
+   *`xrd07`* to *`xrd06`*
+   ```
+   cd cd ~/SRv6_dCloud_Lab/util/
+   ./tcpdump.sh xrd06-xrd07
+   ```
 
-*`xrd06`* to *`xrd02`*
-```
-./tcpdump.sh xrd02-xrd06
-```
+   *`xrd06`* to *`xrd02`*
+   ```
+   ./tcpdump.sh xrd02-xrd06
+   ```
 
-*`xrd02`* to *`xrd01`*
-```
-./tcpdump.sh xrd01-xrd02
-```
+   *`xrd02`* to *`xrd01`*
+   ```
+   ./tcpdump.sh xrd01-xrd02
+   ```
  - Example output for the link between *`xrd06`* to *`xrd02`* is below. Note how *`xrd06`* has performed SRv6 micro-SID shift-and-forward on the destination address. Also note how the return traffic is taking SR-MPLS transport (currently). 
-```
-cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd02-xrd06
-sudo tcpdump -ni br-07e02174172b
-tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
-listening on br-07e02174172b, link-type EN10MB (Ethernet), capture size 262144 bytes
-23:30:45.978380 IP6 fc00:0:107:1::1 > fc00:0:2222:1111:e006::: srcrt (len=2, type=4, segleft=0[|srcrt]
-23:30:46.010720 MPLS (label 100007, exp 0, ttl 61) (label 24010, exp 0, [S], ttl 62) IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 4, seq 9, length 64
-23:30:46.279814 IP6 fc00:0:107:1::1 > fc00:0:2222:1111:e006::: srcrt (len=2, type=4, segleft=0[|srcrt]
-23:30:46.315159 MPLS (label 100007, exp 0, ttl 61) (label 24010, exp 0, [S], ttl 62) IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 4, seq 10, length 64
-```
+  ```
+  cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd02-xrd06
+  sudo tcpdump -ni br-07e02174172b
+  tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+  listening on br-07e02174172b, link-type EN10MB (Ethernet), capture size 262144 bytes
+  23:30:45.978380 IP6 fc00:0:107:1::1 > fc00:0:2222:1111:e006::: srcrt (len=2, type=4, segleft=0[|srcrt]
+  23:30:46.010720 MPLS (label 100007, exp 0, ttl 61) (label 24010, exp 0, [S], ttl 62) IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 4, seq 9, length 64
+  23:30:46.279814 IP6 fc00:0:107:1::1 > fc00:0:2222:1111:e006::: srcrt (len=2, type=4, segleft=0[|srcrt]
+  23:30:46.315159 MPLS (label 100007, exp 0, ttl 61) (label 24010, exp 0, [S], ttl 62) IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 4, seq 10, length 64
+  ```
 
-7. Optional: run the least utilized path service with SR encapsulation
+1. Optional: run the least utilized path service with SR encapsulation
 ``` 
 ./cleanup_rome_routes.sh 
 python3 jalapeno.py -f rome.json -e sr -s lu
@@ -381,7 +384,7 @@ default via 198.18.128.1 dev ens160 proto static
 198.18.128.0/18 dev ens160 proto kernel scope link src 198.18.128.103  
 ```
 
-8. Optional: repeat, or just spot-check the ping and tcpdump steps described in 3 - 5 to see the SR label switching in action
+1. Optional: repeat, or just spot-check the ping and tcpdump steps described in 3 - 5 to see the SR label switching in action
 
 ### Low Latency Path
 The Low Latency Path service will calculate an SR/SRv6 encapsulation instruction for sending traffic over the lowest latency path from a source to a given destination. The procedure for testing/running the Low Latency Path service is the same as the one we followed with Least Utilized Path. 
