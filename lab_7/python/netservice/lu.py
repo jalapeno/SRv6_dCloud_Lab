@@ -46,19 +46,16 @@ def lu_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane, encap):
 
     ### From here we're going to get the end.dt localsid and add it to the uSID dest
     locator = locators[-1]
-    print("egress node locator: ", locator)
+    #print("egress node locator: ", locator)
     localsid = local_sid.localsid(user, pw, dbname,locator, usid_block)
-    print("lu calc localsid: ", localsid)
     
     usd = locator.replace(usid_block, '')
-    print("usd: ", usd)
 
     ### this is from original
     srv6_sid = usid_block + sidlist + ipv6_separator
 
     ### replace usd sid with end.dt 
     newsid = srv6_sid.replace(usd, localsid)
-    print("newsid: ", newsid)
 
     ### Return to original code
     print("srv6 sid: ", srv6_sid)
