@@ -3,7 +3,7 @@
 ### Description
 In Lab 5 we will install the open-source Jalapeno data infrastructure platform. Jalapeno is designed to run on Kubernetes (k8s), which allows for easy integration into existing environments, and the ability to easily deploy on bare metal, VMs, or in a public cloud. Kubernetes experience is not required for Lab 5 as K8s has been preinstalled on the Jalapeno VM and we have included the required *kubectl* validation commands. 
 
-After installing the Jalapeno package the student will then configure BGP Monitoring Protocol (BMP) on our route reflectors. Last we will add an SRv6 Locator to BGP default/global tables, which will be used in a later exercise where Amsterdam and Rome perform SRv6 encapsulation of their own outbound traffic.
+Jalapeno package comes preinstalled in a VM. The student will first configure BGP Monitoring Protocol (BMP) on our route reflectors. Second we will add an SRv6 Locator to BGP default/global tables, which will be used in a later exercise where Amsterdam and Rome perform SRv6 encapsulation of their own outbound traffic.
 
 ## Contents
 - [Lab 5: Install Jalapeno and enable BMP](#lab-5-install-jalapeno-and-enable-bmp)
@@ -40,11 +40,11 @@ Jalapeno breaks the data collection and warehousing problem down into a series o
 - API-Gateway: is currently under construction so for the lab we'll interact directly with the DB
 - Jalapeno's installation script will also deploy a Grafana container, which can be used to create dashboards to visualize the Influx time-series data (this is out of scope for CLEU 2023, but is on our roadmap for future labs)
 
-One of the primary goals of the Jalapeno project is to be flexible and extensible. In the future we expect Jalapeno might support any number of data collectors and processors. For example the could be a collector/processor pair that creates an LLDP Topology model in the graphDB. Netflow data could be incorporated via a future integration with pmacct. Or an operator might already have a telemetry stack and could choose to selectively integrate Jalapeno's GoBMP/Topology/GraphDB modules into an existing environment running Kafka. We also envision future integrations with other API-driven data warehouses such as ThousandEyes: https://www.thousandeyes.com/
+One of the primary goals of the Jalapeno project is to be flexible and extensible. In the future we expect Jalapeno might support any number of data collectors and processors. For example the could be a collector/processor pair that creates an LLDP Topology model in the graphDB. Netflow data could be incorporated via a future integration with pmacct. Or an operator might already have a telemetry stack and could choose to selectively integrate Jalapeno's GoBMP/Topology/GraphDB modules into an existing environment running Kafka. We also envision future integrations with other API-driven data warehouses such as Cisco ThousandEyes: https://www.thousandeyes.com/
 
 ## Validate Jalapeno 
 
-The Jalapeno package is preinstalled and running on the Jalapeno VM
+The Jalapeno package is preinstalled and running on the **Jalapeno** VM
 
 1. Verify k8s pods are running (note, some pods may initially be in a *CrashLoopBackOff* state. These should resolve after 2-3 minutes). For those students new to Kubernetes you can reference this cheat sheet [HERE](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)  
 
@@ -93,7 +93,7 @@ The Jalapeno package is preinstalled and running on the Jalapeno VM
 
 Most transport SDN systems use BGP-LS to gather and model the underlying IGP topology. Jalapeno is intended to be a more generalized data platform to support use cases beyond internal transport such as VPNs or service chains. Because of this, Jalapeno's primary method of capturing topology data is via BMP. BMP provides all BGP AFI/SAFI info, thus Jalapeno is able to model many different kinds of topology, including the topology of the Internet (at least from the perspective of our peering routers).
 
-We'll first establish a BMP session between our route-reflectors and the open-source GoBMP collector (https://github.com/sbezverk/gobmp), which comes pre-packaged with the Jalapeno install. We'll then enable BMP on the RRs' BGP peering sessions with our PE routers xrd01 and xrd07. Once established, the RRs' will stream all BGP NLRI info they receive from the PE routers to the GoBMP collector, which will in turn publish the data to Kafka. We'll get more into the Jalapeno data flow in Lab 6.
+We'll first establish a BMP session between our route-reflectors and the open-source GoBMP collector (repository [HERE]((https://github.com/sbezverk/gobmp)), which comes pre-packaged with the Jalapeno install. We'll then enable BMP on the RRs' BGP peering sessions with our PE routers xrd01 and xrd07. Once established, the RRs' will stream all BGP NLRI info they receive from the PE routers to the GoBMP collector, which will in turn publish the data to Kafka. We'll get more into the Jalapeno data flow in Lab 6.
 
 1. BMP configuration on xrd05 and xrd06:
     ```
@@ -118,6 +118,7 @@ We'll first establish a BMP session between our route-reflectors and the open-so
     
       neighbor fc00:0000:7777::1
         bmp-activate server 1
+    comit
     ```
 
 2. Validate BMP session establishment and client monitoring (the session may take a couple minutes to become active/connected):
