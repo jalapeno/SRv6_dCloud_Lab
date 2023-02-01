@@ -240,12 +240,12 @@ Validation command output examples can be found at this [LINK](https://github.co
     Path #1: Received by speaker 0
     Not advertised to any peer
     Local
-      fc00:0:7777::1 (metric 3) from fc00:0:5555::1 (10.0.0.7)   <--------- FROM XRD07
+      fc00:0:7777::1 (metric 3) from fc00:0:5555::1 (10.0.0.7)   <--------- SOURCE XRD07
         Received Label 0xe0040
         Origin incomplete, metric 0, localpref 100, valid, internal, best, group-best, import-candidate, not-in-vrf
         Received Path ID 0, Local Path ID 1, version 5
         Extended community: RT:9:9 
-        Originator: 10.0.0.7, Cluster list: 10.0.0.5            <------- FROM RR XRD05
+        Originator: 10.0.0.7, Cluster list: 10.0.0.5             <------- FROM RR XRD05
         PSID-Type:L3, SubTLV Count:1
         SubTLV:
           T:1(Sid information), Sid:fc00:0:7777::, Behavior:63, SS-TLV Count:1
@@ -259,14 +259,14 @@ Validation command output examples can be found at this [LINK](https://github.co
         Origin incomplete, metric 0, localpref 100, valid, internal, import-candidate, not-in-vrf
         Received Path ID 0, Local Path ID 0, version 0
         Extended community: RT:9:9 
-        Originator: 10.0.0.7, Cluster list: 10.0.0.6            <------- FROM RR XRD06
+        Originator: 10.0.0.7, Cluster list: 10.0.0.6             <------- FROM RR XRD06
         PSID-Type:L3, SubTLV Count:1
         SubTLV:
           T:1(Sid information), Sid:fc00:0:7777::, Behavior:63, SS-TLV Count:1
           SubSubTLV:
             T:1(Sid structure):
   ```
-  
+
 ## Configure SRv6-TE steering for L3VPN
 **Rome's** L3VPN IPv4 and IPv6 prefixes are associated with two classes of traffic. The "40" destinations (40.0.0.0/24 and fc00:0:40::/64) are Bulk Transport destinations (content replication or data backups) and thus are latency and loss tolerant. The "50" destinations (50.0.0.0/24 and fc00:0:50::/64) are for real time traffic (live video, etc.) and thus require the lowest latency path available.
 
