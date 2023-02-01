@@ -83,16 +83,16 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
  - There is no Linux "SR-MPLS" per se, but from the host's perspective its just MPLS labels, so we'll use the iproute2 MPLS implemenation. Ubuntu iproute2 manpage: https://manpages.ubuntu.com/manpages/jammy/man8/ip-route.8.html
 
 ### Preliminary steps for SR/SRv6 on Rome VM
-  1.  Login to the Rome VM
+1.  Login to the Rome VM
     ```
     ssh cisco@198.18.128.103
     ```
 
-  2. On the Rome VM cd into the lab_7 directory where the jalapeno.py client resides:
+2. On the Rome VM cd into the lab_7 directory where the jalapeno.py client resides:
     ```
     cd ~/SRv6_dCloud_Lab/lab_7/python
     ```
-  3. Get familiar with files in the directory; specifically:
+3. Get familiar with files in the directory; specifically:
     ```
     cat rome.json                 <------- data jalapeno.py will use to execute its query and program its SR/SRv6 route
     cat cleanup_rome_routes.sh    <------- script to cleanup any old SR/SRv6 routes
@@ -100,7 +100,7 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
     ls netservice/                <------- contains python libraries available to jalapeno.py for calculating SR/SRv6 route instructions
 
     ```
-  4. For SRv6 outbound encapsulation we'll need to set Rome's SRv6 source address:
+4. For SRv6 outbound encapsulation we'll need to set Rome's SRv6 source address:
 
     ```
     sudo ip sr tunsrc set fc00:0:107:1::1
@@ -113,7 +113,7 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
     ```
     Unfortunately the modprobe commands don't return any response to the command line. So:
 
-  5. Validate Rome VM's MPLS modules are loaded:
+5. Validate Rome VM's MPLS modules are loaded:
     ```
     lsmod | grep mpls
     ```
