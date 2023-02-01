@@ -400,10 +400,14 @@ For full size image see [LINK](/topo_drawings/low-latency-path.png)
 python3 jalapeno.py -f rome.json -e srv6 -s ll
 ping 10.101.2.1 -I 20.0.0.1 -i .3
 ```
-2. Run the tcpdump scripts On the XRD VM to see labeled or SRv6 encapsulated traffic traverse the network:
+2. As with Least Utilized Path we can run the tcpdump scripts On the XRD VM to see labeled or SRv6 encapsulated traffic traverse the network:
 ```
 ./tcpdump.sh xrd06-xrd07
+```
+```
 ./tcpdump.sh xrd05-xrd06
+```
+```
 ./tcpdump.sh xrd01-xrd05
 ```
 
@@ -424,6 +428,7 @@ python3 set_latency.py -l G -ms 25
 
 2. Low latency SRv6 service on **Rome VM**:
 ```
+./cleanup_rome_routes.sh 
 python3 jalapeno.py -f rome.json -e srv6 -s ll
 ping 10.101.2.1 -I 20.0.0.1 -i .3
 ```
@@ -436,6 +441,9 @@ Amsterdam VM
   ```
 
 Rome VM
+  ```
+  iperf3 -c 10.101.2.1
+  ```
   ```
   cisco@rome:~$ iperf3 -c 10.101.2.1
   Connecting to host 10.101.2.1, port 5201
@@ -458,14 +466,12 @@ Rome VM
 
   iperf Done.
   ```
-
-4. Optional: run the tcpdump scripts On the XRD VM to see the SRv6 encapsulated traffic traverse the network:
+4. Optional: run the Low Latency service using SR-MPLS encapsulation
 ```
-./tcpdump.sh xrd06-xrd07
-./tcpdump.sh xrd05-xrd06
-./tcpdump.sh xrd01-xrd05
+./cleanup_rome_routes.sh 
+python3 jalapeno.py -f rome.json -e sr -s ll
+ping 10.101.2.1 -I 20.0.0.1 -i .3
 ```
-
 
 ### Data Sovereignty Path
 The Data Sovereignty service enables the user or application to steer their traffic through a path or geography that is considered safe per legal guidelines or other regulatory framework. In our case the "DS" service allows us to choose a country (or countries) to avoid when transmitting traffic from a source to a given destination. The country to avoid is specified as a country code in the rome.json and amsterdam.json files. In our testing we've specified that traffic should avoid France (FRA). xrd06 is located in Paris, so all requests to the DS service should produce a shortest-path result that avoids xrd06.
@@ -478,10 +484,14 @@ The procedure for testing/running the Data Sovereignty Service is the same as th
 python3 jalapeno.py -f rome.json -e srv6 -s ds
 ping 10.101.2.1 -I 20.0.0.1 -i .3
 ```
-3. tcpdump on XRD VM:
+2. tcpdump on XRD VM:
 ```
 ./tcpdump.sh xrd04-xrd07
+```
+```
 ./tcpdump.sh xrd04-xrd05
+```
+```
 ./tcpdump.sh xrd01-xrd05
 ```
 
