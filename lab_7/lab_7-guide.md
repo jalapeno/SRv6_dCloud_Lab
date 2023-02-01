@@ -708,7 +708,7 @@ Note: the client automatically cleans up old VPP routes/SR-policies prior to ins
       ```
       ./tcpdump.sh xrd04-xrd07
       ```
- - Just like with previous SR services we expect to see SR-MPLS PHP behavior as xrd nodes pop outer labels as the traffic traverses the network. Example output:
+       - Just like with previous SR services we expect to see SR-MPLS PHP behavior as xrd nodes pop outer labels as the traffic traverses the network. Example output:
 
 6. Optional: execute the least utilized path service with SR-MPLS encapsulation
     ```
@@ -747,35 +747,35 @@ Note: the client automatically cleans up old VPP routes/SR-policies prior to ins
 The procedure on Amsterdam is the same as Least Utilized Path. As with Rome, we'll focus on SRv6 for these final steps.
 
 1. Low latency SRv6 path on Amsterdam VM:
-```
-python3 jalapeno.py -f amsterdam.json -e srv6 -s ll
-ping 20.0.0.1 -i .4
-```
-Example output:
-```
-cisco@amsterdam:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f amsterdam.json -e srv6 -s ll
-src data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'src_peer': '10.0.0.1'}]
-dest data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'dst_peer': '10.0.0.7'}]
-Low Latency Service
-locators:  ['fc00:0:5555::', 'fc00:0:6666::', 'fc00:0:7777::']
-prefix_sids:  [100005, 100006, 100007]
-srv6 sid:  fc00:0:5555:6666:7777::
-adding vpp sr-policy to:  20.0.0.0/24 , with SRv6 encap:  fc00:0:5555:6666:7777::
-unknown input `20.0.0.0/24'
-Display VPP FIB entry: 
-ipv4-VRF:0, fib_index:0, flow hash:[src dst sport dport proto flowlabel ] epoch:0 flags:none locks:[adjacency:1, default-route:1, ]
-20.0.0.0/24 fib:0 index:33 locks:2
-  SR refs:1 entry-flags:uRPF-exempt, src-flags:added,contributing,active,
-    path-list:[37] locks:2 flags:shared, uPRF-list:36 len:0 itfs:[]
-      path:[45] pl-index:37 ip6 weight=1 pref=0 recursive:  oper-flags:resolved,
-        via 101::101 in fib:2 via-fib:30 via-dpo:[dpo-load-balance:32]
+    ```
+    python3 jalapeno.py -f amsterdam.json -e srv6 -s ll
+    ping 20.0.0.1 -i .4
+    ```
+    Example output:
+    ```
+    cisco@amsterdam:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f amsterdam.json -e srv6 -s ll
+    src data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'src_peer': '10.0.0.1'}]
+    dest data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'dst_peer': '10.0.0.7'}]
+    Low Latency Service
+    locators:  ['fc00:0:5555::', 'fc00:0:6666::', 'fc00:0:7777::']
+    prefix_sids:  [100005, 100006, 100007]
+    srv6 sid:  fc00:0:5555:6666:7777::
+    adding vpp sr-policy to:  20.0.0.0/24 , with SRv6 encap:  fc00:0:5555:6666:7777::
+    unknown input `20.0.0.0/24'
+    Display VPP FIB entry: 
+    ipv4-VRF:0, fib_index:0, flow hash:[src dst sport dport proto flowlabel ] epoch:0 flags:none locks:[adjacency:1, default-route:1, ]
+    20.0.0.0/24 fib:0 index:33 locks:2
+      SR refs:1 entry-flags:uRPF-exempt, src-flags:added,contributing,active,
+        path-list:[37] locks:2 flags:shared, uPRF-list:36 len:0 itfs:[]
+          path:[45] pl-index:37 ip6 weight=1 pref=0 recursive:  oper-flags:resolved,
+            via 101::101 in fib:2 via-fib:30 via-dpo:[dpo-load-balance:32]
 
- forwarding:   unicast-ip4-chain
-  [@0]: dpo-load-balance: [proto:ip4 index:35 buckets:1 uRPF:37 to:[0:0]]
-    [0] [@15]: dpo-load-balance: [proto:ip4 index:32 buckets:1 uRPF:-1 to:[0:0]]
-          [0] [@14]: SR: Segment List index:[0]
-	Segments:< fc00:0:5555:6666:7777:: > - Weight: 1
-```
+    forwarding:   unicast-ip4-chain
+      [@0]: dpo-load-balance: [proto:ip4 index:35 buckets:1 uRPF:37 to:[0:0]]
+        [0] [@15]: dpo-load-balance: [proto:ip4 index:32 buckets:1 uRPF:-1 to:[0:0]]
+              [0] [@14]: SR: Segment List index:[0]
+      Segments:< fc00:0:5555:6666:7777:: > - Weight: 1
+    ```
 
 2. The Low latency path should be xrd01 -> xrd05 -> xrd06 -> xrd07 -> Rome. So we can run the tcpdump script On XRD VM as follows (or just check one or two tcpdumps):
     ```
