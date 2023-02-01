@@ -219,6 +219,7 @@ fc00:0:1111:e002::      uA (PSP/USD)    [Gi0/0/0/2, Link-Local]:0:P    isis-100 
 fc00:0:1111:e003::      uA (PSP/USD)    [Gi0/0/0/2, Link-Local]:0      isis-100        |  these SIDs via streaming
 fc00:0:1111:e004::      uDT4            'carrots'                      bgp-65000       |  telemetry and the 
 fc00:0:1111:e005::      uDT6            'carrots'                      bgp-65000  <----|  "srv6-localsids" processor
+
 ```
 
 #### Return to the ssh session on the Jalapeno VM
