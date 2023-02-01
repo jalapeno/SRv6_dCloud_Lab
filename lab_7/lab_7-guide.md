@@ -55,24 +55,24 @@ In order to forward inbound labeled packets received from the Rome and Amsterdam
 
 1. Enable MPLS forwarding on the VM-facing interfaces on both xrd01 and xrd07: 
 
-  ```
-  mpls static
-  int gigabitEthernet 0/0/0/0
-  commit
-  ```
-  Validate MPLS forwarding is enabled:
-  ```
-  show mpls interface
-  ```
-  Expected output:
-  ```
-  Fri Dec 23 23:24:11.146 UTC
-  Interface                  LDP      Tunnel   Static   Enabled 
-  -------------------------- -------- -------- -------- --------
-  GigabitEthernet0/0/0/0     No       No       Yes      Yes
-  GigabitEthernet0/0/0/1     No       No       No       Yes
-  GigabitEthernet0/0/0/2     No       No       No       Yes
-  ```
+    ```
+    mpls static
+    int gigabitEthernet 0/0/0/0
+    commit
+    ```
+    Validate MPLS forwarding is enabled:
+    ```
+    show mpls interface
+    ```
+    Expected output:
+    ```
+    Fri Dec 23 23:24:11.146 UTC
+    Interface                  LDP      Tunnel   Static   Enabled 
+    -------------------------- -------- -------- -------- --------
+    GigabitEthernet0/0/0/0     No       No       Yes      Yes
+    GigabitEthernet0/0/0/1     No       No       No       Yes
+    GigabitEthernet0/0/0/2     No       No       No       Yes
+    ```
 
 ## Rome VM: Segment Routing & SRv6 on Linux
 
@@ -185,26 +185,26 @@ Note: the jalapeno.py client supports both SR and SRv6 encapsulation, however, f
 The Get All Paths Service will query the DB for all paths up to 6-hops in length between a pair of source and destination prefixes.
 
 1. Run the 'gp' service (you can specify either sr or srv6 for encap):
-  ``` 
-  python3 jalapeno.py -f rome.json -s gp -e srv6
-  ```
+    ``` 
+    python3 jalapeno.py -f rome.json -s gp -e srv6
+    ```
     - Sample command line output:
-  ```
-  cisco@rome:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f rome.json -s gp -e srv6
-  src data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'src_peer': '10.0.0.7'}]
-  dest data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'dst_peer': '10.0.0.1'}]
-  Get All Paths Service
-  number of paths found:  4
-  SRv6 locators for path:  ['fc00:0:4444::', 'fc00:0:5555::', 'fc00:0:1111::']
-  SR prefix sids for path:  [100004, 100005, 100001]
-  SRv6 locators for path:  ['fc00:0:6666::', 'fc00:0:2222::', 'fc00:0:1111::']
-  SR prefix sids for path:  [100006, 100002, 100001]
-  SRv6 locators for path:  ['fc00:0:6666::', 'fc00:0:5555::', 'fc00:0:1111::']
-  SR prefix sids for path:  [100006, 100005, 100001]
-  SRv6 locators for path:  ['fc00:0:4444::', 'fc00:0:3333::', 'fc00:0:2222::', 'fc00:0:1111::']
-  SR prefix sids for path:  [100004, 100003, 100002, 100001]
-  All paths data from unicast_prefix_v4/20.0.0.0_24_10.0.0.7 to unicast_prefix_v4/10.101.2.0_24_10.0.0.1 logged to log/get_paths.json
-  ```
+    ```
+    cisco@rome:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f rome.json -s gp -e srv6
+    src data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'src_peer': '10.0.0.7'}]
+    dest data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'dst_peer': '10.0.0.1'}]
+    Get All Paths Service
+    number of paths found:  4
+    SRv6 locators for path:  ['fc00:0:4444::', 'fc00:0:5555::', 'fc00:0:1111::']
+    SR prefix sids for path:  [100004, 100005, 100001]
+    SRv6 locators for path:  ['fc00:0:6666::', 'fc00:0:2222::', 'fc00:0:1111::']
+    SR prefix sids for path:  [100006, 100002, 100001]
+    SRv6 locators for path:  ['fc00:0:6666::', 'fc00:0:5555::', 'fc00:0:1111::']
+    SR prefix sids for path:  [100006, 100005, 100001]
+    SRv6 locators for path:  ['fc00:0:4444::', 'fc00:0:3333::', 'fc00:0:2222::', 'fc00:0:1111::']
+    SR prefix sids for path:  [100004, 100003, 100002, 100001]
+    All paths data from unicast_prefix_v4/20.0.0.0_24_10.0.0.7 to unicast_prefix_v4/10.101.2.0_24_10.0.0.1 logged to log/get_paths.json
+    ```
   - The code contains a number of console logging instances that are commented out, and some that are active (hence the output above). Note this line which provides a summary of the relevant paths by outputing the SRv6 locators along each path:
 
     https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_7/python/netservice/gp.py#L43
