@@ -246,13 +246,14 @@ fc00:0:1111:e005::          uDT6              'carrots'                      bgp
     influxdb-0                                    1/1     Running   0             12m
     kafka-0                                       1/1     Running   0             12m
     lslinknode-edge-b954577f9-k8w6l               1/1     Running   4 (11m ago)   12m
-    sr-node-8487488c9f-ftj59                      1/1     Running   0             40s     <--------
-    sr-topology-6b45d48c8-h8zns                   1/1     Running   0             33s     <--------
+    sr-node-8487488c9f-ftj59                      1/1     Running   0             48s     <--------
+    sr-topology-6b45d48c8-h8zns                   1/1     Running   0             39s     <--------
+    srv6-localsids-76ff4949d7-hx8mw               1/1     Running   0             33s     <--------
     telegraf-egress-deployment-5795ffdd9c-t8xrp   1/1     Running   2 (12m ago)   12m
     topology-678ddb8bb4-rt9jg                     1/1     Running   3 (11m ago)   12m
     zookeeper-0                                   1/1     Running   0             12m
     ```
-3. Check ArangoDB for new *`sr_node`* and *`sr_topology`* data collections, and that they contain data. For example, *`sr_node`* should look something like this with seven entries:
+3. Check ArangoDB for new *`sr_node`*, *`sr_topology`*, and *`srv6_local_sids`* data collections, and that they contain data. For example, *`sr_node`* should look something like this with seven entries:
 
   <img src="images/sr_node.png" width="1200">
 
