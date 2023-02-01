@@ -384,7 +384,8 @@ The ingress PE, xrd01, will then be configured with SRv6 segment-lists and SRv6 
 3. On **xrd01** configure a pair of SRv6-TE segment lists for steering traffic over these specific paths through the network: 
     - Segment list *xrd2347* will execute the explicit path: xrd01 -> 02 -> 03 -> 04 -> 07
     - Segment list *xrd567* will execute the explicit path: xrd01 -> 05 -> 06 -> 07
-
+  ![L3VPN Topology](/topo_drawings/l3vpn-slow-fast-path.png)
+  
    **xrd01**
    ```
    segment-routing
