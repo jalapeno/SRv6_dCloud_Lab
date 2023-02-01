@@ -59,7 +59,6 @@ In order to forward inbound labeled packets received from the Rome and Amsterdam
   mpls static
   int gigabitEthernet 0/0/0/0
   commit
-
   ```
   Validate MPLS forwarding is enabled:
   ```
