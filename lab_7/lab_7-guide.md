@@ -59,6 +59,7 @@ In order to forward inbound labeled packets received from the Rome and Amsterdam
 mpls static
  int gigabitEthernet 0/0/0/0
  commit
+
 ```
 Validate MPLS forwarding is enabled:
 ```
@@ -111,6 +112,7 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
    sudo modprobe mpls_router
    sudo modprobe mpls_iptunnel
    ```
+   Unfortunately the modprobe commands don't return any response to the command line. So:
 
    5. Validate Rome VM's MPLS modules are loaded:
    ```
@@ -123,17 +125,12 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
     mpls_router            40960  1 mpls_iptunnel
     ip_tunnel              24576  1 mpls_router
    ```
-  Each line in the output has three columns:
-
-  * Module - The first column shows the name of the module.
-  * Size - The second column shows the size of the module in bytes.
-  * Used by - The third column shows a number that indicates how many instances of the module are currently used. A value of zero means that the module is not used. The comma-separated list after the number shows what is using the module.
   
    - Reference: https://linuxize.com/post/lsmod-command-in-linux/
 
 
 ## Jalapeno python client:
-Both the Rome and Amsterdam VM's are pre-loaded with a python client (jalapeno.py) that will execute our Jalapeno network service per the process described above. As the client is run it will program a local route or SR-policy with SR/SRv6 encapsulation, which will allow the VM to "self-encapsulate" its outbound traffic, The xrd network will statelessly forward the traffic per the SR/SRv6 encapsulation.
+Both the Rome and Amsterdam VM's are pre-loaded with a python client, *`jalapeno.py`*, that will execute our Jalapeno network service per the process described above. As the client is run it will program a local route or SR-policy with SR/SRv6 encapsulation, which will allow the VM to "self-encapsulate" its outbound traffic, The xrd network will statelessly forward the traffic per the SR/SRv6 encapsulation.
 
 A host or endpoint with the jalapeno.py client can request a network service between a given source and destination. The client's currently supported network services are: 
 
@@ -211,7 +208,7 @@ All paths data from unicast_prefix_v4/20.0.0.0_24_10.0.0.7 to unicast_prefix_v4/
 ```
  - The code contains a number of console logging instances that are commented out, and some that are active (hence the output above). Note this line which provides a summary of the relevant paths by outputing the SRv6 locators along each path:
 
- https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_7/python/netservice/gp.py#L43
+  https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_7/python/netservice/gp.py#L43
 
 
  - All the jalapeno network services will output some data to the console. More verbose data will be logged to the lab_7/python/log directory. Check log output:
@@ -224,17 +221,17 @@ Like in Lab 6 we can also experiment with the script's graph traversal parameter
 
 2. Optional: change the 'gp' service's hopcount parameters. Open the netservice/gp.py file in a text editor (vi, vim) and change parameters in line 9: 
 
-https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_7/python/netservice/gp.py#L9
+  https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_7/python/netservice/gp.py#L9
 
 Change it to read:
 ```
 for v, e, p in 6..6 outbound
 ```
-Save gp.py and re-run the script. The *6..6* syntax indicates the traversal should ONLY consider paths 6 hops in length. Given our topology a re-run of the client *python3 jalapeno.py -f rome.json -s gp -e sr* you should output only a single path option in the command line output and log.
+Save gp.py and re-run the script. The *`6..6`* syntax indicates the traversal should ONLY consider paths 6 hops in length. Given our topology a re-run of the client *`python3 jalapeno.py -f rome.json -s gp -e srv6`* you should output only a single path option in the command line output and log.
 
 Example:
 ```
-locators along path:  [None, 'fc00:0:4444::', 'fc00:0:3333::', 'fc00:0:2222::', 'fc00:0:1111::', None]
+SRv6 locators for path:  [None, 'fc00:0:4444::', 'fc00:0:3333::', 'fc00:0:2222::', 'fc00:0:1111::', None]
 ```
 
 3. Optional: try increasing the number of hops the graph may traverse:

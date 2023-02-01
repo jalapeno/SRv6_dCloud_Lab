@@ -206,23 +206,20 @@ When we get to lab 7 we'll be sending SRv6 encapsulated traffic directly to/from
 ## Install Jalapeno SR-Processors
 The SR-Processors are a pair of proof-of-concept data processors that mine Jalapeno's graphDB and create a pair of new data collections. The *`sr-node processor`* loops through various link-state data collections and gathers relevant SR/SRv6 data for each node in the network. The *`sr-topology`* processor generates a graph of the entire network topology (internal and external links, nodes, peers, prefixes, etc.) and populates relevant SR/SRv6 data within the graph collection.
 
-The *`srv6-localsids`* processor is harvesting SRv6 SID data from a kafka streaming telemetry topic. This data is needed to construct full End.DT SIDs in lab 7 and is not available via BMP.  Example:
+The *`srv6-localsids`* processor harvests SRv6 SID data from a kafka streaming telemetry topic. This data is not available via BMP and is needed to construct full End.DT SIDs in lab 7.  Example:
 
 ```
-RP/0/RP0/CPU0:xrd01#sho segment-routing srv6 sid
-Tue Jan 31 23:41:06.675 UTC
-
-*** Locator: 'MyLocator' *** 
 
 SID                         Behavior          Context                           Owner              
---------------------------  ----------------  --------------------------------  ------------
-fc00:0:1111::               uN (PSP/USD)      'default':4369                    sidmgr    <------ Collected via BMP
-fc00:0:1111:e000::          uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0:P       isis-100  <----|   
-fc00:0:1111:e001::          uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0         isis-100       |  Not available via BMP
-fc00:0:1111:e002::          uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0:P       isis-100       |  We collect and process
-fc00:0:1111:e003::          uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0         isis-100       |  these SIDs via streaming
-fc00:0:1111:e004::          uDT4              'carrots'                         bgp-65000      |  telemetry and the 
-fc00:0:1111:e005::          uDT6              'carrots'                         bgp-65000 <----|  srv6-localsids processor
+----------------------  --------------  -----------------------------  ------------
+fc00:0:1111::           uN (PSP/USD)    'default':4369                 sidmgr     <-------- Collected via BMP
+fc00:0:1111:e000::      uA (PSP/USD)    [Gi0/0/0/1, Link-Local]:0:P    isis-100   <----|   
+fc00:0:1111:e001::      uA (PSP/USD)    [Gi0/0/0/1, Link-Local]:0      isis-100        |  These are not available via BMP
+fc00:0:1111:e002::      uA (PSP/USD)    [Gi0/0/0/2, Link-Local]:0:P    isis-100        |  We collect and process
+fc00:0:1111:e003::      uA (PSP/USD)    [Gi0/0/0/2, Link-Local]:0      isis-100        |  these SIDs via streaming
+fc00:0:1111:e004::      uDT4            'carrots'                      bgp-65000       |  telemetry and the 
+fc00:0:1111:e005::      uDT6            'carrots'                      bgp-65000  <----|  "srv6-localsids" processor
+
 ```
 
 #### Return to the ssh session on the Jalapeno VM
@@ -250,13 +247,14 @@ fc00:0:1111:e005::          uDT6              'carrots'                         
     influxdb-0                                    1/1     Running   0             12m
     kafka-0                                       1/1     Running   0             12m
     lslinknode-edge-b954577f9-k8w6l               1/1     Running   4 (11m ago)   12m
-    sr-node-8487488c9f-ftj59                      1/1     Running   0             40s     <--------
-    sr-topology-6b45d48c8-h8zns                   1/1     Running   0             33s     <--------
+    sr-node-8487488c9f-ftj59                      1/1     Running   0             48s     <--------
+    sr-topology-6b45d48c8-h8zns                   1/1     Running   0             39s     <--------
+    srv6-localsids-76ff4949d7-hx8mw               1/1     Running   0             33s     <--------
     telegraf-egress-deployment-5795ffdd9c-t8xrp   1/1     Running   2 (12m ago)   12m
     topology-678ddb8bb4-rt9jg                     1/1     Running   3 (11m ago)   12m
     zookeeper-0                                   1/1     Running   0             12m
     ```
-3. Check ArangoDB for new *`sr_node`* and *`sr_topology`* data collections, and that they contain data. For example, *`sr_node`* should look something like this with seven entries:
+3. Check ArangoDB for new *`sr_node`*, *`sr_topology`*, and *`srv6_local_sids`* data collections, and that they contain data. For example, *`sr_node`* should look something like this with seven entries:
 
   <img src="images/sr_node.png" width="1200">
 
