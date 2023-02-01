@@ -290,37 +290,62 @@ sudo tcpdump -ni ens192
 ```
 ping 10.101.2.1 -I 20.0.0.1 -i .3
 ```
+- Note: as of CLEU23 there is some issue where IPv6 neighbor instances between Rome Linux and the XRd MACVLAN attachment on *`xrd07`*. So if your ping doesn't work try pinging from *`xrd07`* to *`Rome`*. A successful ping should 'wake up' the IPv6 neighborship.
+  
+```
+ping fc00:0:107:1::1
+```
+Output:
+```
+RP/0/RP0/CPU0:xrd07#ping fc00:0:107:1::1
+Wed Feb  1 04:21:15.980 UTC
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to fc00:0:107:1::1, timeout is 2 seconds:
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 1/2/5 ms
+```
 
-4. Check the Rome tcpdump to validate traffic is encapsulated in the SR label stack. Expected output will be something like:
+4. Retry the Rome to Amsterdam ping test:
+```
+ping 10.101.2.1 -I 20.0.0.1 -i .3
+```
+
+5. Check the Rome tcpdump to validate traffic is encapsulated with the SRv6 SID. Expected output will be something like:
 ```
 cisco@rome:~$ sudo tcpdump -ni ens192
 tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
 listening on ens192, link-type EN10MB (Ethernet), capture size 262144 bytes
-04:15:48.834889 MPLS (label 100006, exp 0, ttl 64) (label 100002, exp 0, ttl 64) (label 100001, exp 0, [S], ttl 64) IP 20.0.0.1 > 10.101.2.1: ICMP echo request, id 11, seq 1, length 64
-04:15:48.843360 IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 11, seq 1, length 64
+04:27:26.773904 IP6 fc00:0:107:1::1 > fc00:0:6666:2222:1111:e006::: srcrt (len=2, type=4, segleft=0[|srcrt]
+04:27:26.841619 IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 3, seq 3, length 64
+04:27:27.074262 IP6 fc00:0:107:1::1 > fc00:0:6666:2222:1111:e006::: srcrt (len=2, type=4, segleft=0[|srcrt]
+04:27:27.145618 IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 3, seq 4, length 64
 ```
 
-5. Return to an SSH session on the XRD VM and use tcpdump.sh <xrd0x-xrd0y>" to capture packets along the path from Rome VM to Amsterdam VM. Given the label stack seen above, we'll monitor the linux bridges linking xrd07 to xrd06, xrd06 to xrd02, then xrd02 to xrd01:
+6. Return to an SSH session on the XRD VM and use tcpdump.sh <xrd0x-xrd0y>" to capture packets along the path from Rome VM to Amsterdam VM. Given the SRv6 Micro-SID combination seen above, we'll monitor the linux bridges linking xrd07 to xrd06, xrd06 to xrd02, then xrd02 to xrd01:
  - restart the ping if it is stopped
 ```
 cd cd ~/SRv6_dCloud_Lab/util/
 ./tcpdump.sh xrd06-xrd07
+```
+```
 ./tcpdump.sh xrd02-xrd06
+```
+```
 ./tcpdump.sh xrd01-xrd02
 ```
- - We expect to see SR-MPLS PHP behavior on the *echo request* packets as the nodes pop outer labels as the traffic traverses the network. Example output for the link between xrd06 and xrd02:
+ - Example output for the link between xrd06 and xrd02 is below. Note how *`xrd06`* has performed SRv6 micro-SID shift-and-forward on the destination address. Also note how the return traffic is taking SR-MPLS transport (currently). 
 ```
 cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd02-xrd06
 sudo tcpdump -ni br-07e02174172b
 tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
 listening on br-07e02174172b, link-type EN10MB (Ethernet), capture size 262144 bytes
-23:19:39.310524 MPLS (label 100001, exp 0, [S], ttl 62) IP 20.0.0.1 > 10.101.2.1: ICMP echo request, id 11, seq 767, length 64
-23:19:39.315326 MPLS (label 100007, exp 0, ttl 61) (label 24009, exp 0, [S], ttl 62) IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 11, seq 767, length 64
-23:19:39.610924 MPLS (label 100001, exp 0, [S], ttl 62) IP 20.0.0.1 > 10.101.2.1: ICMP echo request, id 11, seq 768, length 64
-23:19:39.667534 MPLS (label 100007, exp 0, ttl 61) (label 24009, exp 0, [S], ttl 62) IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 11, seq 768, length 64
+23:30:45.978380 IP6 fc00:0:107:1::1 > fc00:0:2222:1111:e006::: srcrt (len=2, type=4, segleft=0[|srcrt]
+23:30:46.010720 MPLS (label 100007, exp 0, ttl 61) (label 24010, exp 0, [S], ttl 62) IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 4, seq 9, length 64
+23:30:46.279814 IP6 fc00:0:107:1::1 > fc00:0:2222:1111:e006::: srcrt (len=2, type=4, segleft=0[|srcrt]
+23:30:46.315159 MPLS (label 100007, exp 0, ttl 61) (label 24010, exp 0, [S], ttl 62) IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 4, seq 10, length 64
 ```
 
-6. Optional: run the least utilized path service with SR encapsulation
+7. Optional: run the least utilized path service with SR encapsulation
 ``` 
 ./cleanup_rome_routes.sh 
 python3 jalapeno.py -f rome.json -e sr -s lu
@@ -349,7 +374,7 @@ default via 198.18.128.1 dev ens160 proto static
 198.18.128.0/18 dev ens160 proto kernel scope link src 198.18.128.103  
 ```
 
-7. Optional: repeat, or just spot-check the ping and tcpdump steps described in 3 - 5
+8. Optional: repeat, or just spot-check the ping and tcpdump steps described in 3 - 5 to see the SR label switching in action
 
 ### Low Latency Path
 The Low Latency Path service will calculate an SR/SRv6 encapsulation instruction for sending traffic over the lowest latency path from a source to a given destination. The procedure for testing/running the Low Latency Path service is the same as the one we followed with Least Utilized Path. 
