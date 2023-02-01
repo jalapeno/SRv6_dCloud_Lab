@@ -93,9 +93,11 @@ The Jalapeno package is preinstalled and running on the **Jalapeno** VM
 
 Most transport SDN systems use BGP-LS to gather and model the underlying IGP topology. Jalapeno is intended to be a more generalized data platform to support use cases beyond internal transport such as VPNs or service chains. Because of this, Jalapeno's primary method of capturing topology data is via BMP. BMP provides all BGP AFI/SAFI info, thus Jalapeno is able to model many different kinds of topology, including the topology of the Internet (at least from the perspective of our peering routers).
 
-We'll first establish a BMP session between our route-reflectors and the open-source GoBMP collector (repository [HERE]((https://github.com/sbezverk/gobmp)), which comes pre-packaged with the Jalapeno install. We'll then enable BMP on the RRs' BGP peering sessions with our PE routers xrd01 and xrd07. Once established, the RRs' will stream all BGP NLRI info they receive from the PE routers to the GoBMP collector, which will in turn publish the data to Kafka. We'll get more into the Jalapeno data flow in Lab 6.
+We'll first establish a BMP session between our route-reflectors and the open-source GoBMP collector, which comes pre-packaged with the Jalapeno install. We'll then enable BMP on the RRs' BGP peering sessions with our PE routers xrd01 and xrd07. Once established, the RRs' will stream all BGP NLRI info they receive from the PE routers to the GoBMP collector, which will in turn publish the data to Kafka. We'll get more into the Jalapeno data flow in Lab 6.
 
-1. BMP configuration on xrd05 and xrd06:
+GoBMP Git Repository [HERE]((https://github.com/sbezverk/gobmp)
+
+1. BMP configuration on **xrd05** and **xrd06**:
     ```
     bmp server 1
       host 198.18.128.101 port 30511
@@ -118,7 +120,7 @@ We'll first establish a BMP session between our route-reflectors and the open-so
     
       neighbor fc00:0000:7777::1
         bmp-activate server 1
-    comit
+    commit
     ```
 
 2. Validate BMP session establishment and client monitoring (the session may take a couple minutes to become active/connected):
@@ -152,21 +154,21 @@ We'll first establish a BMP session between our route-reflectors and the open-so
 
 4. Feel free to spot check the various data collections in Arango. Several will be empty as they are for future use. With successful BMP processing we would expect to see data in all the following collections:
 
- - l3vpn_v4_prefix
- - l3vpn_v6_prefix
- - ls_link
- - ls_node
- - ls_node_edge
- - ls_prefix
- - ls_srv6_sid
- - peer
- - unicast_prefix_v4
- - unicast_prefix_v6
+    - l3vpn_v4_prefix
+    - l3vpn_v6_prefix
+    - ls_link
+    - ls_node
+    - ls_node_edge
+    - ls_prefix
+    - ls_srv6_sid
+    - peer
+    - unicast_prefix_v4
+    - unicast_prefix_v6
 
 ## Configure a BGP SRv6 locator
 When we get to lab 7 we'll be sending SRv6 encapsulated traffic directly to/from Amsterdam and Rome. We'll need an SRv6 end.DT4/6 function at the egress nodes (xrd01 and xrd07) to be able to pop the SRv6 encap and perform a global table lookup on the underlying payload. Configuring an SRv6 locator under BGP will trigger creation of the end.DT4/6 functions:
 
-1. Configure SRv6 locators for BGP on both xrd01 and xrd07:
+1. Configure SRv6 locators for BGP on both **xrd01** and **xrd07**:
     ```
     router bgp 65000
       address-family ipv4 unicast
@@ -176,6 +178,7 @@ When we get to lab 7 we'll be sending SRv6 encapsulated traffic directly to/from
       address-family ipv6 unicast
         segment-routing srv6
         locator MyLocator
+    commit
     ```
 
 2. Validate end.DT4/6 SIDs belonging to BGP default table:
@@ -183,7 +186,7 @@ When we get to lab 7 we'll be sending SRv6 encapsulated traffic directly to/from
     show segment-routing srv6 sid
     ```
 
-    Expected output on xrd01:  
+    Expected output on **xrd01**:  
     ```
     RP/0/RP0/CPU0:xrd01#sho segment-routing srv6 sid 
     Sun Jan 29 03:29:03.559 UTC
