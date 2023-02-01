@@ -638,7 +638,7 @@ Note: the client automatically cleans up old VPP routes/SR-policies prior to ins
 
 1. Execute the least utilized path service with SR encapsulation
 ``` 
-python3 jalapeno.py -f amsterdam.json -e sr -s lu
+python3 jalapeno.py -f amsterdam.json -e srv6 -s lu
 ```
  - The client's command line output will include info on VPP's new forwarding table:
 ```
@@ -696,15 +696,21 @@ cisco@xrd:~/SRv6_dCloud_Lab/util$ sudo tcpdump -ni ens224
  - you can run all the listed tcpdumps, or simply spot check
 ```
 ./tcpdump.sh xrd01-xrd02
+```
+```
 ./tcpdump.sh xrd02-xrd03
+```
+```
 ./tcpdump.sh xrd03-xrd04
+```
+```
 ./tcpdump.sh xrd04-xrd07
 ```
  - Just like with previous SR services we expect to see SR-MPLS PHP behavior as xrd nodes pop outer labels as the traffic traverses the network. Example output:
 
-6. Execute the least utilized path service with SRv6 encapsulation
+6. Optional: execute the least utilized path service with SR-MPLS encapsulation
 ```
-python3 jalapeno.py -f amsterdam.json -e srv6 -s lu
+python3 jalapeno.py -f amsterdam.json -e sr -s lu
 ```
 
 Expected output:
@@ -772,7 +778,11 @@ ipv4-VRF:0, fib_index:0, flow hash:[src dst sport dport proto flowlabel ] epoch:
 3. The Low latency path should be xrd01 -> xrd05 -> xrd06 -> xrd07 -> Rome. So we can run the tcpdump script On XRD VM as follows (or just check one or two tcpdumps):
 ```
 ./tcpdump.sh xrd01-xrd05
+```
+```
 ./tcpdump.sh xrd05-xrd06
+```
+```
 ./tcpdump.sh xrd06-xrd07
 ```
 
@@ -816,7 +826,11 @@ ipv4-VRF:0, fib_index:0, flow hash:[src dst sport dport proto flowlabel ] epoch:
 3. tcpdump options on XRD VM:
 ```
 ./tcpdump.sh xrd01-xrd05
+```
+```
 ./tcpdump.sh xrd05-xrd04
+```
+```
 ./tcpdump.sh xrd04-xrd07
 ```
 ### You have reached the end of LTRSPG-2212, hooray!
