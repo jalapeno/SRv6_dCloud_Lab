@@ -125,7 +125,7 @@ The *kafka-console-consumer.sh* utility allows one to manually monitor a given t
 
 In the next set of steps we'll run the CLI to monitor a Kafka topic and watch for data from GoBMP. GoBMP's topics are fairly quiet unless BGP updates are happening, so once we have our monitoring session up we'll clear BGP-LS on the RR, which should result in a flood of data onto the topic.
 
-In this exercise we are going to stitch together several elements that we have worked on through out this lab. The routers in our lab have a number of topology-relevant configurations, including several that we've added over the course of labs 1 - 5. We will use the tools to examine how that data is communicated through the network and ultimately collected and populated into Jalapeno's DB.
+In this exercise we are going to stitch together several elements that we have worked on throughout this lab. The routers in our lab have a number of topology-relevant configurations, including several that we've added over the course of labs 1 - 5. We will use the tools to examine how that data is communicated through the network and ultimately collected and populated into Jalapeno's DB.
 
 #### ISIS Link State
    1. Monitor the BGP-LS *"ls_node"* topic for incoming BMP messages describing ISIS nodes in the network:
@@ -217,16 +217,17 @@ In this exercise we are going to stitch together several elements that we have w
         ```
 #### SRv6 Locator SID    
    1. Now lets examine the SRv6 locator configuration on **xrd01** with the command: show run segment-routing srv6 locators 
-      ```  
-      show run segment-routing srv6 locators
-
-      segment-routing
-       srv6
-        locators
-         locator MyLocator
-           micro-segment behavior unode psp-usd
-           prefix fc00:0:1111::/48     <----- xrd01 SRv6 locator defined
-      ```
+    ```  
+    show run segment-routing srv6 locators
+    ```
+    ```
+    segment-routing
+    srv6
+    locators
+        locator MyLocator
+        micro-segment behavior unode psp-usd
+        prefix fc00:0:1111::/48     <----- xrd01 SRv6 locator defined
+    ```
 
    4. With **xrd01** SID locator identified lets see how that is communicated through the BMP from the route reflectors.
       Monitor the BGP-LS *ls_srv6_sid* topic for incoming BMP messages describing SRv6 SIDs in the network:  
@@ -312,7 +313,7 @@ In this exercise we are going to stitch together several elements that we have w
 
 3. Run some DB Queries:
     ArangoDB uses AQL as it's query syntax language. It likely is new to you so we have provides some basic explanations:
-    For a the most basic query below *x* is a object variable with each key field in a record populated as a child object.
+    For the most basic query below *x* is a object variable with each key field in a record populated as a child object.
 
     for *x* in *collection* return *x*
 
