@@ -229,7 +229,7 @@ fc00:0:1111:e005::      uDT6            'carrots'                      bgp-65000
 #### Return to the ssh session on the Jalapeno VM
 
 1. Install SR-Processors:
-  The below command *`kubectl apply`* will input a yaml template file and launch the specified pods.
+  The below command *kubectl apply* will input a yaml template file and launch the specified pods.
 
     ```
     cd ~/SRv6_dCloud_Lab/lab_5/sr-processors
