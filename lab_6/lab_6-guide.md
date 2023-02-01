@@ -1,10 +1,10 @@
-## Lab 6: Exploring Jalapeno, Kafka, and ArangoDB
+## Lab 6: Exploring Jalapeno, Kafka, and ArangoDB [30 Min]
 
 ### Description
 In Lab 6 we will explore the Jalapeno system running on Kubernetes. We will log into the Kafka container and monitor topics for data coming in from Jalapeno's data collectors. Data which is subsequently picked up by Jalapeno's data processors (topology, lslinknode, sr-node, sr-topology, etc.) and written to the Arango graphDB. We will spend some time getting familiar with ArangoDB and the Jalapeno data collections, and will run some basic queries. Lastly we will populate the graphDB with some synthetic data and run a number of complex queries including graph traversals.
 
 ## Contents
-- [Lab 6: Exploring Jalapeno, Kafka, and ArangoDB](#lab-6-exploring-jalapeno-kafka-and-arangodb)
+- [Lab 6: Exploring Jalapeno, Kafka, and ArangoDB \[30 Min\]](#lab-6-exploring-jalapeno-kafka-and-arangodb-30-min)
   - [Description](#description)
 - [Contents](#contents)
 - [Lab Objectives](#lab-objectives)

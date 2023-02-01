@@ -1,4 +1,4 @@
-# Lab 5: Install Jalapeno and enable BMP
+# Lab 5: Install Jalapeno and enable BMP [20 Min]
 
 ### Description
 In Lab 5 we will install the open-source Jalapeno data infrastructure platform. Jalapeno is designed to run on Kubernetes (k8s), which allows for easy integration into existing environments, and the ability to easily deploy on bare metal, VMs, or in a public cloud. Kubernetes experience is not required for Lab 5 as K8s has been preinstalled on the Jalapeno VM and we have included the required *kubectl* validation commands. 
@@ -6,7 +6,7 @@ In Lab 5 we will install the open-source Jalapeno data infrastructure platform. 
 Jalapeno package comes preinstalled in a VM. The student will first configure BGP Monitoring Protocol (BMP) on our route reflectors. Second we will add an SRv6 Locator to BGP default/global tables, which will be used in a later exercise where Amsterdam and Rome perform SRv6 encapsulation of their own outbound traffic.
 
 ## Contents
-- [Lab 5: Install Jalapeno and enable BMP](#lab-5-install-jalapeno-and-enable-bmp)
+- [Lab 5: Install Jalapeno and enable BMP \[20 Min\]](#lab-5-install-jalapeno-and-enable-bmp-20-min)
     - [Description](#description)
   - [Contents](#contents)
   - [Lab Objectives](#lab-objectives)
