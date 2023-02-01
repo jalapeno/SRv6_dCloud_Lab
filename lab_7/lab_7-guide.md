@@ -291,7 +291,8 @@ sudo tcpdump -ni ens192
 ping 10.101.2.1 -I 20.0.0.1 -i .3
 ```
 - Note: as of CLEU23 there is some issue where IPv6 neighbor instances between Rome Linux and the XRd MACVLAN attachment on *`xrd07`*. So if your ping doesn't work try pinging from *`xrd07`* to *`Rome`*. A successful ping should 'wake up' the IPv6 neighborship.
-  
+
+On *`xrd07`*:  
 ```
 ping fc00:0:107:1::1
 ```
@@ -321,19 +322,25 @@ listening on ens192, link-type EN10MB (Ethernet), capture size 262144 bytes
 04:27:27.145618 IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 3, seq 4, length 64
 ```
 
-6. Return to an SSH session on the XRD VM and use tcpdump.sh <xrd0x-xrd0y>" to capture packets along the path from Rome VM to Amsterdam VM. Given the SRv6 Micro-SID combination seen above, we'll monitor the linux bridges linking xrd07 to xrd06, xrd06 to xrd02, then xrd02 to xrd01:
+6. Return to an SSH session on the XRD VM and use tcpdump.sh <xrd0x-xrd0y>" to capture packets along the path from Rome VM to Amsterdam VM. Given the SRv6 Micro-SID combination seen above, we'll monitor the linux bridges linking *`xrd07`* to *`xrd06`*, *`xrd06`* to *`xrd02`*, then *`xrd02`* to *`xrd01`*:
  - restart the ping if it is stopped
+
+*`xrd07`* to *`xrd06`*
 ```
 cd cd ~/SRv6_dCloud_Lab/util/
 ./tcpdump.sh xrd06-xrd07
 ```
+
+*`xrd06`* to *`xrd02`*
 ```
 ./tcpdump.sh xrd02-xrd06
 ```
+
+*`xrd02`* to *`xrd01`*
 ```
 ./tcpdump.sh xrd01-xrd02
 ```
- - Example output for the link between xrd06 and xrd02 is below. Note how *`xrd06`* has performed SRv6 micro-SID shift-and-forward on the destination address. Also note how the return traffic is taking SR-MPLS transport (currently). 
+ - Example output for the link between *`xrd06`* to *`xrd02`* is below. Note how *`xrd06`* has performed SRv6 micro-SID shift-and-forward on the destination address. Also note how the return traffic is taking SR-MPLS transport (currently). 
 ```
 cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd02-xrd06
 sudo tcpdump -ni br-07e02174172b
