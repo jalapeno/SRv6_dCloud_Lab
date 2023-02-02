@@ -30,7 +30,7 @@ The student upon completion of Lab 2 should have achieved the following objectiv
 
 Segment Routing (SR) is a source-based routing architecture. A node chooses a path and steers a packet through the network via that path by inserting an ordered list of segments, instructing how subsequent nodes in the path that receive the packet should process it. This simplifies operations and reduces resource requirements in the network by removing network state information from intermediary nodes as path information is encoded via the label stack at the ingress node. In addition to this, because the shortest-path segment includes all Equal-Cost Multi-Path (ECMP) paths to the related node, SR supports the ECMP nature of IP by design. All nodes in the lab *`xrd01`* - *`xrd07`* have SR-MPLS pre-configured.
 
-For more information on SR and SRv6 the segment-routing.net site has a number of tutorials and links to other resources: [segment-routing.net](/https://www.segment-routing.net/)  
+For more information on SR and SRv6 the segment-routing.net site has a number of tutorials and links to other resources: [segment-routing.net](https://www.segment-routing.net/)  
 
 The Cisco IOS-XR 7.5 Configuration guide for SR-MPLS can be found here: [LINK](https://www.cisco.com/c/en/us/td/docs/iosxr/cisco8000/segment-routing/75x/b-segment-routing-cg-cisco8000-75x/configuring-segment-routing-for-is-is-protocol.html)
 
