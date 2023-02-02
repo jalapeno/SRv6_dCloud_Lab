@@ -442,29 +442,29 @@ Amsterdam VM
 
 Rome VM
   ```
-  iperf3 -c 10.101.2.1
+  iperf3 -c 10.101.2.1 -B 20.0.0.1
   ```
   ```
-  cisco@rome:~$ iperf3 -c 10.101.2.1
+ cisco@rome:~/SRv6_dCloud_Lab/lab_7/python$ iperf3 -c 10.101.2.1 -B 20.0.0.1
   Connecting to host 10.101.2.1, port 5201
-  [  5] local 10.101.2.1 port 50706 connected to 20.0.0.1 port 5201
+  [  5] local 20.0.0.1 port 41505 connected to 10.101.2.1 port 5201
   [ ID] Interval           Transfer     Bitrate         Retr  Cwnd
-  [  5]   0.00-1.00   sec  76.4 KBytes   625 Kbits/sec    1   1.41 KBytes       
-  [  5]   1.00-2.00   sec  0.00 Bytes  0.00 bits/sec    1   1.41 KBytes       
-  [  5]   2.00-3.00   sec  0.00 Bytes  0.00 bits/sec    1   1.41 KBytes       
-  [  5]   3.00-4.00   sec  0.00 Bytes  0.00 bits/sec    0   1.41 KBytes       
-  [  5]   4.00-5.00   sec  0.00 Bytes  0.00 bits/sec    1   1.41 KBytes       
-  [  5]   5.00-6.00   sec  0.00 Bytes  0.00 bits/sec    0   1.41 KBytes       
-  [  5]   6.00-7.00   sec  0.00 Bytes  0.00 bits/sec    0   1.41 KBytes       
-  [  5]   7.00-8.00   sec  0.00 Bytes  0.00 bits/sec    0   1.41 KBytes       
-  [  5]   8.00-9.00   sec  0.00 Bytes  0.00 bits/sec    1   1.41 KBytes       
-  [  5]   9.00-10.00  sec  0.00 Bytes  0.00 bits/sec    0   1.41 KBytes       
+  [  5]   0.00-1.00   sec   104 KBytes   852 Kbits/sec    1   1.35 KBytes
+  [  5]   1.00-2.00   sec  0.00 Bytes  0.00 bits/sec    1   1.35 KBytes
+  [  5]   2.00-3.00   sec  0.00 Bytes  0.00 bits/sec    1   1.35 KBytes
+  [  5]   3.00-4.00   sec  0.00 Bytes  0.00 bits/sec    0   1.35 KBytes
+  [  5]   4.00-5.00   sec  0.00 Bytes  0.00 bits/sec    1   1.35 KBytes
+  [  5]   5.00-6.00   sec  0.00 Bytes  0.00 bits/sec    0   1.35 KBytes
+  [  5]   6.00-7.00   sec  0.00 Bytes  0.00 bits/sec    0   1.35 KBytes
+  [  5]   7.00-8.00   sec  0.00 Bytes  0.00 bits/sec    0   1.35 KBytes
+  [  5]   8.00-9.00   sec  0.00 Bytes  0.00 bits/sec    1   1.35 KBytes
+  [  5]   9.00-10.00  sec  0.00 Bytes  0.00 bits/sec    0   1.35 KBytes
   - - - - - - - - - - - - - - - - - - - - - - - - -
   [ ID] Interval           Transfer     Bitrate         Retr
-  [  5]   0.00-10.00  sec  76.4 KBytes  62.5 Kbits/sec    5             sender
-  [  5]   0.00-10.06  sec  0.00 Bytes  0.00 bits/sec                  receiver
+  [  5]   0.00-10.00  sec   104 KBytes  85.2 Kbits/sec    5             sender
+  [  5]   0.00-10.07  sec  0.00 Bytes  0.00 bits/sec                  receiver
 
-  iperf Done.
+  iperf Done. 
   ```
 4. Optional: run the Low Latency service using SR-MPLS encapsulation
 ```
