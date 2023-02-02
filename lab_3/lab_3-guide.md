@@ -316,6 +316,10 @@ See the command output that demonstrates this test below. Some output truncated 
   ```
 
 **Amsterdam** VM
+
+  ```
+  iperf3 -c 20.0.0.1
+  ```
   ```
   cisco@amsterdam:~$ iperf3 -c 20.0.0.1
   Connecting to host 20.0.0.1, port 5201
