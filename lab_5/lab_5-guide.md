@@ -150,11 +150,11 @@ GoBMP Git Repository [HERE]((https://github.com/sbezverk/gobmp)
     password: jalapeno
     DB: jalapeno
     ```
-    Once logged in choose the 'jalapeno' DB. The UI should then show you its 'collections' view, which should look something like:
+    Once logged the UI should then show you its 'collections' view, which should look something like:
 
   <img src="images/arango-collections.png" width="1000">
 
-4. Feel free to spot check the various data collections in Arango. Several will be empty as they are for future use. With successful BMP processing we would expect to see data in all the following collections:
+1. Feel free to spot check the various data collections in Arango. Several will be empty as they are for future use. With successful BMP processing we would expect to see data in all the following collections:
 
     - l3vpn_v4_prefix
     - l3vpn_v6_prefix
@@ -168,7 +168,7 @@ GoBMP Git Repository [HERE]((https://github.com/sbezverk/gobmp)
     - unicast_prefix_v6
 
 ## Configure a BGP SRv6 locator
-When we get to lab 7 we'll be sending SRv6 encapsulated traffic directly to/from Amsterdam and Rome. We'll need an SRv6 end.DT4/6 function at the egress nodes (xrd01 and xrd07) to be able to pop the SRv6 encap and perform a global table lookup on the underlying payload. Configuring an SRv6 locator under BGP will trigger creation of the end.DT4/6 functions:
+When we get to lab 7 we'll be sending SRv6 encapsulated traffic directly to/from Amsterdam and Rome. We'll need an SRv6 end.DT4/6 function at the egress nodes *`xrd01`* and *`xrd07`*) to be able to pop the SRv6 encap and perform a global table lookup on the underlying payload. Configuring an SRv6 locator under BGP will trigger creation of the end.DT4/6 functions:
 
 1. Configure SRv6 locators for BGP on both **xrd01** and **xrd07**:
     ```
@@ -188,7 +188,7 @@ When we get to lab 7 we'll be sending SRv6 encapsulated traffic directly to/from
     show segment-routing srv6 sid
     ```
 
-    Expected output on **xrd01**:  
+    Expected output on **xrd01** should look something like:  
     ```
     RP/0/RP0/CPU0:xrd01#sho segment-routing srv6 sid 
     Sun Jan 29 03:29:03.559 UTC
@@ -210,21 +210,22 @@ When we get to lab 7 we'll be sending SRv6 encapsulated traffic directly to/from
     fc00:0:1111:e009::          uDT6              'default'                         bgp-65000           InUse  Y 
     ``` 
 ## Install Jalapeno SR-Processors
-The SR-Processors are a pair of proof-of-concept data processors that mine Jalapeno's graphDB and create a pair of new data collections. The *`sr-node processor`* loops through various link-state data collections and gathers relevant SR/SRv6 data for each node in the network. The *`sr-topology`* processor generates a graph of the entire network topology (internal and external links, nodes, peers, prefixes, etc.) and populates relevant SR/SRv6 data within the graph collection.
-
-The *`srv6-localsids`* processor harvests SRv6 SID data from a kafka streaming telemetry topic. This data is not available via BMP and is needed to construct full End.DT SIDs in lab 7.  Example:
+The SR-Processors are a set of proof-of-concept data processors that augment Jalapeno's graphDB modeling of the network.  
+  - The *`sr-node processor`* loops through various link-state data collections and gathers relevant SR/SRv6 data for each node in the network and populates the data in a new *`sr_node`* data collection. 
+  - The *`sr-topology`* processor generates a graph of the entire network topology (internal and external links, nodes, peers, prefixes, etc.) and populates relevant SR/SRv6 data within the *`sr_topology`* graph collection.
+  - The *`srv6-localsids`* processor harvests SRv6 SID data from a Kafka streaming telemetry topic. This data is not available via BMP and is needed to construct full End.DT SIDs in lab 7.  Example:
 
 ```
 
-SID                         Behavior          Context                           Owner              
+SID                         Behavior          Context                    Owner              
 ----------------------  --------------  -----------------------------  ------------
 fc00:0:1111::           uN (PSP/USD)    'default':4369                 sidmgr     <-------- Collected via BMP
-fc00:0:1111:e000::      uA (PSP/USD)    [Gi0/0/0/1, Link-Local]:0:P    isis-100   <----|   
-fc00:0:1111:e001::      uA (PSP/USD)    [Gi0/0/0/1, Link-Local]:0      isis-100        |  These are not available via BMP
-fc00:0:1111:e002::      uA (PSP/USD)    [Gi0/0/0/2, Link-Local]:0:P    isis-100        |  We collect and process
-fc00:0:1111:e003::      uA (PSP/USD)    [Gi0/0/0/2, Link-Local]:0      isis-100        |  these SIDs via streaming
-fc00:0:1111:e004::      uDT4            'carrots'                      bgp-65000       |  telemetry and the 
-fc00:0:1111:e005::      uDT6            'carrots'                      bgp-65000  <----|  "srv6-localsids" processor
+fc00:0:1111:e000::      uA (PSP/USD)    [Gi0/0/0/1, Link-Local]:0:P    isis-100    <---|   
+fc00:0:1111:e001::      uA (PSP/USD)    [Gi0/0/0/1, Link-Local]:0      isis-100    <---|  These are not available via BMP
+fc00:0:1111:e002::      uA (PSP/USD)    [Gi0/0/0/2, Link-Local]:0:P    isis-100    <---|  We collect and process
+fc00:0:1111:e003::      uA (PSP/USD)    [Gi0/0/0/2, Link-Local]:0      isis-100    <---|  these SIDs via streaming
+fc00:0:1111:e004::      uDT4            'carrots'                      bgp-65000   <---|  telemetry and the 
+fc00:0:1111:e005::      uDT6            'carrots'                      bgp-65000   <---|  "srv6-localsids" processor
 
 ```
 
