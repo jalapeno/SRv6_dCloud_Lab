@@ -44,36 +44,36 @@ The student upon completion of Lab 7 should have achieved the following objectiv
 * Using Python to to program SR-MPLS or SRv6 forwarding entries on a Linux host
 
 *Note: the python code used in this lab has a dependency on the python-arango module. The module has been preinstalled on both the Rome and Amsterdam VMs, however, if one wishes to recreate this lab in their own environment, any client node will need to install the module. We also suggest upgrading the http 'requests' library as that will eliminate some cosmetic http error codes.*
-```
-sudo apt install python3-pip
-pip install python-arango 
-pip3 install --upgrade requests
-```
+    ```
+    sudo apt install python3-pip
+    pip install python-arango 
+    pip3 install --upgrade requests
+    ```
 
 ## Enable XRd forwarding of SR-MPLS traffic coming from Linux hosts
 In order to forward inbound labeled packets received from the Rome and Amsterdam VMs we'll need to enable MPLS forwarding on xrd01's and xrd07's VM-facing interfaces:
 
 1. Enable MPLS forwarding on the VM-facing interfaces on both xrd01 and xrd07: 
 
-```
-mpls static
- int gigabitEthernet 0/0/0/0
- commit
+    ```
+    mpls static
+    int gigabitEthernet 0/0/0/0
+    commit
 
-```
-Validate MPLS forwarding is enabled:
-```
-show mpls interface
-```
-Expected output:
-```
-Fri Dec 23 23:24:11.146 UTC
-Interface                  LDP      Tunnel   Static   Enabled 
--------------------------- -------- -------- -------- --------
-GigabitEthernet0/0/0/0     No       No       Yes      Yes
-GigabitEthernet0/0/0/1     No       No       No       Yes
-GigabitEthernet0/0/0/2     No       No       No       Yes
-```
+    ```
+    Validate MPLS forwarding is enabled:
+    ```
+    show mpls interface
+    ```
+    Expected output:
+    ```
+    Fri Dec 23 23:24:11.146 UTC
+    Interface                  LDP      Tunnel   Static   Enabled 
+    -------------------------- -------- -------- -------- --------
+    GigabitEthernet0/0/0/0     No       No       Yes      Yes
+    GigabitEthernet0/0/0/1     No       No       No       Yes
+    GigabitEthernet0/0/0/2     No       No       No       Yes
+    ```
 
 ## Rome VM: Segment Routing & SRv6 on Linux
 
@@ -186,99 +186,98 @@ Note: the jalapeno.py client supports both SR and SRv6 encapsulation, however, f
 The Get All Paths Service will query the DB for all paths up to 6-hops in length between a pair of source and destination prefixes.
 
 1. Run the 'gp' service (you can specify either sr or srv6 for encap):
-``` 
-python3 jalapeno.py -f rome.json -s gp -e srv6
-```
-  - Sample command line output:
-```
-cisco@rome:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f rome.json -s gp -e srv6
-src data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'src_peer': '10.0.0.7'}]
-dest data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'dst_peer': '10.0.0.1'}]
-Get All Paths Service
-number of paths found:  4
-SRv6 locators for path:  ['fc00:0:4444::', 'fc00:0:5555::', 'fc00:0:1111::']
-SR prefix sids for path:  [100004, 100005, 100001]
-SRv6 locators for path:  ['fc00:0:6666::', 'fc00:0:2222::', 'fc00:0:1111::']
-SR prefix sids for path:  [100006, 100002, 100001]
-SRv6 locators for path:  ['fc00:0:6666::', 'fc00:0:5555::', 'fc00:0:1111::']
-SR prefix sids for path:  [100006, 100005, 100001]
-SRv6 locators for path:  ['fc00:0:4444::', 'fc00:0:3333::', 'fc00:0:2222::', 'fc00:0:1111::']
-SR prefix sids for path:  [100004, 100003, 100002, 100001]
-All paths data from unicast_prefix_v4/20.0.0.0_24_10.0.0.7 to unicast_prefix_v4/10.101.2.0_24_10.0.0.1 logged to log/get_paths.json
-```
- - The code contains a number of console logging instances that are commented out, and some that are active (hence the output above). Note this line which provides a summary of the relevant paths by outputing the SRv6 locators along each path:
+    ``` 
+    python3 jalapeno.py -f rome.json -s gp -e srv6
+    ```
+      - Sample command line output:
+    ```
+    cisco@rome:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f rome.json -s gp -e srv6
+    src data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'src_peer': '10.0.0.7'}]
+    dest data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'dst_peer': '10.0.0.1'}]
+    Get All Paths Service
+    number of paths found:  4
+    SRv6 locators for path:  ['fc00:0:4444::', 'fc00:0:5555::', 'fc00:0:1111::']
+    SR prefix sids for path:  [100004, 100005, 100001]
+    SRv6 locators for path:  ['fc00:0:6666::', 'fc00:0:2222::', 'fc00:0:1111::']
+    SR prefix sids for path:  [100006, 100002, 100001]
+    SRv6 locators for path:  ['fc00:0:6666::', 'fc00:0:5555::', 'fc00:0:1111::']
+    SR prefix sids for path:  [100006, 100005, 100001]
+    SRv6 locators for path:  ['fc00:0:4444::', 'fc00:0:3333::', 'fc00:0:2222::', 'fc00:0:1111::']
+    SR prefix sids for path:  [100004, 100003, 100002, 100001]
+    All paths data from unicast_prefix_v4/20.0.0.0_24_10.0.0.7 to unicast_prefix_v4/10.101.2.0_24_10.0.0.1 logged to log/get_paths.json
+    ```
+    - The code contains a number of console logging instances that are commented out, and some that are active (hence the output above). Note this line which provides a summary of the relevant paths by outputing the SRv6 locators along each path:
 
-  https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_7/python/netservice/gp.py#L43
+      https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_7/python/netservice/gp.py#L43
 
 
- - All the jalapeno network services will output some data to the console. More verbose data will be logged to the lab_7/python/log directory. Check log output:
-```
-more log/get_paths.json
-```
- - We can expect to see a json file with source, destination, and path data which includes srv6 sids and sr label stack info
+    - All the jalapeno network services will output some data to the console. More verbose data will be logged to the lab_7/python/log directory. Check log output:
+    ```
+    more log/get_paths.json
+    ```
+    - We can expect to see a json file with source, destination, and path data which includes srv6 sids and sr label stack info
 
-Like in Lab 6 we can also experiment with the script's graph traversal parameters to limit or expand the number of vertex 'hops' the query will search for. Note: ArangoDB considers the source and destination vertices as 'hops' when doing its graph traversal.
+    Like in Lab 6 we can also experiment with the script's graph traversal parameters to limit or expand the number of vertex 'hops' the query will search for. Note: ArangoDB considers the source and destination vertices as 'hops' when doing its graph traversal.
 
 2. Optional: change the 'gp' service's hopcount parameters. Open the netservice/gp.py file in a text editor (vi, vim) and change parameters in line 9: 
 
-  https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_7/python/netservice/gp.py#L9
+      https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_7/python/netservice/gp.py#L9
 
-Change it to read:
-```
-for v, e, p in 6..6 outbound
-```
-Save gp.py and re-run the script. The *`6..6`* syntax indicates the traversal should ONLY consider paths 6 hops in length. Given our topology a re-run of the client *`python3 jalapeno.py -f rome.json -s gp -e srv6`* you should output only a single path option in the command line output and log.
+    Change it to read:
+    ```
+    for v, e, p in 6..6 outbound
+    ```
+    Save gp.py and re-run the script. The *`6..6`* syntax indicates the traversal should ONLY consider paths 6 hops in length. Given our topology a re-run of the client *`python3 jalapeno.py -f rome.json -s gp -e srv6`* you should output only a single path option in the command line output and log.
 
-Example:
-```
-SRv6 locators for path:  [None, 'fc00:0:4444::', 'fc00:0:3333::', 'fc00:0:2222::', 'fc00:0:1111::', None]
-```
+    Example:
+    ```
+    SRv6 locators for path:  [None, 'fc00:0:4444::', 'fc00:0:3333::', 'fc00:0:2222::', 'fc00:0:1111::', None]
+    ```
 
 3. Optional: try increasing the number of hops the graph may traverse:
 
- ```
- for v, e, p in 1..8 outbound
- ```
-Save the file and re-run the script. You should see 8 total path options in the command line output and log.
+    ```
+    for v, e, p in 1..8 outbound
+    ```
+    Save the file and re-run the script. You should see 8 total path options in the command line output and log.
 
 ### Least Utilized Path
 Many segment routing and other SDN solutions focus on the low latency path as their primary use case. We absolutely feel low latency is an important network service, especially for real time applications. However, we believe one of the use cases which deliver the most bang for the buck is "Least Utilized Path". The idea behind this use case is that the routing protocol's chosen best path is usually *The Best Path*. Thus the *Least Utilized* service looks to steer lower priority traffic (backups, content replication, etc.) to lesser used paths and preserve the routing protocol's best path for higher priority traffic.
 
 
 1. Cleanup Rome's routes and execute the least utilized path service with SRv6 encapsulation
-```
-./cleanup_rome_routes.sh 
-python3 jalapeno.py -f rome.json -e srv6 -s lu
-```
-Expected console output:
-```
-cisco@rome:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f rome.json -e srv6 -s lu
-src data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'src_peer': '10.0.0.7'}]
-dest data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'dst_peer': '10.0.0.1'}]
-Least Utilized Service
-locators:  ['fc00:0:6666::', 'fc00:0:2222::', 'fc00:0:1111::']
-prefix_sids:  [100006, 100002, 100001]
-srv6 sid:  fc00:0:6666:2222:1111::
-adding linux SRv6 route: ip route add 10.101.2.0/24 encap seg6 mode encap segs fc00:0:6666:2222:1111:: dev ens192
-Show Linux Route Table: 
-default via 198.18.128.1 dev ens160 proto static 
-10.0.0.0/24 via 10.107.1.2 dev ens192 proto static 
-10.1.1.0/24 via 10.107.1.2 dev ens192 proto static 
-10.101.1.0/24 via 10.107.1.2 dev ens192 proto static 
-10.101.2.0/24  encap seg6 mode encap segs 1 [ fc00:0:6666:2222:1111:: ] dev ens192 scope link     <--------HERE
-10.101.3.0/24 via 10.107.2.2 dev ens224 proto static 
-10.107.1.0/24 dev ens192 proto kernel scope link src 20.0.0.1 
-10.107.2.0/24 dev ens224 proto kernel scope link src 10.107.2.1 
-198.18.128.0/18 dev ens160 proto kernel scope link src 198.18.128.103 
-```
+    ```
+    ./cleanup_rome_routes.sh 
+    python3 jalapeno.py -f rome.json -e srv6 -s lu
+    ```
+    Expected console output:
+    ```
+    cisco@rome:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f rome.json -e srv6 -s lu
+    src data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'src_peer': '10.0.0.7'}]
+    dest data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'dst_peer': '10.0.0.1'}]
+    Least Utilized Service
+    locators:  ['fc00:0:6666::', 'fc00:0:2222::', 'fc00:0:1111::']
+    prefix_sids:  [100006, 100002, 100001]
+    srv6 sid:  fc00:0:6666:2222:1111::
+    adding linux SRv6 route: ip route add 10.101.2.0/24 encap seg6 mode encap segs fc00:0:6666:2222:1111:: dev ens192
+    Show Linux Route Table: 
+    default via 198.18.128.1 dev ens160 proto static 
+    10.0.0.0/24 via 10.107.1.2 dev ens192 proto static 
+    10.1.1.0/24 via 10.107.1.2 dev ens192 proto static 
+    10.101.1.0/24 via 10.107.1.2 dev ens192 proto static 
+    10.101.2.0/24  encap seg6 mode encap segs 1 [ fc00:0:6666:2222:1111:: ] dev ens192 scope link     <--------HERE
+    10.101.3.0/24 via 10.107.2.2 dev ens224 proto static 
+    10.107.1.0/24 dev ens192 proto kernel scope link src 20.0.0.1 
+    10.107.2.0/24 dev ens224 proto kernel scope link src 10.107.2.1 
+    198.18.128.0/18 dev ens160 proto kernel scope link src 198.18.128.103 
+    ```
 
 2. Check log output and linux ip route:
- ```
-cat log/least_util.json
+    ```
+    cat log/least_util.json
 
-ip route
-
-```
+    ip route
+    ```
 
 3. Run a ping test 
  - Open up a second ssh session to the Rome VM
