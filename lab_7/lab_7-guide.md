@@ -395,21 +395,21 @@ For full size image see [LINK](/topo_drawings/low-latency-path.png)
 #### While jalapeno.py supports both SR and SRv6 for its Network Services, for the remainder of Lab 7 we will focus just on SRv6
 
 1. Low latency SRv6 service on Rome VM:
-```
-./cleanup_rome_routes.sh 
-python3 jalapeno.py -f rome.json -e srv6 -s ll
-ping 10.101.2.1 -I 20.0.0.1 -i .3
-```
-2. As with Least Utilized Path we can run the tcpdump scripts On the XRD VM to see labeled or SRv6 encapsulated traffic traverse the network:
-```
-./tcpdump.sh xrd06-xrd07
-```
-```
-./tcpdump.sh xrd05-xrd06
-```
-```
-./tcpdump.sh xrd01-xrd05
-```
+    ```
+    ./cleanup_rome_routes.sh 
+    python3 jalapeno.py -f rome.json -e srv6 -s ll
+    ping 10.101.2.1 -I 20.0.0.1 -i .3
+    ```
+    2. As with Least Utilized Path we can run the tcpdump scripts On the XRD VM to see labeled or SRv6 encapsulated traffic traverse the network:
+    ```
+    ./tcpdump.sh xrd06-xrd07
+    ```
+    ```
+    ./tcpdump.sh xrd05-xrd06
+    ```
+    ```
+    ./tcpdump.sh xrd01-xrd05
+    ```
 
 ### Low Latency Re-Route
 Now we are going to simulate a recalculation of the SRv6 topology. The *Sub-Standard Construction Company* has taken out fiber link "G" with a backhoe. Luckily you have paid for optical path redundancy and the link has failed to a geographicaly different route path. The result though is that the primary path latency of *5ms* has increased to *25 ms*. This should cause a new low latency route. Time to test it out!
@@ -420,58 +420,58 @@ For full size image see [LINK](/topo_drawings/low-latency-alternate-path.png)
 
 1. Link "G" needs to have the latency in your topology updated. We will use the Python script located in /lab_7/python/set_latency.py to change the link latency in the lab and then update the ArangoDb topology database with the new value. Set latency has two cli requirements -l (link letter) [A,B,C,D,E,F,G,H,I] and -ms (milliseconds latency) xxx values.
 
-On **XRD VM** run the command
-```
-cd /home/cisco/SRv6_dCloud_Lab/lab_7/python
-python3 set_latency.py -l G -ms 25
-```
+    On **XRD VM** run the command
+    ```
+    cd /home/cisco/SRv6_dCloud_Lab/lab_7/python
+    python3 set_latency.py -l G -ms 25
+    ```
 
 2. Low latency SRv6 service on **Rome VM**:
-```
-./cleanup_rome_routes.sh 
-python3 jalapeno.py -f rome.json -e srv6 -s ll
-ping 10.101.2.1 -I 20.0.0.1 -i .3
-```
+    ```
+    ./cleanup_rome_routes.sh 
+    python3 jalapeno.py -f rome.json -e srv6 -s ll
+    ping 10.101.2.1 -I 20.0.0.1 -i .3
+    ```
 
 3. Run an iPerf3 test
 
-Amsterdam VM
-  ```
-  iperf3 -s -D
-  ```
+  Amsterdam VM
+    ```
+    iperf3 -s -D
+    ```
 
-Rome VM
-  ```
-  iperf3 -c 10.101.2.1 -B 20.0.0.1
-  ```
-  ```
- cisco@rome:~/SRv6_dCloud_Lab/lab_7/python$ iperf3 -c 10.101.2.1 -B 20.0.0.1
-  Connecting to host 10.101.2.1, port 5201
-  [  5] local 20.0.0.1 port 41505 connected to 10.101.2.1 port 5201
-  [ ID] Interval           Transfer     Bitrate         Retr  Cwnd
-  [  5]   0.00-1.00   sec   104 KBytes   852 Kbits/sec    1   1.35 KBytes
-  [  5]   1.00-2.00   sec  0.00 Bytes  0.00 bits/sec    1   1.35 KBytes
-  [  5]   2.00-3.00   sec  0.00 Bytes  0.00 bits/sec    1   1.35 KBytes
-  [  5]   3.00-4.00   sec  0.00 Bytes  0.00 bits/sec    0   1.35 KBytes
-  [  5]   4.00-5.00   sec  0.00 Bytes  0.00 bits/sec    1   1.35 KBytes
-  [  5]   5.00-6.00   sec  0.00 Bytes  0.00 bits/sec    0   1.35 KBytes
-  [  5]   6.00-7.00   sec  0.00 Bytes  0.00 bits/sec    0   1.35 KBytes
-  [  5]   7.00-8.00   sec  0.00 Bytes  0.00 bits/sec    0   1.35 KBytes
-  [  5]   8.00-9.00   sec  0.00 Bytes  0.00 bits/sec    1   1.35 KBytes
-  [  5]   9.00-10.00  sec  0.00 Bytes  0.00 bits/sec    0   1.35 KBytes
-  - - - - - - - - - - - - - - - - - - - - - - - - -
-  [ ID] Interval           Transfer     Bitrate         Retr
-  [  5]   0.00-10.00  sec   104 KBytes  85.2 Kbits/sec    5             sender
-  [  5]   0.00-10.07  sec  0.00 Bytes  0.00 bits/sec                  receiver
+  Rome VM
+    ```
+    iperf3 -c 10.101.2.1 -B 20.0.0.1 -w 2700 -M 2700
+    ```
+    ```
+    cisco@rome:~$  iperf3 -c 10.101.2.1 -B 20.0.0.1 -w 2700 -M 2700
+    Connecting to host 10.101.2.1, port 5201
+    [  5] local 20.0.0.1 port 56113 connected to 10.101.2.1 port 5201
+    [ ID] Interval           Transfer     Bitrate         Retr  Cwnd
+    [  5]   0.00-1.00   sec  22.6 KBytes   185 Kbits/sec    2   7.42 KBytes       
+    [  5]   1.00-2.00   sec  33.9 KBytes   278 Kbits/sec    0   7.42 KBytes       
+    [  5]   2.00-3.00   sec  31.8 KBytes   261 Kbits/sec    0   7.42 KBytes       
+    [  5]   3.00-4.00   sec  33.9 KBytes   278 Kbits/sec    0   7.42 KBytes       
+    [  5]   4.00-5.00   sec  33.9 KBytes   278 Kbits/sec    0   7.42 KBytes       
+    [  5]   5.00-6.00   sec  31.8 KBytes   261 Kbits/sec    0   7.42 KBytes       
+    [  5]   6.00-7.00   sec  33.9 KBytes   278 Kbits/sec    0   7.42 KBytes       
+    [  5]   7.00-8.00   sec  31.8 KBytes   261 Kbits/sec    0   7.42 KBytes       
+    [  5]   8.00-9.00   sec  31.8 KBytes   261 Kbits/sec    0   7.42 KBytes       
+    [  5]   9.00-10.00  sec  33.9 KBytes   278 Kbits/sec    0   7.42 KBytes       
+    - - - - - - - - - - - - - - - - - - - - - - - - -
+    [ ID] Interval           Transfer     Bitrate         Retr
+    [  5]   0.00-10.00  sec   320 KBytes   262 Kbits/sec    2             sender
+    [  5]   0.00-10.06  sec   319 KBytes   259 Kbits/sec                  receiver
 
-  iperf Done. 
-  ```
+    iperf Done. 
+    ```
 4. Optional: run the Low Latency service using SR-MPLS encapsulation
-```
-./cleanup_rome_routes.sh 
-python3 jalapeno.py -f rome.json -e sr -s ll
-ping 10.101.2.1 -I 20.0.0.1 -i .3
-```
+    ```
+    ./cleanup_rome_routes.sh 
+    python3 jalapeno.py -f rome.json -e sr -s ll
+    ping 10.101.2.1 -I 20.0.0.1 -i .3
+    ```
 
 ### Data Sovereignty Path
 The Data Sovereignty service enables the user or application to steer their traffic through a path or geography that is considered safe per legal guidelines or other regulatory framework. In our case the "DS" service allows us to choose a country (or countries) to avoid when transmitting traffic from a source to a given destination. The country to avoid is specified as a country code in the rome.json and amsterdam.json files. In our testing we've specified that traffic should avoid France (FRA). xrd06 is located in Paris, so all requests to the DS service should produce a shortest-path result that avoids xrd06.
