@@ -4,6 +4,7 @@
 - [xrd05](#xrd05)
 - [xrd06](#xrd06)
 - [xrd07](#xrd07)
+- [Back to Lab 3 Guide](#back-to-lab-3-guide)
 
 ## xrd01
 ```
@@ -74,3 +75,6 @@ router bgp 65000
 commit
 
 ```
+
+ ## Back to Lab 3 Guide
+[Lab 3 Guide](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_3/lab_3-guide.md)
