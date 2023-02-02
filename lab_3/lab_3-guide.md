@@ -318,9 +318,6 @@ See the command output that demonstrates this test below. Some output truncated 
 **Amsterdam** VM
 
   ```
-  iperf3 -c 20.0.0.1
-  ```
-  ```
   iperf3 -c 20.0.0.1 -B 10.101.2.1 -w 2700 -M 2700
   ```
   ```
