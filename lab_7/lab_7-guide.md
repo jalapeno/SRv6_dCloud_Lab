@@ -3,7 +3,7 @@
 ### Description
 Lab 7 is divided into two primary parts. Part 1 is host-based SRv6 using Linux kernel capabilities on the Rome VM. Part 2 will be host-based SRv6 using VPP on the Amsterdam VM.
 
-The goal of the Jalapeno model is to enable applications to directly control their network experience. We envision a process where the application or endpoint requests some Jalapeno *network service* for its traffic. The Jalapeno network-service queries the DB and provides a response, which includes an SR-MPLS or SRv6 SID stack. The application or endpoint would then encapsulate its own outbound traffic; aka, the SR or SRv6 encapsulation/decapsulation would be performed at the host where the Application resides. 
+The goal of the Jalapeno model is to enable applications to directly control their network experience. We envision a process where the application or endpoint requests some Jalapeno **Network Service** for its traffic. The Jalapeno Network Service queries the DB and provides a response, which includes an SR-MPLS or SRv6 SID stack. The application or endpoint would then encapsulate its own outbound traffic; aka, the SR or SRv6 encapsulation/decapsulation would be performed at the host where the Application resides. 
 
 The host-based SR/SRv6 encap/decap could be executed at the Linux networking layer, or by an onboard dataplane element such as a vSwitch or VPP, or by a CNI dataplane such as eBPF. The encapsulated traffic, once transmitted from the host, will reach the SR/SRv6 transport network and will be statelessly forwarded per the SR/SRv6 encapsulation, thus executing the requested network service. 
 
@@ -107,7 +107,7 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
    sudo ip sr tunsrc set fc00:0:107:1::1
    ```
 
-   - Note: For host-based SR/MPLS the Linux MPLS modules aren't loaded by default, however, we already enabled them on the Rome VM. If you're setting up a similar lab in your own environment, here are the commands to load them: 
+   - Note: For host-based SR/MPLS the Linux MPLS modules aren't loaded by default, so we'll run *modprobe* commands to enable them: 
    ```
    sudo modprobe mpls_router
    sudo modprobe mpls_iptunnel
@@ -130,7 +130,7 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
 
 
 ## Jalapeno python client:
-Both the Rome and Amsterdam VM's are pre-loaded with a python client, *`jalapeno.py`*, that will execute our Jalapeno network service per the process described above. As the client is run it will program a local route or SR-policy with SR/SRv6 encapsulation, which will allow the VM to "self-encapsulate" its outbound traffic, The xrd network will statelessly forward the traffic per the SR/SRv6 encapsulation.
+Both the Rome and Amsterdam VM's are pre-loaded with a python client, *`jalapeno.py`*, that will execute our Jalapeno Network Service per the process described above. As the client is run it will program a local route or SR-policy with SR/SRv6 encapsulation, which will allow the VM to "self-encapsulate" its outbound traffic, The xrd network will statelessly forward the traffic per the SR/SRv6 encapsulation.
 
 A host or endpoint with the jalapeno.py client can request a network service between a given source and destination. The client's currently supported network services are: 
 
@@ -150,7 +150,7 @@ For ease of use the currently supported network services are abbreviated:
  - lu = least_utilized
  - ds = data_sovereignty
 
-1. cd into the lab_7 python directory and access client help with the *-h* argument:
+1. On the Rome VM cd into the lab_7 python directory and access client help with the *-h* argument:
     ```
     cd ~/SRv6_dCloud_Lab/lab_7/python
     python3 jalapeno.py -h
@@ -176,7 +176,7 @@ For ease of use the currently supported network services are abbreviated:
     python3 jalapeno.py -f rome.json -e srv6 -s lu
     ```
 
-The client's network service modules are located in the lab_7 *python/netservice/* directory. When invoked the client first calls the src_dst.py module, which queries the graphDB and returns database ID info for the source and destination prefixes. The client then runs the selected service module (gp, ll, lu, or ds) queries and calculates an SRv6 uSID or SR label stack, which will satisfy the network service request. The netservice module then calls the add_route.py module to create the local SR or SRv6 route or policy.
+The client's network service modules are located in the lab_7 *python/netservice/* directory. When invoked the client first calls the *src_dst.py* module, which queries the graphDB and returns database ID info for the source and destination prefixes. The client then runs the selected network service module (gp, ll, lu, or ds). The network service module queries and calculates an SRv6 uSID or SR label stack, which will satisfy the network service request. The netservice module then calls the *add_route.py* module to create the local SR or SRv6 route or policy.
 
 Note: the jalapeno.py client supports both SR and SRv6 encapsulation, however, for the purposes of this lab we'll focus primarily on SRv6. 
 
@@ -434,12 +434,12 @@ For full size image see [LINK](/topo_drawings/low-latency-alternate-path.png)
 
 3. Run an iPerf3 test
 
-  Amsterdam VM
+    Amsterdam VM
     ```
     iperf3 -s -D
     ```
 
-  Rome VM
+    Rome VM
     ```
     iperf3 -c 10.101.2.1 -B 20.0.0.1 -w 2700 -M 2700
     ```

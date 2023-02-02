@@ -366,7 +366,7 @@ In this exercise we are going to stitch together several elements that we have w
     return {Name: x.name, SID: x.srv6_sid}
     ```
 
-    More sample queries:
+    4. More sample queries:
     
     Query all IGP links in the DB:
     ```
@@ -394,8 +394,6 @@ In this exercise we are going to stitch together several elements that we have w
     for x in sr_node return { node: x.router_id, name: x.name, 
         prefix_sid: x.prefix_attr_tlvs.ls_prefix_sid, srv6sid: x.srv6_sid }
     ```
-
-4. Graph Collections within 
  
 ### Populating the DB with external data 
 
@@ -407,6 +405,20 @@ The *add_meta_data.py* python script will connect to the ArangoDB and populate e
 ```
 cd ~/SRv6_dCloud_Lab/lab_6/python/
 python3 add_meta_data.py
+```
+Expected output:
+```
+cisco@jalapeno:~/SRv6_dCloud_Lab/lab_6/python$ python3 add_meta_data.py
+calculating prefix SIDs
+xrd01 prefix sid:  100001
+xrd02 prefix sid:  100002
+xrd03 prefix sid:  100003
+xrd04 prefix sid:  100004
+xrd05 prefix sid:  100005
+xrd06 prefix sid:  100006
+xrd07 prefix sid:  100007
+adding location, country codes, latency, and link utilization data
+meta data added
 ```
 
 2. Validate meta data with an ArangoDB query:
