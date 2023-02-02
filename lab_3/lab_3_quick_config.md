@@ -63,7 +63,7 @@ conf t
 router bgp 65000
  address-family ipv4 unicast
   network 20.0.0.0/24
-  network 30.0.0.0/24
+  network 10.107.1.0/24
   allocate-label all
  !
  neighbor-group xrd-ipv4-peer
