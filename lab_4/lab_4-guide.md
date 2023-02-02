@@ -521,7 +521,7 @@ The ingress PE, xrd01, will then be configured with SRv6 segment-lists and SRv6 
     ```
     ping fc00:0:40::1 -i .4
     ```
-    - Note: as of CLEU23 there is some issue where IPv6 neighbor instances between Rome Linux and the XRd MACVLAN attachment on *`xrd07`*. So if your ping doesn't work try pinging from *`xrd01`* to *`Amsterdam`* over the VRF carrots interface. A successful ping should 'wake up' the IPv6 neighborship.
+    - Note: as of CLEU23 there is some issue where IPv6 neighbor instances between *`Amsterdam`* Linux and the XRd MACVLAN attachment on *`xrd01`*. So if your IPv6 ping from *`Amsterdam`* doesn't work try pinging from *`xrd01`* to *`Amsterdam`* over the VRF carrots interface. A successful ping should 'wake up' the IPv6 neighborship.
 
     On *`xrd01`*:  
     ```
@@ -543,18 +543,24 @@ The ingress PE, xrd01, will then be configured with SRv6 segment-lists and SRv6 
 
     18:43:55.837052 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e004::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 2, seq 1, length 64
     18:43:56.238255 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e004::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 2, seq 2, length 64
-    18:43:56.638935 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e004::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 2, seq 3, length 64
 
     IPv6 payload:
 
     18:44:13.268208 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e005::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:40::1: ICMP6, echo request, seq 1, length 64
     18:44:13.668766 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e005::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:40::1: ICMP6, echo request, seq 2, length 64
-    18:44:14.069430 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e005::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:40::1: ICMP6, echo request, seq 3, length 64
     ```
 
 #### Validate low latency traffic takes the path: xrd01 -> 05 -> 06 -> 07 
-1. Run the tcpdump.sh script in the util directory against **xrd01's** outbound interfaces:
+1.  Ping from **Amsterdam** to **Rome's** low latency destination IPv4 and IPv6 addresses while running the tcpdump script:
 
+    ```
+    ping 50.0.0.1 -i .4
+    ```
+    ```
+    ping fc00:0:50::1 -i .4
+    ```
+
+    Tcpdump along the low latency path (feel free to run one or more of these):
     ```
     ./tcpdump.sh xrd01-xrd05
     ```
@@ -565,27 +571,19 @@ The ingress PE, xrd01, will then be configured with SRv6 segment-lists and SRv6 
     ./tcpdump.sh xrd06-xrd07
     ```
 
-2. Ping from **Amsterdam** to **Rome's** low latency destination IPv4 and IPv6 addresses:
-
-    ```
-    ping 50.0.0.1 -i .4
-    ```
-    ```
-    ping fc00:0:50::1 -i .4
-    ```
-
     Example: tcpdump.sh output should look something like below on the xrd05-xrd06 link. In this case xrd05 -> 06 -> 07 is one of the IGP shortest paths. In this example the IPv4 ping replies are taking the same return path, however the IPv6 ping replies have been hashed onto one of the other ECMP paths. Your results may vary depending on how the XRd nodes have hashed their flows:
     ```
     18:47:20.342018 IP6 fc00:0:1111::1 > fc00:0:6666:7777:e004::: IP 10.101.3.1 > 50.0.0.1: ICMP echo request, id 4, seq 1, length 64
     18:47:20.742775 IP6 fc00:0:1111::1 > fc00:0:6666:7777:e004::: IP 10.101.3.1 > 50.0.0.1: ICMP echo request, id 4, seq 2, length 64
-    18:47:21.143986 IP6 fc00:0:1111::1 > fc00:0:6666:7777:e004::: IP 10.101.3.1 > 50.0.0.1: ICMP echo request, id 4, seq 3, length 64
 
     18:48:18.593766 IP6 fc00:0:1111::1 > fc00:0:6666:7777:e005::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:50::1: ICMP6, echo request, seq 1, length 64
     18:48:18.995022 IP6 fc00:0:1111::1 > fc00:0:6666:7777:e005::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:50::1: ICMP6, echo request, seq 2, length 64
-    18:48:19.396048 IP6 fc00:0:1111::1 > fc00:0:6666:7777:e005::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:50::1: ICMP6, echo request, seq 3, length 64
 
     ```
-    Here we found the return traffic for the IPv6 ping:
+    If you don't see return traffic on the same path you can run tcpdump.sh on other interfaces in the network. Here we found the return traffic for the IPv6 ping:
+    ```
+    ./tcpdump.sh xrd04-xrd05
+    ```
     ```
     cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd04-xrd05
     sudo tcpdump -ni br-9c9433e006cf
@@ -593,7 +591,6 @@ The ingress PE, xrd01, will then be configured with SRv6 segment-lists and SRv6 
     listening on br-9c9433e006cf, link-type EN10MB (Ethernet), capture size 262144 bytes
     18:48:55.216409 IP6 fc00:0:7777::1 > fc00:0:1111:e004::: IP6 fc00:0:50::1 > fc00:0:101:3:250:56ff:fe97:22cc: ICMP6, echo reply, seq 1, length 64
     18:48:55.625467 IP6 fc00:0:7777::1 > fc00:0:1111:e004::: IP6 fc00:0:50::1 > fc00:0:101:3:250:56ff:fe97:22cc: ICMP6, echo reply, seq 2, length 64
-    18:48:56.025653 IP6 fc00:0:7777::1 > fc00:0:1111:e004::: IP6 fc00:0:50::1 > fc00:0:101:3:250:56ff:fe97:22cc: ICMP6, echo reply, seq 3, length 64
     ```
 
 ### End of Lab 4
