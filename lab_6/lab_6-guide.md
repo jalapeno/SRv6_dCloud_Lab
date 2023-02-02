@@ -367,7 +367,7 @@ In this exercise we are going to stitch together several elements that we have w
     ```
 
     More sample queries:
-    ```
+    
     Query all IGP links in the DB:
     ```
     for x in ls_link return x
