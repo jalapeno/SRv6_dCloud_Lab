@@ -39,7 +39,7 @@ echo br-"$netinstance"
 
 brctl show | grep br-"$netinstance" > br.txt 
 veth2to6=$(rev br.txt | cut -c -11 | rev ) 
-sudo tc qdisc add dev $veth2to6 root netem delay 18000
+sudo tc qdisc add dev $veth2to6 root netem delay 20000
 
 docker network ls | awk -F': ' '/xrd03-gi1-xrd04-gi0 /{print $0}' > net.txt
 netinstance=$( head -n 1 net.txt | cut -c 1-12 )

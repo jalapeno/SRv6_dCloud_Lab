@@ -4,6 +4,7 @@
 - [xrd05](#xrd05)
 - [xrd06](#xrd06)
 - [xrd07](#xrd07)
+- [Back to Lab 3 Guide](#back-to-lab-3-guide)
 
 ## xrd01
 ```
@@ -62,7 +63,7 @@ conf t
 router bgp 65000
  address-family ipv4 unicast
   network 20.0.0.0/24
-  network 30.0.0.0/24
+  network 10.107.1.0/24
   allocate-label all
  !
  neighbor-group xrd-ipv4-peer
@@ -74,3 +75,6 @@ router bgp 65000
 commit
 
 ```
+
+ ## Back to Lab 3 Guide
+[Lab 3 Guide](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_3/lab_3-guide.md)

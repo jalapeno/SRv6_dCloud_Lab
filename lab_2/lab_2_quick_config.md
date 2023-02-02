@@ -7,6 +7,7 @@
 - [xrd05](#xrd05)
 - [xrd06](#xrd06)
 - [xrd07](#xrd07)
+- [Back to Lab 2 Guide](#back-to-lab-2-guide)
 
 ## xrd01
 ```
@@ -203,3 +204,6 @@ segment-routing
  commit
 
  ```
+
+ ## Back to Lab 2 Guide
+[Lab 2 Guide](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_2/lab_2-guide.md)
