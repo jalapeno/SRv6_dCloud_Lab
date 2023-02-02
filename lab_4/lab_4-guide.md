@@ -498,12 +498,18 @@ The ingress PE, xrd01, will then be configured with SRv6 segment-lists and SRv6 
 
 ### Validate SRv6-TE steering of L3VPN traffic
 #### Validate bulk traffic takes the non-shortest path: xrd01 -> 02 -> 03 -> 04 -> 07 
-1. Run the tcpdump.sh script in the util directory on the following links in the network. These can either be run sequentially while executing the ping in step 2, or you can open individual ssh sessions and run the tcpdumps simultaneously.
+1. Run the tcpdump.sh script in the util directory on the following links in the network. These can either be run sequentially while executing the ping in step 2, or you can open individual ssh sessions and run the tcpdumps simultaneously. As you run the tcpdumps you should see SRv6 Micro-SID 'shift-and-forward' behavior in action. Feel free to run all, or just one or two tcpdumps:
   
     ```
     ./tcpdump.sh xrd01-xrd02
+    ```
+    ```
     ./tcpdump.sh xrd02-xrd03
+    ```
+    ```
     ./tcpdump.sh xrd03-xrd04
+    ```
+    ```
     ./tcpdump.sh xrd04-xrd07
     ```
 
@@ -511,14 +517,35 @@ The ingress PE, xrd01, will then be configured with SRv6 segment-lists and SRv6 
 
     ```
     ping 40.0.0.1 -i .4
+    ```
+    ```
     ping fc00:0:40::1 -i .4
     ```
+    - Note: as of CLEU23 there is some issue where IPv6 neighbor instances between Rome Linux and the XRd MACVLAN attachment on *`xrd07`*. So if your ping doesn't work try pinging from *`xrd01`* to *`Amsterdam`* over the VRF carrots interface. A successful ping should 'wake up' the IPv6 neighborship.
 
-    Example: tcpdump.sh output should look something like below on the xrd02-xrd03 link with both outer SRv6 uSID header and inner IPv4/6 headers. Note in this case the outbound traffic is taking a non-shortest path.  We don't have a specific policy for return traffic so it will take one of the ECMP shortest paths; thus we do not see replies in the tcpdump output:
+    On *`xrd01`*:  
     ```
+    ping vrf carrots fc00:0:101:3::1 
+    ```
+    Output:
+    ```
+    RP/0/RP0/CPU0:xrd01#ping vrf carrots fc00:0:101:3::1 
+    Thu Feb  2 16:33:42.984 UTC
+    Type escape sequence to abort.
+    Sending 5, 100-byte ICMP Echos to fc00:0:101:3::1, timeout is 2 seconds:
+    !!!!!
+    Success rate is 100 percent (5/5), round-trip min/avg/max = 3/4/4 ms
+    RP/0/RP0/CPU0:xrd01#
+    ```
+    Example: tcpdump.sh output should look something like below on the xrd02-xrd03 link with both outer SRv6 uSID header and inner IPv4/6 headers. In this case the outbound traffic is taking a non-shortest path.  We don't have a specific policy for return traffic so it will take one of the ECMP shortest paths; thus we do not see replies in the tcpdump output:
+    ```
+    IPv4 payload:
+
     18:43:55.837052 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e004::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 2, seq 1, length 64
     18:43:56.238255 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e004::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 2, seq 2, length 64
     18:43:56.638935 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e004::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 2, seq 3, length 64
+
+    IPv6 payload:
 
     18:44:13.268208 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e005::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:40::1: ICMP6, echo request, seq 1, length 64
     18:44:13.668766 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e005::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:40::1: ICMP6, echo request, seq 2, length 64
@@ -530,7 +557,11 @@ The ingress PE, xrd01, will then be configured with SRv6 segment-lists and SRv6 
 
     ```
     ./tcpdump.sh xrd01-xrd05
+    ```
+    ```
     ./tcpdump.sh xrd05-xrd06
+    ```
+    ```
     ./tcpdump.sh xrd06-xrd07
     ```
 
@@ -538,6 +569,8 @@ The ingress PE, xrd01, will then be configured with SRv6 segment-lists and SRv6 
 
     ```
     ping 50.0.0.1 -i .4
+    ```
+    ```
     ping fc00:0:50::1 -i .4
     ```
 
