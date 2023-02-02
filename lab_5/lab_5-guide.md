@@ -33,12 +33,13 @@ Project Jalapeno combines existing open source tools with some new stuff we've d
 ![jalapeno_architecture](https://github.com/cisco-open/jalapeno/blob/main/docs/diagrams/jalapeno_architecture.png)
 
 Jalapeno breaks the data collection and warehousing problem down into a series of components and services:
-- Data collector services such as GoBMP and Telegraf collect network topology and statistics and publish to Kafka
-- Data processor services such as "Topology" (and other future services) subscribe to Kafka topics and write the data they receive to databases
-- Arango GraphDB is used for modeling topology data
-- InfluxDB is used for warehousing statistical time-series data
-- API-Gateway: is currently under construction so for the lab we'll interact directly with the DB
-- Jalapeno's installation script will also deploy a Grafana container, which can be used to create dashboards to visualize the Influx time-series data (this is out of scope for CLEU 2023, but is on our roadmap for future labs)
+- **Data Collector** services such as GoBMP and Telegraf collect network topology and statistics and publish to Kafka
+- **Data Processor** services such as "Topology" (and other future services) subscribe to Kafka topics and write the data they receive to databases
+- **Kafka** is used as a message bus between Collectors and Processors
+- **Arango GraphDB** is used for modeling topology data
+- **InfluxDB** is used for warehousing statistical time-series data
+- **API-Gateway**: is currently under construction so for the lab we'll interact directly with the DB
+- **Jalapeno's installation script** will also deploy a Grafana container, which can be used to create dashboards to visualize the Influx time-series data (this is out of scope for CLEU 2023, but is on our roadmap for future labs)
 
 One of the primary goals of the Jalapeno project is to be flexible and extensible. In the future we expect Jalapeno might support any number of data collectors and processors. For example the could be a collector/processor pair that creates an LLDP Topology model in the graphDB. Netflow data could be incorporated via a future integration with pmacct. Or an operator might already have a telemetry stack and could choose to selectively integrate Jalapeno's GoBMP/Topology/GraphDB modules into an existing environment running Kafka. We also envision future integrations with other API-driven data warehouses such as Cisco ThousandEyes: https://www.thousandeyes.com/
 
@@ -143,6 +144,7 @@ GoBMP Git Repository [HERE]((https://github.com/sbezverk/gobmp)
     ```
     http://198.18.128.101:30852/
     ```
+    - Login and select the "jalapeno" DB from the dropdown:
     ```
     user: root
     password: jalapeno
