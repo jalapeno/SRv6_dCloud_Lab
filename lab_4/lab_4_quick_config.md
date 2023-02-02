@@ -76,8 +76,9 @@ segment-routing
    !
    segment-list xrd2347
     srv6
-     index 10 sid fc00:0:3333::
-     index 20 sid fc00:0:4444::
+     index 10 sid fc00:0:2222::
+     index 20 sid fc00:0:3333::
+     index 30 sid fc00:0:4444::
     !
    !
   !

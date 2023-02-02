@@ -46,7 +46,6 @@ For more details on the End.DT6 standard see this [LINK](https://datatracker.iet
 
 BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4/6 L3VPN Network Layer Reachability Information (NLRI) and advertises it to IPv6 peering over an SRv6 network. The Ingress PE (provider edge) router encapsulates the VRF IPv4/6 traffic with the SRv6 VPN SID and sends it over the SRv6 network.
 
-For more details on SRv6 please see this [LINK](/SRv6.md)
 
   ### Configure VRF
   This lab will use the VRF *carrots* for IPv4 and IPv6 vpn. The *carrots* vrf is configured only on the two edge routers in our SP network: **xrd01** and **xrd07**. Intermediate routers do not need to be vrf aware and are instead forwarding on the SRv6 data plane.
@@ -397,8 +396,9 @@ The ingress PE, xrd01, will then be configured with SRv6 segment-lists and SRv6 
       
       segment-list xrd2347
        srv6
-        index 10 sid fc00:0:3333::
-        index 20 sid fc00:0:4444::
+        index 10 sid fc00:0:2222::
+        index 20 sid fc00:0:3333::
+        index 30 sid fc00:0:4444::
 
       segment-list xrd567
        srv6
