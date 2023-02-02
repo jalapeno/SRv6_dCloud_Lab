@@ -734,7 +734,10 @@ ipv4-VRF:0, fib_index:0, flow hash:[src dst sport dport proto flowlabel ] epoch:
     [0] [@15]: mpls-label[@1]:[100002:64:0:neos][100003:64:0:neos][100004:64:0:neos][100007:64:0:eos]        <---- SR label stack
         [@1]: mpls via 10.101.1.2 GigabitEthernetb/0/0: mtu:9000 next:2 flags:[] 02420a6501020050569722bb8847
 ```
-
+Pings should be SR label-switched over same path through the network
+```
+ping 20.0.0.1 -i .4
+```
 
 ### Low Latency Path
 The procedure on Amsterdam is the same as Least Utilized Path. As with Rome, we'll focus on SRv6 for these final steps with SR-MPLS being optional.
@@ -742,8 +745,8 @@ The procedure on Amsterdam is the same as Least Utilized Path. As with Rome, we'
 1. Low latency SRv6 path on Amsterdam VM:
 ```
 python3 jalapeno.py -f amsterdam.json -e srv6 -s ll
-ping 20.0.0.1 -i .4
 ```
+
 Example output:
 ```
 cisco@amsterdam:~/SRv6_dCloud_Lab/lab_7/python$ python3 jalapeno.py -f amsterdam.json -e srv6 -s ll
@@ -771,6 +774,9 @@ ipv4-VRF:0, fib_index:0, flow hash:[src dst sport dport proto flowlabel ] epoch:
           [0] [@13]: SR: Segment List index:[0]
 	Segments:< fc00:0:5555:6666:7777:e006:: > - Weight: 1
 ```
+```
+ping 20.0.0.1 -i .4
+```
 
 2. The Low latency path should be *`xrd01`* -> *`xrd05`* -> *`xrd06`* -> *`xrd07`* -> Rome. So we can run the tcpdump script On XRD VM as follows, or just check one or two tcpdumps:
 ```
@@ -786,6 +792,8 @@ ipv4-VRF:0, fib_index:0, flow hash:[src dst sport dport proto flowlabel ] epoch:
 4. Optional: Low latency SR-MPLS path on Amsterdam VM:
 ```
 python3 jalapeno.py -f amsterdam.json -e sr -s ll
+```
+```
 ping 20.0.0.1 -i .4
 ```
 
