@@ -213,7 +213,7 @@ When we get to lab 7 we'll be sending SRv6 encapsulated traffic directly to/from
 The SR-Processors are a set of proof-of-concept data processors that augment Jalapeno's graphDB modeling of the network.  
   - The *`sr-node processor`* loops through various link-state data collections and gathers relevant SR/SRv6 data for each node in the network and populates the data in a new *`sr_node`* data collection. 
   - The *`sr-topology`* processor generates a graph of the entire network topology (internal and external links, nodes, peers, prefixes, etc.) and populates relevant SR/SRv6 data within the *`sr_topology`* graph collection.
-  - The *`srv6-localsids`* processor harvests SRv6 SID data from a Kafka streaming telemetry topic. This data is not available via BMP and is needed to construct full End.DT SIDs in lab 7.  Example:
+  - The *`srv6-localsids`* processor harvests SRv6 SID data from a Kafka streaming telemetry topic and populates it in the *`sr_local_sids`* collection. This data is not available via BMP and is needed to construct full End.DT SIDs in lab 7.  Example:
 
 ```
 
@@ -239,6 +239,7 @@ fc00:0:1111:e005::      uDT6            'carrots'                      bgp-65000
     kubectl apply -f sr-node.yaml 
     kubectl apply -f sr-topology.yaml 
     kubectl apply -f srv6-localsids.yaml
+    
     ```
 2. Validate the pods are up and running in the 'jalapeno' namespace:
     ```

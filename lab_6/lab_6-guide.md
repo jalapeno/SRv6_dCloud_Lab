@@ -217,17 +217,17 @@ In this exercise we are going to stitch together several elements that we have w
         ```
 #### SRv6 Locator SID    
    1. Now lets examine the SRv6 locator configuration on **xrd01** with the command: show run segment-routing srv6 locators 
-    ```  
-    show run segment-routing srv6 locators
-    ```
-    ```
-    segment-routing
-    srv6
-    locators
-        locator MyLocator
-        micro-segment behavior unode psp-usd
-        prefix fc00:0:1111::/48     <----- xrd01 SRv6 locator defined
-    ```
+        ```  
+        show run segment-routing srv6 locators
+        ```
+        ```
+        segment-routing
+        srv6
+        locators
+            locator MyLocator
+            micro-segment behavior unode psp-usd
+            prefix fc00:0:1111::/48     <----- xrd01 SRv6 locator defined
+        ```
 
    4. With **xrd01** SID locator identified lets see how that is communicated through the BMP from the route reflectors.
       Monitor the BGP-LS *ls_srv6_sid* topic for incoming BMP messages describing SRv6 SIDs in the network:  
