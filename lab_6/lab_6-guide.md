@@ -461,7 +461,7 @@ Reference this document on the shortest path algorithim in AQL [HERE](https://ww
         sr_topology return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, 
         srv6sid: v.srv6_sid, latency: e.latency }
    ```
-   4. Query for the return path, include hop by hop latency:
+   4. Optional: query for the return path, include hop by hop latency:
    ```
    for v, e in outbound shortest_path 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' TO 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1'
        sr_topology return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, 
