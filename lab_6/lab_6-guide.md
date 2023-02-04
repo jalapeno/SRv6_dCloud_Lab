@@ -21,7 +21,7 @@ In Lab 6 we will explore the Jalapeno system running on Kubernetes. We will log 
     - [Shortest Path](#shortest-path)
   - [Shortest path queries using metrics other than hop count](#shortest-path-queries-using-metrics-other-than-hop-count)
     - [Query for the lowest latency path:](#query-for-the-lowest-latency-path)
-    - [Lowest latency return path:](#lowest-latency-return-path)
+    - [Optional: Lowest latency return path:](#optional-lowest-latency-return-path)
   - [Graph Traversals](#graph-traversals)
     - [Query for the least utilized path](#query-for-the-least-utilized-path)
   - [K Shortest Paths](#k-shortest-paths)
@@ -366,7 +366,7 @@ In this exercise we are going to stitch together several elements that we have w
     return {Name: x.name, SID: x.srv6_sid}
     ```
 
-    4. More sample queries:
+    1. More sample queries (Optional):
     
     Query all IGP links in the DB:
     ```
@@ -479,7 +479,7 @@ Reference this document on the shortest path algorithim in AQL [HERE](https://ww
        sr_topology OPTIONS {weightAttribute: 'latency' } 
        return  { prefix: v.prefix, name: v.name, prefix_sid: v.prefix_sid, srv6sid: e.srv6_sid, latency: e.latency }
    ```
-   #### Lowest latency return path:
+   #### Optional: Lowest latency return path:
    ```
    for v, e in outbound shortest_path 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' TO 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' 
        sr_topology OPTIONS {weightAttribute: 'latency' } 
@@ -524,7 +524,7 @@ Backups, data replication, other bulk transfers can oftentimes take a non-best p
     
    - Note the least utilized path should be **xrd01** -> **xrd02** -> **xrd03** -> **xrd04** -> **xrd07**. This also happens to be the longest path geographically in our network (Netherlands proceeding east and south through Germany, Poland, Ukraine, Turkey, etc.). Any traffic taking this path will be subject to the longest latency in our network.
 
-   4. Query for the return path:
+   4. Optional: Query for the return path:
    ```
    for v, e, p in 1..6 outbound 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' sr_topology 
        options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' 
@@ -579,7 +579,7 @@ https://www.arangodb.com/docs/stable/aql/graphs-kshortest-paths.html
 
    - The results in the query response should not traverse any links containing the FRA country code
 
-   - Feel free to run queries to `avoid` other countries as well. Just replace *`FRA`* in the query string with any of these country codes:  *`GBR`*, *`DEU`*, *`BRU`*, *`POL`*, *`TUR`*, *`UKR`*, *`MDA`*, *`BGR`*, *`AUT`*, *`HUN`*, *`SRB`*. You'll notice interesting results on some queries where the *xrd05 - xrd04* link traverses many countries.
+   - Optional: feel free to run queries to `avoid` other countries as well. Just replace *`FRA`* in the query string with any of these country codes:  *`GBR`*, *`DEU`*, *`BRU`*, *`POL`*, *`TUR`*, *`UKR`*, *`MDA`*, *`BGR`*, *`AUT`*, *`HUN`*, *`SRB`*. You'll notice interesting results on some queries where the *xrd05 - xrd04* link traverses many countries.
 
   <img src="images/network-map.png" width="800">
 
