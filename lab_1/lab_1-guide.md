@@ -52,7 +52,7 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     ssh cisco@198.18.128.100
     ```
 
-2. The XRD VM should have a blank file in the 'cisco' home directory which indicates the name of the pod you're connected to. Use the `ls` command to make sure you're connected to the correct dCloud instance. 
+2. The XRD VM should have a blank file in user *cisco's* home directory. The filename indicates the name of the pod you're connected to. Use the `ls` command to make sure you're connected to the correct dCloud instance: 
 
    ```
    ls
