@@ -25,7 +25,7 @@ open source project provides ways to see SRv6 created paths through the network.
 * Lab 7 - Build Your Own Cloud-Native SDN [LINK](/lab_7/lab_7-guide.md)
 
 
-## Repository Overview
+## Github Repository Overview
 Each of the labs is designed to be completed in the order presented. Lab 1 is the baseline configurations 
 needed to build the starting topology and launch the XRd and extended environment.
 
@@ -56,6 +56,10 @@ Within each lab directory you should see several files of importance :
 
 General instructions for building and running XRd topologies on bare-metal, VMs, AWS, etc. can be found here:
 https://github.com/brmcdoug/XRd
+
+## CLEUR Lab Session LTSPG-2212 Cisco dCloud
+
+Each lab instance is running on Cisco dCloud, and is reachable via AnyConnect VPN. In the Webex Teams room for the lab we've provided a spreadsheet with a list of dCloud instances and the AnyConnect credentials necessary to access each instance. To find your dCloud instance please reference your student number provided on the handout in class.
 
 ## Lab Topology
 
