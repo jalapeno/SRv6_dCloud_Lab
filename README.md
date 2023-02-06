@@ -61,6 +61,8 @@ https://github.com/brmcdoug/XRd
 
 Each lab instance is running on Cisco dCloud, and is reachable via AnyConnect VPN. In the Webex Teams room for the lab we've provided a spreadsheet with a list of dCloud instances and the AnyConnect credentials necessary to access each instance. To find your dCloud instance please reference your student number provided on the handout in class.
 
+The dCloud instances themselves will run until about 2pm CET (UTC +1) February 7, 2023.
+
 ## Lab Topology
 
 This lab is based on a simulated WAN design of seven routers running in a docker instance. Each of these 
