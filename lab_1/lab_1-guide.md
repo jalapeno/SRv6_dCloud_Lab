@@ -29,6 +29,7 @@ The student upon completion of Lab 1 should have achieved the following objectiv
 * Understanding of the lab topology and components
 * Confirm IPv4 and IPv6 connectivity   
 
+
 ## Validate Device Access
 
 Device access for this lab is primarly through SSH. All of the VMs within this toplogy can be accessed once you connect through Cisco AnyConnect VPN to the dCloud environment. Please see the management topology network diagram below. In addition we will launch seven instances of XR routers running as containers on the VM host "XRD". The XRD VM acts as a jumpbox for these containerized routers, thus we will SSH into the XRD VM and then initiate a separate SSH session to each of the routers. The XRD VM is configured for DNS resolution for each router name to save time.
@@ -51,13 +52,24 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     ssh cisco@198.18.128.100
     ```
 
-2. Change to the Git repository directory
+2. The XRD VM should have a blank file in the 'cisco' home directory which indicates the name of the pod you're connected to. Use the `ls` command to make sure you're connected to the correct dCloud instance. 
+
+   ```
+   ls
+   ```
+   Example output for pod01:
+   ```
+   cisco@xrd:~$ ls
+   Downloads  images  pod01  SRv6_dCloud_Lab
+   ```
+
+3. Change to the Git repository directory
     - The lab repository folder is found in the home directory *`~/SRv6_dCloud_Lab/`*
     ```
     cd ~/SRv6_dCloud_Lab/
     ```
 
-3. Validate there are no docker containers running or docker networks for the XRd topology
+4. Validate there are no docker containers running or docker networks for the XRd topology
     ```
     docker ps
     ```
@@ -71,7 +83,7 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     b948b6ba5918   host      host      local
     bdf431ee7377   none      null      local
     ```
-4.  Run the setup script, which should clean up any existing XRd containers and docker networks, then launch the topology into the "beginning of lab 1" configuration state 
+5.  Run the setup script, which should clean up any existing XRd containers and docker networks, then launch the topology into the "beginning of lab 1" configuration state 
     - change to the lab_1 directory
     ```
     cd lab_1
@@ -92,7 +104,7 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     ```
     Look for status of `done` for each **xrd 01 -> 07**
 
-5. Check that the docker containers were created and running
+6. Check that the docker containers were created and running
     ```
     docker ps
     ```
@@ -107,7 +119,7 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     c48dc39398ef   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd04
     7d0436c26cc8   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd06
     ```
-6. Confirm the docker networks were created. 
+7. Confirm the docker networks were created. 
     ```
     docker network ls
     ```
