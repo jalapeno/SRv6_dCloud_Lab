@@ -1,4 +1,4 @@
-#### Replaces lab_6 guide query after running add_meta_data.py
+#### Replaces lab_5 guide query after running add_meta_data.py
 ```
 for x in sr_topology filter x.latency != null return { key: x._key, from: x._from, to: x._to, latency: x.latency, 
     utilization: x.percent_util_out, country_codes: x.country_codes }

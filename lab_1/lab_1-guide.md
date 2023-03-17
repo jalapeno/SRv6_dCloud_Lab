@@ -169,7 +169,7 @@ Later we'll use "tcpdump.sh **xrd0x-xrd0y**" to capture packets along the path t
 ### Validate Jalapeno VM
 The Ubuntu VM Jalapeno has Kubernetes pre-installed and running. Later in lab exercise 5 we will install the open-source Jalapeno application.
 
-Jalapeno will collect BGP Monitoring Protocol (BMP) and streaming telemetry data from the routers, and will serve as a data repository for the SDN clients we'll have running on the Amsterdam and Rome VMs (Lab 7).
+Jalapeno will collect BGP Monitoring Protocol (BMP) and streaming telemetry data from the routers, and will serve as a data repository for the SDN clients we'll have running on the Amsterdam and Rome VMs (Lab 6).
 
 1. Validate router reachability to Jalapeno VM (no need to check all routers, but will be good to validate **xrd05** and **xrd06**):
 
