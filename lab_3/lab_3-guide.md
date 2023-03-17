@@ -211,7 +211,7 @@ The BGP route reflectors will also need to have L3VPN capability added to their 
 
 Validation command output examples can be found at this [LINK](https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_5/validation-cmd-output.md)
 
-1. From **xrd01** run the following set of validation commands:
+1. From **xrd01** run the following set of validation commands (for the sake of time you can paste them in as a group, or spot check some subset of commands):
 
   ```
   show segment-routing srv6 sid
@@ -322,11 +322,16 @@ The ingress PE, xrd01, will then be configured with SRv6 segment-lists and SRv6 
 
   **xrd01**
   ```
-  show bgp vpnv4 uni vrf carrots 40.0.0.0/24
+  show bgp vpnv4 uni vrf carrots 40.0.0.0/24 
   show bgp vpnv4 uni vrf carrots 50.0.0.0/24
   show bgp vpnv6 uni vrf carrots fc00:0:40::/64
   show bgp vpnv6 uni vrf carrots fc00:0:50::/64
   ```
+  - For easier reading you can filter the show command output:
+  ```
+  show bgp vpnv4 uni vrf carrots 40.0.0.0/24 | include *olor 
+  ```
+
   Examples:
   ```
   RP/0/RP0/CPU0:xrd01#show bgp vpnv4 uni vrf carrots 40.0.0.0/24
@@ -380,7 +385,7 @@ The ingress PE, xrd01, will then be configured with SRv6 segment-lists and SRv6 
         Source AFI: VPNv6 Unicast, Source VRF: default, Source Route Distinguisher: 10.0.0.7:0
   ```
 
-3. On **xrd01** configure a pair of SRv6-TE segment lists for steering traffic over these specific paths through the network: 
+1. On **xrd01** configure a pair of SRv6-TE segment lists for steering traffic over these specific paths through the network: 
     - Segment list *xrd2347* will execute the explicit path: xrd01 -> 02 -> 03 -> 04 -> 07
     - Segment list *xrd567* will execute the explicit path: xrd01 -> 05 -> 06 -> 07
 
@@ -521,7 +526,7 @@ The ingress PE, xrd01, will then be configured with SRv6 segment-lists and SRv6 
     ```
     ping fc00:0:40::1 -i .4
     ```
-    - Note: as of CLEU23 there is some issue where IPv6 neighbor instances between *`Amsterdam`* Linux and the XRd MACVLAN attachment on *`xrd01`*. So if your IPv6 ping from *`Amsterdam`* doesn't work try pinging from *`xrd01`* to *`Amsterdam`* over the VRF carrots interface. A successful ping should 'wake up' the IPv6 neighborship.
+    - Note: as of CLUS23 there is some issue where IPv6 neighbor instances between *`Amsterdam`* Linux and the XRd MACVLAN attachment on *`xrd01`*. So if your IPv6 ping from *`Amsterdam`* doesn't work try pinging from *`xrd01`* to *`Amsterdam`* over the VRF carrots interface. A successful ping should 'wake up' the IPv6 neighborship.
 
     On *`xrd01`*:  
     ```
@@ -572,6 +577,7 @@ The ingress PE, xrd01, will then be configured with SRv6 segment-lists and SRv6 
     ```
 
     Example: tcpdump.sh output should look something like below on the xrd05-xrd06 link. In this case xrd05 -> 06 -> 07 is one of the IGP shortest paths. In this example the IPv4 ping replies are taking the same return path, however the IPv6 ping replies have been hashed onto one of the other ECMP paths. Your results may vary depending on how the XRd nodes have hashed their flows:
+    
     ```
     18:47:20.342018 IP6 fc00:0:1111::1 > fc00:0:6666:7777:e004::: IP 10.101.3.1 > 50.0.0.1: ICMP echo request, id 4, seq 1, length 64
     18:47:20.742775 IP6 fc00:0:1111::1 > fc00:0:6666:7777:e004::: IP 10.101.3.1 > 50.0.0.1: ICMP echo request, id 4, seq 2, length 64
