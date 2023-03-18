@@ -1,4 +1,33 @@
-#### Replaces lab_6 guide query after running add_meta_data.py
+#### Sample Basic Queries
+
+Query all IGP links in the DB:
+```
+for x in ls_link return x
+```
+Query for all IPv4 IGP links:
+```
+for x in ls_link filter x.mt_id_tlv.mt_id !=2 return x
+```
+Query for all IPv4 IGP links and return specific k:v pairs:
+```
+for x in ls_link filter x.mt_id_tlv.mt_id !=2 return { key: x._key, router_id: x.router_id, 
+    igp_id: x.igp_router_id, local_ip: x.local_link_ip, remote_ip: x.remote_link_ip }
+```
+Query for the IGP topology (should match the xrd router topology):
+```
+for x in ls_node_edge return x
+```
+Query for the entire network topology (should match the xrd topology plus some spokes out to attached BGP networks):
+```
+for x in sr_topology return x
+```
+Query the sr_node dataset and return specific k:v pairs:
+```
+for x in sr_node return { node: x.router_id, name: x.name, 
+    prefix_sid: x.prefix_attr_tlvs.ls_prefix_sid, srv6sid: x.srv6_sid }
+```
+
+#### Replaces lab_5 guide query after running add_meta_data.py
 ```
 for x in sr_topology filter x.latency != null return { key: x._key, from: x._from, to: x._to, latency: x.latency, 
     utilization: x.percent_util_out, country_codes: x.country_codes }

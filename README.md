@@ -18,11 +18,10 @@ open source project provides ways to see SRv6 created paths through the network.
 * Project Jalapeno [LINK](#jalapeno)
 * Lab 1 - XRd Topology Setup and Validation [LINK](/lab_1/lab_1-guide.md)
 * Lab 2 - Config Baseline SR-MPLS and SRv6 [LINK](/lab_2/lab_2-guide.md)
-* Lab 3 - Config BGP-LU over SR-MPLS [LINK](/lab_3/lab_3-guide.md)
-* Lab 4 - Config SRv6 L3VPN with TE [LINK](/lab_4/lab_4-guide.md)
-* Lab 5 - Config BMP and install Jalapeno [LINK](/lab_5/lab_5-guide.md)
-* Lab 6 - A Tour of Jalapeno [LINK](/lab_6/lab_6-guide.md)
-* Lab 7 - Build Your Own Cloud-Native SDN [LINK](/lab_7/lab_7-guide.md)
+* Lab 3 - Config SRv6 L3VPN with TE [LINK](/lab_3/lab_3-guide.md)
+* Lab 4 - Config BMP and install Jalapeno [LINK](/lab_4/lab_4-guide.md)
+* Lab 5 - A Tour of Jalapeno [LINK](/lab_5/lab_5-guide.md)
+* Lab 6 - Build Your Own Cloud-Native SDN [LINK](/lab_6/lab_6-guide.md)
 
 
 ## Github Repository Overview
