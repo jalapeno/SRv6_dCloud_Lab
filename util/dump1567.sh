@@ -6,7 +6,7 @@ sudo tcpdump -ni $line
 sleep 4
 pid=$(ps -e | pgrep tcpdump)  
 echo $pid  
-kill -2 $pid
+sudo kill -2 $pid
 echo "stop tcpdump"
 
 line=$(head -n 1 xrd05-xrd06)
@@ -15,7 +15,7 @@ sudo tcpdump -ni $line
 sleep 4
 pid=$(ps -e | pgrep tcpdump)  
 echo $pid  
-kill -2 $pid
+sudo kill -2 $pid
 echo "stop tcpdump"
 
 line=$(head -n 1 xrd06-xrd07)
@@ -24,5 +24,5 @@ sudo tcpdump -ni $line
 sleep 4
 pid=$(ps -e | pgrep tcpdump)  
 echo $pid  
-kill -2 $pid
+sudo kill -2 $pid
 echo "stop tcpdump"
