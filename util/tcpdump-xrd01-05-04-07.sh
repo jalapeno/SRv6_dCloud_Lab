@@ -1,8 +1,8 @@
 #/bin/bash
 
-line=$(head -n 1 xrd06-xrd07)
+line=$(head -n 1 xrd01-xrd05)
 echo "
-running tcpdump on xrd06 to xrd07 link
+running tcpdump on xrd01 to xrd05 link
 
 "
 echo "sudo tcpdump -ni $line"
@@ -15,8 +15,8 @@ echo "
 stopping tcpdump
 "
 
-line=$(head -n 1 xrd02-xrd06)
-echo "running tcpdump on xrd02 to xrd06 link
+line=$(head -n 1 xrd05-xrd04)
+echo "running tcpdump on xrd05 to xrd04 link
 "
 echo "sudo tcpdump -ni $line
 
@@ -29,10 +29,10 @@ sudo kill -9 $pid
 echo "
 stopping tcpdump
 "
-echo "running tcpdump on xrd01 to xrd02 link
+echo "running tcpdump on xrd04 to xrd07 link
 
 "
-line=$(head -n 1 xrd01-xrd02)
+line=$(head -n 1 xrd04-xrd07)
 echo "sudo tcpdump -ni $line
 
 "
