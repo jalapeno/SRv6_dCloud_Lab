@@ -213,7 +213,7 @@ When we get to lab 6 we'll be sending SRv6 encapsulated traffic directly to/from
 The SR-Processors are a set of proof-of-concept data processors that augment Jalapeno's graphDB modeling of the network.  
   - The *`sr-node processor`* loops through various link-state data collections and gathers relevant SR/SRv6 data for each node in the network and populates the data in a new *`sr_node`* data collection. 
   - The *`sr-topology`* processor generates a graph of the entire network topology (internal and external links, nodes, peers, prefixes, etc.) and populates relevant SR/SRv6 data within the *`sr_topology`* graph collection.
-  - The *`srv6-localsids`* processor harvests SRv6 SID data from a Kafka streaming telemetry topic and populates it in the *`sr_local_sids`* collection. This data is not available via BMP and is needed to construct full End.DT SIDs in lab 6.  Example:
+  - The *`srv6-localsids`* processor harvests SRv6 SID data from a Kafka streaming telemetry topic and populates it in the *`sr_local_sids`* collection. This data is not available via BMP and is needed to construct full End.DT SIDs that we'll use in lab 6.  Example:
 
 ```
 
@@ -265,6 +265,8 @@ fc00:0:1111:e005::      uDT6            'carrots'                      bgp-65000
 3. Check ArangoDB for new *`sr_node`*, *`sr_topology`*, and *`srv6_local_sids`* data collections, and that they contain data. For example, *`sr_node`* should look something like this with seven entries:
 
   <img src="images/sr_node.png" width="1200">
+
+ - Note: srv6_local_sids may not populate with data for up to 2 minutes as it is reliant on streaming telemetry configuration of 120 seconds (see xrd01 'telemetry model-driven' config section). 
 
 ### End of Lab 4
 Please proceed to [Lab 5](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_5/lab_5-guide.md)
