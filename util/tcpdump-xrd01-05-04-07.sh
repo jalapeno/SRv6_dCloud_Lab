@@ -15,7 +15,7 @@ echo "
 stopping tcpdump
 "
 
-line=$(head -n 1 xrd05-xrd04)
+line=$(head -n 1 xrd04-xrd05)
 echo "running tcpdump on xrd05 to xrd04 link
 "
 echo "sudo tcpdump -ni $line
