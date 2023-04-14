@@ -19,9 +19,9 @@ In Lab 5 we will explore the Jalapeno system running on Kubernetes. We will log 
   - [Populating the DB with external data](#populating-the-db-with-external-data)
   - [Arango Graph traversals and shortest path queries](#arango-graph-traversals-and-shortest-path-queries)
     - [Shortest Path](#shortest-path)
+    - [Note: for all the remaining queries in this lab you can run the query against the return path by simply reversing the startVertex and targetVertex. Example:](#note-for-all-the-remaining-queries-in-this-lab-you-can-run-the-query-against-the-return-path-by-simply-reversing-the-startvertex-and-targetvertex-example)
   - [Shortest path queries using metrics other than hop count](#shortest-path-queries-using-metrics-other-than-hop-count)
     - [Query for the lowest latency path:](#query-for-the-lowest-latency-path)
-    - [Optional: Lowest latency return path:](#optional-lowest-latency-return-path)
   - [Graph Traversals](#graph-traversals)
     - [Query for the least utilized path](#query-for-the-least-utilized-path)
   - [K Shortest Paths](#k-shortest-paths)
@@ -312,8 +312,7 @@ In this exercise we are going to stitch together several elements that we have w
 
 
 3. Run some DB Queries:
-    ArangoDB uses AQL as it's query syntax language. It likely is new to you so we have provides some basic explanations:
-    For the most basic query below *x* is a object variable with each key field in a record populated as a child object.
+    ArangoDB uses AQL as it's query syntax language. For the most basic query below *x* is a object variable with each key field in a record populated as a child object.
 
     for *x* in *collection* return *x*
 
@@ -422,25 +421,21 @@ Reference this document on the shortest path algorithim in AQL [HERE](https://ww
    for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0001' TO 'sr_node/2_0_0_0000.0000.0007' sr_topology 
        return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, srv6sid: v.srv6_sid }
    ```
-   2. Run the query against the return path:
+#### Note: for all the remaining queries in this lab you can run the query against the return path by simply reversing the startVertex and targetVertex. Example:
+
    ```
    for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0007' TO 'sr_node/2_0_0_0000.0000.0001' sr_topology 
        return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, 
        srv6sid: v.srv6_sid }
    ```
 
-   3. Run a shortest path query from source prefix (Amsterdam) to destination prefix (Rome), include hop by hop latency:
+   1. Run a shortest path query from source prefix (Amsterdam VM) to destination prefix (Rome VM), include hop by hop latency:
    ```
     for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7'
         sr_topology return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, 
         srv6sid: v.srv6_sid, latency: e.latency }
    ```
-   4. Optional: query for the return path, include hop by hop latency:
-   ```
-   for v, e in outbound shortest_path 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' TO 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1'
-       sr_topology return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, 
-       srv6sid: v.srv6_sid, latency: e.latency }
-   ```
+
    Thus far all of these shortest path query results are based purely on hop count. Also note, in the case where the graph has multiple equal cost shortest paths, the Arango query will return the first one it finds. 
 
    Basic shortest path by hop count is fine, however, the graphDB also allows us to run a *`weighted shortest path query`* based on any metric or other piece of meta data in the graph!
@@ -453,12 +448,7 @@ Reference this document on the shortest path algorithim in AQL [HERE](https://ww
        sr_topology OPTIONS {weightAttribute: 'latency' } 
        return  { prefix: v.prefix, name: v.name, prefix_sid: v.prefix_sid, srv6sid: e.srv6_sid, latency: e.latency }
    ```
-   #### Optional: Lowest latency return path:
-   ```
-   for v, e in outbound shortest_path 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' TO 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' 
-       sr_topology OPTIONS {weightAttribute: 'latency' } 
-       return { prefix: v.prefix, name: v.name, prefix_sid: v.prefix_sid, srv6sid: e.srv6_sid, latency: e.latency }
-   ```
+
 ### Graph Traversals
 A traversal starts at one specific document (startVertex) and follows all edges connected to this document. For all documents (vertices) that are targeted by these edges it will again follow all edges connected to them and so on. It is possible to define how many of these follow iterations should be executed at least (min depth) and at most (max depth). Or in network-engineer-speak "fewest hops" and "most hops"
 https://www.arangodb.com/docs/stable/aql/graphs-traversals-explained.html
@@ -466,9 +456,8 @@ https://www.arangodb.com/docs/stable/aql/graphs-traversals-explained.html
 For our purposes we can use Graph Traversal to run a limited or bounded shortest path query (min and max hops):
 
 #### Query for the least utilized path
-Backups, data replication, other bulk transfers can oftentimes take a non-best path through the network. In theory the least utilized path could be many hops in length, so we're going to build the query such that the traversal limits itself to a maximum of 6 hops from the source vertex.
-
-   1. Graph traversal query for the least utilized path. The 1..6 notation indicates the query can consider paths with 6 or few hops.
+Backups, data replication, other bulk transfers can oftentimes take a non-best path through the network. In theory the least utilized path could be many hops in length, so we're going to include a notation (1..6) which indicates the query can consider paths with 6 or fewer hops.
+    
     - Query for full path data. We expect to see the Arango UI render a topology that includes all seven routers:
 
    ```
@@ -496,27 +485,12 @@ Backups, data replication, other bulk transfers can oftentimes take a non-best p
    ```
    We no longer see the UI render a topology, but we do get a nice subset of the output data. Also note the *return* instruction in the query specifies that it should add up the `latency` values, and do an average calculation on `percent_util_out` values.
     
-   - Note the least utilized path should be **xrd01** -> **xrd02** -> **xrd03** -> **xrd04** -> **xrd07**. This also happens to be the longest path geographically in our network (Netherlands proceeding east and south through Germany, Poland, Ukraine, Turkey, etc.). Any traffic taking this path will be subject to the longest latency in our network.
+   - Note: the least utilized path should be **xrd01** -> **xrd02** -> **xrd03** -> **xrd04** -> **xrd07**. This also happens to be the longest path geographically in our network (Netherlands proceeding east and south through Germany, Poland, Ukraine, Turkey, etc.). Any traffic taking this path will be subject to the longest latency in our network.
 
-   4. Optional: Query for the return path:
-   ```
-   for v, e, p in 1..6 outbound 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' sr_topology 
-       options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' 
-       return distinct { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, countries_traversed: p.edges[*].country_codes[*],
-       latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
-   ```
-   - Note: unlike latency, which we can expect to be roughly equivalent in either direction, average utilization could be quite different. In our network the least utilized Amsterdam to Rome path is different from the least utilized Rome to Amsterdam path: **xrd07** -> **xrd06** -> **xrd02** -> **xrd01**
+   - Note2: unlike latency, which we can expect to be roughly equivalent in either direction, average utilization could be quite different. In our network the least utilized Amsterdam to Rome path is different from the least utilized Rome to Amsterdam path: **xrd07** -> **xrd06** -> **xrd02** -> **xrd01**
 
-   The previous queries provided paths up to 5 or 6-hops in length. We can increase or decrease the number of hops a graph traversal may use:
-
-   5. Let's constrain the traversal to *only* consider a path 6 hops in length:
-
-   ```
-   for v, e, p in 6..6 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
-       options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
-       return distinct p
-   ```
-   6. Increase the length of the traversal with filtered output (should provide more valid results)
+   The previous queries provided paths up to 5 or 6-hops in length. We can increase or decrease the number of hops a graph traversal may use. For example we could increase the length of the traversal such that paths of up to 8 hops will be considered:
+   
    ```
     for v, e, p in 1..8 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
         options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
@@ -524,7 +498,7 @@ Backups, data replication, other bulk transfers can oftentimes take a non-best p
         latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
 
    ```
-   - Note: the graph traversal is inherently loop-free. If you increase the previous query to max of 10 or 12 hops it should return the same number of results as 8 hops max.
+   - Note: the graph traversal is inherently loop-free. If you increase the previous query to a max of 10 or 12 hops it should return the same number of results as the 1..8 query because there are no more loop-free paths.
 
 ### K Shortest Paths
 This type of query finds the first k paths in order of length (or weight) between two given documents, startVertex and targetVertex in your graph.
