@@ -421,7 +421,7 @@ Reference this document on the shortest path algorithim in AQL [HERE](https://ww
    for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0001' TO 'sr_node/2_0_0_0000.0000.0007' sr_topology 
        return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, srv6sid: v.srv6_sid }
    ```
-#### Note: for all the remaining queries in this lab you can run the query against the return path by simply reversing the startVertex and targetVertex. Example:
+   #### Note: for all the remaining queries in this lab you can run the query against the return path by simply reversing the startVertex and targetVertex. Example:
 
    ```
    for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0007' TO 'sr_node/2_0_0_0000.0000.0001' sr_topology 
@@ -429,7 +429,7 @@ Reference this document on the shortest path algorithim in AQL [HERE](https://ww
        srv6sid: v.srv6_sid }
    ```
 
-   1. Run a shortest path query from source prefix (Amsterdam VM) to destination prefix (Rome VM), include hop by hop latency:
+   2. Run a shortest path query from source prefix (Amsterdam VM) to destination prefix (Rome VM), include hop by hop latency:
    ```
     for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7'
         sr_topology return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, 
@@ -440,9 +440,9 @@ Reference this document on the shortest path algorithim in AQL [HERE](https://ww
 
    Basic shortest path by hop count is fine, however, the graphDB also allows us to run a *`weighted shortest path query`* based on any metric or other piece of meta data in the graph!
 
-   ### Shortest path queries using metrics other than hop count
+### Shortest path queries using metrics other than hop count
 
-   #### Query for the lowest latency path:
+#### Query for the lowest latency path:
    ```
    for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
        sr_topology OPTIONS {weightAttribute: 'latency' } 
@@ -466,7 +466,7 @@ Backups, data replication, other bulk transfers can oftentimes take a non-best p
        return distinct p
    ```
    
-   2. Now try the same query, but limit results to 5 hops or fewer:
+   2. Optional: try the same query, but limit results to 5 hops or fewer:
    ```
    FOR v, e, p in 1..5 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
        options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
@@ -485,9 +485,7 @@ Backups, data replication, other bulk transfers can oftentimes take a non-best p
    ```
    We no longer see the UI render a topology, but we do get a nice subset of the output data. Also note the *return* instruction in the query specifies that it should add up the `latency` values, and do an average calculation on `percent_util_out` values.
     
-   - Note: the least utilized path should be **xrd01** -> **xrd02** -> **xrd03** -> **xrd04** -> **xrd07**. This also happens to be the longest path geographically in our network (Netherlands proceeding east and south through Germany, Poland, Ukraine, Turkey, etc.). Any traffic taking this path will be subject to the longest latency in our network.
-
-   - Note2: unlike latency, which we can expect to be roughly equivalent in either direction, average utilization could be quite different. In our network the least utilized Amsterdam to Rome path is different from the least utilized Rome to Amsterdam path: **xrd07** -> **xrd06** -> **xrd02** -> **xrd01**
+   - Note: the least utilized path should be **xrd01** -> **xrd02** -> **xrd03** -> **xrd04** -> **xrd07**. This also happens to be the longest path geographically in our network (Netherlands proceeding east and south through Germany, Poland, Ukraine, Turkey, etc.). Any traffic taking this path will be subject to the longest latency in our network. 
 
    The previous queries provided paths up to 5 or 6-hops in length. We can increase or decrease the number of hops a graph traversal may use. For example we could increase the length of the traversal such that paths of up to 8 hops will be considered:
    
@@ -517,7 +515,7 @@ https://www.arangodb.com/docs/stable/aql/graphs-kshortest-paths.html
   The resulting graph shows our two paths that avoid going through France (xrd06 in Paris)
   <img src="images/data-sovereignty-query.png" width="600">
 
- - Filtered output:
+ - The same query but with filtered output:
     ```
     for p in outbound k_shortest_paths  'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' to 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7'
         sr_topology filter p.edges[*].country_codes !like "%FRA%" return distinct { path: p.edges[*].remote_node_name, 
