@@ -436,9 +436,7 @@ Reference this document on the shortest path algorithim in AQL [HERE](https://ww
         srv6sid: v.srv6_sid, latency: e.latency }
    ```
 
-   Thus far all of these shortest path query results are based purely on hop count. Also note, in the case where the graph has multiple equal cost shortest paths, the Arango query will return the first one it finds. 
-
-   Basic shortest path by hop count is fine, however, the graphDB also allows us to run a *`weighted shortest path query`* based on any metric or other piece of meta data in the graph!
+   Thus far all of these shortest path query results are based purely on hop count, which is fine, however, the graphDB also allows us to run a *`weighted shortest path query`* based on any metric or other piece of meta data in the graph!
 
 ### Shortest path queries using metrics other than hop count
 
@@ -450,15 +448,16 @@ Reference this document on the shortest path algorithim in AQL [HERE](https://ww
    ```
 
 ### Graph Traversals
-A traversal starts at one specific document (startVertex) and follows all edges connected to this document. For all documents (vertices) that are targeted by these edges it will again follow all edges connected to them and so on. It is possible to define how many of these follow iterations should be executed at least (min depth) and at most (max depth). Or in network-engineer-speak "fewest hops" and "most hops"
+A traversal starts at one specific document (startVertex) and follows all edges connected to this document using min depth and max depth values, or in network-engineer-speak "fewest hops" and "most hops".
+
 https://www.arangodb.com/docs/stable/aql/graphs-traversals-explained.html
 
-For our purposes we can use Graph Traversal to run a limited or bounded shortest path query (min and max hops):
+For our purposes we can use Graph Traversal to find all paths that satisfy a given set of constraints including minimum and maximum hops to consider:
 
 #### Query for the least utilized path
 Backups, data replication, other bulk transfers can oftentimes take a non-best path through the network. In theory the least utilized path could be many hops in length, so we're going to include a notation (1..6) which indicates the query can consider paths with 6 or fewer hops.
     
-    - Query for full path data. We expect to see the Arango UI render a topology that includes all seven routers:
+   1. First a query for full path data. We expect to see the Arango UI render a topology that includes all seven routers:
 
    ```
    FOR v, e, p in 1..6 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
