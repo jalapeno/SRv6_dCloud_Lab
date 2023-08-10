@@ -13,7 +13,7 @@ through the basic steps to configure and test SRv6 configurations, specifically 
 
 
 ## Contents
-* Repository Overview [LINK](#repository-overview)
+* Repository Overview [LINK](#github-repository-overview)
 * Lab Topology [LINK](#lab-topology)
 * Remote Access [LINK](#remote-access)
 * Project Jalapeno [LINK](#jalapeno)
