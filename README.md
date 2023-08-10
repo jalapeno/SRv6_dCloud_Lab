@@ -97,4 +97,3 @@ Project Jalapeno combines existing open source tools with some new stuff we've d
 
 ![jalapeno_architecture](https://github.com/cisco-open/jalapeno/blob/main/docs/diagrams/jalapeno_architecture.png)
 
-
