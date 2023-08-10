@@ -1,0 +1,9 @@
+[Unit]
+Description=Script to perform git pull on startup
+After=network-online.target
+
+[Service]
+ExecStart=/home/cisco/SRv6_dCloud_Lab/util/gitpull.sh 
+
+[Install]
+WantedBy=multi-user.target
