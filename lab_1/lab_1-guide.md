@@ -7,8 +7,6 @@ topology all subsequent lab exercises. Second, they will validate that the pre-c
 
 ## Contents
 - [Lab 1 Guide: XRd Topology Setup and Validation \[30 Min\]](#lab-1-guide-xrd-topology-setup-and-validation-30-min)
-    - [Description:](#description)
-  - [Contents](#contents)
   - [Lab Objectives](#lab-objectives)
   - [Validate Device Access](#validate-device-access)
     - [User Credentials](#user-credentials)
