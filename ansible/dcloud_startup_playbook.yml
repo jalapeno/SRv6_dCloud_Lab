@@ -1,0 +1,10 @@
+- name: Update the Git Repo
+  hosts: localhost
+  become: false
+  tasks:
+
+    - name: git pull to update repo on localhost
+      command: git pull
+      args:
+        chdir: /home/cisco/SRv6_dCloud_Lab
+      ignore_errors: yes
