@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "startup script launched at: " > /home/cisco/deploy.log
+echo "startup dCloud script launched at: " > /home/cisco/deploy.log
 
 date >> /home/cisco/deploy.log
 whoami >> /home/cisco/deploy.log
