@@ -1,587 +1,863 @@
-## Lab 6: Exploring Jalapeno, Kafka, and ArangoDB [30 Min]
+## Lab 6: Host-Based SR/SRv6 and building your own SDN App (BYO-SDN-App)
 
 ### Description
-In Lab 6 we will explore the Jalapeno system running on Kubernetes. We will log into the Kafka container and monitor topics for data coming in from Jalapeno's data collectors. Data which is subsequently picked up by Jalapeno's data processors (topology, lslinknode, sr-node, sr-topology, etc.) and written to the Arango graphDB. We will spend some time getting familiar with ArangoDB and the Jalapeno data collections, and will run some basic queries. Lastly we will populate the graphDB with some synthetic data and run a number of complex queries including graph traversals.
+Lab 6 is divided into two primary parts. Part 1 is host-based SRv6 using Linux kernel capabilities on the Rome VM. Part 2 will be host-based SRv6 using VPP on the Amsterdam VM.
+
+The goal of the Jalapeno model is to enable applications to directly control their network experience. We envision a process where the application or endpoint requests some Jalapeno **Network Service** for its traffic. The Jalapeno Network Service queries the DB and provides a response, which includes an SR-MPLS or SRv6 SID stack. The application or endpoint would then encapsulate its own outbound traffic; aka, the SR or SRv6 encapsulation/decapsulation would be performed at the host where the Application resides. 
+
+The host-based SR/SRv6 encap/decap could be executed at the Linux networking layer, or by an onboard dataplane element such as a vSwitch or VPP, or by a CNI dataplane such as eBPF. The encapsulated traffic, once transmitted from the host, will reach the SR/SRv6 transport network and will be statelessly forwarded per the SR/SRv6 encapsulation, thus executing the requested network service. 
+
 
 ## Contents
-- [Lab 6: Exploring Jalapeno, Kafka, and ArangoDB \[30 Min\]](#lab-6-exploring-jalapeno-kafka-and-arangodb-30-min)
+- [Lab 6: Host-Based SR/SRv6 and building your own SDN App (BYO-SDN-App)](#lab-6-host-based-srsrv6-and-building-your-own-sdn-app-byo-sdn-app)
   - [Description](#description)
 - [Contents](#contents)
 - [Lab Objectives](#lab-objectives)
-- [Jalapeno Software Stack](#jalapeno-software-stack)
-- [Kafka](#kafka)
-  - [Kafka Intro](#kafka-intro)
-  - [Kafka Topics](#kafka-topics)
-  - [Monitoring a Kafka topic](#monitoring-a-kafka-topic)
-    - [ISIS Link State](#isis-link-state)
-    - [SRv6 Locator SID](#srv6-locator-sid)
-  - [Arango GraphDB](#arango-graphdb)
-  - [Populating the DB with external data](#populating-the-db-with-external-data)
-  - [Arango Graph traversals and shortest path queries](#arango-graph-traversals-and-shortest-path-queries)
-    - [Shortest Path](#shortest-path)
-  - [Shortest path queries using metrics other than hop count](#shortest-path-queries-using-metrics-other-than-hop-count)
-    - [Query for the lowest latency path:](#query-for-the-lowest-latency-path)
-    - [Optional: Lowest latency return path:](#optional-lowest-latency-return-path)
-  - [Graph Traversals](#graph-traversals)
-    - [Query for the least utilized path](#query-for-the-least-utilized-path)
-  - [K Shortest Paths](#k-shortest-paths)
-    - [A Data sovereignty query](#a-data-sovereignty-query)
-  - [End of lab 6](#end-of-lab-6)
+- [Enable XRd forwarding of SR-MPLS traffic coming from Linux hosts](#enable-xrd-forwarding-of-sr-mpls-traffic-coming-from-linux-hosts)
+- [Rome VM: Segment Routing \& SRv6 on Linux](#rome-vm-segment-routing--srv6-on-linux)
+  - [Preliminary steps for SR/SRv6 on Rome VM](#preliminary-steps-for-srsrv6-on-rome-vm)
+- [Jalapeno python client:](#jalapeno-python-client)
+- [Rome Network Services](#rome-network-services)
+  - [Get All Paths](#get-all-paths)
+  - [Least Utilized Path](#least-utilized-path)
+  - [Low Latency Path](#low-latency-path)
+    - [While jalapeno.py supports both SR and SRv6 for its Network Services, for the remainder of Lab 6 we will focus just on SRv6](#while-jalapenopy-supports-both-sr-and-srv6-for-its-network-services-for-the-remainder-of-lab-6-we-will-focus-just-on-srv6)
+  - [Low Latency Re-Route](#low-latency-re-route)
+  - [Data Sovereignty Path](#data-sovereignty-path)
+- [Amsterdam VM](#amsterdam-vm)
+  - [POC host-based SRv6 and SR-MPLS SDN using the VPP dataplane](#poc-host-based-srv6-and-sr-mpls-sdn-using-the-vpp-dataplane)
+  - [Jalapeno Client on Amsterdam:](#jalapeno-client-on-amsterdam)
+- [Amsterdam Network Services](#amsterdam-network-services)
+  - [Get All Paths](#get-all-paths-1)
+  - [Least Utilized Path](#least-utilized-path-1)
+  - [Low Latency Path](#low-latency-path-1)
+  - [Data Sovereignty Path](#data-sovereignty-path-1)
+  - [You have reached the end of LTRSPG-2212, hooray!](#you-have-reached-the-end-of-ltrspg-2212-hooray)
 
 ## Lab Objectives
 The student upon completion of Lab 6 should have achieved the following objectives:
 
-* A tour of the Jalapeno platform and high level understanding of how it collects and processes data
-* Familiarity with Kafka and Kafka's command line utilities
-* Familiarity with the ArangoDB UI and the BMP/BGP data collections the system has created
-* Familiarity with Arango Query Language (AQL) syntax
-* Familiarity with more complex Arango shortest-path and graph traversal queries
+* Understanding of the SR & SRv6 stack available in Linux
+* Understanding the use of VPP as a host-based SR and/or SRv6 forwarding element 
+* How to query Jalapeno from Python for network topology and SR/SRv6 data
+* Using Python to craft specific SR/SRv6 headers for traffic steering or other use cases
+* Using Python to to program SR-MPLS or SRv6 forwarding entries on a Linux host
 
-## Jalapeno Software Stack
- <img src="/topo_drawings/jalapeno-software-stack.png" width="700">
-
-## Kafka
-### Kafka Intro
-From the Kafka [homepage](https://kafka.apache.org/): Apache Kafka is an open-source distributed event streaming platform used by thousands of companies for high-performance data pipelines, streaming analytics, data integration, and mission-critical applications.
-
-Jalapeno uses Kafka as a message bus between its data collectors and data processors. Jalapeno's data collectors create Kafka topics then publish their datasets to those topics. The data processors subscribe to the relevant Kafka topics, gather the published data, and write it to either the Arango graphDB or Influx Time-Series DB. This `Collector -> Kafka -> Processor -> DB` pipeline allows for architectural flexibility and extensibility such that other applications could subscribe to the Jalapeno Kafka topics and use the BMP or telemetry data for their own purposes.
-
-Kafka has a number of built in command line utilities to do things like listing topics or outputting of topic data to the screen, which we'll do in the next section of the lab. 
-
-For additional help on Kafka see this external CLI cheat sheet [HERE](https://medium.com/@TimvanBaarsen/apache-kafka-cli-commands-cheat-sheet-a6f06eac01b)
-
-
-### Kafka Topics 
-
-1. In a separate terminal session ssh to the Jalapeno VM 
+*Note: the python code used in this lab has a dependency on the python-arango module. The module has been preinstalled on both the Rome and Amsterdam VMs, however, if one wishes to recreate this lab in their own environment, any client node will need to install the module. We also suggest upgrading the http 'requests' library as that will eliminate some cosmetic http error codes.*
     ```
-    cisco@198.18.128.101
-    pw = cisco123
+    sudo apt install python3-pip
+    pip install python-arango 
+    pip3 install --upgrade requests
     ```
 
-2. Login to the Kafka container and cd into the bin directory
-    ```
-    kubectl exec -it kafka-0 -n jalapeno -- /bin/bash
+## Enable XRd forwarding of SR-MPLS traffic coming from Linux hosts
+In order to forward inbound labeled packets received from the Rome and Amsterdam VMs we'll need to enable MPLS forwarding on xrd01's and xrd07's VM-facing interfaces:
 
-    cd bin
-    ls -la
-    ```
-
-3. The Jalapeno deployment of Kakfa includes enablement of JMX (Java Management Extensions), which allows for monitoring of Kafka elements such as brokers, topics, Zookeeper, etc. To operate the CLI utilies we'll need to unset the JMX_PORT:  
-    ```
-    unset JMX_PORT
-    ```
-
-4. Run the CLI utility to get a listing of all Kafka topics in our cluster:
-    ```
-    ./kafka-topics.sh --list  --bootstrap-server localhost:9092
-    ```
-    - A few seconds after running the *--list* command you should see the following list of topics toward the bottom on the command output:
-    ```
-    gobmp.parsed.evpn
-    gobmp.parsed.evpn_events
-    gobmp.parsed.flowspec
-    gobmp.parsed.flowspec_events
-    gobmp.parsed.flowspec_v4
-    gobmp.parsed.flowspec_v4_events
-    gobmp.parsed.flowspec_v6
-    gobmp.parsed.flowspec_v6_events
-    gobmp.parsed.l3vpn
-    gobmp.parsed.l3vpn_events
-    gobmp.parsed.l3vpn_v4
-    gobmp.parsed.l3vpn_v4_events
-    gobmp.parsed.l3vpn_v6
-    gobmp.parsed.l3vpn_v6_events
-    gobmp.parsed.ls_link
-    gobmp.parsed.ls_link_events
-    gobmp.parsed.ls_node
-    gobmp.parsed.ls_node_events
-    gobmp.parsed.ls_prefix
-    gobmp.parsed.ls_prefix_events
-    gobmp.parsed.ls_srv6_sid
-    gobmp.parsed.ls_srv6_sid_events
-    gobmp.parsed.peer
-    gobmp.parsed.peer_events
-    gobmp.parsed.sr_policy
-    gobmp.parsed.sr_policy_events
-    gobmp.parsed.sr_policy_v4
-    gobmp.parsed.sr_policy_v4_events
-    gobmp.parsed.sr_policy_v6
-    gobmp.parsed.sr_policy_v6_events
-    gobmp.parsed.unicast_prefix
-    gobmp.parsed.unicast_prefix_events
-    gobmp.parsed.unicast_prefix_v4
-    gobmp.parsed.unicast_prefix_v4_events
-    gobmp.parsed.unicast_prefix_v6
-    gobmp.parsed.unicast_prefix_v6_events
-    jalapeno.ls_node_edge_events
-    jalapeno.srv6
-    jalapeno.telemetry
-    ```
-
-### Monitoring a Kafka topic
-
-The *kafka-console-consumer.sh* utility allows one to manually monitor a given topic and see messages as they are published to Kafka by the GoBMP collector. This gives us a nice troubleshooting tool for scenarios where a router may be sending data to the collector, but the data is not seen in the DB.
-
-In the next set of steps we'll run the CLI to monitor a Kafka topic and watch for data from GoBMP. GoBMP's topics are fairly quiet unless BGP updates are happening, so once we have our monitoring session up we'll clear BGP-LS on the RR, which should result in a flood of data onto the topic.
-
-In this exercise we are going to stitch together several elements that we have worked on throughout this lab. The routers in our lab have a number of topology-relevant configurations, including several that we've added over the course of labs 1 - 5. We will use the tools to examine how that data is communicated through the network and ultimately collected and populated into Jalapeno's DB.
-
-#### ISIS Link State
-   1. Monitor the BGP-LS *"ls_node"* topic for incoming BMP messages describing ISIS nodes in the network:
-
-        ```
-        ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_node
-        ```
-
-        Optional - enable terminal monitoring and debugging the of BGP-LS address family on one of the route reflectors such as **xrd05**:
-        ```
-        terminal monitor
-        debug bgp update afi link-state link-state in
-        ```
-        - Fair warning: this will output quite a bit of data when the AFI is cleared
-        
-   2. Connect to **xrd01** and clear the BGP-LS address family
-        ```
-        clear bgp link-state link-state * soft
-        ```
-
-        On the Kafka console we expect to see 14 json objects representing BMP messages coming from our 2 route reflectors and describing our 7 different ISIS nodes. Example message:
-
-        ```json
-        {
-            "action": "add",
-            "router_hash": "0669df0f031fb83e345267a9679bbc6a",
-            "domain_id": 0,
-            "router_ip": "10.0.0.5",       <---- Reporting router
-            "peer_hash": "ef9f1cc86e4617df24d4675e2b55bbe2",
-            "peer_ip": "10.0.0.1",         <---- Source router
-            "peer_asn": 65000,
-            "timestamp": "2023-01-13T20:20:51.000164765Z",
-            "igp_router_id": "0000.0000.0001",  <-------- Link State Node ID
-            "router_id": "10.0.0.1",
-            "asn": 65000,
-            "mt_id_tlv": [
-                {
-                    "o_flag": false,
-                    "a_flag": false,
-                    "mt_id": 0
-                },
-                {
-                    "o_flag": false,
-                    "a_flag": false,
-                    "mt_id": 2
-                }
-            ],
-            "area_id": "49.0901",
-            "protocol": "IS-IS Level 2",
-            "protocol_id": 2,
-            "name": "xrd01",
-            "ls_sr_capabilities": {
-                "flags": {
-                    "i_flag": true,
-                    "v_flag": false
-                },
-                "sr_capability_subtlv": [
-                    {
-                        "range": 64000,
-                        "sid": 100000
-                    }
-                ]
-            },
-            "sr_algorithm": [
-                0,
-                1
-            ],
-            "sr_local_block": {
-                "flags": 0,
-                "subranges": [
-                    {
-                        "range_size": 1000,
-                        "label": 15000
-                    }
-                ]
-            },
-            "srv6_capabilities_tlv": {
-                "o_flag": false
-            },
-            "node_msd": [
-                {
-                    "msd_type": 1,
-                    "msd_value": 10
-                }
-            ],
-            "is_prepolicy": false,
-            "is_adj_rib_in": false
-        }
-        ```
-#### SRv6 Locator SID    
-   1. Now lets examine the SRv6 locator configuration on **xrd01** with the command: show run segment-routing srv6 locators 
-        ```  
-        show run segment-routing srv6 locators
-        ```
-        ```
-        segment-routing
-        srv6
-        locators
-            locator MyLocator
-            micro-segment behavior unode psp-usd
-            prefix fc00:0:1111::/48     <----- xrd01 SRv6 locator defined
-        ```
-
-   4. With **xrd01** SID locator identified lets see how that is communicated through the BMP from the route reflectors.
-      Monitor the BGP-LS *ls_srv6_sid* topic for incoming BMP messages describing SRv6 SIDs in the network:  
-       ```
-       ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_srv6_sid
-       ```
-
-       Optional - enable terminal monitoring and debugging the of BGP-LS address family on one of the route reflectors such as **xrd05**:  
-
-       ```
-       terminal monitor
-       debug bgp update afi vpnv6 unicast in
-       ```
-       *Fair warning: this will output quite a bit of data when the bgp is cleared*
-
-   5. Again on **xrd01** clear the BGP-LS address family
-       ```
-       clear bgp link-state link-state * soft
-       ```
-
-       One the Kafka console we expect to see 14 json objects representing BMP messages coming from our 2 route reflectors and describing our 7 different ISIS nodes. Example messages:
-       ```json
-       {
-           "action": "add",
-           "router_hash": "0669df0f031fb83e345267a9679bbc6a",
-           "router_ip": "10.0.0.5",   <---- Reporting router
-           "domain_id": 0,
-           "peer_hash": "ef9f1cc86e4617df24d4675e2b55bbe2",
-           "peer_ip": "10.0.0.1",     <---- Source router
-           "peer_asn": 65000,
-           "timestamp": "2023-01-13T19:49:01.000764233Z",
-           "igp_router_id": "0000.0000.0001",
-           "local_node_asn": 65000,
-           "protocol_id": 2,
-           "protocol": "IS-IS Level 2",
-           "nexthop": "10.0.0.1",
-           "local_node_hash": "89cd5823cd2cb0cfc304a61117c89a45",
-           "mt_id_tlv": {
-               "o_flag": false,
-               "a_flag": false,
-               "mt_id": 2
-           },
-           "igp_flags": 0,
-           "is_prepolicy": false,
-           "is_adj_rib_in": false,
-           "srv6_sid": "fc00:0:1111::",   <---- xrd01 loactor SID
-           "srv6_endpoint_behavior": {
-               "endpoint_behavior": 48,
-               "flag": 0,
-               "algo": 0
-           },
-           "srv6_sid_structure": {
-               "locator_block_length": 32,
-               "locator_node_length": 16,
-               "function_length": 0,
-               "argument_length": 80
-           }
-       }
-       ```
-
-### Arango GraphDB
-
-1. Switch to a web browser and connect to Jalapeno's Arango GraphDB
-    ```
-    http://198.18.128.101:30852/
-    ```
-    ```
-    user: root
-    password: jalapeno
-    DB: jalapeno
-    ```
-2. Spend some time exploring the data collections in the DB
-
-    #### Basic queries to explore data collections 
-    The ArangoDB Query Language (AQL) can be used to retrieve and modify data that are stored in ArangoDB.
-
-    The general workflow when executing a query is as follows:
-
-    - A client application ships an AQL query to the ArangoDB server. The query text contains everything ArangoDB needs to compile the result set
-
-    - ArangoDB will parse the query, execute it and compile the results. If the query is invalid or cannot be executed, the server will return an error that the client can process and react to. If the query can be executed successfully, the server will return the query results (if any) to the client. See ArangoDB documentation [HERE](https://www.arangodb.com/docs/stable/aql/index.html)
-
-
-3. Run some DB Queries:
-    ArangoDB uses AQL as it's query syntax language. It likely is new to you so we have provides some basic explanations:
-    For the most basic query below *x* is a object variable with each key field in a record populated as a child object.
-
-    for *x* in *collection* return *x*
+1. Enable MPLS forwarding on the VM-facing interfaces on both xrd01 and xrd07: 
 
     ```
-    for x in sr_node return x
-    ```
-    This query will return ALL records in the sr_node collection. In our lab topology you should expect 7 records. 
+    mpls static
+    int gigabitEthernet 0/0/0/0
+    commit
 
-    Note: after running a query you will need to either comment it out or delete it before running the next query. To comment-out use two forward slashes // as shown in this pic:
-
-    <img src="images/arango-query.png" width="600">
-
-    Next lets get the AQL to return only the key:value field we are interested in. We will query the name of all nodes in the sr_node collection with the below query. To reference a specific key field we use use the format *x.key* syntax.
     ```
-    for x in sr_node return x.name
+    Validate MPLS forwarding is enabled:
     ```
-    ```   
-    "xrd01",
-    "xrd02",
-    "xrd03",
-    "xrd04",
-    "xrd05",
-    "xrd06",
-    "xrd07"
+    show mpls interface
     ```
-    If we wish to return multiple keys in our query we will switch to using curly braces to ask for a data set in the return
+    Expected output:
     ```
-    for x in sr_node return {Name: x.name, SID: x.srv6_sid}
-    ```
-    ```
-    Name    SID
-    xrd01	fc00:0:1111::
-    xrd02	fc00:0:2222::
-    xrd03	fc00:0:3333::
-    xrd04	fc00:0:4444::
-    xrd05	fc00:0:5555::
-    xrd06	fc00:0:6666::
-    xrd07	fc00:0:7777::
-    ```
-    More interesting lets query against actual key:value fields in the sr_node collection. In this case we are quering the name to return the record only for **xrd01**
-    ```
-    for x in sr_node 
-        filter x.name == "xrd01"
-    return {Name: x.name, SID: x.srv6_sid}
-    ```
-    Now if you want to filter on multiple conditions we can through a boolean value in to return the **xrd01** and **xrd07** records.
-    ```
-    for x in sr_node 
-        filter x.name == "xrd01" or x.name=="xrd07"
-    return {Name: x.name, SID: x.srv6_sid}
+    Fri Dec 23 23:24:11.146 UTC
+    Interface                  LDP      Tunnel   Static   Enabled 
+    -------------------------- -------- -------- -------- --------
+    GigabitEthernet0/0/0/0     No       No       Yes      Yes
+    GigabitEthernet0/0/0/1     No       No       No       Yes
+    GigabitEthernet0/0/0/2     No       No       No       Yes
     ```
 
-    1. More sample queries (Optional):
-    
-    Query all IGP links in the DB:
-    ```
-    for x in ls_link return x
-    ```
-    Query for all IPv4 IGP links:
-    ```
-    for x in ls_link filter x.mt_id_tlv.mt_id !=2 return x
-    ```
-    Query for all IPv4 IGP links and return specific k:v pairs:
-    ```
-    for x in ls_link filter x.mt_id_tlv.mt_id !=2 return { key: x._key, router_id: x.router_id, 
-        igp_id: x.igp_router_id, local_ip: x.local_link_ip, remote_ip: x.remote_link_ip }
-    ```
-    Query for the IGP topology (should match the xrd router topology):
-    ```
-    for x in ls_node_edge return x
-    ```
-    Query for the entire network topology (should match the xrd topology plus some spokes out to attached BGP networks):
-    ```
-    for x in sr_topology return x
-    ```
-    Query the sr_node dataset and return specific k:v pairs:
-    ```
-    for x in sr_node return { node: x.router_id, name: x.name, 
-        prefix_sid: x.prefix_attr_tlvs.ls_prefix_sid, srv6sid: x.srv6_sid }
-    ```
+## Rome VM: Segment Routing & SRv6 on Linux
+
+The Rome VM is simulating a user host or endpoint and will use its Linux dataplane to perform SR or SRv6 traffic encapsulation:
+
+ - Linux SRv6 route reference: https://segment-routing.org/index.php/Implementation/Configuration
+
+ - There is no Linux "SR-MPLS" per se, but from the host's perspective its just MPLS labels, so we'll use the iproute2 MPLS implemenation. Ubuntu iproute2 manpage: https://manpages.ubuntu.com/manpages/jammy/man8/ip-route.8.html
+
+### Preliminary steps for SR/SRv6 on Rome VM
+   1.  Login to the Rome VM
+   ```
+   ssh cisco@198.18.128.103
+   ```
+
+   2. On the Rome VM cd into the lab_6 directory where the jalapeno.py client resides:
+   ```
+   cd ~/SRv6_dCloud_Lab/lab_6/python
+   ```
+   3. Get familiar with files in the directory; specifically:
+   ```
+   cat rome.json                 <------- data jalapeno.py will use to execute its query and program its SR/SRv6 route
+   cat cleanup_rome_routes.sh    <------- script to cleanup any old SR/SRv6 routes
+   cat jalapeno.py               <------- python client that takes cmd line args to request/execute an SR/SRv6 network service
+   ls netservice/                <------- contains python libraries available to jalapeno.py for calculating SR/SRv6 route instructions
+
+   ```
+   4. For SRv6 outbound encapsulation we'll need to set Rome's SRv6 source address:
+
+   ```
+   sudo ip sr tunsrc set fc00:0:107:1::1
+   ```
+
+   - Note: For host-based SR/MPLS the Linux MPLS modules aren't loaded by default, so we'll run *modprobe* commands to enable them: 
+   ```
+   sudo modprobe mpls_router
+   sudo modprobe mpls_iptunnel
+   ```
+   Unfortunately the modprobe commands don't return any response to the command line. So:
+
+   5. Validate Rome VM's MPLS modules are loaded:
+   ```
+   lsmod | grep mpls
+   ```
+   Output should look something like this:
+   ```
+   cisco@rome:~$ lsmod | grep mpls
+    mpls_iptunnel          20480  0                    <----- Currently no MPLS tunnels/routes configured
+    mpls_router            40960  1 mpls_iptunnel
+    ip_tunnel              24576  1 mpls_router
+   ```
+  
+   - Reference: https://linuxize.com/post/lsmod-command-in-linux/
+
+
+## Jalapeno python client:
+Both the Rome and Amsterdam VM's are pre-loaded with a python client, *`jalapeno.py`*, that will execute our Jalapeno Network Service per the process described above. As the client is run it will program a local route or SR-policy with SR/SRv6 encapsulation, which will allow the VM to "self-encapsulate" its outbound traffic, The xrd network will statelessly forward the traffic per the SR/SRv6 encapsulation.
+
+A host or endpoint with the jalapeno.py client can request a network service between a given source and destination. The client's currently supported network services are: 
+
+ - Low Latency Path
+ - Least Utilized Path
+ - Data Sovereignty Path
+ - Get All Paths (informational only)
  
-### Populating the DB with external data 
+ When executed the client passes its service request as a Shortest Path query to Jalapeno's Arango graph database. The database performs a traversal of its graph and responds with a dataset reflecting the shortest path based on the parameters of the query. The client receives the data, performs some data manipulation as needed and then constructs a local SR or SRv6 route/policy for any traffic it would send to the destination.
 
-The *add_meta_data.py* python script will connect to the ArangoDB and populate elements in our data collections with addresses and country codes. Also, due to the fact that we can't run realistic traffic through the XRD topology the script will populate the relevant graphDB elements with synthetic link latency and utilization data per this diagram:
+Currently the client operates as a CLI tool, which expects to see a set of command line arguments. A user or application may operate the client by specifying the desired network service (-s) and encapsulation (-e), and inputs a json file which contains source and destination info and a few other items.
 
-<img src="/topo_drawings/path-latency-topology.png" width="900">
+For ease of use the currently supported network services are abbreviated: 
 
-1. Return to the ssh session on the Jalapeno VM and add meta data to the DB:
+ - gp = get_all_paths
+ - ll = low_latency
+ - lu = least_utilized
+ - ds = data_sovereignty
+
+1. On the Rome VM cd into the lab_6 python directory and access client help with the *-h* argument:
+    ```
+    cd ~/SRv6_dCloud_Lab/lab_6/python
+    python3 jalapeno.py -h
+    ``` 
+    Expected output:
+    ```
+    cisco@rome:~/SRv6_dCloud_Lab/lab_6/python$ python3 jalapeno.py -h
+    usage: Jalapeno client [-h] [-e E] [-f F] [-s S]
+
+    takes command line input and calls path calculator functions
+
+    optional arguments:
+    -h, --help  show this help message and exit
+    -e E        encapsulation type <sr> <srv6>
+    -f F        json file with src, dst, parameters
+    -s S        requested network service: ll = low_latency, lu = least_utilized, ds = data_sovereignty, gp = get_paths)
+
+    jalapeno.py -f <json file> -e <sr or srv6> -s <ll, lu, ds, or gp>
+    ```
+
+    Example client command with network-service arguments:
+    ```
+    python3 jalapeno.py -f rome.json -e srv6 -s lu
+    ```
+
+The client's network service modules are located in the lab_6 *python/netservice/* directory. When invoked the client first calls the *src_dst.py* module, which queries the graphDB and returns database ID info for the source and destination prefixes. The client then runs the selected network service module (gp, ll, lu, or ds). The network service module queries and calculates an SRv6 uSID or SR label stack, which will satisfy the network service request. The netservice module then calls the *add_route.py* module to create the local SR or SRv6 route or policy.
+
+Note: the jalapeno.py client supports both SR and SRv6 encapsulation, however, for the purposes of this lab we'll focus primarily on SRv6. 
+
+## Rome Network Services
+### Get All Paths
+
+The Get All Paths Service will query the DB for all paths up to 6-hops in length between a pair of source and destination prefixes.
+
+1. Run the 'gp' service (you can specify either sr or srv6 for encap):
+    ``` 
+    python3 jalapeno.py -f rome.json -s gp -e srv6
+    ```
+      - Sample command line output:
+    ```
+    cisco@rome:~/SRv6_dCloud_Lab/lab_6/python$ python3 jalapeno.py -f rome.json -s gp -e srv6
+    src data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'src_peer': '10.0.0.7'}]
+    dest data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'dst_peer': '10.0.0.1'}]
+    Get All Paths Service
+    number of paths found:  4
+    SRv6 locators for path:  ['fc00:0:4444::', 'fc00:0:5555::', 'fc00:0:1111::']
+    SR prefix sids for path:  [100004, 100005, 100001]
+    SRv6 locators for path:  ['fc00:0:6666::', 'fc00:0:2222::', 'fc00:0:1111::']
+    SR prefix sids for path:  [100006, 100002, 100001]
+    SRv6 locators for path:  ['fc00:0:6666::', 'fc00:0:5555::', 'fc00:0:1111::']
+    SR prefix sids for path:  [100006, 100005, 100001]
+    SRv6 locators for path:  ['fc00:0:4444::', 'fc00:0:3333::', 'fc00:0:2222::', 'fc00:0:1111::']
+    SR prefix sids for path:  [100004, 100003, 100002, 100001]
+    All paths data from unicast_prefix_v4/20.0.0.0_24_10.0.0.7 to unicast_prefix_v4/10.101.2.0_24_10.0.0.1 logged to log/get_paths.json
+    ```
+    - The code contains a number of console logging instances that are commented out, and some that are active (hence the output above). Note this line which provides a summary of the relevant paths by outputing the SRv6 locators along each path:
+
+      https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_6/python/netservice/gp.py#L43
+
+
+    - All the jalapeno network services will output some data to the console. More verbose data will be logged to the lab_6/python/log directory. Check log output:
+    ```
+    more log/get_paths.json
+    ```
+    - We can expect to see a json file with source, destination, and path data which includes srv6 sids and sr label stack info
+
+    Like in Lab 6 we can also experiment with the script's graph traversal parameters to limit or expand the number of vertex 'hops' the query will search for. Note: ArangoDB considers the source and destination vertices as 'hops' when doing its graph traversal.
+
+2. Optional: change the 'gp' service's hopcount parameters. Open the netservice/gp.py file in a text editor (vi, vim) and change parameters in line 9: 
+
+      https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_6/python/netservice/gp.py#L9
+
+    Change it to read:
+    ```
+    for v, e, p in 6..6 outbound
+    ```
+    Save gp.py and re-run the script. The *`6..6`* syntax indicates the traversal should ONLY consider paths 6 hops in length. Given our topology a re-run of the client *`python3 jalapeno.py -f rome.json -s gp -e srv6`* you should output only a single path option in the command line output and log.
+
+    Example:
+    ```
+    SRv6 locators for path:  [None, 'fc00:0:4444::', 'fc00:0:3333::', 'fc00:0:2222::', 'fc00:0:1111::', None]
+    ```
+
+3. Optional: try increasing the number of hops the graph may traverse:
+
+    ```
+    for v, e, p in 1..8 outbound
+    ```
+    Save the file and re-run the script. You should see 8 total path options in the command line output and log.
+
+### Least Utilized Path
+Many segment routing and other SDN solutions focus on the low latency path as their primary use case. We absolutely feel low latency is an important network service, especially for real time applications. However, we believe one of the use cases which deliver the most bang for the buck is "Least Utilized Path". The idea behind this use case is that the routing protocol's chosen best path is usually *The Best Path*. Thus the *Least Utilized* service looks to steer lower priority traffic (backups, content replication, etc.) to lesser used paths and preserve the routing protocol's best path for higher priority traffic.
+
+
+1. Cleanup Rome's routes and execute the least utilized path service with SRv6 encapsulation
+    ```
+    ./cleanup_rome_routes.sh 
+    python3 jalapeno.py -f rome.json -e srv6 -s lu
+    ```
+    Expected console output:
+    ```
+    cisco@rome:~/SRv6_dCloud_Lab/lab_6/python$ python3 jalapeno.py -f rome.json -e srv6 -s lu
+    src data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'src_peer': '10.0.0.7'}]
+    dest data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'dst_peer': '10.0.0.1'}]
+    Least Utilized Service
+    locators:  ['fc00:0:6666::', 'fc00:0:2222::', 'fc00:0:1111::']
+    prefix_sids:  [100006, 100002, 100001]
+    srv6 sid:  fc00:0:6666:2222:1111::
+    adding linux SRv6 route: ip route add 10.101.2.0/24 encap seg6 mode encap segs fc00:0:6666:2222:1111:: dev ens192
+    Show Linux Route Table: 
+    default via 198.18.128.1 dev ens160 proto static 
+    10.0.0.0/24 via 10.107.1.2 dev ens192 proto static 
+    10.1.1.0/24 via 10.107.1.2 dev ens192 proto static 
+    10.101.1.0/24 via 10.107.1.2 dev ens192 proto static 
+    10.101.2.0/24  encap seg6 mode encap segs 1 [ fc00:0:6666:2222:1111:: ] dev ens192 scope link     <--------HERE
+    10.101.3.0/24 via 10.107.2.2 dev ens224 proto static 
+    10.107.1.0/24 dev ens192 proto kernel scope link src 20.0.0.1 
+    10.107.2.0/24 dev ens224 proto kernel scope link src 10.107.2.1 
+    198.18.128.0/18 dev ens160 proto kernel scope link src 198.18.128.103 
+    ```
+
+2. Check log output and linux ip route:
+    ```
+    cat log/least_util.json
+
+    ip route
+    ```
+
+3. Run a ping test 
+ - Open up a second ssh session to the Rome VM
+ - Start tcpdump on 2nd ssh session. This will capture packets outbound from Rome VM going toward xrd07:
+```
+sudo tcpdump -ni ens192
+```
+ - Return to the first Rome ssh session and ping Amsterdam with Rome source address 20.0.0.1. The "-i .3" argument sets the ping interval to 300ms
+```
+ping 10.101.2.1 -I 20.0.0.1 -i .3
+```
+- Note: as of CLEU23 there is some issue where IPv6 neighbor instances between Rome Linux and the XRd MACVLAN attachment on *`xrd07`*. So if your ping doesn't work try pinging from *`xrd07`* to *`Rome`*. A successful ping should 'wake up' the IPv6 neighborship.
+
+On *`xrd07`*:  
+```
+ping fc00:0:107:1::1
+```
+Output:
+```
+RP/0/RP0/CPU0:xrd07#ping fc00:0:107:1::1
+Wed Feb  1 04:21:15.980 UTC
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to fc00:0:107:1::1, timeout is 2 seconds:
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 1/2/5 ms
+```
+
+4. Retry the Rome to Amsterdam ping test:
+```
+ping 10.101.2.1 -I 20.0.0.1 -i .3
+```
+
+5. Check the Rome tcpdump to validate traffic is encapsulated with the SRv6 SID. Expected output will be something like:
+```
+cisco@rome:~$ sudo tcpdump -ni ens192
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on ens192, link-type EN10MB (Ethernet), capture size 262144 bytes
+04:27:26.773904 IP6 fc00:0:107:1::1 > fc00:0:6666:2222:1111:e006::: srcrt (len=2, type=4, segleft=0[|srcrt]
+04:27:26.841619 IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 3, seq 3, length 64
+04:27:27.074262 IP6 fc00:0:107:1::1 > fc00:0:6666:2222:1111:e006::: srcrt (len=2, type=4, segleft=0[|srcrt]
+04:27:27.145618 IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 3, seq 4, length 64
+```
+
+6. Return to an SSH session on the XRD VM and use tcpdump.sh <xrd0x-xrd0y>" to capture packets along the path from Rome VM to Amsterdam VM. Given the SRv6 Micro-SID combination seen above, we'll monitor the linux bridges linking *`xrd07`* to *`xrd06`*, *`xrd06`* to *`xrd02`*, then *`xrd02`* to *`xrd01`*:
+ - restart the ping if it is stopped
+
+*`xrd07`* to *`xrd06`*
+```
+cd cd ~/SRv6_dCloud_Lab/util/
+./tcpdump.sh xrd06-xrd07
+```
+
+*`xrd06`* to *`xrd02`*
+```
+./tcpdump.sh xrd02-xrd06
+```
+
+*`xrd02`* to *`xrd01`*
+```
+./tcpdump.sh xrd01-xrd02
+```
+ - Example output for the link between *`xrd06`* to *`xrd02`* is below. Note how *`xrd06`* has performed SRv6 micro-SID shift-and-forward on the destination address. Also note how the return traffic is taking SR-MPLS transport (currently). 
+```
+cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd02-xrd06
+sudo tcpdump -ni br-07e02174172b
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on br-07e02174172b, link-type EN10MB (Ethernet), capture size 262144 bytes
+23:30:45.978380 IP6 fc00:0:107:1::1 > fc00:0:2222:1111:e006::: srcrt (len=2, type=4, segleft=0[|srcrt]
+23:30:46.010720 MPLS (label 100007, exp 0, ttl 61) (label 24010, exp 0, [S], ttl 62) IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 4, seq 9, length 64
+23:30:46.279814 IP6 fc00:0:107:1::1 > fc00:0:2222:1111:e006::: srcrt (len=2, type=4, segleft=0[|srcrt]
+23:30:46.315159 MPLS (label 100007, exp 0, ttl 61) (label 24010, exp 0, [S], ttl 62) IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 4, seq 10, length 64
+```
+
+7. Optional: run the least utilized path service with SR encapsulation
+``` 
+./cleanup_rome_routes.sh 
+python3 jalapeno.py -f rome.json -e sr -s lu
+```
+ - The client's command line output should display the new route in the routing table:
+```
+cisco@rome:~/SRv6_dCloud_Lab/lab_6/python$ python3 jalapeno.py -f rome.json -e sr -s lu
+src data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'src_peer': '10.0.0.7'}]
+dest data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'dst_peer': '10.0.0.1'}]
+Least Utilized Service
+locators:  ['fc00:0:6666::', 'fc00:0:2222::', 'fc00:0:1111::']
+prefix_sids:  [100006, 100002, 100001]
+srv6 sid:  fc00:0:6666:2222:1111::
+adding linux SR route: ip route add 10.101.2.0/24 encap mpls 100006/100002/100001 via 10.107.1.2 dev ens192
+RTNETLINK answers: File exists
+show linux route table: 
+default via 198.18.128.1 dev ens160 proto static 
+10.0.0.0/24 via 10.107.1.2 dev ens192 proto static 
+10.1.1.0/24 via 10.107.1.2 dev ens192 proto static 
+10.101.1.0/24 via 10.107.1.2 dev ens192 proto static 
+10.101.2.0/24  encap mpls  100006/100002/100001 via 10.107.1.2 dev ens192    <------------
+10.101.2.0/24 via 10.107.1.2 dev ens192 proto static 
+10.101.3.0/24 via 10.107.2.2 dev ens224 proto static 
+10.107.1.0/24 dev ens192 proto kernel scope link src 20.0.0.1 
+10.107.2.0/24 dev ens224 proto kernel scope link src 10.107.2.1 
+198.18.128.0/18 dev ens160 proto kernel scope link src 198.18.128.103  
+```
+
+8. Optional: repeat, or just spot-check the ping and tcpdump steps described in 3 - 5 to see the SR label switching in action
+
+### Low Latency Path
+The Low Latency Path service will calculate an SR/SRv6 encapsulation instruction for sending traffic over the lowest latency path from a source to a given destination. The procedure for testing/running the Low Latency Path service is the same as the one we followed with Least Utilized Path. 
+
+Looking at the below diagram the low latency path from Rome to Amsterdam across the network should follow the path in the below diagram. Traffic should flow in the direction of **xrd07** -> **xrd06** -> **xrd05** -> **xrd01**
+
+![Low Latency Path](/topo_drawings/low-latency-path.png)
+
+For full size image see [LINK](/topo_drawings/low-latency-path.png)
+
+#### While jalapeno.py supports both SR and SRv6 for its Network Services, for the remainder of Lab 6 we will focus just on SRv6
+
+1. Low latency SRv6 service on Rome VM:
+    ```
+    ./cleanup_rome_routes.sh 
+    python3 jalapeno.py -f rome.json -e srv6 -s ll
+    ping 10.101.2.1 -I 20.0.0.1 -i .3
+    ```
+    2. As with Least Utilized Path we can run the tcpdump scripts On the XRD VM to see labeled or SRv6 encapsulated traffic traverse the network:
+    ```
+    ./tcpdump.sh xrd06-xrd07
+    ```
+    ```
+    ./tcpdump.sh xrd05-xrd06
+    ```
+    ```
+    ./tcpdump.sh xrd01-xrd05
+    ```
+
+### Low Latency Re-Route
+Now we are going to simulate a recalculation of the SRv6 topology. The *Sub-Standard Construction Company* has taken out fiber link "G" with a backhoe. Luckily you have paid for optical path redundancy and the link has failed to a geographicaly different route path. The result though is that the primary path latency of *5ms* has increased to *25 ms*. This should cause a new low latency route. Time to test it out!
+
+![Low Latency Path](/topo_drawings/low-latency-alternate-path.png)
+
+For full size image see [LINK](/topo_drawings/low-latency-alternate-path.png)
+
+1. Link "G" needs to have the latency in your topology updated. We will use the Python script located in /lab_6/python/set_latency.py to change the link latency in the lab and then update the ArangoDb topology database with the new value. Set latency has two cli requirements -l (link letter) [A,B,C,D,E,F,G,H,I] and -ms (milliseconds latency) xxx values.
+
+    On **XRD VM** run the command
+    ```
+    cd /home/cisco/SRv6_dCloud_Lab/lab_6/python
+    python3 set_latency.py -l G -ms 25
+    ```
+
+2. Low latency SRv6 service on **Rome VM**:
+    ```
+    ./cleanup_rome_routes.sh 
+    python3 jalapeno.py -f rome.json -e srv6 -s ll
+    ping 10.101.2.1 -I 20.0.0.1 -i .3
+    ```
+
+3. Run an iPerf3 test
+
+    Amsterdam VM
+    ```
+    iperf3 -s -D
+    ```
+
+    Rome VM
+    ```
+    iperf3 -c 10.101.2.1 -B 20.0.0.1 -w 2700 -M 2700
+    ```
+    ```
+    cisco@rome:~$  iperf3 -c 10.101.2.1 -B 20.0.0.1 -w 2700 -M 2700
+    Connecting to host 10.101.2.1, port 5201
+    [  5] local 20.0.0.1 port 56113 connected to 10.101.2.1 port 5201
+    [ ID] Interval           Transfer     Bitrate         Retr  Cwnd
+    [  5]   0.00-1.00   sec  22.6 KBytes   185 Kbits/sec    2   7.42 KBytes       
+    [  5]   1.00-2.00   sec  33.9 KBytes   278 Kbits/sec    0   7.42 KBytes       
+    [  5]   2.00-3.00   sec  31.8 KBytes   261 Kbits/sec    0   7.42 KBytes       
+    [  5]   3.00-4.00   sec  33.9 KBytes   278 Kbits/sec    0   7.42 KBytes       
+    [  5]   4.00-5.00   sec  33.9 KBytes   278 Kbits/sec    0   7.42 KBytes       
+    [  5]   5.00-6.00   sec  31.8 KBytes   261 Kbits/sec    0   7.42 KBytes       
+    [  5]   6.00-7.00   sec  33.9 KBytes   278 Kbits/sec    0   7.42 KBytes       
+    [  5]   7.00-8.00   sec  31.8 KBytes   261 Kbits/sec    0   7.42 KBytes       
+    [  5]   8.00-9.00   sec  31.8 KBytes   261 Kbits/sec    0   7.42 KBytes       
+    [  5]   9.00-10.00  sec  33.9 KBytes   278 Kbits/sec    0   7.42 KBytes       
+    - - - - - - - - - - - - - - - - - - - - - - - - -
+    [ ID] Interval           Transfer     Bitrate         Retr
+    [  5]   0.00-10.00  sec   320 KBytes   262 Kbits/sec    2             sender
+    [  5]   0.00-10.06  sec   319 KBytes   259 Kbits/sec                  receiver
+
+    iperf Done. 
+    ```
+4. Optional: run the Low Latency service using SR-MPLS encapsulation
+    ```
+    ./cleanup_rome_routes.sh 
+    python3 jalapeno.py -f rome.json -e sr -s ll
+    ping 10.101.2.1 -I 20.0.0.1 -i .3
+    ```
+
+### Data Sovereignty Path
+The Data Sovereignty service enables the user or application to steer their traffic through a path or geography that is considered safe per legal guidelines or other regulatory framework. In our case the "DS" service allows us to choose a country (or countries) to avoid when transmitting traffic from a source to a given destination. The country to avoid is specified as a country code in the rome.json and amsterdam.json files. In our testing we've specified that traffic should avoid France (FRA). xrd06 is located in Paris, so all requests to the DS service should produce a shortest-path result that avoids xrd06.
+
+The procedure for testing/running the Data Sovereignty Service is the same as the one we followed with Least Utilized and Low Latency Path.
+ 
+1. SRv6 on Rome VM:
+```
+./cleanup_rome_routes.sh 
+python3 jalapeno.py -f rome.json -e srv6 -s ds
+ping 10.101.2.1 -I 20.0.0.1 -i .3
+```
+2. tcpdump on XRD VM:
+```
+./tcpdump.sh xrd04-xrd07
+```
+```
+./tcpdump.sh xrd04-xrd05
+```
+```
+./tcpdump.sh xrd01-xrd05
+```
+
+
+## Amsterdam VM
+### POC host-based SRv6 and SR-MPLS SDN using the VPP dataplane
+In our lab the Amsterdam VM represents a content server whose application owners wish to provide optimal user experience, while balancing out the need for bulk content replication.  They've chosen to use VPP as their host-based SR/SRv6 forwarding engine, and have subscribed to the network services made available by our Jalapeno system.
+
+Like the Rome VM, Amsterdam has the same python client that can query Jalapeno for SR/SRv6 path data, and then program its local VPP dataplane with ip route with SR/SRv6 encapsulation.
+
+1. Login to the Amsterdam VM
+```
+ssh cisco@198.18.128.102
+```
+
+2. cd into the lab_6/python/ directory:
 ```
 cd ~/SRv6_dCloud_Lab/lab_6/python/
-python3 add_meta_data.py
 ```
-Expected output:
+2. Everything is the same as on the Rome VM with some different parameters in amsterdam.json:
 ```
-cisco@jalapeno:~/SRv6_dCloud_Lab/lab_6/python$ python3 add_meta_data.py
-calculating prefix SIDs
-xrd01 prefix sid:  100001
-xrd02 prefix sid:  100002
-xrd03 prefix sid:  100003
-xrd04 prefix sid:  100004
-xrd05 prefix sid:  100005
-xrd06 prefix sid:  100006
-xrd07 prefix sid:  100007
-adding location, country codes, latency, and link utilization data
-meta data added
+cat ./amsterdam.json
+```
+3. Amsterdam has a Linux veth pair connecting kernel forwarding to its onboard VPP instance. The VM has preconfigured ip routes (see /etc/netplan/00-installer-config.yaml) pointing to VPP via its "ams-out" interface:
+```
+cisco@amsterdam:~/SRv6_dCloud_Lab/lab_6$ ip link | grep ams-out
+4: vpp-in@ams-out: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+5: ams-out@vpp-in: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+
+cisco@amsterdam:~/SRv6_dCloud_Lab/lab_6$ ip route
+default via 198.18.128.1 dev ens160 proto static 
+default via 198.18.128.1 dev ens160 proto static metric 100 
+10.0.0.0/24 via 10.101.2.2 dev ams-out proto static 
+10.101.1.0/24 via 10.101.2.2 dev ams-out proto static 
+10.101.2.0/24 dev ams-out proto kernel scope link src 10.101.2.1 
+10.101.3.0/24 dev ens224 proto kernel scope link src 10.101.3.1 
+10.107.0.0/20 via 10.101.2.2 dev ams-out proto static 
+20.0.0.0/24 via 10.101.2.2 dev ams-out proto static 
+30.0.0.0/24 via 10.101.2.2 dev ams-out proto static 
+40.0.0.0/24 via 10.101.3.2 dev ens224 proto static 
+50.0.0.0/24 via 10.101.3.2 dev ens224 proto static 
+198.18.128.0/18 dev ens160 proto kernel scope link src 198.18.128.102 
+```
+4. VPP has been given a startup config which establishes IP connectivity to the network as a whole on bootup.
+```
+cat /etc/vpp/startup.conf
+```
+ - Note the 'unix' and 'dpdk' sections of the config:
+```
+unix {
+  nodaemon
+  log /var/log/vpp/vpp.log
+  full-coredump
+  cli-listen /run/vpp/cli.sock
+  gid vpp
+  startup-config /home/cisco/SRv6_dCloud_Lab/lab_1/config/vpp.conf
+}
+dpdk {
+  dev 0000:0b:00.0
+}
+```
+ - VPP startup-config file: https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_1/config/vpp.conf
+
+5. VPP's CLI may be invoked directly:
+```
+cisco@amsterdam:~/SRv6_dCloud_Lab/lab_6/python$ sudo vppctl
+    _______    _        _   _____  ___ 
+ __/ __/ _ \  (_)__    | | / / _ \/ _ \
+ _/ _// // / / / _ \   | |/ / ___/ ___/
+ /_/ /____(_)_/\___/   |___/_/  /_/    
+
+vpp# show interface address
+GigabitEthernetb/0/0 (up):
+  L3 10.101.1.1/24
+  L3 fc00:0:101:1::1/64
+host-vpp-in (up):
+  L3 10.101.2.2/24
+local0 (dn):
+vpp#  
+vpp# quit
+cisco@amsterdam:~/SRv6_dCloud_Lab/lab_6/python$
+```
+6. Or driven from the Linux command line:
+```
+cisco@amsterdam:~/SRv6_dCloud_Lab/lab_6$ sudo vppctl show interface address
+GigabitEthernetb/0/0 (up):
+  L3 10.101.1.1/24
+  L3 fc00:0:101:1::1/64
+host-vpp-in (up):
+  L3 10.101.2.2/24
+local0 (dn):
+```
+7. Other handy VPP commands:
+```
+quit                     # exit VPP CLI
+show ip fib              # show VPP's forwarding table, which will include SR and SRv6 policy/encap info later
+sudo vppctl show ip fib  # same command but executed from Linux
+show interface           # interface status and stats
 ```
 
-2. Validate meta data with an ArangoDB query:
+### Jalapeno Client on Amsterdam:
+The client operates on Amsterdam the same way it operates on the Rome VM, and it supports the same set of network services. amsterdam.json specifies to the use of a *VPP* dataplane, therefore the client will construct a VPP SR or SRv6 route/policy upon completing its path calculation.
+
+
+## Amsterdam Network Services
+### Get All Paths
+
+The Get All Paths Service will query the DB for all paths which meet certain parameters, between source and destination prefixes.
+
+1. Run the 'gp' service from Amsterdam:
+``` 
+python3 jalapeno.py -f amsterdam.json -e srv6 -s gp
 ```
-for x in sr_topology return { key: x._key, from: x._from, to: x._to, latency: x.latency, 
-    utilization: x.percent_util_out, country_codes: x.country_codes }
+ - check log output:
 ```
- - Note: only the ISIS links in the DB have latency and utilization numbers. The Amsterdam and Rome VMs are directly connected to PEs **xrd01** and **xrd07**, so their "edge connections" in the DB are effectively zero latency. 
-  - The *add_meta_data.py* script has also populated country codes for all the countries a given link traverses from one node to its adjacent peer. Example: **xrd01** is in Amsterdam, and **xrd02** is in Berlin. Thus the **xrd01** <--> **xrd02** link traverses [NLD, DEU]
-
-3. Run the get_nodes.py script to get a listing of nodes in the network, their addresses, and SR/SRv6 SID data:
+more log/get_paths.json
 ```
-cd ~/SRv6_dCloud_Lab/lab_6/python/
-python3 get_nodes.py
-cat nodes.json
+ - We can expect to see a json file with source, destination, and SR/SRv6 path data
+ - Expected console output:
+
+```
+cisco@amsterdam:~/SRv6_dCloud_Lab/lab_6/python$ python3 jalapeno.py -f amsterdam.json -e srv6 -s gp
+src data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'src_peer': '10.0.0.1'}]
+dest data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'dst_peer': '10.0.0.7'}]
+Get All Paths Service
+number of paths found:  4
+SRv6 locators for path:  ['fc00:0:2222::', 'fc00:0:6666::', 'fc00:0:7777::']
+SR prefix sids for path:  [100002, 100006, 100007]
+SRv6 locators for path:  ['fc00:0:5555::', 'fc00:0:4444::', 'fc00:0:7777::']
+SR prefix sids for path:  [100005, 100004, 100007]
+SRv6 locators for path:  ['fc00:0:5555::', 'fc00:0:6666::', 'fc00:0:7777::']
+SR prefix sids for path:  [100005, 100006, 100007]
+SRv6 locators for path:  ['fc00:0:2222::', 'fc00:0:3333::', 'fc00:0:4444::', 'fc00:0:7777::']
+SR prefix sids for path:  [100002, 100003, 100004, 100007]
+All paths data from unicast_prefix_v4/10.101.2.0_24_10.0.0.1 to unicast_prefix_v4/20.0.0.0_24_10.0.0.7 logged to log/get_paths.json
 ```
 
-### Arango Graph traversals and shortest path queries
-General Arango AQL query syntax information [HERE](https://www.arangodb.com/docs/stable/aql/graphs.html)
+### Least Utilized Path
+The Least Utilized Path service behaves the same on Amsterdam as on Rome, except that it will program VPP forwarding. If encapsulation-type *`sr`* is chosen, the service simply programs VPP with a labeled IP route entry. If encap *`srv6`* is chosen the service will program VPP with a Binding-SID and SR-Policy. 
 
-#### Shortest Path
-This type of query is supposed to find the shortest path between two given vertex (startVertex and targetVertex) in your graph. In our case the shortest path between two different nodes in the graph's representation of our network. 
-Reference this document on the shortest path algorithim in AQL [HERE](https://www.arangodb.com/docs/stable/aql/graphs-shortest-path.html) (2 minute read). 
+Once the "LU" path service is executed Amsterdam will be able to steer content replication traffic away from the best path and onto the least utilized path, thus preserving the routing protocol's best path for streaming video.
 
-   1. Return to the ArangoDB browser UI and run a shortest path query from **xrd01** to **xrd07**, and have it return SR and SRv6 SID data:
-   ```
-   for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0001' TO 'sr_node/2_0_0_0000.0000.0007' sr_topology 
-       return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, srv6sid: v.srv6_sid }
-   ```
-   2. Run the query against the return path:
-   ```
-   for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0007' TO 'sr_node/2_0_0_0000.0000.0001' sr_topology 
-       return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, 
-       srv6sid: v.srv6_sid }
-   ```
+Note: the client automatically cleans up old VPP routes/SR-policies prior to installing new ones:
 
-   3. Run a shortest path query from source prefix (Amsterdam) to destination prefix (Rome), include hop by hop latency:
-   ```
-    for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7'
-        sr_topology return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, 
-        srv6sid: v.srv6_sid, latency: e.latency }
-   ```
-   4. Optional: query for the return path, include hop by hop latency:
-   ```
-   for v, e in outbound shortest_path 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' TO 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1'
-       sr_topology return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, 
-       srv6sid: v.srv6_sid, latency: e.latency }
-   ```
-   Thus far all of these shortest path query results are based purely on hop count. Also note, in the case where the graph has multiple equal cost shortest paths, the Arango query will return the first one it finds. 
+1. Execute the least utilized path service with SRv6 encapsulation
+``` 
+python3 jalapeno.py -f amsterdam.json -e srv6 -s lu
+```
+ - The client's command line output will include info on VPP's new forwarding table:
+```
+cisco@amsterdam:~/SRv6_dCloud_Lab/lab_6/python$ python3 jalapeno.py -f amsterdam.json -e srv6 -s lu
+src data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'src_peer': '10.0.0.1'}]
+dest data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'dst_peer': '10.0.0.7'}]
+Least Utilized Service
+locators:  ['fc00:0:2222::', 'fc00:0:3333::', 'fc00:0:4444::', 'fc00:0:7777::']
+prefix_sids:  [100002, 100003, 100004, 100007]
+egress node locator:  fc00:0:7777::
+end.dt SID:  ['fc00:0:7777:e006::']
+lu calc localsid:  7777:e006::
+usd:  7777::
+newsid:  fc00:0:2222:3333:4444:7777:e006::
+srv6 sid:  fc00:0:2222:3333:4444:7777::
+adding vpp sr-policy to:  20.0.0.0/24 , with SRv6 encap:  fc00:0:2222:3333:4444:7777:e006::
+sr steer: The requested SR steering policy could not be deleted.
+sr policy: BUG: sr policy returns -1
+Display VPP FIB entry: 
+ipv4-VRF:0, fib_index:0, flow hash:[src dst sport dport proto flowlabel ] epoch:0 flags:none locks:[adjacency:1, default-route:1, ]
+20.0.0.0/24 fib:0 index:36 locks:2
+  SR refs:1 entry-flags:uRPF-exempt, src-flags:added,contributing,active,
+    path-list:[41] locks:2 flags:shared, uPRF-list:39 len:0 itfs:[]
+      path:[49] pl-index:41 ip6 weight=1 pref=0 recursive:  oper-flags:resolved,
+        via 101::101 in fib:3 via-fib:35 via-dpo:[dpo-load-balance:37]
 
-   Basic shortest path by hop count is fine, however, the graphDB also allows us to run a *`weighted shortest path query`* based on any metric or other piece of meta data in the graph!
+ forwarding:   unicast-ip4-chain
+  [@0]: dpo-load-balance: [proto:ip4 index:38 buckets:1 uRPF:38 to:[0:0]]
+    [0] [@14]: dpo-load-balance: [proto:ip4 index:37 buckets:1 uRPF:-1 to:[0:0]]
+          [0] [@13]: SR: Segment List index:[0]
+	Segments:< fc00:0:2222:3333:4444:7777:e006:0 > - Weight: 1      <------------ SRv6 Micro-SID encapsulation
+```
 
-   ### Shortest path queries using metrics other than hop count
+2. Check log output and local routing table. You can also check the VPP FIB entry from linux:
+ ```
+cat log/least_utilized.json
+ip route
+sudo vppctl show ip fib 20.0.0.0/24
+```
 
-   #### Query for the lowest latency path:
-   ```
-   for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
-       sr_topology OPTIONS {weightAttribute: 'latency' } 
-       return  { prefix: v.prefix, name: v.name, prefix_sid: v.prefix_sid, srv6sid: e.srv6_sid, latency: e.latency }
-   ```
-   #### Optional: Lowest latency return path:
-   ```
-   for v, e in outbound shortest_path 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' TO 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' 
-       sr_topology OPTIONS {weightAttribute: 'latency' } 
-       return { prefix: v.prefix, name: v.name, prefix_sid: v.prefix_sid, srv6sid: e.srv6_sid, latency: e.latency }
-   ```
-### Graph Traversals
-A traversal starts at one specific document (startVertex) and follows all edges connected to this document. For all documents (vertices) that are targeted by these edges it will again follow all edges connected to them and so on. It is possible to define how many of these follow iterations should be executed at least (min depth) and at most (max depth). Or in network-engineer-speak "fewest hops" and "most hops"
-https://www.arangodb.com/docs/stable/aql/graphs-traversals-explained.html
+3. Run a ping test 
+ - From an ssh session on the XRd VM start a tcpdump on the interface facing the Amsterdam VM:
+```
+sudo tcpdump -ni ens224
+```
+ - Return to the first Amsterdam ssh session and ping
+```
+ping 20.0.0.1 -i .4
+```
 
-For our purposes we can use Graph Traversal to run a limited or bounded shortest path query (min and max hops):
+4. Validate outbound traffic is encapsulated in the SRv6 label stack. Expected output will be something like:
+```
+cisco@xrd:~/SRv6_dCloud_Lab/util$ sudo tcpdump -ni ens224
+<snip>
+01:17:48.874686 IP6 fc00:0:101:1::1 > fc00:0:2222:3333:4444:7777:e006:0: IP 10.101.2.1 > 20.0.0.1: ICMP echo request, id 12, seq 3, length 64
+01:17:48.949955 IP 20.0.0.1 > 10.101.2.1: ICMP echo reply, id 12, seq 3, length 64
+```
 
-#### Query for the least utilized path
-Backups, data replication, other bulk transfers can oftentimes take a non-best path through the network. In theory the least utilized path could be many hops in length, so we're going to build the query such that the traversal limits itself to a maximum of 6 hops from the source vertex.
+5. Continuing on the XRd VM use the tcpdump.sh <xrd0x-xrd0y> script to capture packets along the path from Amsterdam VM to Rome VM. Given the label stack seen above, we'll monitor the linux bridges along this path: xrd01 --> xrd02 --> xrd03 --> xrd04 --> xrd07
+ - restart the ping if it is stopped
+ - you can run all the listed tcpdumps, or simply check one or two of them:
+```
+./tcpdump.sh xrd01-xrd02
+```
+```
+./tcpdump.sh xrd02-xrd03
+```
+```
+./tcpdump.sh xrd03-xrd04
+```
+```
+./tcpdump.sh xrd04-xrd07
+```
 
-   1. Graph traversal query for the least utilized path. The 1..6 notation indicates the query can consider paths with 6 or few hops.
-    - Query for full path data. We expect to see the Arango UI render a topology that includes all seven routers:
+6. Optional: execute the least utilized path service with SR-MPLS encapsulation
+```
+python3 jalapeno.py -f amsterdam.json -e sr -s lu
+```
 
-   ```
-   FOR v, e, p in 1..6 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
-       options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
-       return distinct p
-   ```
-   
-   2. Now try the same query, but limit results to 5 hops or fewer:
-   ```
-   FOR v, e, p in 1..5 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
-       options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
-       return distinct p
-   ```
-   The resulting graph leaves out the longest path through the network:
+Truncated output:
+```
+Display VPP FIB entry: 
+ipv4-VRF:0, fib_index:0, flow hash:[src dst sport dport proto flowlabel ] epoch:0 flags:none locks:[adjacency:1, default-route:1, ]
+20.0.0.0/24 fib:0 index:31 locks:2
+  CLI refs:1 src-flags:added,contributing,active,
+    path-list:[22] locks:8 flags:shared, uPRF-list:33 len:1 itfs:[1, ]
+      path:[32] pl-index:22 ip4 weight=1 pref=0 attached-nexthop:  oper-flags:resolved,
+        10.101.1.2 GigabitEthernetb/0/0
+      [@0]: ipv4 via 10.101.1.2 GigabitEthernetb/0/0: mtu:9000 next:4 flags:[] 02420a6501020050569722bb0800
+    Extensions:
+     path:32  labels:[[100002 pipe ttl:0 exp:0][100003 pipe ttl:0 exp:0][100004 pipe ttl:0 exp:0][100007 pipe ttl:0 exp:0]]
+ forwarding:   unicast-ip4-chain
+  [@0]: dpo-load-balance: [proto:ip4 index:33 buckets:1 uRPF:33 to:[0:0]]
+    [0] [@15]: mpls-label[@1]:[100002:64:0:neos][100003:64:0:neos][100004:64:0:neos][100007:64:0:eos]        <---- SR label stack
+        [@1]: mpls via 10.101.1.2 GigabitEthernetb/0/0: mtu:9000 next:2 flags:[] 02420a6501020050569722bb8847
+```
+Pings should be SR label-switched over same path through the network
+```
+ping 20.0.0.1 -i .4
+```
 
-   <img src="images/graph-traversal-5-hops.png" width="600">
+### Low Latency Path
+The procedure on Amsterdam is the same as Least Utilized Path. As with Rome, we'll focus on SRv6 for these final steps with SR-MPLS being optional.
 
-   3. Run the same query but with filtered output. 
-   ```
-   for v, e, p in 1..6 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
-       options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
-       return distinct { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, countries_traversed: p.edges[*].country_codes[*],
-       latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
-   ```
-   We no longer see the UI render a topology, but we do get a nice subset of the output data. Also note the *return* instruction in the query specifies that it should add up the `latency` values, and do an average calculation on `percent_util_out` values.
-    
-   - Note the least utilized path should be **xrd01** -> **xrd02** -> **xrd03** -> **xrd04** -> **xrd07**. This also happens to be the longest path geographically in our network (Netherlands proceeding east and south through Germany, Poland, Ukraine, Turkey, etc.). Any traffic taking this path will be subject to the longest latency in our network.
+1. Low latency SRv6 path on Amsterdam VM:
+```
+python3 jalapeno.py -f amsterdam.json -e srv6 -s ll
+```
 
-   4. Optional: Query for the return path:
-   ```
-   for v, e, p in 1..6 outbound 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' sr_topology 
-       options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' 
-       return distinct { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, countries_traversed: p.edges[*].country_codes[*],
-       latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
-   ```
-   - Note: unlike latency, which we can expect to be roughly equivalent in either direction, average utilization could be quite different. In our network the least utilized Amsterdam to Rome path is different from the least utilized Rome to Amsterdam path: **xrd07** -> **xrd06** -> **xrd02** -> **xrd01**
+Example output:
+```
+cisco@amsterdam:~/SRv6_dCloud_Lab/lab_6/python$ python3 jalapeno.py -f amsterdam.json -e srv6 -s ll
+src data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'src_peer': '10.0.0.1'}]
+dest data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'dst_peer': '10.0.0.7'}]
+Low Latency Service
+locators:  ['fc00:0:5555::', 'fc00:0:6666::', 'fc00:0:7777::']
+prefix_sids:  [100005, 100006, 100007]
+end.dt SID:  ['fc00:0:7777:e006::']
+srv6 sid:  fc00:0:5555:6666:7777::
+adding vpp sr-policy to:  20.0.0.0/24 , with SRv6 encap:  fc00:0:5555:6666:7777:e006::
+sr steer: The requested SR steering policy could not be deleted.
+sr policy: BUG: sr policy returns -1
+Display VPP FIB entry: 
+ipv4-VRF:0, fib_index:0, flow hash:[src dst sport dport proto flowlabel ] epoch:0 flags:none locks:[adjacency:1, default-route:1, ]
+20.0.0.0/24 fib:0 index:36 locks:2
+  SR refs:1 entry-flags:uRPF-exempt, src-flags:added,contributing,active,
+    path-list:[40] locks:2 flags:shared, uPRF-list:39 len:0 itfs:[]
+      path:[48] pl-index:40 ip6 weight=1 pref=0 recursive:  oper-flags:resolved,
+        via 101::101 in fib:2 via-fib:33 via-dpo:[dpo-load-balance:36]
 
-   The previous queries provided paths up to 5 or 6-hops in length. We can increase or decrease the number of hops a graph traversal may use:
+ forwarding:   unicast-ip4-chain
+  [@0]: dpo-load-balance: [proto:ip4 index:38 buckets:1 uRPF:40 to:[0:0]]
+    [0] [@14]: dpo-load-balance: [proto:ip4 index:36 buckets:1 uRPF:-1 to:[0:0]]
+          [0] [@13]: SR: Segment List index:[0]
+	Segments:< fc00:0:5555:6666:7777:e006:: > - Weight: 1
+```
+```
+ping 20.0.0.1 -i .4
+```
 
-   5. Let's constrain the traversal to *only* consider a path 6 hops in length:
+2. The Low latency path should be *`xrd01`* -> *`xrd05`* -> *`xrd06`* -> *`xrd07`* -> Rome. So we can run the tcpdump script On XRD VM as follows, or just check one or two tcpdumps:
+```
+./tcpdump.sh xrd01-xrd05
+```
+```
+./tcpdump.sh xrd05-xrd06
+```
+```
+./tcpdump.sh xrd06-xrd07
+```
 
-   ```
-   for v, e, p in 6..6 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
-       options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
-       return distinct p
-   ```
-   6. Increase the length of the traversal with filtered output (should provide more valid results)
-   ```
-    for v, e, p in 1..8 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' sr_topology 
-        options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
-        return distinct { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, country_list: p.edges[*].country_codes[*],
-        latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
+4. Optional: Low latency SR-MPLS path on Amsterdam VM:
+```
+python3 jalapeno.py -f amsterdam.json -e sr -s ll
+```
+```
+ping 20.0.0.1 -i .4
+```
 
-   ```
-   - Note: the graph traversal is inherently loop-free. If you increase the previous query to max of 10 or 12 hops it should return the same number of results as 8 hops max.
+### Data Sovereignty Path 
 
-### K Shortest Paths
-This type of query finds the first k paths in order of length (or weight) between two given documents, startVertex and targetVertex in your graph.
+The procedure on Amsterdam is the same as the previous two services. In amsterdam.json we've specified 'FRA' as the country to avoid, so all results should avoid *`xrd06`*.
+ 
+1. Data Sovereignty via SRv6 path from Amsterdam VM:
+```
+python3 jalapeno.py -f amsterdam.json -e srv6 -s ds
+```
+Example output:
+```
+cisco@amsterdam:~/SRv6_dCloud_Lab/lab_6/python$ python3 jalapeno.py -f amsterdam.json -e srv6 -s ds
+src data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'src_peer': '10.0.0.1'}]
+dest data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'dst_peer': '10.0.0.7'}]
+Data Sovereignty Service
+dst:  20.0.0.0/24
+path:  [{'path': [None, 'xrd05', 'xrd04', 'xrd07', None], 'sid': [None, 'fc00:0:5555::', 'fc00:0:4444::', 'fc00:0:7777::', None], 'prefix_sid': [None, 100005, 100004, 100007, None], 'countries_traversed': [[], ['NLD', 'GBR'], ['GBR', 'BEL', 'DEU', 'AUT', 'HUN', 'SRB', 'BGR', 'TUR'], ['TUR', 'GRC', 'ITA'], []], 'latency': 95, 'percent_util_out': 33.333333333333336}]
+locators:  ['fc00:0:5555::', 'fc00:0:4444::', 'fc00:0:7777::']
+egress node locator:  fc00:0:7777::
+end.dt SID:  ['fc00:0:7777:e006::']
+srv6 sid:  fc00:0:5555:4444:7777::
+prefix_sids:  [100005, 100004, 100007]
+adding vpp sr-policy to:  20.0.0.0/24 , with SRv6 encap:  fc00:0:5555:4444:7777:e006::
+unknown input `20.0.0.0/24'
+Display VPP FIB entry: 
+ipv4-VRF:0, fib_index:0, flow hash:[src dst sport dport proto flowlabel ] epoch:0 flags:none locks:[adjacency:1, default-route:1, ]
+20.0.0.0/24 fib:0 index:36 locks:2
+  SR refs:1 entry-flags:uRPF-exempt, src-flags:added,contributing,active,
+    path-list:[40] locks:2 flags:shared, uPRF-list:39 len:0 itfs:[]
+      path:[48] pl-index:40 ip6 weight=1 pref=0 recursive:  oper-flags:resolved,
+        via 101::101 in fib:2 via-fib:33 via-dpo:[dpo-load-balance:35]
 
-https://www.arangodb.com/docs/stable/aql/graphs-kshortest-paths.html
+ forwarding:   unicast-ip4-chain
+  [@0]: dpo-load-balance: [proto:ip4 index:38 buckets:1 uRPF:40 to:[0:0]]
+    [0] [@14]: dpo-load-balance: [proto:ip4 index:35 buckets:1 uRPF:-1 to:[0:0]]
+          [0] [@13]: SR: Segment List index:[0]
+	Segments:< fc00:0:5555:4444:7777:e006:: > - Weight: 1
+```
+2. The Data Sovereignty path should be *`xrd01`* -> *`xrd05`* -> *`xrd04`* -> *`xrd07`* -> Rome. So we can ping from Amsterdam and run the tcpdump script On XRD VM as follows, or just check one or two tcpdumps:
 
-#### A Data sovereignty query
+Amsterdam:
+```
+ping 20.0.0.1 -i .4
+```
 
-1. We'll use the K Shortest Paths query method to find one or more suitable paths from Amsterdam to Rome that avoids France:
+XRD VM:
+```
+./tcpdump.sh xrd01-xrd05
+```
+```
+./tcpdump.sh xrd05-xrd04
+```
+```
+./tcpdump.sh xrd04-xrd07
+```
+3. Optional: run the script with SR-MPLS encapsulation
+```
+python3 jalapeno.py -f amsterdam.json -e sr -s ds
+```
+4. Optional: modify the amsterdam.json file and replace *`FRA`* with *`DEU`*, *`POL`*, *`BEL`*, etc., then re-run the script.
 
- - Full path data:
-    ```
-    for p in outbound k_shortest_paths  'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' to 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
-        sr_topology options {uniqueVertices: "path"} filter p.edges[*].country_codes !like "%FRA%" return distinct p
-    ```
-  The resulting graph shows our two paths that avoid going through France (xrd06 in Paris)
-  <img src="images/data-sovereignty-query.png" width="600">
-
- - Filtered output:
-    ```
-    for p in outbound k_shortest_paths  'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' to 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7'
-        sr_topology filter p.edges[*].country_codes !like "%FRA%" return distinct { path: p.edges[*].remote_node_name, 
-        sid: p.edges[*].srv6_sid, countries_traversed: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency),
-        percent_util_out: avg(p.edges[*].percent_util_out)}
-    ```
-
-   - The results in the query response should not traverse any links containing the FRA country code
-
-   - Optional: feel free to run queries to `avoid` other countries as well. Just replace *`FRA`* in the query string with any of these country codes:  *`GBR`*, *`DEU`*, *`BRU`*, *`POL`*, *`TUR`*, *`UKR`*, *`MDA`*, *`BGR`*, *`AUT`*, *`HUN`*, *`SRB`*. You'll notice interesting results on some queries where the *xrd05 - xrd04* link traverses many countries.
-
-  <img src="images/network-map.png" width="800">
-
-### End of lab 6
-Please proceed to [Lab 7](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_7/lab_7-guide.md)
+```
+python3 jalapeno.py -f amsterdam.json -e srv6 -s ds
+```
+### You have reached the end of LTRSPG-2212, hooray!

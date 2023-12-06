@@ -1,28 +1,28 @@
-# Welcome to the World of SRv6
+# Welcome to the SRv6 dCloud Lab
 
-### Description: This repository is a learning guide for SRv6 Cisco dCloud Lab. 
+### Description: This repository contains lab guide, router configs, setup scripts, and other code for running through the lab.
 
-SRv6 simplifies SR-MPLS networks by eliminating MPLS altogether and by relying on the native 
-IPv6 header and header extension to provide the same services and flexibility as SR-MPLS, directly over the 
-IPv6 data plane.
+Segment Routing over IPv6 (SRv6) is the Segment Routing implementation over an IPv6 data plane.
+
+In an SR-MPLS enabled network, an MPLS label represents an instruction. The source nodes programs the path to a destination in the packet header as a stack of labels.
+
+SRv6 introduces the Network Programming framework that enables a network operator or an application to specify a packet processing program by encoding a sequence of instructions in the IPv6 packet header. Each instruction is implemented on one or several nodes in the network and identified by an SRv6 Segment Identifier (SID) in the packet. The SRv6 Network Programming framework is defined in IETF RFC 8986 SRv6 Network Programming.
 
 Cisco routers that run the XR operating system 7.X and newer support the SRv6 feature set. This guide walks 
-through the basic steps to configure and test SR configurations in a controlled lab. In addition, Jalapeno an 
-open source project provides ways to see SRv6 created paths through the network.
+through the basic steps to configure and test SRv6 configurations, specifically SRv6 micro-SID in a controlled lab. In addition, we use the open source Jalapeno system, which provides ways to see SRv6 created paths through the network.
 
 
 ## Contents
-* Repository Overview [LINK](#repository-overview)
+* Repository Overview [LINK](#github-repository-overview)
 * Lab Topology [LINK](#lab-topology)
 * Remote Access [LINK](#remote-access)
 * Project Jalapeno [LINK](#jalapeno)
 * Lab 1 - XRd Topology Setup and Validation [LINK](/lab_1/lab_1-guide.md)
 * Lab 2 - Config Baseline SR-MPLS and SRv6 [LINK](/lab_2/lab_2-guide.md)
-* Lab 3 - Config BGP-LU over SR-MPLS [LINK](/lab_3/lab_3-guide.md)
-* Lab 4 - Config SRv6 L3VPN with TE [LINK](/lab_4/lab_4-guide.md)
-* Lab 5 - Config BMP and install Jalapeno [LINK](/lab_5/lab_5-guide.md)
-* Lab 6 - A Tour of Jalapeno [LINK](/lab_6/lab_6-guide.md)
-* Lab 7 - Build Your Own Cloud-Native SDN [LINK](/lab_7/lab_7-guide.md)
+* Lab 3 - Config SRv6 L3VPN with TE [LINK](/lab_3/lab_3-guide.md)
+* Lab 4 - Config BMP and install Jalapeno [LINK](/lab_4/lab_4-guide.md)
+* Lab 5 - A Tour of Jalapeno [LINK](/lab_5/lab_5-guide.md)
+* Lab 6 - Build Your Own Cloud-Native SDN [LINK](/lab_6/lab_6-guide.md)
 
 
 ## Github Repository Overview
@@ -42,16 +42,16 @@ Example:
 ```
 
 ### Individual Lab Directories
-Within each lab directory you should see several files of importance :
+Within each lab directory you should see several files of importance:
 (X = lab #)
 
-| File Name                | Description                                            |
-|:-------------------------|:-------------------------------------------------------|
-| cleanup-lab_X.sh         | Cleans up docker environemnt                           |
-| docker-compose-lab_X.yml | YAML input file used to launch docker                  |
-| lab_X-topology.yml       | YAML input file for XRD to create docker compose file. |
-| lab_X-guide.md           | User guide for this lab.                               |
-| setup-lab_X.sh           | Calls cleanup script and launches XRD environment      | 
+| File Name                | Description                                                  |
+|:-------------------------|:-------------------------------------------------------------|
+| cleanup-lab_X.sh         | Cleans up the docker environemnt                             |
+| docker-compose-lab_X.yml | YAML input file used by docker compose to build the topology |
+| lab_X-topology.yml       | YAML input file for XRD to create docker compose file        |
+| lab_X-guide.md           | User guide for this lab                                      |
+| setup-lab_X.sh           | Calls cleanup script, launches the topology, creates utils   | 
 
 
 General instructions for building and running XRd topologies on bare-metal, VMs, AWS, etc. can be found here:
@@ -61,13 +61,9 @@ https://github.com/brmcdoug/XRd
 
 Each lab instance is running on Cisco dCloud, and is reachable via AnyConnect VPN. In the Webex Teams room for the lab we've provided a spreadsheet with a list of dCloud instances and the AnyConnect credentials necessary to access each instance. To find your dCloud instance please reference your student number provided on the handout in class.
 
-The dCloud instances themselves will run until about 2pm CET (UTC +1) February 7, 2023.
-
 ## Lab Topology
 
-This lab is based on a simulated WAN design of seven routers running in a docker instance. Each of these 
-seven routers in the topology is running the XR operating system. In addition there are two client VMs named Amsterdam and Rome. Each client 
-system is running the Ubuntu OS. Last is an Ubuntu VM running Kubernetes and hosting the Jalapeno application.
+This lab is based on a simulated WAN design of seven IOS-XR routers running in a docker instance. In addition there are two client VMs named Amsterdam and Rome. Each client system is running the Ubuntu OS. Last is an Ubuntu VM running Kubernetes and hosting the Jalapeno application.
 
 ![Lab Topology](/topo_drawings/overview-topology-large.png)
 
@@ -100,5 +96,4 @@ system is running the Ubuntu OS. Last is an Ubuntu VM running Kubernetes and hos
 Project Jalapeno combines existing open source tools with some new stuff we've developed into a data collection and warehousing infrastructure intended to enable development of SDN or network service applications. Think of it as applying microservices architecture and concepts to SDN: give developers the ability to quickly and easily build microservice control planes on top of a common data collection and warehousing infrastructure. More information on Jalapeno can be found at the Jalapeno Git repository: [LINK](https://github.com/cisco-open/jalapeno/blob/main/README.md)
 
 ![jalapeno_architecture](https://github.com/cisco-open/jalapeno/blob/main/docs/diagrams/jalapeno_architecture.png)
-
 

@@ -1,0 +1,11 @@
+{
+    "source": "10.101.2.0/24",
+    "destination": "20.0.0.0/24",
+    "interface": "None",    
+    "dataplane": "vpp",
+    "bsid": "101:101",
+    "country": "FRA",
+    "username": "root",
+    "password": "jalapeno",
+    "database": "jalapeno"
+}
