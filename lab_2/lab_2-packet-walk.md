@@ -13,7 +13,7 @@ This is a supplemental lab guide used to deconstruct the forwarding process of t
   - [IPv4 encapsulation to SRv6](#ipv4-encapsulation-to-srv6)
   - [SRv6 forwarding](#srv6-forwarding)
   - [SRv6 decapsulation to IPv4](#srv6-decapsulation-to-ipv4)
-  - [Return to Lab 2](#return-to-lab-2)
+- [Return to Lab 2](#return-to-lab-2)
   
 
 ## Lab Objectives
@@ -32,9 +32,9 @@ In lab_1 When we ran the XRd topology setup script it called the 'nets.sh' subsc
 ![Router 1 Topology](/topo_drawings/ltrspg-2212-packet-walk-r1.png)
 
 1. Step #1 insert stuff
-  ```
-  cd ~/SRv6_dCloud_Lab/util/
-  ```
+    ```
+    cd ~/SRv6_dCloud_Lab/util/
+    ```
 2. Step #2 insert stuff
   ```
   ./tcpdump.sh xrd05-xrd06
