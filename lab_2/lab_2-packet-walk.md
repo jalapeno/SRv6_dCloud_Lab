@@ -76,9 +76,9 @@ In lab_1 When we ran the XRd topology setup script it called the 'nets.sh' subsc
 ![Router 1 Topology](/topo_drawings/ltrspg-2212-packet-walk-r1.png)
 
 1. Step #1 insert stuff
-  ```
-  cd ~/SRv6_dCloud_Lab/util/
-  ```
+   ```
+   cd ~/SRv6_dCloud_Lab/util/
+   ```
 2. Step #2 insert stuff
   ```
   ./tcpdump.sh xrd05-xrd06
@@ -92,4 +92,4 @@ In lab_1 When we ran the XRd topology setup script it called the 'nets.sh' subsc
   ```
 
 ## Return to Lab 2
-Please proceed to [Lab 3](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_2/lab_2-guide.md)
+Please proceed to [Lab 2](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_2/lab_2-guide.md)
