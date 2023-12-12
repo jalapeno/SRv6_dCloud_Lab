@@ -16,6 +16,7 @@ In Lab 2 the student will perform the basic configuration of SR-MPLS and SRv6 on
     - [Configuration Steps SRv6](#configuration-steps-srv6)
       - [Configure SRv6 on all routers (xrd01 - xrd07) in the network](#configure-srv6-on-all-routers-xrd01---xrd07-in-the-network)
   - [End-to-End Connectivity](#end-to-end-connectivity)
+  - [SRv6 Packet Walk](#srv6-packet-walk)
   - [End of Lab 2](#end-of-lab-2)
   
 
@@ -244,6 +245,9 @@ IPv6 pings will not invoke SRv6 encapsulation at this time. And with ECMP there'
   21:59:08.125911 IP6 fc00:0000:7777::1 > fc00:0000:1111::1: ICMP6, echo reply, seq 0, length 60
   21:59:08.129554 IP6 fc00:0000:7777::1 > fc00:0000:1111::1: ICMP6, echo reply, seq 1, length 60
   ```
+## SRv6 Packet Walk
+This is an optional section of the lab where we expand on the routing table behaviours during forwarding operations. 
+Please use this link for the packet walk. [Packet Walk](https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_2/lab_2-packet-walk.md)
 
 ## End of Lab 2
 Please proceed to [Lab 3](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_3/lab_3-guide.md)
