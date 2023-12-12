@@ -36,16 +36,16 @@ In lab_1 When we ran the XRd topology setup script it called the 'nets.sh' subsc
     cd ~/SRv6_dCloud_Lab/util/
     ```
 2. Step #2 insert stuff
-  ```
-  ./tcpdump.sh xrd05-xrd06
-  ```
+    ```
+    ./tcpdump.sh xrd05-xrd06
+    ```
 3. Run some pings from **xrd01** to **xrd07**:
-  ```
-  ping 10.0.0.7 source lo0
-  ```
-  ```
-  ping fc00:0000:7777::1 source lo0
-  ```
+    ```
+    ping 10.0.0.7 source lo0
+    ```
+    ```
+    ping fc00:0000:7777::1 source lo0
+    ```
 
 ## SRv6 forwarding
 
