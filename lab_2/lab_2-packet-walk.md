@@ -54,20 +54,20 @@ In lab_1 When we ran the XRd topology setup script it called the 'nets.sh' subsc
 ![Router 1 Topology](/topo_drawings/ltrspg-2212-packet-walk-r1.png)
 
 1. Step #1 insert stuff
-  ```
-  cd ~/SRv6_dCloud_Lab/util/
-  ```
+    ```
+    cd ~/SRv6_dCloud_Lab/util/
+    ```
 2. Step #2 insert stuff
-  ```
-  ./tcpdump.sh xrd05-xrd06
-  ```
+    ```
+    ./tcpdump.sh xrd05-xrd06
+    ```
 3. Run some pings from **xrd01** to **xrd07**:
-  ```
-  ping 10.0.0.7 source lo0
-  ```
-  ```
-  ping fc00:0000:7777::1 source lo0
-  ```
+    ```
+    ping 10.0.0.7 source lo0
+    ```
+    ```
+    ping fc00:0000:7777::1 source lo0
+    ```
 
 ## SRv6 decapsulation to IPv4
 
@@ -76,20 +76,20 @@ In lab_1 When we ran the XRd topology setup script it called the 'nets.sh' subsc
 ![Router 1 Topology](/topo_drawings/ltrspg-2212-packet-walk-r1.png)
 
 1. Step #1 insert stuff
-   ```
-   cd ~/SRv6_dCloud_Lab/util/
-   ```
+    ```
+    cd ~/SRv6_dCloud_Lab/util/
+    ```
 2. Step #2 insert stuff
-  ```
-  ./tcpdump.sh xrd05-xrd06
-  ```
+    ```
+    ./tcpdump.sh xrd05-xrd06
+    ```
 3. Run some pings from **xrd01** to **xrd07**:
-  ```
-  ping 10.0.0.7 source lo0
-  ```
-  ```
-  ping fc00:0000:7777::1 source lo0
-  ```
+    ```
+    ping 10.0.0.7 source lo0
+    ```
+    ```
+    ping fc00:0000:7777::1 source lo0
+    ```
 
 ## Return to Lab 2
 Please proceed to [Lab 2](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_2/lab_2-guide.md)
