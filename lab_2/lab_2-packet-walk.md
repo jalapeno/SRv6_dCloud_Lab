@@ -1,9 +1,9 @@
 
 
-# Lab 2: SR-MPLS and SRv6 Install [20 Min]
+# Lab 2: SRv6 Packet Walk [15 Min]
 
 ### Description: 
-In Lab 2 the student will perform the basic configuration of SR-MPLS and SRv6 on the lab routers. This will allow for a compare and contrast between the two segment routing standards. You will create and confirm PE and P roles for SR-MPLS. Second you will create basic SRv6 configuration on routers 1-7 and confirm connectivity. 
+This is a supplemental lab guide used to deconstruct the forwarding process of traffic through the SRv6 lab topology in this lab. 
 
 ## Contents
 - [Lab 2: SR-MPLS and SRv6 Install \[20 Min\]](#lab-2-sr-mpls-and-srv6-install-20-min)
