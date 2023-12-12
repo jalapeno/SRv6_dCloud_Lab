@@ -56,7 +56,7 @@ In Lab 2 this step occurs in Router 1. On ingress from the Amsterdam node we rec
 
 In lab_1 When we ran the XRd topology setup script it called the 'nets.sh' subscript in the ~/SRv6_dCloud_Lab/util directory. The nets.sh resolved the underlying docker network IDs and wrote them to text files in the util directory. As an example link "A" in the topology has a mapped file called xrd01-xrd02 which contains the linux network id we need.
 
-![Router 1 Topology](/topo_drawings/ltrspg-2212-packet-walk-r1.png)
+![Router 1 Topology](/topo_drawings/ltrspg-2212-packet-walk-r3.png)
 
 1. Step #1 insert stuff
     ```
@@ -78,7 +78,7 @@ In lab_1 When we ran the XRd topology setup script it called the 'nets.sh' subsc
 
 In lab_1 When we ran the XRd topology setup script it called the 'nets.sh' subscript in the ~/SRv6_dCloud_Lab/util directory. The nets.sh resolved the underlying docker network IDs and wrote them to text files in the util directory. As an example link "A" in the topology has a mapped file called xrd01-xrd02 which contains the linux network id we need.
 
-![Router 1 Topology](/topo_drawings/ltrspg-2212-packet-walk-r1.png)
+![Router 1 Topology](/topo_drawings/ltrspg-2212-packet-walk-r7.png)
 
 1. Step #1 insert stuff
     ```
