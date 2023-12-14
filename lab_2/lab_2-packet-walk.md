@@ -36,7 +36,7 @@ In Lab 2 this step occurs in Router 1. On ingress from the Amsterdam node we rec
     sudo tcpdump -ni ens224 -v
 
     11:30:54.987336 IP (tos 0x0, ttl 60, id 8417, offset 0, flags [none], proto ICMP (1), length 84)
-    10.107.1.1 > 10.101.2.1: ICMP echo reply, id 5, seq 1723, length 64  <--- See incoming packet with DA of 10.107.1.1
+    10.107.1.1 > 10.101.2.1: ICMP echo reply, length 64  <--- See incoming packet with DA of 10.107.1.1
     ```
 2. Lookup of the IPv4 DA address in the global routing table and show LPM match.
     ```
