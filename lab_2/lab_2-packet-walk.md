@@ -6,14 +6,14 @@
 This is a supplemental lab guide used to deconstruct the forwarding process of traffic through the SRv6 lab topology in this lab. In Lab 2 we are setting up a SRv6 topology using the global forwarding table for forwarding packets in the network. This is distinct from Lab 3 where we will add the virtualization concept of L3VPN + SRv6.
 
 ## Contents
-- [Lab 2: SR-MPLS and SRv6 Install \[20 Min\]](#lab-2-sr-mpls-and-srv6-install-20-min)
+- [Lab 2: SRv6 uSID Packet Walk \[15 Min\]](#lab-2-srv6-usid-packet-walk-15-min)
     - [Description:](#description)
   - [Contents](#contents)
   - [Lab Objectives](#lab-objectives)
-  - [IPv4 encapsulation to SRv6](#ipv4-encapsulation-to-srv6)
+  - [IPv4 Encapsulation to SRv6](#ipv4-encapsulation-to-srv6)
   - [SRv6 forwarding](#srv6-forwarding)
   - [SRv6 decapsulation to IPv4](#srv6-decapsulation-to-ipv4)
-- [Return to Lab 2](#return-to-lab-2)
+  - [Return to Lab 2](#return-to-lab-2)
   
 
 ## Lab Objectives
@@ -38,9 +38,30 @@ In Lab 2 this step occurs in Router 1. On ingress from the Amsterdam node we rec
     11:30:54.987336 IP (tos 0x0, ttl 60, id 8417, offset 0, flags [none], proto ICMP (1), length 84)
     10.107.1.1 > 10.101.2.1: ICMP echo reply, length 64  <--- See incoming packet with DA of 10.107.1.1
     ```
-2. Lookup of the IPv4 DA address in the global routing table and show LPM match.
+2. From Router 1 we can see a lookup of the IPv4 DA address in the global routing table and show LPM match.
     ```
-    ./tcpdump.sh xrd05-xrd06
+    RP/0/RP0/CPU0:xrd01#show ip route 10.107.1.1         
+    Thu Dec 14 20:40:34.766 UTC
+
+    Routing entry for 10.107.1.0/24
+    Known via "bgp 65000", distance 200, metric 0, [ei]-bgp, type internal
+    Installed Dec 13 21:09:00.411 for 23:31:34
+    Routing Descriptor Blocks
+        10.0.0.7, from 10.0.0.5
+        Route metric is 0
+    No advertising protos. 
+    RP/0/RP0/CPU0:xrd01#show ip route 10.0.0.7  
+    Thu Dec 14 20:40:38.413 UTC
+
+    Routing entry for 10.0.0.7/32
+    Known via "isis 100", distance 115, metric 3, labeled SR, type level-2
+    Installed Dec 13 21:07:29.898 for 23:33:08
+    Routing Descriptor Blocks
+        10.1.1.1, from 10.0.0.7, via GigabitEthernet0/0/0/1, Protected, ECMP-Backup (Local-LFA)
+        Route metric is 3
+        10.1.1.9, from 10.0.0.7, via GigabitEthernet0/0/0/2, Protected, ECMP-Backup (Local-LFA)
+        Route metric is 3
+    No advertising protos. 
     ```
 3. LPM match from step 2 is used to lookup the IP CEF forwarding information.
     ```
