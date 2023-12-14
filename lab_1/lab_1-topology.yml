@@ -5,7 +5,7 @@ services:
 
 # XRd containers
   xrd01:
-    xr_startup_cfg: config/xrd01.cfg
+    xr_startup_cfg: config/srv6/xrd01.cfg
     xr_interfaces:
       - Gi0/0/0/0
       - Gi0/0/0/1
@@ -14,7 +14,7 @@ services:
       - Mg0/RP0/CPU0/0
 
   xrd02:
-    xr_startup_cfg: config/xrd02.cfg
+    xr_startup_cfg: config/srv6/xrd02.cfg
     xr_interfaces:
       - Gi0/0/0/0
       - Gi0/0/0/1
@@ -22,7 +22,7 @@ services:
       - Gi0/0/0/3
       - Mg0/RP0/CPU0/0
   xrd03:
-    xr_startup_cfg: config/xrd03.cfg
+    xr_startup_cfg: config/srv6/xrd03.cfg
     xr_interfaces:
       - Gi0/0/0/0
       - Gi0/0/0/1
@@ -30,7 +30,7 @@ services:
       - Gi0/0/0/3
       - Mg0/RP0/CPU0/0
   xrd04:
-    xr_startup_cfg: config/xrd04.cfg
+    xr_startup_cfg: config/srv6/xrd04.cfg
     xr_interfaces:
       - Gi0/0/0/0
       - Gi0/0/0/1
@@ -46,7 +46,7 @@ services:
       - Gi0/0/0/3
       - Mg0/RP0/CPU0/0
   xrd06:
-    xr_startup_cfg: config/xrd06.cfg
+    xr_startup_cfg: config/srv6/xrd06.cfg
     xr_interfaces:
       - Gi0/0/0/0
       - Gi0/0/0/1
@@ -54,7 +54,7 @@ services:
       - Gi0/0/0/3
       - Mg0/RP0/CPU0/0
   xrd07:
-    xr_startup_cfg: config/xrd07.cfg
+    xr_startup_cfg: config/srv6/xrd07.cfg
     xr_interfaces:
       - Gi0/0/0/0
       - Gi0/0/0/1
