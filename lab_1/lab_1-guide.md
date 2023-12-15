@@ -1,14 +1,16 @@
 # Lab 1 Guide: XRd Topology Setup and Validation [30 Min]
-The Cisco Live LTRSPG-2212 lab makes heavy use of the relatively new Dockerized IOS-XR router known as XRd. If you wish to explore XRd and its uses beyond the scope of this lab the xrdocs team has posted a number of XRd tutorials here: https://xrdocs.io/virtual-routing/tags/#xrd-tutorial-series
+The Cisco Live LTRSPG-2212 lab makes heavy use of the dockerized IOS-XR router known as XRd. If you wish to explore XRd and its uses beyond the scope of this lab the xrdocs team has posted a number of tutorials here: https://xrdocs.io/virtual-routing/tags/#xrd-tutorial-series
 
 ### Description: 
-In Lab 1 the student will launch the XRd topology and validate it is up and running. This will be the baseline 
-topology all subsequent lab exercises. Second, they will validate that the pre-configured ISIS and BGP routing protocols are running and seeing the correct topology. 
+In Lab 1 we will launch the XRd topology and validate it is up and running. This will be the baseline 
+topology for all subsequent lab exercises. Second, we will validate that the pre-configured ISIS and BGP routing protocols are running and seeing the correct topology. 
 
 ## Contents
 - [Lab 1 Guide: XRd Topology Setup and Validation \[30 Min\]](#lab-1-guide-xrd-topology-setup-and-validation-30-min)
+    - [Description:](#description)
+  - [Contents](#contents)
   - [Lab Objectives](#lab-objectives)
-  - [Validate Device Access](#validate-device-access)
+  - [Validate Virtual Machine and XRd Access](#validate-virtual-machine-and-xrd-access)
     - [User Credentials](#user-credentials)
     - [Management Network Topology](#management-network-topology)
     - [Launch and Validate XRD Topology](#launch-and-validate-xrd-topology)
@@ -22,18 +24,18 @@ topology all subsequent lab exercises. Second, they will validate that the pre-c
 ## Lab Objectives
 The student upon completion of Lab 1 should have achieved the following objectives:
 
-* Access to all devices in the lab
+* Access all devices in the lab
 * Deployed the XRd network topology
-* Understanding of the lab topology and components
+* Familiarity with the lab topology and components
 * Confirm IPv4 and IPv6 connectivity   
 
 
-## Validate Device Access
+## Validate Virtual Machine and XRd Access
 
-Device access for this lab is primarly through SSH. All of the VMs within this toplogy can be accessed once you connect through Cisco AnyConnect VPN to the dCloud environment. Please see the management topology network diagram below. In addition we will launch seven instances of XR routers running as containers on the VM host "XRD". The XRD VM acts as a jumpbox for these containerized routers, thus we will SSH into the XRD VM and then initiate a separate SSH session to each of the routers. The XRD VM is configured for DNS resolution for each router name to save time.
+Device access for this lab is primarly through SSH. All of the VMs are accessible upon connecting through Cisco AnyConnect VPN to the dCloud environment. Please see the management topology network diagram below. The XRD VM acts as a jumpbox for our XRd routers once the topology is deployed. Thus accessing the routers will involve first SSH'ing into the XRD VM and then initiating a separate SSH session to the router. The XRD VM is configured for DNS resolution for each router name to save time.
 
 ### User Credentials
-For all instances you will use the same user credentials:
+All VMs, routers, etc. use the same user credentials:
 ```
 User: cisco, Password: cisco123
 ```
@@ -81,8 +83,8 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     b948b6ba5918   host      host      local
     bdf431ee7377   none      null      local
     ```
-5.  Run the setup script, which should clean up any existing XRd containers and docker networks, then launch the topology into the "beginning of lab 1" configuration state 
-    - change to the lab_1 directory
+5.  Run the *lab_1* setup script. This script should clean up any existing XRd containers and docker networks, then launch the topology into the "beginning of lab 1" configuration state 
+    - first change to the lab_1 directory
     ```
     cd lab_1
     ```
@@ -90,7 +92,7 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     ``` 
     ./setup-lab_1.sh
     ```
-    - Look for the below output from the end of the script confirming XRD instances 1-7 were created
+    - Look for the below output from the end of the script confirming XRd instances 1-7 were created
     ```
     Creating xrd03 ... done
     Creating xrd04 ... done
@@ -148,7 +150,7 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     b48429454f4c   xrd06-gi0-xrd07-gi2   bridge    local
     84b7ddd7e018   xrd07-gi3             bridge    local
     ```
-Note the docker Network IDs are unique on creation. Docker's network/bridge naming logic is such that the actual Linux bridge instance names are not predictable. Rather than go through some re-naming process the lab setup script calls another small script called 'nets.sh' that resolves the bridge name and writes it to a file that we'll use later for running tcpdump on the virtual links between routers in our topology.
+Note the docker Network IDs are unique on creation. Docker's network/bridge naming logic is such that the actual Linux bridge instance names are not predictable. Rather than go through some re-naming process the lab setup script calls another small script called 'nets.sh' which resolves the bridge name and writes it to a file that we'll use later for running tcpdump on the virtual links between routers in our topology.
 
  - The scripts and files reside in the lab 'util' directory:
 ```
@@ -162,17 +164,22 @@ tcpdump.sh  xrd01-xrd05  xrd02-xrd06  xrd04-xrd05  xrd05-xrd06
 ```
 Later we'll use "tcpdump.sh **xrd0x-xrd0y**" to capture packets along the path through the network. 
 
-1. The XRD router instances should be available for SSH access 2 minutes after spin up.
+1. The XRd router instances should be available for SSH access about 2 minutes after spin up.
 
 ### Validate Jalapeno VM
-The Ubuntu VM Jalapeno has Kubernetes pre-installed and running. Later in lab exercise 5 we will install the open-source Jalapeno application.
+The Ubuntu VM *Jalapeno* has Kubernetes pre-installed and running. Later in lab exercise 5 we will install the open-source Jalapeno application.
 
 Jalapeno will collect BGP Monitoring Protocol (BMP) and streaming telemetry data from the routers, and will serve as a data repository for the SDN clients we'll have running on the Amsterdam and Rome VMs (Lab 6).
 
 1. Validate router reachability to Jalapeno VM (no need to check all routers, but will be good to validate **xrd05** and **xrd06**):
 
 ```
-cisco@xrd:~$ ssh xrd05
+ssh cisco@xrd05
+ping 198.18.128.101
+```
+
+```
+cisco@xrd:~$ ssh cisco@xrd05
 Warning: Permanently added 'xrd05,10.254.254.105' (ECDSA) to the list of known hosts.
 Password: 
 Last login: Sun Jan 29 22:44:15 2023 from 10.254.254.1
@@ -237,7 +244,7 @@ The Amsterdam VM represents a server belonging to a cloud, CDN, or gaming compan
 ssh cisco@198.18.128.102
 ```
 
-2. Check that the VPP interface facing Ubuntu (host-vpp-in) and the interface facing router xrd01 (GigabitEthernetb/0/0) are `UP` and have their assigned IP addresses. GigabitEthernetb/0/0: `10.101.1.1/24`, and host-vpp-in: `10.101.2.2/24` 
+2. Use VPP's *vppctl* CLI to validate that the VPP interface facing Ubuntu (host-vpp-in) and the interface facing router xrd01 (GigabitEthernetb/0/0) are `UP` and have their assigned IP addresses. GigabitEthernetb/0/0: `10.101.1.1/24`, and host-vpp-in: `10.101.2.2/24` 
     
     ```
     sudo vppctl show interface address
@@ -274,7 +281,7 @@ PING 198.18.128.101 (198.18.128.101) 56(84) bytes of data.
 ```
 
 ### Connect to Routers
-1. Starting from the XRD VM log into each router instance 1-7 per the management topology diagram above. Example:
+1. Starting from the XRD VM ssh into each router instance 1-7 per the management topology diagram above. Example:
 ```
 ssh cisco@xrd01
 ```
@@ -319,15 +326,15 @@ ping fc00:0:107:1::1
 
 ## Validate ISIS Topology
 
-In this lab we are using ISIS as the underlying IGP to establish link connectivity across routers **xrd01** -> **xrd07**. ISIS has basic settings pre-configured at startup in lab 1. The student will want to confirm that they see a full ISIS topology.
+Our topology is running ISIS as its underlying IGP with basic settings pre-configured at startup in lab 1. The student will want to confirm that they see a full ISIS topology.
 
 ![ISIS Topology](/topo_drawings/isis-topology-medium.png)
 
 For full size image see [LINK](/topo_drawings/isis-topology-large.png)
 
-The Cisco IOS-XR 7.5 Configuration guide for SR and ISIS can be found here: [LINK](https://www.cisco.com/c/en/us/td/docs/iosxr/cisco8000/segment-routing/75x/b-segment-routing-cg-cisco8000-75x/configuring-segment-routing-for-is-is-protocol.html)
+The most recent IOS-XR Configuration guide for SR/SRv6 and ISIS can be found here: [LINK](https://www.cisco.com/c/en/us/td/docs/iosxr/cisco8000/segment-routing/711x/configuration/guide/b-segment-routing-cg-cisco8000-711x.html)
 
-1. Log into each router and verify that ISIS is up and running on interfaces as identified in the ISIS topology diagram.
+1. SSH into each router and verify that ISIS is up and running on interfaces as identified in the ISIS topology diagram.
     ```
     RP/0/RP0/CPU0:xrd03#show isis interface brief
     Thu Dec 22 17:45:24.348 UTC
@@ -366,20 +373,20 @@ ping fc00:0000:7777::1 source lo0
 ```
  - Note: normally pinging xrd-to-xrd in this dockerized environment would result in ping times of ~1-3ms. However, the util/nets.sh script, which was triggered at setup, added synthetic latency to the underlying Linux links using the [netem](https://wiki.linuxfoundation.org/networking/netem) 'tc' command line tool. So you'll see a ping RTT of anywhere from ~60ms to ~150ms. This synthetic latency will allow us to really see the effect of later traffic steering execises.
 
-    Command to see the added synthetic latency:
+    Run this command on the XRD VM to see the added synthetic latency:
     ```
     sudo tc qdisc list | grep delay
     ```
 
 ## Validate BGP Topology
 
-In lab 1 BGP is only exchanging IPv6 prefixes and BGP-LS data. We will setup IPv4 labeled-unicast and SRv6-L3VPN in later lab exercises. In the topology we are running a single ASN 65000 with BGP running on **xrd01**, **xrd05**, **xrd06**, **xrd07**.  Routers **xrd05** and **xrd06** are functioning as route reflectors and xrd01 and xrd07 are clients. The student will want to confirm that they see a full BGP topology.
+In the topology we are running a single ASN 65000 with BGP running on **xrd01**, **xrd05**, **xrd06**, **xrd07**.  Routers **xrd05** and **xrd06** are functioning as route reflectors and xrd01 and xrd07 are clients. The student will want to confirm BGP peering sessions are up and routes are being exchanged.
 
 ![BGP Topology](/topo_drawings/bgp-topology-medium.png)
 
 For full size image see [LINK](/topo_drawings/bgp-topology-large.png)
 
-1. Log into each router listed in the BGP topology diagram and verify neighbors
+1. SSH into each router listed in the BGP topology diagram and verify neighbors
     ```
     RP/0/RP0/CPU0:xrd01#show ip bgp neighbors brief
 
@@ -468,16 +475,16 @@ For full size image see [LINK](/topo_drawings/bgp-topology-large.png)
 
 6. Verify the route-reflectors have received BGP-LS NLRIs from **xrd01** and **xrd07**:
     ```
-    RP/0/RP0/CPU0:xrd05#show bgp link-state link-state sum
+    RP/0/RP0/CPU0:xrd05#show bgp link-state link-state summary
 
     ### output truncated ###
 
     Process       RcvTblVer   bRIB/RIB   LabelVer  ImportVer  SendTblVer  StandbyVer
-    Speaker             187        187        187        187         187           0
+    Speaker             215        215        215        215         215           0
 
     Neighbor        Spk    AS MsgRcvd MsgSent   TblVer  InQ OutQ  Up/Down  St/PfxRcd
-    10.0.0.1          0 65000      55      21      187    0    0 00:18:49         93
-    10.0.0.7          0 65000      55      21      187    0    0 00:18:16         93
+    10.0.0.1          0 65000     236     185      215    0    0 02:57:49        107
+    10.0.0.7          0 65000     236     185      215    0    0 02:57:49        107
     ```
 
 ## End of Lab 1
