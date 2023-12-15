@@ -34,6 +34,7 @@ cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd01-xrd02
 sudo tcpdump -ni br-0a7631e659a1
 tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
 listening on br-0a7631e659a1, link-type EN10MB (Ethernet), capture size 262144 bytes
+
 12:57:01.231407 IP6 fc00:0:1111::1 > fc00:0:7777:e004::: IP 10.101.2.1 > 10.107.1.1: ICMP echo request, id 7, seq 15, length 64
 12:57:01.296035 IP6 fc00:0:7777::1 > fc00:0:1111:e005::: IP 10.107.1.1 > 10.101.2.1: ICMP echo reply, id 7, seq 15, length 64
 ```
