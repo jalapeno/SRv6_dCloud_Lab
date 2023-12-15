@@ -332,8 +332,6 @@ Our topology is running ISIS as its underlying IGP with basic settings pre-confi
 
 For full size image see [LINK](/topo_drawings/isis-topology-large.png)
 
-The most recent IOS-XR Configuration guide for SR/SRv6 and ISIS can be found here: [LINK](https://www.cisco.com/c/en/us/td/docs/iosxr/cisco8000/segment-routing/711x/configuration/guide/b-segment-routing-cg-cisco8000-711x.html)
-
 1. SSH into each router and verify that ISIS is up and running on interfaces as identified in the ISIS topology diagram.
     ```
     RP/0/RP0/CPU0:xrd03#show isis interface brief

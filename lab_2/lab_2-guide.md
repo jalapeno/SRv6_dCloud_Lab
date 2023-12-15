@@ -10,10 +10,9 @@ In Lab 2 the student will perform the basic configuration of SR-MPLS and SRv6 on
     - [Description:](#description)
   - [Contents](#contents)
   - [Lab Objectives](#lab-objectives)
-  - [SR-MPLS Background](#sr-mpls-background)
-    - [Validate SR-MPLS is running correctly](#validate-sr-mpls-is-running-correctly)
+  - [Segment Routing Background](#segment-routing-background)
   - [SRv6](#srv6)
-    - [Configuration Steps SRv6](#configuration-steps-srv6)
+    - [SRv6 Configuration Steps](#srv6-configuration-steps)
       - [Configure SRv6 on all routers (xrd01 - xrd07) in the network](#configure-srv6-on-all-routers-xrd01---xrd07-in-the-network)
   - [End-to-End Connectivity](#end-to-end-connectivity)
   - [SRv6 Packet Walk](#srv6-packet-walk)
@@ -23,77 +22,19 @@ In Lab 2 the student will perform the basic configuration of SR-MPLS and SRv6 on
 ## Lab Objectives
 The student upon completion of Lab 2 should have achieved the following objectives:
 
-* Validation of SR-MPLS setup and forwarding
-* Understanding of basic configuration for SRv6
+* Understanding baseline SRv6 configuration and validation for ISIS and BGP
+* Validate SRv6 forwarding of BGP advertised prefixes
    
 
-## SR-MPLS Background
+## Segment Routing Background
 
-Segment Routing (SR) is a source-based routing architecture. A node chooses a path and steers a packet through the network via that path by inserting an ordered list of segments, instructing how subsequent nodes in the path that receive the packet should process it. This simplifies operations and reduces resource requirements in the network by removing network state information from intermediary nodes as path information is encoded via the label stack at the ingress node. In addition to this, because the shortest-path segment includes all Equal-Cost Multi-Path (ECMP) paths to the related node, SR supports the ECMP nature of IP by design. All nodes in the lab *`xrd01`* - *`xrd07`* have SR-MPLS pre-configured.
+Segment Routing (SR) is a source-based routing architecture. A node chooses a path and steers a packet through the network via that path by inserting an ordered list of segments, instructing how subsequent nodes in the path that receive the packet should process it. This simplifies operations and reduces resource requirements in the network by removing network state information from intermediary nodes as path information is encoded via the label stack at the ingress node. Also, because the shortest-path segment includes all Equal-Cost Multi-Path (ECMP) paths to the related node, SR supports the ECMP nature of IP by design. 
 
 For more information on SR and SRv6 the segment-routing.net site has a number of tutorials and links to other resources: [segment-routing.net](https://www.segment-routing.net/)  
-
-The Cisco IOS-XR 7.5 Configuration guide for SR-MPLS can be found here: [LINK](https://www.cisco.com/c/en/us/td/docs/iosxr/cisco8000/segment-routing/75x/b-segment-routing-cg-cisco8000-75x/configuring-segment-routing-for-is-is-protocol.html)
-
-### Validate SR-MPLS is running correctly
-1. On xrd01 (and perhaps xrd07) verify ISIS segment routing and MPLS forwarding are established:
-    ```
-    show isis segment-routing label table 
-    ```
-    - Expected output:
-    ```
-    RP/0/RP0/CPU0:xrd07#show isis segment-routing label table                
-
-    IS-IS 100 IS Label Table
-    Label         Prefix                   Interface
-    ----------    ----------------         ---------
-    100001        10.0.0.1/32              
-    100002        10.0.0.2/32              
-    100003        10.0.0.3/32              
-    100004        10.0.0.4/32              
-    100005        10.0.0.5/32              
-    100006        10.0.0.6/32              
-    100007        10.0.0.7/32              Loopback0
-    ```
-    - MPLS forwarding:
-    ```
-    show mpls forwarding
-    ```
-    - Expected output:
-    ```
-    RP/0/RP0/CPU0:xrd07#show mpls forwarding 
-
-    Local  Outgoing    Prefix             Outgoing     Next Hop        Bytes       
-    Label  Label       or ID              Interface                    Switched    
-    ------ ----------- ------------------ ------------ --------------- ------------
-    24002  Pop         10.101.1.0/24                   10.0.0.1        0           
-    24003  Unlabelled  10.1.1.4/31        Gi0/0/0/1    10.1.1.6        0           
-           100005      10.1.1.4/31        Gi0/0/0/2    10.1.1.16       0            (!)
-    24004  Unlabelled  10.1.1.10/31       Gi0/0/0/2    10.1.1.16       0           
-           100005      10.1.1.10/31       Gi0/0/0/1    10.1.1.6        0            (!)
-    24005  Pop         SR Adj (idx 1)     Gi0/0/0/1    10.1.1.6        0           
-           100005      SR Adj (idx 1)     Gi0/0/0/2    10.1.1.16       0            (!)
-    24006  Pop         SR Adj (idx 3)     Gi0/0/0/1    10.1.1.6        0           
-    24007  Pop         SR Adj (idx 1)     Gi0/0/0/2    10.1.1.16       0           
-           100005      SR Adj (idx 1)     Gi0/0/0/1    10.1.1.6        0            (!)
-    24008  Pop         SR Adj (idx 3)     Gi0/0/0/2    10.1.1.16       0           
-    100001 100001      SR Pfx (idx 1)     Gi0/0/0/1    10.1.1.6        0           
-           100001      SR Pfx (idx 1)     Gi0/0/0/2    10.1.1.16       0           
-    100002 100002      SR Pfx (idx 2)     Gi0/0/0/2    10.1.1.16       0           
-           100002      SR Pfx (idx 2)     Gi0/0/0/1    10.1.1.6        0            (!)
-    100003 100003      SR Pfx (idx 3)     Gi0/0/0/1    10.1.1.6        0           
-           100003      SR Pfx (idx 3)     Gi0/0/0/2    10.1.1.16       0            (!)
-    100004 Pop         SR Pfx (idx 4)     Gi0/0/0/1    10.1.1.6        0           
-           100005      SR Pfx (idx 4)     Gi0/0/0/2    10.1.1.16       0            (!)
-    100005 100005      SR Pfx (idx 5)     Gi0/0/0/1    10.1.1.6        0           
-           100005      SR Pfx (idx 5)     Gi0/0/0/2    10.1.1.16       1119        
-    100006 Pop         SR Pfx (idx 6)     Gi0/0/0/2    10.1.1.16       939         
-           100005      SR Pfx (idx 6)     Gi0/0/0/1    10.1.1.6        0            (!)
-    100007 Aggregate   SR Pfx (idx 7)     default                      0           
-    ```   
+  
 
 ## SRv6
-Segment Routing over IPv6 (SRv6) extends Segment Routing support with IPv6 data plane.
+Segment Routing over IPv6 (SRv6) extends Segment Routing support via the IPv6 data plane.
 
 SRv6 introduces the Network Programming framework that enables a network operator or an application to specify a packet processing program by encoding a sequence of instructions in the IPv6 packet header. Each instruction is implemented on one or several nodes in the network and identified by an SRv6 Segment Identifier (SID) in the packet. 
 
@@ -106,12 +47,11 @@ In our lab we will be working with SRv6 "micro segment" (SRv6 uSID or just "uSID
  - Any SID in the SID list can carry micro segments
  - Based on the Compressed SRv6 Segment List Encoding in SRH [I-D.ietf-spring-srv6-srh-compression] framework
 
-For a full overview of SRv6 please see the Wiki here: [LINK](/SRv6.md)  
-The Cisco IOS-XR 7.5 Configuration guide for SRv6 can be found here: [LINK](https://www.cisco.com/c/en/us/td/docs/iosxr/cisco8000/segment-routing/75x/b-segment-routing-cg-cisco8000-75x/configuring-segment-routing-over-ipv6-srv6-micro-sids.html)
+The most recent IOS-XR Configuration guide for SR/SRv6 and ISIS can be found here: [LINK](https://www.cisco.com/c/en/us/td/docs/iosxr/cisco8000/segment-routing/711x/configuration/guide/b-segment-routing-cg-cisco8000-711x.html)
 
 SRv6 uSID locator and source address information for nodes in the lab:
 
-| Router Name | Loopback Int|    Locator Prefix    |    Source-address    |                                           
+| Router Name | Loopback Int|    Locator Prefix    |   Source-address    |                                           
 |:------------|:-----------:|:--------------------:|:--------------------:|                          
 | xrd01       | loopback 0  | fc00:0000:1111::/48  | fc00:0000:1111::1    |
 | xrd02       | loopback 0  | fc00:0000:2222::/48  | fc00:0000:2222::1    |
@@ -122,12 +62,12 @@ SRv6 uSID locator and source address information for nodes in the lab:
 | xrd07       | loopback 0  | fc00:0000:7777::/48  | fc00:0000:7777::1    |
 
     
-### Configuration Steps SRv6
+### SRv6 Configuration Steps 
 #### Configure SRv6 on all routers (xrd01 - xrd07) in the network
 1. Enable SRv6 globally and define SRv6 locator and source address for outbound encapsulation 
    - the source address should match the router's loopback0 ipv6 address
    - locator should match the first 48-bits of the router's loopback0
-   - to keep things simple we're using the same locator name, 'MyLocator', on all nodes in the network
+   - to keep things simple we're using the same locator name, 'MyLocator', on all nodes in the network. xrd01 example:
     ```
     segment-routing
       srv6
@@ -140,7 +80,7 @@ SRv6 uSID locator and source address information for nodes in the lab:
        commit
     ```
 
-2. Enable SRv6 for ISIS Procotol. 
+2. Enable SRv6 on ISIS  
     ```
     router isis 100
       address-family ipv6 unicast
@@ -156,17 +96,21 @@ SRv6 uSID locator and source address information for nodes in the lab:
     ```
     ```
     RP/0/RP0/CPU0:xrd01#show segment-routing srv6 sid
+    Fri Dec 15 22:37:40.028 UTC
 
     *** Locator: 'MyLocator' *** 
 
-       SID                      Behavior          Context                           Owner               State  RW
-       -----------------------  ----------------  --------------------------------  ------------------  -----  --
-       fc00:0:1111::            uN (PSP/USD)      'default':4369                    sidmgr              InUse  Y 
-       fc00:0:1111:e000         uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0:P       isis-100            InUse  Y 
-       fc00:0:1111:e001::       uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0         isis-100            InUse  Y 
-       fc00:0:1111:e002::       uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0:P       isis-100            InUse  Y 
-       fc00:0:1111:e003::       uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0         isis-100            InUse  Y 
+    SID                         Behavior          Context                           Owner               State  RW
+    --------------------------  ----------------  --------------------------------  ------------------  -----  --
+    fc00:0:1111::               uN (PSP/USD)      'default':4369                    sidmgr              InUse  Y 
+    fc00:0:1111:e000::          uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0:P       isis-100            InUse  Y 
+    fc00:0:1111:e001::          uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0         isis-100            InUse  Y 
+    fc00:0:1111:e002::          uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0:P       isis-100            InUse  Y 
+    fc00:0:1111:e003::          uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0         isis-100            InUse  Y 
+    fc00:0:1111:e004::          uDT4              'default'                         bgp-65000           InUse  Y 
+    fc00:0:1111:e005::          uDT6              'default'                         bgp-65000           InUse  Y
     ```
+    - Note the bottom two entries. These SIDs belong to BGP and represent End.DT behaviors. Any packet arriving with either of these SIDs as the outer IPv6 destination address will be decasulated and then an LPM lookup in the global/default routing table will be performed on the inner destination address. More on this later in the *`SRv6 Packet Walk`* section.
 
     - Validate the SRv6 prefix-SID configuration. As example for xrd01 look for ```SID value: fc00:0000:1111::```
 
@@ -194,7 +138,7 @@ In lab_1 When we ran the XRd topology setup script it called the 'nets.sh' subsc
 
 We'll use 'tcpdump.sh' shell script in the util directory to monitor traffic as it traverses the XRd network. Running "./tcpdump.sh xrd0x-xrd0y" will execute Linux TCPdump on the specified Linux bridge instance that links a pair of XRd routers. Note traffic through the network may travel via one or more ECMP paths, so we may need to try tcpdump.sh on different links before we see anything meaningful in the output
 
-1. Open a new ssh session on the **XRD** VM and cd into the lab's util directory:
+1. On the **XRD** VM cd into the lab's util directory:
   ```
   cd ~/SRv6_dCloud_Lab/util/
   ```
@@ -202,14 +146,25 @@ We'll use 'tcpdump.sh' shell script in the util directory to monitor traffic as 
   ```
   ./tcpdump.sh xrd05-xrd06
   ```
-3. Run some pings from **xrd01** to **xrd07**:
+3. Start an SSH session to the Amsterdam VM and ping the Rome VM
   ```
-  ping 10.0.0.7 source lo0
+  ssh cisco@198.18.128.102
+
+  ping 10.107.1.1
   ```
+
+  Example tcpdump.sh output:
   ```
-  ping fc00:0000:7777::1 source lo0
+  cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd02-xrd06
+  sudo tcpdump -ni br-343a0d248d8e
+  tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+  listening on br-343a0d248d8e, link-type EN10MB (Ethernet), capture size 262144 bytes
+  17:44:54.447013 IP6 fc00:0:1111::1 > fc00:0:7777:e004::: IP 10.101.2.1 > 10.107.1.1: ICMP echo request, id 12, seq 13, length 64
+  17:44:55.454992 IP6 fc00:0:1111::1 > fc00:0:7777:e004::: IP 10.101.2.1 > 10.107.1.1: ICMP echo request, id 12, seq 14, length 64
+  17:44:56.455127 IP6 fc00:0:1111::1 > fc00:0:7777:e004::: IP 10.101.2.1 > 10.107.1.1: ICMP echo request, id 12, seq 15, length 64
   ```
-If nothing shows up on the tcpdump output try tcpdumping on the *`xrd02-xrd06`* OR *`xrd04-xrd05`* link:
+
+In the example above the outbound ICMP echo requests are captured and you can see the outer IPv6/SRv6 encapsulation. The echo replies are not shown as the network has hashed the replies over a different path. In your case if nothing shows up on the tcpdump output try tcpdumping on the *`xrd02-xrd06`* OR *`xrd04-xrd05`* link:
 Note: the ./tcpdump.sh break sequence is *ctrl-z*
   ```
   sudo ./tcpdump.sh xrd02-xrd06
@@ -217,34 +172,8 @@ Note: the ./tcpdump.sh break sequence is *ctrl-z*
   ```
   sudo ./tcpdump.sh xrd04-xrd05
   ```
-Eventually pings should show up as tcpdump output. We should see SR-MPLS labels on IPv4 pings, example output below:
-  ```
-  cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd04-xrd05 
-  sudo tcpdump -ni br-1be0f9f81cbd
-  tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
-  listening on br-1be0f9f81cbd, link-type EN10MB (Ethernet), capture size 262144 bytes
-  21:56:27.732243 IS-IS, p2p IIH, src-id 0000.0000.0005, length 1497
-  21:56:29.539521 MPLS (label 100007, exp 0, [S], ttl 254) IP 10.0.0.1 > 10.0.0.7: ICMP echo request, id 5699, seq 0, length 80
-  21:56:29.541126 MPLS (label 100001, exp 0, [S], ttl 254) IP 10.0.0.7 > 10.0.0.1: ICMP echo reply, id 5699, seq 0, length 80
-  ```
+Eventually pings should show up as tcpdump output. 
 
-IPv6 pings will not invoke SRv6 encapsulation at this time. And with ECMP there's always a chance the return traffic takes a different path:
-  ```
-  cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd02-xrd06 
-  sudo tcpdump -ni br-b50c608fd524
-  tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
-  listening on br-b50c608fd524, link-type EN10MB (Ethernet), capture size 262144 bytes
-  21:59:25.626912 IS-IS, p2p IIH, src-id 0000.0000.0006, length 1497
-  21:59:28.110163 IP6 fc00:0000:1111::1 > fc00:0000:7777::1: ICMP6, echo request, seq 0, length 60
-  21:59:28.114200 IP6 fc00:0000:1111::1 > fc00:0000:7777::1: ICMP6, echo request, seq 1, length 60
-
-  cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd04-xrd05 
-  sudo tcpdump -ni br-1be0f9f81cbd
-  tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
-  listening on br-1be0f9f81cbd, link-type EN10MB (Ethernet), capture size 262144 bytes
-  21:59:08.125911 IP6 fc00:0000:7777::1 > fc00:0000:1111::1: ICMP6, echo reply, seq 0, length 60
-  21:59:08.129554 IP6 fc00:0000:7777::1 > fc00:0000:1111::1: ICMP6, echo reply, seq 1, length 60
-  ```
 ## SRv6 Packet Walk
 This is an optional section of the lab where we expand on the routing table behaviours during forwarding operations. 
 Please use this link for the packet walk. [Packet Walk](https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_2/lab_2-packet-walk.md)

@@ -21,6 +21,28 @@ router isis 100
   !
  !
 !
+router bgp 65000
+ address-family ipv4 unicast
+  segment-routing srv6
+  locator MyLocator
+  !
+ ! 
+ address-family ipv6 unicast
+  segment-routing srv6
+  locator MyLocator
+  !
+ !
+ neighbor-group xrd-ipv4-peer
+  address-family ipv4 unicast
+   encapsulation-type srv6
+  !
+ ! 
+ neighbor-group xrd-ipv6-peer
+  address-family ipv6 unicast
+   encapsulation-type srv6
+  !
+ !
+!  
 segment-routing
  srv6
   encapsulation
@@ -133,6 +155,28 @@ router isis 100
   !
  !
 !
+router bgp 65000
+ address-family ipv4 unicast
+  segment-routing srv6
+  locator MyLocator
+  !
+ ! 
+ address-family ipv6 unicast
+  segment-routing srv6
+  locator MyLocator
+  !
+ !
+ neighbor-group xrd-ipv4-peer
+  address-family ipv4 unicast
+   encapsulation-type srv6
+  !
+ ! 
+ neighbor-group xrd-ipv6-peer
+  address-family ipv6 unicast
+   encapsulation-type srv6
+  !
+ !
+!
 segment-routing
  srv6
   encapsulation
@@ -161,6 +205,28 @@ router isis 100
   !
  !
 !
+router bgp 65000
+ address-family ipv4 unicast
+  segment-routing srv6
+  locator MyLocator
+  !
+ ! 
+ address-family ipv6 unicast
+  segment-routing srv6
+  locator MyLocator
+  !
+ !
+ neighbor-group xrd-ipv4-peer
+  address-family ipv4 unicast
+   encapsulation-type srv6
+  !
+ ! 
+ neighbor-group xrd-ipv6-peer
+  address-family ipv6 unicast
+   encapsulation-type srv6
+  !
+ !
+!
 segment-routing
  srv6
   encapsulation
@@ -186,6 +252,28 @@ router isis 100
   segment-routing srv6
    locator MyLocator
    !
+  !
+ !
+!
+router bgp 65000
+ address-family ipv4 unicast
+  segment-routing srv6
+  locator MyLocator
+  !
+ ! 
+ address-family ipv6 unicast
+  segment-routing srv6
+  locator MyLocator
+  !
+ !
+ neighbor-group xrd-ipv4-peer
+  address-family ipv4 unicast
+   encapsulation-type srv6
+  !
+ ! 
+ neighbor-group xrd-ipv6-peer
+  address-family ipv6 unicast
+   encapsulation-type srv6
   !
  !
 !
