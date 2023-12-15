@@ -40,28 +40,27 @@ In Lab 2 this step occurs in Router 1. On ingress from the Amsterdam node we rec
     ```
 2. From Router 1 we can see a lookup of the IPv4 DA address in the global routing table and show LPM match.
     ```
-    RP/0/RP0/CPU0:xrd01#show ip route 10.107.1.1         
-    Thu Dec 14 20:40:34.766 UTC
-
-    Routing entry for 10.107.1.0/24
-    Known via "bgp 65000", distance 200, metric 0, [ei]-bgp, type internal
-    Installed Dec 13 21:09:00.411 for 23:31:34
-    Routing Descriptor Blocks
-        10.0.0.7, from 10.0.0.5
-        Route metric is 0
-    No advertising protos. 
-    RP/0/RP0/CPU0:xrd01#show ip route 10.0.0.7  
-    Thu Dec 14 20:40:38.413 UTC
-
-    Routing entry for 10.0.0.7/32
-    Known via "isis 100", distance 115, metric 3, labeled SR, type level-2
-    Installed Dec 13 21:07:29.898 for 23:33:08
-    Routing Descriptor Blocks
-        10.1.1.1, from 10.0.0.7, via GigabitEthernet0/0/0/1, Protected, ECMP-Backup (Local-LFA)
-        Route metric is 3
-        10.1.1.9, from 10.0.0.7, via GigabitEthernet0/0/0/2, Protected, ECMP-Backup (Local-LFA)
-        Route metric is 3
-    No advertising protos. 
+    RP/0/RP0/CPU0:xrd01#show ip bgp ipv4 unicast 10.107.1.0/24
+    Fri Dec 15 17:25:40.292 UTC
+    BGP routing table entry for 10.107.1.0/24
+    Versions:
+      Process           bRIB/RIB  SendTblVer
+      Speaker                  26           26
+    Last Modified: Dec 15 17:25:04.827 for 00:00:35
+    Paths: (2 available, best #1)
+      Not advertised to any peer
+      Path #1: Received by speaker 0
+      Not advertised to any peer
+    Local
+      10.0.0.7 (metric 3) from 10.0.0.5 (10.0.0.7)
+        Origin IGP, metric 0, localpref 100, valid, internal, best, group-best
+        Received Path ID 0, Local Path ID 1, version 26
+        Originator: 10.0.0.7, Cluster list: 10.0.0.5
+        PSID-Type:L3, SubTLV Count:1
+         SubTLV:
+          T:1(Sid information), Sid:fc00:0:7777:e004::, Behavior:63, SS-TLV Count:1 <---- SID HERE
+           SubSubTLV:
+            T:1(Sid structure):
     ```
 3. LPM match from step 2 is used to lookup the IP CEF forwarding information.
     ```
