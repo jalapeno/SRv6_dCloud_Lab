@@ -63,7 +63,7 @@ In Lab 2 this step occurs in Router 1. On ingress from the Amsterdam node we rec
             T:1(Sid structure):
     ```
 3. Lookup of fc00:0:7777:e004::/48 the in the global IPv6 routing table.
-    '''
+    ```
     Routing entry for fc00:0:7777::/48
      Known via "isis 100", distance 115, metric 4, SRv6-locator, type level-2 <---- Network seen as SRv6 locator
      Installed Dec 15 17:22:21.553 for 00:21:47
@@ -73,7 +73,7 @@ In Lab 2 this step occurs in Router 1. On ingress from the Amsterdam node we rec
         fe80::42:c0ff:fea8:d003, from fc00:0:7777::1, via GigabitEthernet0/0/0/2, Protected, ECMP-Backup (Local-LFA)
           Route metric is 4
       No advertising protos. 
-    '''
+    ```
 
 5. Lets now lookup in the CEF table to see the forwarding next hop.
     ```
