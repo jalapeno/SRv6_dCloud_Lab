@@ -38,7 +38,7 @@ In Lab 2 this step occurs in Router 1. On ingress from the Amsterdam node we rec
     11:30:54.987336 IP (tos 0x0, ttl 60, id 8417, offset 0, flags [none], proto ICMP (1), length 84)
     10.107.1.1 > 10.101.2.1: ICMP echo reply, length 64  <--- See incoming packet with DA of 10.107.1.1
     ```
-2. From Router 1 we can see a lookup of the IPv4 DA address in the global routing table and show LPM match.
+2. From Router 1 we can see a lookup of the IPv4 DA address in the bgpv4 global routing table and show the SRv6 SID associated with the route 10.107.1.0/24 .
     ```
     RP/0/RP0/CPU0:xrd01#show ip bgp ipv4 unicast 10.107.1.0/24
     Fri Dec 15 17:25:40.292 UTC
@@ -62,17 +62,52 @@ In Lab 2 this step occurs in Router 1. On ingress from the Amsterdam node we rec
            SubSubTLV:
             T:1(Sid structure):
     ```
-3. LPM match from step 2 is used to lookup the IP CEF forwarding information.
+3. Lookup of fc00:0:7777:e004::/48 the in the global IPv6 routing table.
+    '''
+     Routing entry for fc00:0:7777::/48
+     Known via "isis 100", distance 115, metric 4, SRv6-locator, type level-2 <---- Network seen as SRv6 locator
+     Installed Dec 15 17:22:21.553 for 00:21:47
+     Routing Descriptor Blocks
+        fe80::42:c0ff:fea8:c003, from fc00:0:7777::1, via GigabitEthernet0/0/0/1, Protected, ECMP-Backup (Local-LFA)
+          Route metric is 4
+        fe80::42:c0ff:fea8:d003, from fc00:0:7777::1, via GigabitEthernet0/0/0/2, Protected, ECMP-Backup (Local-LFA)
+          Route metric is 4
+      No advertising protos. 
+    '''
+
+4. Lets now lookup in the CEF table to see the forwarding next hop.
     ```
-    ping 10.0.0.7 source lo0
+    RP/0/RP0/CPU0:xrd01#show ip cef 10.107.1.0/24
+    Fri Dec 15 17:39:36.796 UTC
+    10.107.1.0/24, version 290, SRv6 Headend, internal 0x5000001 0x40 (ptr 0x87363b40) [1], 0x0 (0x0), 0x0 (0x9b8d0508)
+      Updated Dec 15 17:36:15.995
+      Prefix Len 24, traffic index 0, precedence n/a, priority 4
+        gateway array (0x9b7f90a8) reference count 2, flags 0x2010, source rib (7), 0 backups
+                [1 type 3 flags 0x48441 (0x87a4e6a8) ext 0x0 (0x0)]
+        LW-LDI[type=0, refc=0, ptr=0x0, sh-ldi=0x0]
+        gateway array update type-time 1 Dec 15 17:25:04.700
+      LDI Update time Dec 15 17:25:04.741
+
+    Level 1 - Load distribution: 0
+    [0] via fc00:0:7777::/128, recursive  <--- Recurisve lookup resolves to SRv6
+
+     via fc00:0:7777::/128, 5 dependencies, recursive [flags 0x6000]
+      path-idx 0 NHID 0x0 [0x8717c790 0x0]
+      next hop VRF - 'default', table - 0xe0800000
+      next hop fc00:0:7777::/128 via fc00:0:7777::/48
+      SRv6 H.Encaps.Red SID-list {fc00:0:7777:e004::} <--- uSID value for SRv6 encap
+
+      Load distribution: 0 1 0 1 (refcount 1)
+
+      Hash  OK  Interface                 Address
+      0     Y   GigabitEthernet0/0/0/1    fe80::42:c0ff:fea8:c003 <--- ECMP Next-hop
+      1     Y   GigabitEthernet0/0/0/2    fe80::42:c0ff:fea8:d003 <--- ECMP Next-hop
+      2     Y   GigabitEthernet0/0/0/1    fe80::42:c0ff:fea8:c003 <--- ECMP Next-hop
+      3     Y   GigabitEthernet0/0/0/2    fe80::42:c0ff:fea8:d003 <--- ECMP Next-hop
     ```
     ```
     ping fc00:0000:7777::1 source lo0
     ```
-4. Create SRv6 header and append to original packet and forward to Router 2.
-    '''
-    '''
-
 
    
 ## SRv6 forwarding
