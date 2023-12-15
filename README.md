@@ -4,12 +4,9 @@
 
 Segment Routing over IPv6 (SRv6) is the Segment Routing implementation over an IPv6 data plane.
 
-In an SR-MPLS enabled network, an MPLS label represents an instruction. The source nodes programs the path to a destination in the packet header as a stack of labels.
-
 SRv6 introduces the Network Programming framework that enables a network operator or an application to specify a packet processing program by encoding a sequence of instructions in the IPv6 packet header. Each instruction is implemented on one or several nodes in the network and identified by an SRv6 Segment Identifier (SID) in the packet. The SRv6 Network Programming framework is defined in IETF RFC 8986 SRv6 Network Programming.
 
-Cisco routers that run the XR operating system 7.X and newer support the SRv6 feature set. This guide walks 
-through the basic steps to configure and test SRv6 configurations, specifically SRv6 micro-SID in a controlled lab. In addition, we use the open source Jalapeno system, which provides ways to see SRv6 created paths through the network.
+Cisco routers that run the IOS-XR operating system 7.X and newer support the SRv6 feature set. This guide walks through the basic steps to configure and test SRv6, specifically SRv6 micro-SID in a controlled lab. In addition, we use the open source Jalapeno system, which provides ways to see and use SRv6 paths through the network.
 
 
 ## Contents
@@ -26,15 +23,14 @@ through the basic steps to configure and test SRv6 configurations, specifically 
 
 
 ## Github Repository Overview
-Each of the labs is designed to be completed in the order presented. Lab 1 is the baseline configurations 
-needed to build the starting topology and launch the XRd and extended environment.
+Each of the labs is designed to be completed in the order presented. Lab 1 will launch our XRd topology with baseline configurations. In each subsequent lab (2-6) we'll add SRv6 configurations and make use of our SRv6 network.
 
 ### Root Directory
 
-| File Name                | Description                                                    |
-|:-------------------------|:---------------------------------------------------------------|
-| host_check               | Runs an analysis verify whether XRd can run on your host       |
-| xr-compose               | Inputs a defined XRD YAML file and creates docker compose file |
+| File Name     | Description                                                                             |
+|:--------------|:----------------------------------------------------------------------------------------|
+| host_check    | Runs an analysis to verify whether and how many XRd's can run on your host              |
+| xr-compose    | Processes an XRd topo YAML file and creates a docker-compose file to launch the topology|
 
 ```
 Example:
@@ -54,23 +50,23 @@ Within each lab directory you should see several files of importance:
 | setup-lab_X.sh           | Calls cleanup script, launches the topology, creates utils   | 
 
 
-General instructions for building and running XRd topologies on bare-metal, VMs, AWS, etc. can be found here:
-https://github.com/brmcdoug/XRd
+We've recently launched a whole series of SRv6 labs on github, many of which are built on XRd:
+https://github.com/segmentrouting/srv6-labs
 
 ## CLEUR Lab Session LTSPG-2212 Cisco dCloud
 
-Each lab instance is running on Cisco dCloud, and is reachable via AnyConnect VPN. In the Webex Teams room for the lab we've provided a spreadsheet with a list of dCloud instances and the AnyConnect credentials necessary to access each instance. To find your dCloud instance please reference your student number provided on the handout in class.
+Each lab instance is running on Cisco dCloud and is reachable via AnyConnect VPN. In the Webex Teams room for the lab we've provided a spreadsheet with a list of dCloud instances and the AnyConnect credentials necessary to access each instance. To find your dCloud instance please reference your student number provided on the handout in class.
 
 ## Lab Topology
 
-This lab is based on a simulated WAN design of seven IOS-XR routers running in a docker instance. In addition there are two client VMs named Amsterdam and Rome. Each client system is running the Ubuntu OS. Last is an Ubuntu VM running Kubernetes and hosting the Jalapeno application.
+Each lab instance consists of four virtual machines. The first VM, where we'll do most of our work, hosts seven dockerized IOS-XR routers in a simulated WAN design. Additionally there are a pair of client VMs named Amsterdam and Rome. Each client system is running the Ubuntu OS. The fourth VM is an Ubuntu node running Kubernetes and hosting the Jalapeno application.
 
 ![Lab Topology](/topo_drawings/overview-topology-large.png)
 
 ## Remote Access
 
 
-### Device Access Table
+### Virtual Machine Access Table
 | VM Name        | Description              | Device Type | Access Type |   IP Address    |
 |:---------------|:-------------------------|:-----------:|:-----------:|:---------------:|
 | XRD            | Docker + XRd routers     | VM          | SSH         | 198.18.128.100  |
@@ -79,17 +75,17 @@ This lab is based on a simulated WAN design of seven IOS-XR routers running in a
 | Rome           | Ubuntu client            | VM          | SSH         | 198.18.128.103  |
 
 
-* Use XRD VM as jumpbox to access the XRd routers as follows:
+* Use XRD VM as an SSH jumpbox to access the XRd routers as follows:
 
 | Device Name    | Device Type | Access Type |   IP Address    |                                           
 |:---------------|:------------|:------------|:---------------:|                          
-| xrd01           | router      | SSH         | 10.254.254.101  |
-| xrd02           | router      | SSH         | 10.254.254.102  |
-| xrd03           | router      | SSH         | 10.254.254.103  |
-| xrd04           | router      | SSH         | 10.254.254.104  |
-| xrd05           | router      | SSH         | 10.254.254.105  |
-| xrd06           | router      | SSH         | 10.254.254.106  |
-| xrd07           | router      | SSH         | 10.254.254.107  |
+| xrd01          | router      | SSH         | 10.254.254.101  |
+| xrd02          | router      | SSH         | 10.254.254.102  |
+| xrd03          | router      | SSH         | 10.254.254.103  |
+| xrd04          | router      | SSH         | 10.254.254.104  |
+| xrd05          | router      | SSH         | 10.254.254.105  |
+| xrd06          | router      | SSH         | 10.254.254.106  |
+| xrd07          | router      | SSH         | 10.254.254.107  |
 
 ## Jalapeno
 
