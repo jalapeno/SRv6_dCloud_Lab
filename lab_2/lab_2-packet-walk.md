@@ -28,7 +28,8 @@ The student upon completion of Lab 2 should have achieved the following objectiv
 
 The expected results of a packet capture on XRD01 is to see ICMP ipv4 traffic sourced from Amsterdam (10.101.2.1) to Rome (10.107.1.1) use SRv6 encapsulation acroess the networ.
 
-See results below and notice both the ICMP echo and ICMP echo reply packets with SRv6 encapsulation
+See results below and notice both the ICMP echo and ICMP echo reply packets with SRv6 encapsulation. In this example the egress and return traffic both happened to be hashed through XRD02. Path selection using the global routing table as you will see in the detailed packet walk below has multiple ECMP path options.
+
 ```
 cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd01-xrd02
 sudo tcpdump -ni br-0a7631e659a1
