@@ -27,10 +27,10 @@ Each of the labs is designed to be completed in the order presented. Lab 1 will 
 
 ### Root Directory
 
-| File Name     | Description                                                                             |
-|:--------------|:----------------------------------------------------------------------------------------|
-| host_check    | Runs an analysis to verify whether and how many XRd's can run on your host              |
-| xr-compose    | Processes an XRd topo YAML file and creates a docker-compose file to launch the topology|
+| File Name     | Description                                                                              |
+|:--------------|:-----------------------------------------------------------------------------------------|
+| host_check    | Runs an analysis to verify whether and how many XRd's can run on your host               |
+| xr-compose    | Processes an XRd topo YAML file and creates a docker-compose file to launch the topology |
 
 ```
 Example:
@@ -51,9 +51,10 @@ Within each lab directory you should see several files of importance:
 
 
 We've recently launched a whole series of SRv6 labs on github, many of which are built on XRd:
+
 https://github.com/segmentrouting/srv6-labs
 
-## CLEUR Lab Session LTSPG-2212 Cisco dCloud
+## Cisco dCloud Instances
 
 Each lab instance is running on Cisco dCloud and is reachable via AnyConnect VPN. In the Webex Teams room for the lab we've provided a spreadsheet with a list of dCloud instances and the AnyConnect credentials necessary to access each instance. To find your dCloud instance please reference your student number provided on the handout in class.
 
@@ -75,7 +76,7 @@ Each lab instance consists of four virtual machines. The first VM, where we'll d
 | Rome           | Ubuntu client            | VM          | SSH         | 198.18.128.103  |
 
 
-* Use XRD VM as an SSH jumpbox to access the XRd routers as follows:
+* Use the XRD VM as an SSH jumpbox to access the XRd routers as follows:
 
 | Device Name    | Device Type | Access Type |   IP Address    |                                           
 |:---------------|:------------|:------------|:---------------:|                          
@@ -93,3 +94,5 @@ Project Jalapeno combines existing open source tools with some new stuff we've d
 
 ![jalapeno_architecture](https://github.com/cisco-open/jalapeno/blob/main/docs/diagrams/jalapeno_architecture.png)
 
+### Please proceed to Lab 1
+[Lab 1](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_1/lab_1-guide.md)
