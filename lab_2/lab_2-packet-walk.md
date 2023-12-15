@@ -106,10 +106,6 @@ In Lab 2 this step occurs in Router 1. On ingress from the Amsterdam node we rec
       2     Y   GigabitEthernet0/0/0/1    fe80::42:c0ff:fea8:c003 <--- ECMP Next-hop
       3     Y   GigabitEthernet0/0/0/2    fe80::42:c0ff:fea8:d003 <--- ECMP Next-hop
     ```
-    ```
-    ping fc00:0000:7777::1 source lo0
-    ```
-
    
 ## SRv6 forwarding
 
