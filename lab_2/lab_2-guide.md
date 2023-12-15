@@ -1,19 +1,19 @@
 
 
-# Lab 2: SR-MPLS and SRv6 Install [20 Min]
+# Lab 2: Base SRv6 Configuration and Validation [20 Min]
 
 ### Description: 
-In Lab 2 the student will perform the basic configuration of SR-MPLS and SRv6 on the lab routers. This will allow for a compare and contrast between the two segment routing standards. You will create and confirm PE and P roles for SR-MPLS. Second you will create basic SRv6 configuration on routers 1-7 and confirm connectivity. 
+In Lab 2 the student will perform the basic ISIS and BGP sSRv6 configuration on the lab routers.  
 
 ## Contents
-- [Lab 2: SR-MPLS and SRv6 Install \[20 Min\]](#lab-2-sr-mpls-and-srv6-install-20-min)
+- [Lab 2: Base SRv6 Configuration and Validation \[20 Min\]](#lab-2-base-srv6-configuration-and-validation-20-min)
     - [Description:](#description)
   - [Contents](#contents)
   - [Lab Objectives](#lab-objectives)
   - [Segment Routing Background](#segment-routing-background)
   - [SRv6](#srv6)
     - [SRv6 Configuration Steps](#srv6-configuration-steps)
-      - [Configure SRv6 on all routers (xrd01 - xrd07) in the network](#configure-srv6-on-all-routers-xrd01---xrd07-in-the-network)
+      - [Configure SRv6 on xrd01](#configure-srv6-on-xrd01)
   - [End-to-End Connectivity](#end-to-end-connectivity)
   - [SRv6 Packet Walk](#srv6-packet-walk)
   - [End of Lab 2](#end-of-lab-2)
@@ -23,7 +23,7 @@ In Lab 2 the student will perform the basic configuration of SR-MPLS and SRv6 on
 The student upon completion of Lab 2 should have achieved the following objectives:
 
 * Understanding baseline SRv6 configuration and validation for ISIS and BGP
-* Validate SRv6 forwarding of BGP advertised prefixes
+* Validate SRv6 forwarding for BGP advertised prefixes
    
 
 ## Segment Routing Background
@@ -63,11 +63,14 @@ SRv6 uSID locator and source address information for nodes in the lab:
 
     
 ### SRv6 Configuration Steps 
-#### Configure SRv6 on all routers (xrd01 - xrd07) in the network
+#### Configure SRv6 on xrd01
 1. Enable SRv6 globally and define SRv6 locator and source address for outbound encapsulation 
+   - reference the above table
    - the source address should match the router's loopback0 ipv6 address
    - locator should match the first 48-bits of the router's loopback0
-   - to keep things simple we're using the same locator name, 'MyLocator', on all nodes in the network. xrd01 example:
+   - to keep things simple we're using the same locator name, 'MyLocator', on all nodes in the network.
+  
+   - xrd01 configs:
     ```
     segment-routing
       srv6
@@ -80,7 +83,7 @@ SRv6 uSID locator and source address information for nodes in the lab:
        commit
     ```
 
-2. Enable SRv6 on ISIS  
+2. Enable SRv6 for ISIS  
     ```
     router isis 100
       address-family ipv6 unicast
@@ -88,9 +91,36 @@ SRv6 uSID locator and source address information for nodes in the lab:
            locator MyLocator
        commit
     ```
-  - Note: once you've configured one or two routers using the above steps, the full lab 2 configs for each router can be found in the 'quick config' [HERE](/lab_2/lab_2_quick_config.md) for quick copy-and-pasting
 
-3. Validation SRv6 configuration and reachability
+3. Enable SRv6 for BGP 
+    ```
+    router bgp 65000
+    address-family ipv4 unicast
+      segment-routing srv6
+      locator MyLocator
+      !
+    ! 
+    address-family ipv6 unicast
+      segment-routing srv6
+      locator MyLocator
+      !
+    !
+    neighbor-group xrd-ipv4-peer
+      address-family ipv4 unicast
+      encapsulation-type srv6
+      !
+    ! 
+    neighbor-group xrd-ipv6-peer
+      address-family ipv6 unicast
+      encapsulation-type srv6
+      !
+    !
+    commit
+    ```
+
+  - Note: once you've configured xrd01 using the above, please proceed to configure the remainder of the routers using the configs found in the 'quick config doc' [HERE](/lab_2/lab_2_quick_config.md) 
+
+4. Validation SRv6 configuration and reachability
     ```
     show segment-routing srv6 sid
     ```
