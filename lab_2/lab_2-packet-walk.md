@@ -64,6 +64,7 @@ In Lab 2 this step occurs in Router 1. On ingress from the Amsterdam node we rec
     ```
 3. Lookup of fc00:0:7777:e004::/48 the in the global IPv6 routing table.
     ```
+    RP/0/RP0/CPU0:xrd01#show route ipv6 fc00:0:7777:e004::
     Routing entry for fc00:0:7777::/48
      Known via "isis 100", distance 115, metric 4, SRv6-locator, type level-2 <---- Network seen as SRv6 locator
      Installed Dec 15 17:22:21.553 for 00:21:47
