@@ -24,6 +24,19 @@ The student upon completion of Lab 2 should have achieved the following objectiv
 * Understand how SRv6 routers decapsulate and forward traffic as an IPv4 or IPv6 packet
 * Understand how IPv6 only routers can participate in SRv6 networks.
 
+## Packet Walk Results for traffic from Amsterdam to Rome over SRv6
+
+The expected results of a packet capture on XRD01 is to see ICMP ipv4 traffic sourced from Amsterdam (10.101.2.1) to Rome (10.107.1.1) use SRv6 encapsulation acroess the networ.
+
+See results below and notice both the ICMP echo and ICMP echo reply packets with SRv6 encapsulation
+```
+cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd01-xrd02
+sudo tcpdump -ni br-0a7631e659a1
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on br-0a7631e659a1, link-type EN10MB (Ethernet), capture size 262144 bytes
+12:57:01.231407 IP6 fc00:0:1111::1 > fc00:0:7777:e004::: IP 10.101.2.1 > 10.107.1.1: ICMP echo request, id 7, seq 15, length 64
+12:57:01.296035 IP6 fc00:0:7777::1 > fc00:0:1111:e005::: IP 10.107.1.1 > 10.101.2.1: ICMP echo reply, id 7, seq 15, length 64
+```
 
 ## IPv4 Encapsulation to SRv6
 
