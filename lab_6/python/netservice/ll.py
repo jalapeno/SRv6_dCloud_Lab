@@ -11,7 +11,7 @@ def ll_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane, encap):
     cursor = db.aql.execute("""for v, e in outbound shortest_path """ + '"%s"' % src_id + """ \
         to """ + '"%s"' % dst_id + """ ipv4_topology \
             options { weightAttribute: 'latency' } \
-                return { node: v._key, name: v.name, sid: e.srv6_sid, prefix_sid: e.prefix_sid, latency: e.latency } """)
+                return { node: v._key, name: v.name, sid: v.sids[*].srv6_sid, latency: e.latency } """)
     path = [doc for doc in cursor]
     #print("path: ", path)
     hopcount = len(path)
@@ -26,17 +26,15 @@ def ll_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane, encap):
     for sid in list(locators):
         if sid == None:
             locators.remove(sid)
-    print("locators: ", locators)
+    #print("locators: ", locators)
 
     prefix_sid = 'prefix_sid'
-    prefix_sid = [a_dict[prefix_sid] for a_dict in path]
-    for ps in list(prefix_sid):
-        if ps == None:
-            prefix_sid.remove(ps)
-    print("prefix_sids: ", prefix_sid)
 
+    loc = [ele for ele in locators if ele != []]
     usid = []
-    for s in locators:
+    locatorlist=[x for n in (loc) for x in n]
+    print("locator list for low latency path: ", locatorlist)
+    for s in locatorlist:
         if s != None and usid_block in s:
             usid_list = s.split(usid_block)
             sid = usid_list[1]
@@ -52,7 +50,7 @@ def ll_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane, encap):
     #print(sidlist)
 
     ### From here we're going to get the end.dt localsid and add it to the uSID dest
-    locator = locators[-1]
+    locator = locatorlist[-1]
     print("egress node locator: ", locator)
     localsid = local_sid.localsid(user, pw, dbname,locator, usid_block)
     
@@ -65,7 +63,7 @@ def ll_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane, encap):
     newsid = srv6_sid.replace(usd, localsid)
 
     ### Return to original code
-    print("srv6 sid: ", srv6_sid)
+    print("srv6 sid: ", newsid)
 
     ### from here on replace "srv6_sid" variable with "newsid"
 
@@ -74,7 +72,6 @@ def ll_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane, encap):
             'source': src_id,
             'destination': dst_id,
             'sid': newsid,
-            'sr_label_stack': prefix_sid,
             'path': path
         }
 
