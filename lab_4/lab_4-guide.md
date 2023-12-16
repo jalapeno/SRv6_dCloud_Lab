@@ -239,6 +239,16 @@ fc00:0:1111:e005::      uDT6            'carrots'                      bgp-65000
    
     ./deploy-processors.sh
     ```
+    - Example output:
+    ```
+    cisco@jalapeno:~/SRv6_dCloud_Lab/lab_4/graphdb-processors$ ./deploy-processors.sh 
+    deployment.apps/linkstate-node-ext created
+    deployment.apps/linkstate-edge-v4 created
+    deployment.apps/linkstate-edge-v6 created
+    deployment.apps/ebgp-processor created
+    deployment.apps/ipv4-topology created
+    deployment.apps/ipv6-topology created
+    ```
 
 2. Validate the pods are up and running in the 'jalapeno' namespace:
     ```
@@ -247,21 +257,24 @@ fc00:0:1111:e005::      uDT6            'carrots'                      bgp-65000
     #### Expected output:  
     Look for the new pods running in the jalapeno namespace
     ```
-    cisco@jalapeno:~/sr-processors$ kubectl get pods -n jalapeno
-    NAME                                          READY   STATUS    RESTARTS      AGE
-    arangodb-0                                    1/1     Running   0             12m
-    grafana-deployment-565756bd74-x2szz           1/1     Running   0             12m
-    influxdb-0                                    1/1     Running   0             12m
-    kafka-0                                       1/1     Running   0             12m
-    lslinknode-edge-b954577f9-k8w6l               1/1     Running   4 (11m ago)   12m
-    sr-node-8487488c9f-ftj59                      1/1     Running   0             48s     <--------
-    sr-topology-6b45d48c8-h8zns                   1/1     Running   0             39s     <--------
-    srv6-localsids-76ff4949d7-hx8mw               1/1     Running   0             33s     <--------
-    telegraf-egress-deployment-5795ffdd9c-t8xrp   1/1     Running   2 (12m ago)   12m
-    topology-678ddb8bb4-rt9jg                     1/1     Running   3 (11m ago)   12m
-    zookeeper-0                                   1/1     Running   0             12m
+    cisco@jalapeno:~/SRv6_dCloud_Lab/lab_4/graphdb-processors$ kubectl get pods -n jalapeno
+    NAME                                          READY   STATUS    RESTARTS       AGE
+    arangodb-0                                    1/1     Running   6 (15h ago)    326d
+    ebgp-processor-558948c6-6ltrp                 1/1     Running   0              38s        <------ eBGP proc
+    grafana-deployment-565756bd74-b5vpd           1/1     Running   6 (15h ago)    326d
+    influxdb-0                                    1/1     Running   6 (15h ago)    326d
+    ipv4-topology-85b8c6d5b4-z7cjd                1/1     Running   0              36s        <------ ipv4 topo
+    ipv6-topology-bd57bdf54-g858l                 1/1     Running   0              35s        <------ ipv6 topo
+    kafka-0                                       1/1     Running   8 (15h ago)    326d
+    linkstate-edge-v4-6585877c8c-vv2kz            1/1     Running   0              41s        <------ lsv4 topo
+    linkstate-edge-v6-77f87bf449-qnw85            1/1     Running   0              40s        <------ lsv6 topo
+    linkstate-node-ext-7bb97dcf89-gt7s4           1/1     Running   0              43s        <------ ls node extended
+    lslinknode-edge-b954577f9-bjnsh               1/1     Running   27 (15h ago)   326d
+    telegraf-egress-deployment-5795ffdd9c-277xn   1/1     Running   25 (15h ago)   326d
+    topology-678ddb8bb4-89c6d                     1/1     Running   26 (15h ago)   326d
+    zookeeper-0                                   1/1     Running   6 (15h ago)    326d
     ```
-2. Check ArangoDB for new *`sr_node`*, *`sr_topology`*, and *`srv6_local_sids`* data collections, and that they contain data. For example, *`sr_node`* should look something like this with seven entries:
+3. Check ArangoDB for new *`sr_node`*, *`sr_topology`*, and *`srv6_local_sids`* data collections, and that they contain data. For example, *`sr_node`* should look something like this with seven entries:
 
   <img src="images/sr_node.png" width="1200">
 
