@@ -1,7 +1,7 @@
 ## Lab 5: Exploring Jalapeno, Kafka, and ArangoDB [30 Min]
 
 ### Description
-In Lab 5 we will explore the Jalapeno system running on Kubernetes. We will log into the Kafka container and monitor topics for data coming in from Jalapeno's data collectors. Data which is subsequently picked up by Jalapeno's data processors (topology, lslinknode, sr-node, sr-topology, etc.) and written to the Arango graphDB. We will spend some time getting familiar with ArangoDB and the Jalapeno data collections, and will run some basic queries. Lastly we will populate the graphDB with some synthetic data and run a number of complex queries including graph traversals.
+In Lab 5 we will explore elements of the Jalapeno system. We will log into the Kafka container and monitor topics for data coming in from Jalapeno's data collectors. Data which is subsequently picked up by Jalapeno's data processors and written to the Arango graphDB. We will spend some time getting familiar with ArangoDB and the Jalapeno data collections, and will run some basic queries. Lastly we will populate the graphDB with some synthetic data and run a number of complex queries including graph traversals.
 
 ## Contents
 - [Lab 5: Exploring Jalapeno, Kafka, and ArangoDB \[30 Min\]](#lab-5-exploring-jalapeno-kafka-and-arangodb-30-min)
@@ -114,6 +114,10 @@ For additional help on Kafka see this external CLI cheat sheet [HERE](https://me
     gobmp.parsed.unicast_prefix_v4_events
     gobmp.parsed.unicast_prefix_v6
     gobmp.parsed.unicast_prefix_v6_events
+    jalapeno.ipv4_topology_events
+    jalapeno.ipv6_topology_events
+    jalapeno.linkstate_edge_v4_events
+    jalapeno.linkstate_edge_v6_events
     jalapeno.ls_node_edge_events
     jalapeno.srv6
     jalapeno.telemetry
@@ -121,11 +125,11 @@ For additional help on Kafka see this external CLI cheat sheet [HERE](https://me
 
 ### Monitoring a Kafka topic
 
-The *kafka-console-consumer.sh* utility allows one to manually monitor a given topic and see messages as they are published to Kafka by the GoBMP collector. This gives us a nice troubleshooting tool for scenarios where a router may be sending data to the collector, but the data is not seen in the DB.
+The *kafka-console-consumer.sh* utility allows one to manually monitor a given topic and see messages as they are published by the GoBMP collector. This gives us a nice troubleshooting tool for scenarios where a router may be sending data to the collector, but the data is not seen in the DB.
 
 In the next set of steps we'll run the CLI to monitor a Kafka topic and watch for data from GoBMP. GoBMP's topics are fairly quiet unless BGP updates are happening, so once we have our monitoring session up we'll clear BGP-LS on the RR, which should result in a flood of data onto the topic.
 
-In this exercise we are going to stitch together several elements that we have worked on throughout this lab. The routers in our lab have a number of topology-relevant configurations, including several that we've added over the course of labs 1 - 5. We will use the tools to examine how that data is communicated through the network and ultimately collected and populated into Jalapeno's DB.
+In this exercise we are going to stitch together several elements that we have worked on throughout this lab. The routers in our lab have a number of topology-relevant configurations, including several that we've added over the course of labs 1 - 4. We will use the tools to examine how that data is communicated through the network and ultimately collected and populated into Jalapeno's DB.
 
 #### ISIS Link State
    1. Monitor the BGP-LS *"ls_node"* topic for incoming BMP messages describing ISIS nodes in the network:
@@ -317,17 +321,17 @@ In this exercise we are going to stitch together several elements that we have w
     for *x* in *collection* return *x*
 
     ```
-    for x in sr_node return x
+    for x in ls_node_extended return x
     ```
-    This query will return ALL records in the sr_node collection. In our lab topology you should expect 7 records. 
+    This query will return ALL records in the ls_node_extended collection. In our lab topology you should expect 7 records. 
 
     Note: after running a query you will need to either comment it out or delete it before running the next query. To comment-out use two forward slashes // as shown in this pic:
 
     <img src="images/arango-query.png" width="600">
 
-    Next lets get the AQL to return only the key:value field we are interested in. We will query the name of all nodes in the sr_node collection with the below query. To reference a specific key field we use use the format *x.key* syntax.
+    Next lets get the AQL to return only the key:value field we are interested in. We will query the name of all nodes in the ls_node_extended collection with the below query. To reference a specific key field we use use the format *x.key* syntax.
     ```
-    for x in sr_node return x.name
+    for x in ls_node_extended return x.name
     ```
     ```   
     "xrd01",
@@ -338,31 +342,41 @@ In this exercise we are going to stitch together several elements that we have w
     "xrd06",
     "xrd07"
     ```
-    If we wish to return multiple keys in our query we will switch to using curly braces to ask for a data set in the return
+    If we wish to return multiple keys in our query we will switch to using curly braces to ask for a data set in the return. In this case we are quering the name to return the record only for **xrd01**
     ```
-    for x in sr_node return {Name: x.name, SID: x.srv6_sid}
+    for x in ls_node_extended 
+        filter x.name == "xrd04"
+    return {Name: x.name, SID: x.sids}
     ```
+
+    Truncated output:
     ```
-    Name    SID
-    xrd01	fc00:0:1111::
-    xrd02	fc00:0:2222::
-    xrd03	fc00:0:3333::
-    xrd04	fc00:0:4444::
-    xrd05	fc00:0:5555::
-    xrd06	fc00:0:6666::
-    xrd07	fc00:0:7777::
+    {
+        "Name": "xrd04",
+        "SID": [
+        {
+            "srv6_sid": "fc00:0:4444::",
+            "srv6_endpoint_behavior": {
+            "endpoint_behavior": 48,
+            "flag": 0,
+            "algo": 0
+            },
+            "srv6_sid_structure": {
+            "locator_block_length": 32,
+            "locator_node_length": 16,
+            "function_length": 0,
+            "argument_length": 80
+            }
+        }
+        ]
+    }
     ```
-    More interesting lets query against actual key:value fields in the sr_node collection. In this case we are quering the name to return the record only for **xrd01**
-    ```
-    for x in sr_node 
-        filter x.name == "xrd01"
-    return {Name: x.name, SID: x.srv6_sid}
-    ```
+
     Now if you want to filter on multiple conditions we can through a boolean value in to return the **xrd01** and **xrd07** records.
     ```
-    for x in sr_node 
+    for x in ls_node_extended 
         filter x.name == "xrd01" or x.name=="xrd07"
-    return {Name: x.name, SID: x.srv6_sid}
+    return {Name: x.name, SID: x.sids}
     ```
 
 4. Optional: to run additional basic queries go to the lab_5-queries.md doc [Here](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_5/lab_5-queries.md
@@ -373,6 +387,12 @@ In this exercise we are going to stitch together several elements that we have w
 The *add_meta_data.py* python script will connect to the ArangoDB and populate elements in our data collections with addresses and country codes. Also, due to the fact that we can't run realistic traffic through the XRD topology the script will populate the relevant graphDB elements with synthetic link latency and utilization data per this diagram:
 
 <img src="/topo_drawings/path-latency-topology.png" width="900">
+
+
+
+
+
+
 
 1. Return to the ssh session on the Jalapeno VM and add meta data to the DB:
 ```
@@ -418,13 +438,13 @@ Reference this document on the shortest path algorithim in AQL [HERE](https://ww
 
    1. Return to the ArangoDB browser UI and run a shortest path query from **xrd01** to **xrd07**, and have it return SR and SRv6 SID data:
    ```
-   for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0001' TO 'sr_node/2_0_0_0000.0000.0007' sr_topology 
+   for v, e in outbound shortest_path 'ls_node_extended/2_0_0_0000.0000.0001' TO 'ls_node_extended/2_0_0_0000.0000.0007' sr_topology 
        return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, srv6sid: v.srv6_sid }
    ```
    #### Note: for all the remaining queries in this lab you can run the query against the return path by simply reversing the startVertex and targetVertex. Example:
 
    ```
-   for v, e in outbound shortest_path 'sr_node/2_0_0_0000.0000.0007' TO 'sr_node/2_0_0_0000.0000.0001' sr_topology 
+   for v, e in outbound shortest_path 'ls_node_extended/2_0_0_0000.0000.0007' TO 'ls_node_extended/2_0_0_0000.0000.0001' sr_topology 
        return  { node: v.name, location: v.location_id, address: v.address, prefix_sid: v.prefix_sid, 
        srv6sid: v.srv6_sid }
    ```

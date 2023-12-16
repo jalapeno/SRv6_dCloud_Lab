@@ -443,7 +443,7 @@ The ingress PE, xrd01, will then be configured with SRv6 segment-lists and SRv6 
   show segment-routing srv6 sid
   show segment-routing traffic-eng policy 
   ```
-  Example output:
+  Example output, note the additional uDT VRF carrots and SRv6-TE uB6 Insert.Red SIDs added to the list:
   ```
   RP/0/RP0/CPU0:xrd01#  show segment-routing srv6 sid
   Sat Dec 16 02:45:31.772 UTC

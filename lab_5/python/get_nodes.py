@@ -5,8 +5,8 @@ import json
 from arango import ArangoClient
 client = ArangoClient(hosts='http://198.18.128.101:30852')
 db = client.db('jalapeno', username='root', password='jalapeno')
-if db.has_collection('sr_node'):
-    sr = db.collection('sr_node')
+if db.has_collection('ls_node_extended'):
+    sr = db.collection('ls_node_extended')
 
 if db.has_collection('peer'):
     pr = db.collection('peer')
@@ -18,7 +18,7 @@ sr.properties()
 pr.properties()
 
 aql = db.aql
-cursor = db.aql.execute("for s in sr_node return \
+cursor = db.aql.execute("for s in ls_node_extended return \
     { key: s._key, name: s.name, router_id: s.router_id, \
         city: s.location_id, address: s.address, \
             prefix_sid: s.prefix_sid, srv6_sid: s.srv6_sid }")

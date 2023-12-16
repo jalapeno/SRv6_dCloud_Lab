@@ -21,9 +21,9 @@ Query for the entire network topology (should match the xrd topology plus some s
 ```
 for x in sr_topology return x
 ```
-Query the sr_node dataset and return specific k:v pairs:
+Query the ls_node_extended dataset and return specific k:v pairs:
 ```
-for x in sr_node return { node: x.router_id, name: x.name, 
+for x in ls_node_extended return { node: x.router_id, name: x.name, 
     prefix_sid: x.prefix_attr_tlvs.ls_prefix_sid, srv6sid: x.srv6_sid }
 ```
 
