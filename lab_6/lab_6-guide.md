@@ -215,23 +215,26 @@ Many segment routing and other SDN solutions focus on the low latency path as th
     Expected console output:
     ```
     cisco@rome:~/SRv6_dCloud_Lab/lab_6/python$ python3 jalapeno.py -f rome.json -e srv6 -s lu
-    src data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'src_peer': '10.0.0.7'}]
-    dest data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'dst_peer': '10.0.0.1'}]
+
     Least Utilized Service
-    locators:  ['fc00:0:6666::', 'fc00:0:2222::', 'fc00:0:1111::']
-    prefix_sids:  [100006, 100002, 100001]
-    srv6 sid:  fc00:0:6666:2222:1111::
-    adding linux SRv6 route: ip route add 10.101.2.0/24 encap seg6 mode encap segs fc00:0:6666:2222:1111:: dev ens192
+    locator list for least utilized path:  ['fc00:0:7777::', 'fc00:0:6666::', 'fc00:0:2222::', 'fc00:0:1111::']
+    egress node locator:  fc00:0:1111::
+    end.dt SID:  ['fc00:0:1111:e007::']
+    srv6 sid:  fc00:0:7777:6666:2222:1111:e007::
+
+    adding linux SRv6 route: ip route add 10.101.2.0/24 encap seg6 mode encap segs fc00:0:7777:6666:2222:1111:e007:: dev ens192
+    RTNETLINK answers: File exists
+
     Show Linux Route Table: 
     default via 198.18.128.1 dev ens160 proto static 
     10.0.0.0/24 via 10.107.1.2 dev ens192 proto static 
     10.1.1.0/24 via 10.107.1.2 dev ens192 proto static 
     10.101.1.0/24 via 10.107.1.2 dev ens192 proto static 
-    10.101.2.0/24  encap seg6 mode encap segs 1 [ fc00:0:6666:2222:1111:: ] dev ens192 scope link     <--------HERE
+    10.101.2.0/24 via 10.107.1.2 dev ens192 proto static 
     10.101.3.0/24 via 10.107.2.2 dev ens224 proto static 
-    10.107.1.0/24 dev ens192 proto kernel scope link src 20.0.0.1 
+    10.107.1.0/24 dev ens192 proto kernel scope link src 10.107.1.1 
     10.107.2.0/24 dev ens224 proto kernel scope link src 10.107.2.1 
-    198.18.128.0/18 dev ens160 proto kernel scope link src 198.18.128.103 
+    198.18.128.0/18 dev ens160 proto kernel scope link src 198.18.128.103
     ```
 
 2. Check log output and linux ip route:
@@ -243,7 +246,7 @@ Many segment routing and other SDN solutions focus on the low latency path as th
 
 3. Run a ping test 
  - Open up a second ssh session to the Rome VM
- - Start tcpdump on 2nd ssh session. This will capture packets outbound from Rome VM going toward xrd07:
+ - Start tcpdump on the 2nd ssh session. This will capture packets outbound from Rome VM going toward xrd07:
 ```
 sudo tcpdump -ni ens192
 ```
@@ -251,7 +254,7 @@ sudo tcpdump -ni ens192
 ```
 ping 10.101.2.1 -I 20.0.0.1 -i .3
 ```
-- Note: as of CLEU23 there is some issue where IPv6 neighbor instances between Rome Linux and the XRd MACVLAN attachment on *`xrd07`*. So if your ping doesn't work try pinging from *`xrd07`* to *`Rome`*. A successful ping should 'wake up' the IPv6 neighborship.
+- Note: as of CLEU24 there is some issue where IPv6 neighbor instances between Rome Linux and the XRd MACVLAN attachment on *`xrd07`*. So if your ping doesn't work try pinging from *`xrd07`* to *`Rome`*. A successful ping should 'wake up' the IPv6 neighborship.
 
 On *`xrd07`*:  
 ```
@@ -277,14 +280,16 @@ ping 10.101.2.1 -I 20.0.0.1 -i .3
 cisco@rome:~$ sudo tcpdump -ni ens192
 tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
 listening on ens192, link-type EN10MB (Ethernet), capture size 262144 bytes
-04:27:26.773904 IP6 fc00:0:107:1::1 > fc00:0:6666:2222:1111:e006::: srcrt (len=2, type=4, segleft=0[|srcrt]
-04:27:26.841619 IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 3, seq 3, length 64
-04:27:27.074262 IP6 fc00:0:107:1::1 > fc00:0:6666:2222:1111:e006::: srcrt (len=2, type=4, segleft=0[|srcrt]
-04:27:27.145618 IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 3, seq 4, length 64
+18:04:14.873127 IP6 fc00:0:107:1::1 > fc00:0:7777:6666:2222:1111:e007:0: srcrt (len=2, type=4, segleft=0[|srcrt]
+18:04:14.945878 IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 3, seq 1, length 64
+18:04:15.173485 IP6 fc00:0:107:1::1 > fc00:0:7777:6666:2222:1111:e007:0: srcrt (len=2, type=4, segleft=0[|srcrt]
+18:04:15.241699 IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 3, seq 2, length 64
 ```
 
 6. Return to an SSH session on the XRD VM and use tcpdump.sh <xrd0x-xrd0y>" to capture packets along the path from Rome VM to Amsterdam VM. Given the SRv6 Micro-SID combination seen above, we'll monitor the linux bridges linking *`xrd07`* to *`xrd06`*, *`xrd06`* to *`xrd02`*, then *`xrd02`* to *`xrd01`*:
  - restart the ping if it is stopped
+
+*Note: feel free to just spot check 1 or 2 of these:
 
 *`xrd07`* to *`xrd06`*
 ```
@@ -307,9 +312,9 @@ cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd02-xrd06
 sudo tcpdump -ni br-07e02174172b
 tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
 listening on br-07e02174172b, link-type EN10MB (Ethernet), capture size 262144 bytes
-23:30:45.978380 IP6 fc00:0:107:1::1 > fc00:0:2222:1111:e006::: srcrt (len=2, type=4, segleft=0[|srcrt]
+23:30:45.978380 IP6 fc00:0:107:1::1 > fc00:0:2222:1111:e007::: srcrt (len=2, type=4, segleft=0[|srcrt]
 23:30:46.010720 MPLS (label 100007, exp 0, ttl 61) (label 24010, exp 0, [S], ttl 62) IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 4, seq 9, length 64
-23:30:46.279814 IP6 fc00:0:107:1::1 > fc00:0:2222:1111:e006::: srcrt (len=2, type=4, segleft=0[|srcrt]
+23:30:46.279814 IP6 fc00:0:107:1::1 > fc00:0:2222:1111:e007::: srcrt (len=2, type=4, segleft=0[|srcrt]
 23:30:46.315159 MPLS (label 100007, exp 0, ttl 61) (label 24010, exp 0, [S], ttl 62) IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 4, seq 10, length 64
 ```
 
