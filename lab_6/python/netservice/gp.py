@@ -16,8 +16,7 @@ def gp_calc(src, dst, user, pw, dbname):
     path = [doc for doc in cursor]
     #print("paths: ", path)
     print("number of paths found: ", len(path))
-    print("""
-        """)
+    print()
     for index in range(len(path)):
         for key in path[index]:
             #print(key, ":", path[index][key])
@@ -63,8 +62,7 @@ def gp_calc(src, dst, user, pw, dbname):
 
                 srv6_sid = usid_block + sidlist + ipv6_separator
                 print("srv6 sid for this path: ", srv6_sid)
-                print("""
-                      """)
+                print()
                 siddict = {}
                 siddict['srv6_sid'] = srv6_sid
                 path[index][key].append(siddict)
