@@ -1,10 +1,10 @@
-# Lab 3: Configure SRv6 and TE for L3VPN [30 Min]
+# Lab 3: Configure SRv6 L3VPN and SRv6-TE [30 Min]
 
 ### Description
 In lab 3 we will establish a Layer-3 VPN named "carrots" which will use SRv6 transport and will have endpoints on xrd01, and xrd07. Both nodes' gi 0/0/0/3 interfaces will be added to the VRF as they connect to secondary NICs on the Amsterdam and Rome VMs respectively. Once the L3VPN is established and has run some test traffic we will then setup SRv6-TE traffic steering from Amsterdam to specific Rome prefixes.
 
 ## Contents
-- [Lab 3: Configure SRv6 and TE for L3VPN \[30 Min\]](#lab-3-configure-srv6-and-te-for-l3vpn-30-min)
+- [Lab 3: Configure SRv6 L3VPN and SRv6-TE \[30 Min\]](#lab-3-configure-srv6-l3vpn-and-srv6-te-30-min)
     - [Description](#description)
   - [Contents](#contents)
   - [Lab Objectives](#lab-objectives)
@@ -14,7 +14,7 @@ In lab 3 we will establish a Layer-3 VPN named "carrots" which will use SRv6 tra
     - [Configure BGP L3VPN Peering](#configure-bgp-l3vpn-peering)
   - [Validate SRv6 L3VPN](#validate-srv6-l3vpn)
   - [Configure SRv6-TE steering for L3VPN](#configure-srv6-te-steering-for-l3vpn)
-    - [Create TE steering policy](#create-te-steering-policy)
+    - [Create SRv6-TE steering policy](#create-srv6-te-steering-policy)
     - [Validate SRv6-TE steering of L3VPN traffic](#validate-srv6-te-steering-of-l3vpn-traffic)
       - [Validate bulk traffic takes the non-shortest path: xrd01 -\> 02 -\> 03 -\> 04 -\> 07](#validate-bulk-traffic-takes-the-non-shortest-path-xrd01---02---03---04---07)
       - [Validate low latency traffic takes the path: xrd01 -\> 05 -\> 06 -\> 07](#validate-low-latency-traffic-takes-the-path-xrd01---05---06---07)
@@ -29,7 +29,7 @@ The student upon completion of Lab 3 should have achieved the following objectiv
 * Demonstartion of SRv6 TE traffic steering
 
 ## Configure SRv6 L3VPN
-The SRv6-based IPv4/IPv6 L3VPN feature enables deployment of IPv4/IPv6 L3VPN over a SRv6 data plane. Traditionally L3VPN has been operated over MPLS or SR-MPLS based systems. SRv6-based L3VPN uses the locator/function aspect of SRv6 Segment IDs (SIDs)  instead of PE + VPN labels. 
+The SRv6-based IPv4/IPv6 L3VPN featureset enables operation of IPv4/IPv6 L3VPN over a SRv6 data plane. Traditionally L3VPN has been operated over MPLS or SR-MPLS based systems. SRv6-based L3VPN uses the locator/function aspect of SRv6 Segment IDs (SIDs) instead of PE + VPN labels. 
 
 Example: 
 
@@ -40,9 +40,9 @@ Example:
 
 SRv6-based L3VPN functionality interconnects multiple sites to resemble a private network service over public or multi-tenant infrastructure. The basic SRv6 configuration was completed in [Lab 2](/lab_2/lab_2-guide.md).
 
-In this lab the BGP SID will be allocated in per-VRF mode and provides End.DT4 or End.DT6 support. End.DT4/6 represents the Endpoint with decapsulation and IPv4 or v6 table lookup.
+In this lab a BGP SID will be allocated in per-VRF mode and provides End.DT4 or End.DT6 functionality. End.DT4/6 represents the Endpoint with decapsulation and IPv4 or v6 lookup in a specific VRF table.
 
-For more details on the End.DT6 standard see this [LINK](https://datatracker.ietf.org/doc/html/rfc8986#name-enddt6-decapsulation-and-sp)
+For more details on SRv6 network programming End.DT functionality please see [LINK](https://datatracker.ietf.org/doc/html/rfc8986#name-enddt6-decapsulation-and-sp)
 
 BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4/6 L3VPN Network Layer Reachability Information (NLRI) and advertises it to IPv6 peering over an SRv6 network. The Ingress PE (provider edge) router encapsulates the VRF IPv4/6 traffic with the SRv6 VPN SID and sends it over the SRv6 network.
 
@@ -147,11 +147,11 @@ The next step is to add the L3VPN configuration into BGP. Because this is SRv6 L
         next-hop-self
       commit
     ```
-  We will now need to add the VRF/SRv6 configuration to BGP. We will add VRF *carrots* in BGP and enable SRv6 to each address family with the command *`segment-routing srv6`*. In addition we will tie the vrf to the SRv6 locator *`MyLocator`*. 
+  We will add VRF *carrots* in BGP and enable SRv6 to each address family with the command *`segment-routing srv6`*. In addition we will tie the vrf to the SRv6 locator *`MyLocator`*. 
 
-  Last on xrd01 we will redistribute the connected routes using the command *`redistribute connected`*. On xrd07 we will need to redistribute the connected and static routes to provide reachability to Rome and its additional prefixes. For xrd07 we will add the command *`redistribute static`*
+  Last on xrd01 we will redistribute connected routes using the command *`redistribute connected`*. On xrd07 we will need to redistribute both the connected and static routes to provide reachability to Rome and its additional prefixes. For xrd07 we will add the command *`redistribute static`*
 
- 2. Enable SRv6 for VRF carrots and redistribute connected/static
+ 1. Enable SRv6 for VRF carrots and redistribute connected/static
    
     **xrd01**  
     ```
@@ -273,10 +273,10 @@ We will use the below diagram for reference:
 
 ![L3VPN Topology](/topo_drawings/l3vpn-topology-large.png)
 
-### Create TE steering policy
+### Create SRv6-TE steering policy
 For our SRv6-TE purposes we'll leverage the on-demand nexthop (ODN) feature set. Here is a nice example and explanation of ODN: [HERE](https://xrdocs.io/design/blogs/latest-converged-sdn-transport-ig)
 
-Using the ODN method, our the egress PE, **xrd07**, will need to advertise its L3VPN routes with color extended communities. We'll do this by first defining the extcomms, then setting up route-policies to match on destination prefixes and set the extcomm values.
+Using the ODN method, our the egress PE, **xrd07**, will advertise its L3VPN routes with color extended communities. We'll do this by first defining the extcomms, then setting up route-policies to match on destination prefixes and set the extcomm values.
 
 The ingress PE, xrd01, will then be configured with SRv6 segment-lists and SRv6 ODN steering policies that match routes with the respective color and apply the appropriate SID stack on outbound traffic.
 
@@ -445,8 +445,8 @@ The ingress PE, xrd01, will then be configured with SRv6 segment-lists and SRv6 
   ```
   Example output:
   ```
-  RP/0/RP0/CPU0:xrd01# show segment-routing srv6 sid
-  Sat Jan 28 00:04:48.017 UTC
+  RP/0/RP0/CPU0:xrd01#  show segment-routing srv6 sid
+  Sat Dec 16 02:45:31.772 UTC
 
   *** Locator: 'MyLocator' *** 
 
@@ -457,10 +457,13 @@ The ingress PE, xrd01, will then be configured with SRv6 segment-lists and SRv6 
   fc00:0:1111:e001::          uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0         isis-100            InUse  Y 
   fc00:0:1111:e002::          uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0:P       isis-100            InUse  Y 
   fc00:0:1111:e003::          uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0         isis-100            InUse  Y 
-  fc00:0:1111:e004::          uDT6              'carrots'                         bgp-65000           InUse  Y 
-  fc00:0:1111:e005::          uDT4              'carrots'                         bgp-65000           InUse  Y 
+  fc00:0:1111:e004::          uDT6              'default'                         bgp-65000           InUse  Y 
+  fc00:0:1111:e005::          uDT4              'default'                         bgp-65000           InUse  Y 
   fc00:0:1111:e006::          uB6 (Insert.Red)  'srte_c_50_ep_fc00:0:7777::1' (50, fc00:0:7777::1)  xtc_srv6            InUse  Y 
   fc00:0:1111:e007::          uB6 (Insert.Red)  'srte_c_40_ep_fc00:0:7777::1' (40, fc00:0:7777::1)  xtc_srv6            InUse  Y 
+  fc00:0:1111:e008::          uDT4              'carrots'                         bgp-65000           InUse  Y 
+  fc00:0:1111:e009::          uDT6              'carrots'                         bgp-65000           InUse  Y 
+
 
   RP/0/RP0/CPU0:xrd01#show segment-routing traffic-eng policy 
   Sat Jan 28 00:06:23.479 UTC
@@ -503,9 +506,13 @@ The ingress PE, xrd01, will then be configured with SRv6 segment-lists and SRv6 
 
 ### Validate SRv6-TE steering of L3VPN traffic
 #### Validate bulk traffic takes the non-shortest path: xrd01 -> 02 -> 03 -> 04 -> 07 
-1. Run the tcpdump.sh script in the util directory on the following links in the network. These can either be run sequentially while executing the ping in step 2, or you can open individual ssh sessions and run the tcpdumps simultaneously. As you run the tcpdumps you should see SRv6 Micro-SID 'shift-and-forward' behavior in action. Feel free to run all, or just one or two tcpdumps:
+1. Run the tcpdump.sh script in the XRD VM's util directory on the following links in the network. These can either be run sequentially while executing the ping in step 2, or you can open individual ssh sessions and run the tcpdumps simultaneously. 
+ 
+As you run the tcpdumps you should see SRv6 Micro-SID 'shift-and-forward' behavior in action. Feel free to run all, or just one or two tcpdumps:
   
     ```
+    cd SRv6_dCloud_Lab/util/
+
     ./tcpdump.sh xrd01-xrd02
     ```
     ```
@@ -518,7 +525,7 @@ The ingress PE, xrd01, will then be configured with SRv6 segment-lists and SRv6 
     ./tcpdump.sh xrd04-xrd07
     ```
 
-2. Ping from Amsterdam to Rome's bulk transport destination IPv4 and IPv6 addresses:
+3. Ping from Amsterdam to Rome's bulk transport destination IPv4 and IPv6 addresses:
 
     ```
     ping 40.0.0.1 -i .4
@@ -526,7 +533,21 @@ The ingress PE, xrd01, will then be configured with SRv6 segment-lists and SRv6 
     ```
     ping fc00:0:40::1 -i .4
     ```
-    - Note: as of CLUS23 there is some issue where IPv6 neighbor instances between *`Amsterdam`* Linux and the XRd MACVLAN attachment on *`xrd01`*. So if your IPv6 ping from *`Amsterdam`* doesn't work try pinging from *`xrd01`* to *`Amsterdam`* over the VRF carrots interface. A successful ping should 'wake up' the IPv6 neighborship.
+
+    Example: tcpdump.sh output should look something like below on the xrd02-xrd03 link with both outer SRv6 uSID header and inner IPv4/6 headers. In this case the outbound traffic is taking a non-shortest path.  We don't have a specific policy for return traffic so it will take one of the ECMP shortest paths; thus we do not see replies in the tcpdump output:
+    ```
+    IPv4 payload:
+
+    18:43:55.837052 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e004::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 2, seq 1, length 64
+    18:43:56.238255 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e004::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 2, seq 2, length 64
+
+    IPv6 payload:
+
+    18:44:13.268208 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e005::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:40::1: ICMP6, echo request, seq 1, length 64
+    18:44:13.668766 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e005::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:40::1: ICMP6, echo request, seq 2, length 64
+    ```
+
+    - Note: we have found an occasional issue where IPv6 neighbor discovery fails between *`Amsterdam`* Linux and the XRd MACVLAN attachment on *`xrd01`*. So if your IPv6 ping from *`Amsterdam`* doesn't work try pinging from *`xrd01`* to *`Amsterdam`* over the VRF carrots interface. A successful ping should 'wake up' the IPv6 neighborship.
 
     On *`xrd01`*:  
     ```
@@ -541,18 +562,6 @@ The ingress PE, xrd01, will then be configured with SRv6 segment-lists and SRv6 
     !!!!!
     Success rate is 100 percent (5/5), round-trip min/avg/max = 3/4/4 ms
     RP/0/RP0/CPU0:xrd01#
-    ```
-    Example: tcpdump.sh output should look something like below on the xrd02-xrd03 link with both outer SRv6 uSID header and inner IPv4/6 headers. In this case the outbound traffic is taking a non-shortest path.  We don't have a specific policy for return traffic so it will take one of the ECMP shortest paths; thus we do not see replies in the tcpdump output:
-    ```
-    IPv4 payload:
-
-    18:43:55.837052 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e004::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 2, seq 1, length 64
-    18:43:56.238255 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e004::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 2, seq 2, length 64
-
-    IPv6 payload:
-
-    18:44:13.268208 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e005::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:40::1: ICMP6, echo request, seq 1, length 64
-    18:44:13.668766 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e005::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:40::1: ICMP6, echo request, seq 2, length 64
     ```
 
 #### Validate low latency traffic takes the path: xrd01 -> 05 -> 06 -> 07 
