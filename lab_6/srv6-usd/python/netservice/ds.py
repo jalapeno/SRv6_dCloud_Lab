@@ -9,7 +9,7 @@ def ds_calc(src_id, dst_id, dst, user, pw, dbname, ctr, intf, dataplane, encap):
     client = ArangoClient(hosts='http://198.18.128.101:30852')
     db = client.db(dbname, username=user, password=pw)
     cursor = db.aql.execute("""for p in outbound k_shortest_paths \
-        """ + '"%s"' % src_id + """ to """ + '"%s"' % dst_id + """ sr_topology \
+        """ + '"%s"' % src_id + """ to """ + '"%s"' % dst_id + """ ipv4_topology \
             options {uniqueVertices: "path", bfs: true} \
             filter p.edges[*].country_codes !like "%"""+'%s' % ctr +"""%" limit 1 \
                 return { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, prefix_sid: p.edges[*].prefix_sid, \

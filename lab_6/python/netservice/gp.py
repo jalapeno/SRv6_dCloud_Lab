@@ -7,15 +7,17 @@ def gp_calc(src, dst, user, pw, dbname):
     client = ArangoClient(hosts='http://198.18.128.101:30852')
     db = client.db(dbname, username=user, password=pw)
     cursor = db.aql.execute("""for v, e, p in 1..6 outbound """ + '"%s"' % src + """ \
-            sr_topology options {uniqueVertices: "path", bfs: true} \
+            ipv4_topology options {uniqueVertices: "path", bfs: true} \
                 filter v._id == """ + '"%s"' % dst + """ \
-                    return distinct { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, \
-                        prefix_sid: p.edges[*].prefix_sid, latency: sum(p.edges[*].latency), \
+                    return distinct { path: p.vertices[*].name, sid: p.vertices[*].sids[*].srv6_sid, \
+                        latency: sum(p.edges[*].latency), \
                             percent_util_out: avg(p.edges[*].percent_util_out)} """)
 
     path = [doc for doc in cursor]
     #print("paths: ", path)
     print("number of paths found: ", len(path))
+    print("""
+        """)
     for index in range(len(path)):
         for key in path[index]:
             #print(key, ":", path[index][key])
@@ -32,17 +34,18 @@ def gp_calc(src, dst, user, pw, dbname):
 
             ### process SRv6 sids
             if key == "prefix_sid":
-                print("SR prefix sids for path: ", prefix_sid)
+                ("SR prefix sids for path: ", prefix_sid)
             if key == "sid":
                 #print("sid: ", path[index][key])
                 locators = path[index][key]
+                #print("locators: ", locators)
                 usid_block = 'fc00:0:'
-                for sid in list(locators):
-                    if sid == None:
-                        locators.remove(sid)
-                print("SRv6 locators for path: ", locators)
+                loc = [ele for ele in locators if ele != []]
+                #print("SRv6 locators for path: ", loc)
                 usid = []
-                for s in locators:
+                locatorlist=[x for n in (loc) for x in n]
+                print("path locator list: ", locatorlist)
+                for s in locatorlist:
                     if s != None and usid_block in s:
                         usid_list = s.split(usid_block)
                         #print(usid_list)
@@ -56,10 +59,12 @@ def gp_calc(src, dst, user, pw, dbname):
                 sidlist = ""
                 for word in usid:
                     sidlist += str(word) + ":"
-                #print(sidlist)
+                #print("path usid list: ", sidlist)
 
                 srv6_sid = usid_block + sidlist + ipv6_separator
-                #print("srv6 sid: ", srv6_sid)
+                print("srv6 sid for this path: ", srv6_sid)
+                print("""
+                      """)
                 siddict = {}
                 siddict['srv6_sid'] = srv6_sid
                 path[index][key].append(siddict)
@@ -73,7 +78,8 @@ def gp_calc(src, dst, user, pw, dbname):
             'destination': dst,
             'path': path
         }
-    print("All paths data from", src, "to", dst, "logged to log/get_paths.json" )
+    print("""All paths data from""", src, "to", dst, """logged to log/get_paths.json
+          """ )
     pathobj = json.dumps(pathdict, indent=4)
     #print(pathobj)
     return(pathobj)
