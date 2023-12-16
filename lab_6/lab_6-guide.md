@@ -327,7 +327,7 @@ For full size image see [LINK](/topo_drawings/low-latency-path.png)
     python3 jalapeno.py -f rome.json -e srv6 -s ll
     ping 10.101.2.1 -I 20.0.0.1 -i .3
     ```
-    1. As with Least Utilized Path we can run the tcpdump scripts On the XRD VM to see labeled or SRv6 encapsulated traffic traverse the network:
+    1. As with Least Utilized Path we can run the tcpdump scripts On the XRD VM to see labeled or SRv6 encapsulated traffic traverse the network. 
     ```
     ./tcpdump.sh xrd06-xrd07
     ```
