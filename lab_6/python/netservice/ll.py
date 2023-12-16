@@ -13,7 +13,7 @@ def ll_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane, encap):
             options { weightAttribute: 'latency' } \
                 return { node: v._key, name: v.name, sid: v.sids[*].srv6_sid, latency: e.latency } """)
     path = [doc for doc in cursor]
-    print("path: ", path)
+    #print("path: ", path)
     hopcount = len(path)
     #print("hops: ", hopcount)
     pq = ceil((hopcount/2)-1)

@@ -574,29 +574,28 @@ python3 jalapeno.py -f amsterdam.json -e srv6 -s lu
 cisco@amsterdam:~/SRv6_dCloud_Lab/lab_6/python$ python3 jalapeno.py -f amsterdam.json -e srv6 -s lu
 
 Least Utilized Service
-locator list for least utilized path:  ['fc00:0:1111::', 'fc00:0:2222::', 'fc00:0:3333::', 'fc00:0:4444::', 'fc00:0:7777::']
+locator list for least utilized path:  ['fc00:0:2222::', 'fc00:0:3333::', 'fc00:0:4444::', 'fc00:0:7777::']
 egress node locator:  fc00:0:7777::
 end.dt SID:  ['fc00:0:7777:e007::']
-srv6 sid:  fc00:0:1111:2222:3333:4444:7777:e007::
+srv6 sid:  fc00:0:2222:3333:4444:7777:e007::
 
-adding vpp sr-policy to:  20.0.0.0/24 , with SRv6 encap:  fc00:0:1111:2222:3333:4444:7777:e007::
+adding vpp sr-policy to:  20.0.0.0/24 , with SRv6 encap:  fc00:0:2222:3333:4444:7777:e007::
 sr steer: The requested SR steering policy could not be deleted.
 sr policy: BUG: sr policy returns -1
-sr policy: No Segment List specified
-sr steer: The requested SR policy could not be located. Review the BSID/index.
 
 Display VPP FIB entry: 
 ipv4-VRF:0, fib_index:0, flow hash:[src dst sport dport proto flowlabel ] epoch:0 flags:none locks:[adjacency:1, default-route:1, ]
-0.0.0.0/0 fib:0 index:0 locks:2
-  default-route refs:1 entry-flags:drop, src-flags:added,contributing,active,
-    path-list:[0] locks:2 flags:drop, uPRF-list:0 len:0 itfs:[]
-      path:[0] pl-index:0 ip4 weight=1 pref=0 special:  cfg-flags:drop,
-        [@0]: dpo-drop ip4
+20.0.0.0/24 fib:0 index:36 locks:2
+  SR refs:1 entry-flags:uRPF-exempt, src-flags:added,contributing,active,
+    path-list:[41] locks:2 flags:shared, uPRF-list:39 len:0 itfs:[]
+      path:[49] pl-index:41 ip6 weight=1 pref=0 recursive:  oper-flags:resolved,
+        via 101::101 in fib:3 via-fib:35 via-dpo:[dpo-load-balance:37]
 
  forwarding:   unicast-ip4-chain
-  [@0]: dpo-load-balance: [proto:ip4 index:1 buckets:1 uRPF:0 to:[0:0]]
-    [0] [@0]: dpo-drop ip4
-	Segments:< fc00:0:2222:3333:4444:7777:e006:0 > - Weight: 1      <------------ SRv6 Micro-SID encapsulation
+  [@0]: dpo-load-balance: [proto:ip4 index:38 buckets:1 uRPF:38 to:[0:0]]
+    [0] [@14]: dpo-load-balance: [proto:ip4 index:37 buckets:1 uRPF:-1 to:[0:0]]
+          [0] [@13]: SR: Segment List index:[0]
+	Segments:< fc00:0:2222:3333:4444:7777:e007:0 > - Weight: 1      <------------ SRv6 Micro-SID encapsulation
 ```
 
 2. Check log output and local routing table. You can also check the VPP FIB entry from linux:
@@ -620,13 +619,11 @@ ping 20.0.0.1 -i .4
 ```
 cisco@xrd:~/SRv6_dCloud_Lab/util$ sudo tcpdump -ni ens224
 <snip>
-01:17:48.874686 IP6 fc00:0:101:1::1 > fc00:0:2222:3333:4444:7777:e006:0: IP 10.101.2.1 > 20.0.0.1: ICMP echo request, id 12, seq 3, length 64
+01:17:48.874686 IP6 fc00:0:101:1::1 > fc00:0:2222:3333:4444:7777:e007:0: IP 10.101.2.1 > 20.0.0.1: ICMP echo request, id 12, seq 3, length 64
 01:17:48.949955 IP 20.0.0.1 > 10.101.2.1: ICMP echo reply, id 12, seq 3, length 64
 ```
 
-5. Continuing on the XRd VM use the tcpdump.sh <xrd0x-xrd0y> script to capture packets along the path from Amsterdam VM to Rome VM. Given the label stack seen above, we'll monitor the linux bridges along this path: xrd01 --> xrd02 --> xrd03 --> xrd04 --> xrd07
- - restart the ping if it is stopped
- - you can run all the listed tcpdumps, or simply check one or two of them:
+5. Optional: you can run tcpdump.sh for the hops along the path:
 ```
 ./tcpdump.sh xrd01-xrd02
 ```
@@ -640,35 +637,8 @@ cisco@xrd:~/SRv6_dCloud_Lab/util$ sudo tcpdump -ni ens224
 ./tcpdump.sh xrd04-xrd07
 ```
 
-6. Optional: execute the least utilized path service with SR-MPLS encapsulation
-```
-python3 jalapeno.py -f amsterdam.json -e sr -s lu
-```
-
-Truncated output:
-```
-Display VPP FIB entry: 
-ipv4-VRF:0, fib_index:0, flow hash:[src dst sport dport proto flowlabel ] epoch:0 flags:none locks:[adjacency:1, default-route:1, ]
-20.0.0.0/24 fib:0 index:31 locks:2
-  CLI refs:1 src-flags:added,contributing,active,
-    path-list:[22] locks:8 flags:shared, uPRF-list:33 len:1 itfs:[1, ]
-      path:[32] pl-index:22 ip4 weight=1 pref=0 attached-nexthop:  oper-flags:resolved,
-        10.101.1.2 GigabitEthernetb/0/0
-      [@0]: ipv4 via 10.101.1.2 GigabitEthernetb/0/0: mtu:9000 next:4 flags:[] 02420a6501020050569722bb0800
-    Extensions:
-     path:32  labels:[[100002 pipe ttl:0 exp:0][100003 pipe ttl:0 exp:0][100004 pipe ttl:0 exp:0][100007 pipe ttl:0 exp:0]]
- forwarding:   unicast-ip4-chain
-  [@0]: dpo-load-balance: [proto:ip4 index:33 buckets:1 uRPF:33 to:[0:0]]
-    [0] [@15]: mpls-label[@1]:[100002:64:0:neos][100003:64:0:neos][100004:64:0:neos][100007:64:0:eos]        <---- SR label stack
-        [@1]: mpls via 10.101.1.2 GigabitEthernetb/0/0: mtu:9000 next:2 flags:[] 02420a6501020050569722bb8847
-```
-Pings should be SR label-switched over same path through the network
-```
-ping 20.0.0.1 -i .4
-```
-
 ### Low Latency Path
-The procedure on Amsterdam is the same as Least Utilized Path. As with Rome, we'll focus on SRv6 for these final steps with SR-MPLS being optional.
+The procedure on Amsterdam is the same as Least Utilized Path
 
 1. Low latency SRv6 path on Amsterdam VM:
 ```
