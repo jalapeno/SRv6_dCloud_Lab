@@ -207,6 +207,8 @@ These container images are a set of proof-of-concept data processors that augmen
   - The *`lsnode-extended`* processor loops through various link-state data collections and gathers relevant SR/SRv6 data for each node in the network and populates the data in a new *`ls_node_extended`* data collection. 
   
   - The *`linkstate-edge-v4`* and *`linkstate-edge-v6`* processors generate separate graphs of the ipv4 and ipv6 link state topologies using the ls_node_extended elements.
+
+  - The *`ebgp-processor`* loops through the data collections and separates out eBGP and iBGP prefixes.
   
   - The *`ipv4-topology`* and *`ipv4-topology`* processors loop through the link-state graphs and other collections to add internal and external links, nodes, peers, prefixes, etc. to provide a complete topology model for both IPv4 and IPv6.
   
