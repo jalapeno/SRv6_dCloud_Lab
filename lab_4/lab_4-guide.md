@@ -1,9 +1,9 @@
 # Lab 4: Install Jalapeno and enable BMP [20 Min]
 
 ### Description
-In Lab 4 we will install the open-source Jalapeno data infrastructure platform. Jalapeno is designed to run on Kubernetes (k8s), which allows for easy integration into existing environments, and the ability to easily deploy on bare metal, VMs, or in a public cloud. Kubernetes experience is not required for Lab 4 as K8s has been preinstalled on the Jalapeno VM and we have included the required *kubectl* validation commands. 
+In Lab 4 we will install the open-source Jalapeno data infrastructure platform. Jalapeno is designed to run on Kubernetes (k8s), which allows for easy integration into existing environments and supports deployment on bare metal, VMs, or in a public cloud. Kubernetes experience is not required for this lab as K8s has been preinstalled on the Jalapeno VM and we have included the required *kubectl* validation commands. 
 
-Jalapeno package comes preinstalled in a VM. The student will first configure BGP Monitoring Protocol (BMP) on our route reflectors. Second we will add an SRv6 Locator to BGP default/global tables, which will be used in a later exercise where Amsterdam and Rome perform SRv6 encapsulation of their own outbound traffic.
+Prior to working the Jalapeno we will first configure BGP Monitoring Protocol (BMP) on our route reflectors. 
 
 ## Contents
 - [Lab 4: Install Jalapeno and enable BMP \[20 Min\]](#lab-4-install-jalapeno-and-enable-bmp-20-min)
@@ -14,20 +14,19 @@ Jalapeno package comes preinstalled in a VM. The student will first configure BG
     - [Jalapeno Architecture and Data Flow](#jalapeno-architecture-and-data-flow)
   - [Validate Jalapeno](#validate-jalapeno)
   - [BGP Monitoring Protocol (BMP)](#bgp-monitoring-protocol-bmp)
-  - [Configure a BGP SRv6 locator](#configure-a-bgp-srv6-locator)
-  - [Install Jalapeno SR-Processors](#install-jalapeno-sr-processors)
+  - [BGP SRv6 locator](#bgp-srv6-locator)
+  - [Install Jalapeno GraphDB Processors](#install-jalapeno-graphdb-processors)
       - [Return to the ssh session on the Jalapeno VM](#return-to-the-ssh-session-on-the-jalapeno-vm)
     - [End of Lab 4](#end-of-lab-4)
 
 ## Lab Objectives
 The student upon completion of Lab 4 should have achieved the following objectives:
 
-* High level understanding of the Jalapeno software stack
+* High level understanding of the Jalapeno data collection and topology modeling stack
 * Understanding and configuration of BMP
-* Creation of SRv6 locator/function SIDs for BGP IPv4 and IPv6 global tables
 
 ## Jalapeno Overview
-Project Jalapeno combines existing open source tools with some new stuff we've developed into a data collection and warehousing infrastructure intended to enable development of SDN or network service applications. Think of it as applying microservices architecture and concepts to SDN: give developers the ability to quickly and easily build microservice control planes on top of a common data infrastructure. More information on Jalapeno can be found at the Jalapeno Git repository: [LINK](https://github.com/cisco-open/jalapeno/blob/main/README.md)
+Project Jalapeno combines existing open source tools with some new stuff we've developed into a data collection and warehousing infrastructure intended to enable development of network service applications. Think of it as applying microservices architecture and concepts to SDN: give developers the ability to quickly and easily build microservice control planes on top of a common data infrastructure. More information on Jalapeno can be found at the Jalapeno Git repository: [LINK](https://github.com/cisco-open/jalapeno/blob/main/README.md)
 
 ### Jalapeno Architecture and Data Flow
 ![jalapeno_architecture](https://github.com/cisco-open/jalapeno/blob/main/docs/diagrams/jalapeno_architecture.png)
@@ -39,7 +38,7 @@ Jalapeno breaks the data collection and warehousing problem down into a series o
 - **Arango GraphDB** is used for modeling topology data
 - **InfluxDB** is used for warehousing statistical time-series data
 - **API-Gateway**: is currently under construction so for the lab we'll interact directly with the DB
-- **Jalapeno's installation script** will also deploy a Grafana container, which can be used to create dashboards to visualize the Influx time-series data (this is out of scope for CLEU 2023, but is on our roadmap for future labs)
+- **Jalapeno's installation script** will also deploy a Grafana container, which can be used to create dashboards to visualize the Influx time-series data
 
 One of the primary goals of the Jalapeno project is to be flexible and extensible. In the future we expect Jalapeno might support any number of data collectors and processors. For example the could be a collector/processor pair that creates an LLDP Topology model in the graphDB. Netflow data could be incorporated via a future integration with pmacct. Or an operator might already have a telemetry stack and could choose to selectively integrate Jalapeno's GoBMP/Topology/GraphDB modules into an existing environment running Kafka. We also envision future integrations with other API-driven data warehouses such as Cisco ThousandEyes: https://www.thousandeyes.com/
 
@@ -49,6 +48,11 @@ The Jalapeno package is preinstalled and running on the **Jalapeno** VM
 
 1. Verify k8s pods are running (note, some pods may initially be in a *CrashLoopBackOff* state. These should resolve after 2-3 minutes). For those students new to Kubernetes you can reference this cheat sheet [HERE](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)  
 
+    - ssh to Jalapeno VM
+    ```
+    ssh cisco@198.18.128.101
+    ```
+    - verify k8s pods
     ```
     kubectl get pods -A
     ```
@@ -94,7 +98,7 @@ The Jalapeno package is preinstalled and running on the **Jalapeno** VM
 
 Most transport SDN systems use BGP-LS to gather and model the underlying IGP topology. Jalapeno is intended to be a more generalized data platform to support use cases beyond internal transport such as VPNs or service chains. Because of this, Jalapeno's primary method of capturing topology data is via BMP. BMP provides all BGP AFI/SAFI info, thus Jalapeno is able to model many different kinds of topology, including the topology of the Internet (at least from the perspective of our peering routers).
 
-We'll first establish a BMP session between our route-reflectors and the open-source GoBMP collector, which comes pre-packaged with the Jalapeno install. We'll then enable BMP on the RRs' BGP peering sessions with our PE routers xrd01 and xrd07. Once established, the RRs' will stream all BGP NLRI info they receive from the PE routers to the GoBMP collector, which will in turn publish the data to Kafka. We'll get more into the Jalapeno data flow in Lab 6.
+We'll first establish a BMP session between our route-reflectors and the open-source GoBMP collector, which comes pre-packaged with the Jalapeno install. We'll then enable BMP monitoring of the RRs' BGP peering sessions with our PE routers xrd01 and xrd07. Once established, the RRs' will stream all BGP NLRI info they receive from the PE routers to the GoBMP collector, which will in turn publish the data to Kafka. We'll get more into the Jalapeno data flow in Lab 5.
 
 GoBMP Git Repository [HERE]((https://github.com/sbezverk/gobmp)
 
@@ -124,18 +128,18 @@ GoBMP Git Repository [HERE]((https://github.com/sbezverk/gobmp)
     commit
     ```
 
-2. Validate BMP session establishment and client monitoring (the session may take a couple minutes to become active/connected):
+2. Validate BMP session establishment and client monitoring (the session may take a couple minutes to become active/established):
     ```
     show bgp bmp summary
     ```
 
-    Expected output (truncated):  
+    Expected output:  
     ```
-    RP/0/RP0/CPU0:xrd05#show bgp bmp summary
-    Fri Jan 20 21:50:08.460 UTC
+    RP/0/RP0/CPU0:xrd06#show bgp bmp sum
+    Sat Dec 16 03:19:26.045 UTC
     ID   Host                 Port     State   Time        NBRs
-    1   198.18.128.101       30511    CONNECT 00:00:00    4
-    RP/0/RP0/CPU0:xrd05# 
+    1   198.18.128.101       30511    ESTAB   00:00:07    4   
+    RP/0/RP0/CPU0:xrd06#
 
     ```
 
@@ -167,31 +171,18 @@ GoBMP Git Repository [HERE]((https://github.com/sbezverk/gobmp)
     - unicast_prefix_v4
     - unicast_prefix_v6
 
-## Configure a BGP SRv6 locator
-When we get to lab 6 we'll be sending SRv6 encapsulated traffic directly to/from Amsterdam and Rome. We'll need an SRv6 end.DT4/6 function at the egress nodes *`xrd01`* and *`xrd07`*) to be able to pop the SRv6 encap and perform a global table lookup on the underlying payload. Configuring an SRv6 locator under BGP will trigger creation of the end.DT4/6 functions:
+## BGP SRv6 locator
+In lab 1 we configured an SRv6 locator for the BGP global/default table. When we get to lab 6 we'll use these locators as we'll be sending SRv6 encapsulated traffic directly to/from Amsterdam and Rome. With our endpoints performing SRv6 encapsulation our BGP SRv6 locator will provide the end.DT4/6 function at the egress nodes *`xrd01`* and *`xrd07`*) to be able to pop the SRv6 encap and perform a global table lookup on the underlying payload.
 
-1. Configure SRv6 locators for BGP on both **xrd01** and **xrd07**:
-    ```
-    router bgp 65000
-      address-family ipv4 unicast
-        segment-routing srv6
-        locator MyLocator
-      
-      address-family ipv6 unicast
-        segment-routing srv6
-        locator MyLocator
-    commit
-    ```
-
-2. Validate end.DT4/6 SIDs belonging to BGP default table:
+1. Optional - re-validate end.DT4/6 SIDs belonging to BGP default table:
     ```
     show segment-routing srv6 sid
     ```
 
     Expected output on **xrd01** should look something like:  
     ```
-    RP/0/RP0/CPU0:xrd01#sho segment-routing srv6 sid 
-    Sun Jan 29 03:29:03.559 UTC
+    RP/0/RP0/CPU0:xrd01#show segment-routing srv6 sid
+    Sat Dec 16 03:25:40.943 UTC
 
     *** Locator: 'MyLocator' *** 
 
@@ -202,17 +193,23 @@ When we get to lab 6 we'll be sending SRv6 encapsulated traffic directly to/from
     fc00:0:1111:e001::          uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0         isis-100            InUse  Y 
     fc00:0:1111:e002::          uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0:P       isis-100            InUse  Y 
     fc00:0:1111:e003::          uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0         isis-100            InUse  Y 
-    fc00:0:1111:e004::          uDT4              'carrots'                         bgp-65000           InUse  Y 
-    fc00:0:1111:e005::          uDT6              'carrots'                         bgp-65000           InUse  Y 
-    fc00:0:1111:e006::          uB6 (Insert.Red)  'srte_c_50_ep_fc00:0:7777::1' (50, fc00:0:7777::1)  xtc_srv6            InUse  Y 
-    fc00:0:1111:e007::          uB6 (Insert.Red)  'srte_c_40_ep_fc00:0:7777::1' (40, fc00:0:7777::1)  xtc_srv6            InUse  Y 
-    fc00:0:1111:e008::          uDT4              'default'                         bgp-65000           InUse  Y 
-    fc00:0:1111:e009::          uDT6              'default'                         bgp-65000           InUse  Y 
+    fc00:0:1111:e004::          uDT4              'default'                         bgp-65000           InUse  Y 
+    fc00:0:1111:e005::          uDT4              'carrots'                         bgp-65000           InUse  Y 
+    fc00:0:1111:e006::          uDT6              'default'                         bgp-65000           InUse  Y 
+    fc00:0:1111:e007::          uDT6              'carrots'                         bgp-65000           InUse  Y 
+    fc00:0:1111:e008::          uB6 (Insert.Red)  'srte_c_50_ep_fc00:0:7777::1' (50, fc00:0:7777::1)  xtc_srv6            InUse  Y 
+    fc00:0:1111:e009::          uB6 (Insert.Red)  'srte_c_40_ep_fc00:0:7777::1' (40, fc00:0:7777::1)  xtc_srv6            InUse  Y 
+    RP/0/RP0/CPU0:xrd01#
     ``` 
-## Install Jalapeno SR-Processors
-The SR-Processors are a set of proof-of-concept data processors that augment Jalapeno's graphDB modeling of the network.  
-  - The *`sr-node processor`* loops through various link-state data collections and gathers relevant SR/SRv6 data for each node in the network and populates the data in a new *`sr_node`* data collection. 
-  - The *`sr-topology`* processor generates a graph of the entire network topology (internal and external links, nodes, peers, prefixes, etc.) and populates relevant SR/SRv6 data within the *`sr_topology`* graph collection.
+## Install Jalapeno GraphDB Processors
+These container images are a set of proof-of-concept data processors that augment Jalapeno's graphDB modeling of the network.  
+
+  - The *`lsnode-extended`* processor loops through various link-state data collections and gathers relevant SR/SRv6 data for each node in the network and populates the data in a new *`ls_node_extended`* data collection. 
+  
+  - The *`linkstate-edge-v4`* and *`linkstate-edge-v6`* processors generate separate graphs of the ipv4 and ipv6 link state topologies using the ls_node_extended elements.
+  
+  - The *`ipv4-topology`* and *`ipv4-topology`* processors loop through the link-state graphs and other collections to add internal and external links, nodes, peers, prefixes, etc. to provide a complete topology model for both IPv4 and IPv6.
+  
   - The *`srv6-localsids`* processor harvests SRv6 SID data from a Kafka streaming telemetry topic and populates it in the *`sr_local_sids`* collection. This data is not available via BMP and is needed to construct full End.DT SIDs that we'll use in lab 6.  Example:
 
 ```
@@ -231,16 +228,16 @@ fc00:0:1111:e005::      uDT6            'carrots'                      bgp-65000
 
 #### Return to the ssh session on the Jalapeno VM
 
-1. Install SR-Processors:
-  The below command *kubectl apply* will input a yaml template file and launch the specified pods.
+1. Install Jalapeno GraphDB Processors with the 'deploy' shell script. The script will execute *kubectl apply -f < yaml filename > * commands which launch the specified pods per the yaml configurations
 
     ```
-    cd ~/SRv6_dCloud_Lab/lab_4/sr-processors
-    kubectl apply -f sr-node.yaml 
-    kubectl apply -f sr-topology.yaml 
-    kubectl apply -f srv6-localsids.yaml
-    
+    cd ~/SRv6_dCloud_Lab/lab_4/graphdb-processors
+
+    cat deploy-processors.sh
+   
+    ./deploy-processors.sh
     ```
+
 2. Validate the pods are up and running in the 'jalapeno' namespace:
     ```
     kubectl get pods -n jalapeno
@@ -262,7 +259,7 @@ fc00:0:1111:e005::      uDT6            'carrots'                      bgp-65000
     topology-678ddb8bb4-rt9jg                     1/1     Running   3 (11m ago)   12m
     zookeeper-0                                   1/1     Running   0             12m
     ```
-3. Check ArangoDB for new *`sr_node`*, *`sr_topology`*, and *`srv6_local_sids`* data collections, and that they contain data. For example, *`sr_node`* should look something like this with seven entries:
+2. Check ArangoDB for new *`sr_node`*, *`sr_topology`*, and *`srv6_local_sids`* data collections, and that they contain data. For example, *`sr_node`* should look something like this with seven entries:
 
   <img src="images/sr_node.png" width="1200">
 
