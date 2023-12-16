@@ -31,6 +31,7 @@ def lu_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane, encap):
     #print("locators: ", locators)
     loc = [ele for ele in locators if ele != []]
     locatorlist=[x for n in (loc) for x in n]
+    locatorlist.pop(0) # remove first entry as its the ingress SRv6 node
     print("locator list for least utilized path: ", locatorlist)
     usid = []
     for s in locatorlist:

@@ -397,7 +397,7 @@ For full size image see [LINK](/topo_drawings/low-latency-alternate-path.png)
 ### Data Sovereignty Path
 The Data Sovereignty service enables the user or application to steer their traffic through a path or geography that is considered safe per legal guidelines or other regulatory framework. In our case the "DS" service allows us to choose a country (or countries) to avoid when transmitting traffic from a source to a given destination. The country to avoid is specified as a country code in the rome.json and amsterdam.json files. In our testing we've specified that traffic should avoid France (FRA). xrd06 is located in Paris, so all requests to the DS service should produce a shortest-path result that avoids xrd06.
 
-The procedure for testing/running the Data Sovereignty Service is the same as the one we followed with Least Utilized and Low Latency Path.
+The procedure for testing/running the Data Sovereignty Service is the same as the one we followed with Least Utilized and Low Latency Path. Data Sovereignty traffic should flow in the direction of **xrd07** -> **xrd04** -> **xrd05** -> **xrd01**
  
 1. SRv6 on Rome VM:
 ```
@@ -478,6 +478,12 @@ dpdk {
 
 5. VPP's CLI may be invoked directly:
 ```
+sudo vppctl
+
+show interface address
+```
+Example:
+```
 cisco@amsterdam:~/SRv6_dCloud_Lab/lab_6/python$ sudo vppctl
     _______    _        _   _____  ___ 
  __/ __/ _ \  (_)__    | | / / _ \/ _ \
@@ -495,7 +501,7 @@ vpp#
 vpp# quit
 cisco@amsterdam:~/SRv6_dCloud_Lab/lab_6/python$
 ```
-6. Or driven from the Linux command line:
+6. VPP CLI can also b driven from the Linux command line:
 ```
 cisco@amsterdam:~/SRv6_dCloud_Lab/lab_6$ sudo vppctl show interface address
 GigabitEthernetb/0/0 (up):
@@ -514,7 +520,7 @@ show interface           # interface status and stats
 ```
 
 ### Jalapeno Client on Amsterdam:
-The client operates on Amsterdam the same way it operates on the Rome VM, and it supports the same set of network services. amsterdam.json specifies to the use of a *VPP* dataplane, therefore the client will construct a VPP SR or SRv6 route/policy upon completing its path calculation.
+The client operates on Amsterdam the same way it operates on the Rome VM, and it supports the same set of network services. *`amsterdam.json`*` specifies to the use of a *VPP* dataplane, therefore the client will construct a VPP SRv6 route/policy upon completing its path calculation.
 
 
 ## Amsterdam Network Services
@@ -534,19 +540,21 @@ more log/get_paths.json
  - Expected console output:
 
 ```
-cisco@amsterdam:~/SRv6_dCloud_Lab/lab_6/python$ python3 jalapeno.py -f amsterdam.json -e srv6 -s gp
-src data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'src_peer': '10.0.0.1'}]
-dest data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'dst_peer': '10.0.0.7'}]
 Get All Paths Service
 number of paths found:  4
-SRv6 locators for path:  ['fc00:0:2222::', 'fc00:0:6666::', 'fc00:0:7777::']
-SR prefix sids for path:  [100002, 100006, 100007]
-SRv6 locators for path:  ['fc00:0:5555::', 'fc00:0:4444::', 'fc00:0:7777::']
-SR prefix sids for path:  [100005, 100004, 100007]
-SRv6 locators for path:  ['fc00:0:5555::', 'fc00:0:6666::', 'fc00:0:7777::']
-SR prefix sids for path:  [100005, 100006, 100007]
-SRv6 locators for path:  ['fc00:0:2222::', 'fc00:0:3333::', 'fc00:0:4444::', 'fc00:0:7777::']
-SR prefix sids for path:  [100002, 100003, 100004, 100007]
+
+path locator list:  ['fc00:0:1111::', 'fc00:0:2222::', 'fc00:0:6666::', 'fc00:0:7777::']
+srv6 sid for this path:  fc00:0:1111:2222:6666:7777::
+
+path locator list:  ['fc00:0:1111::', 'fc00:0:5555::', 'fc00:0:4444::', 'fc00:0:7777::']
+srv6 sid for this path:  fc00:0:1111:5555:4444:7777::
+
+path locator list:  ['fc00:0:1111::', 'fc00:0:5555::', 'fc00:0:6666::', 'fc00:0:7777::']
+srv6 sid for this path:  fc00:0:1111:5555:6666:7777::
+
+path locator list:  ['fc00:0:1111::', 'fc00:0:2222::', 'fc00:0:3333::', 'fc00:0:4444::', 'fc00:0:7777::']
+srv6 sid for this path:  fc00:0:1111:2222:3333:4444:7777::
+
 All paths data from unicast_prefix_v4/10.101.2.0_24_10.0.0.1 to unicast_prefix_v4/20.0.0.0_24_10.0.0.7 logged to log/get_paths.json
 ```
 
@@ -564,32 +572,30 @@ python3 jalapeno.py -f amsterdam.json -e srv6 -s lu
  - The client's command line output will include info on VPP's new forwarding table:
 ```
 cisco@amsterdam:~/SRv6_dCloud_Lab/lab_6/python$ python3 jalapeno.py -f amsterdam.json -e srv6 -s lu
-src data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'src_peer': '10.0.0.1'}]
-dest data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'dst_peer': '10.0.0.7'}]
+
 Least Utilized Service
-locators:  ['fc00:0:2222::', 'fc00:0:3333::', 'fc00:0:4444::', 'fc00:0:7777::']
-prefix_sids:  [100002, 100003, 100004, 100007]
+locator list for least utilized path:  ['fc00:0:1111::', 'fc00:0:2222::', 'fc00:0:3333::', 'fc00:0:4444::', 'fc00:0:7777::']
 egress node locator:  fc00:0:7777::
-end.dt SID:  ['fc00:0:7777:e006::']
-lu calc localsid:  7777:e006::
-usd:  7777::
-newsid:  fc00:0:2222:3333:4444:7777:e006::
-srv6 sid:  fc00:0:2222:3333:4444:7777::
-adding vpp sr-policy to:  20.0.0.0/24 , with SRv6 encap:  fc00:0:2222:3333:4444:7777:e006::
+end.dt SID:  ['fc00:0:7777:e007::']
+srv6 sid:  fc00:0:1111:2222:3333:4444:7777:e007::
+
+adding vpp sr-policy to:  20.0.0.0/24 , with SRv6 encap:  fc00:0:1111:2222:3333:4444:7777:e007::
 sr steer: The requested SR steering policy could not be deleted.
 sr policy: BUG: sr policy returns -1
+sr policy: No Segment List specified
+sr steer: The requested SR policy could not be located. Review the BSID/index.
+
 Display VPP FIB entry: 
 ipv4-VRF:0, fib_index:0, flow hash:[src dst sport dport proto flowlabel ] epoch:0 flags:none locks:[adjacency:1, default-route:1, ]
-20.0.0.0/24 fib:0 index:36 locks:2
-  SR refs:1 entry-flags:uRPF-exempt, src-flags:added,contributing,active,
-    path-list:[41] locks:2 flags:shared, uPRF-list:39 len:0 itfs:[]
-      path:[49] pl-index:41 ip6 weight=1 pref=0 recursive:  oper-flags:resolved,
-        via 101::101 in fib:3 via-fib:35 via-dpo:[dpo-load-balance:37]
+0.0.0.0/0 fib:0 index:0 locks:2
+  default-route refs:1 entry-flags:drop, src-flags:added,contributing,active,
+    path-list:[0] locks:2 flags:drop, uPRF-list:0 len:0 itfs:[]
+      path:[0] pl-index:0 ip4 weight=1 pref=0 special:  cfg-flags:drop,
+        [@0]: dpo-drop ip4
 
  forwarding:   unicast-ip4-chain
-  [@0]: dpo-load-balance: [proto:ip4 index:38 buckets:1 uRPF:38 to:[0:0]]
-    [0] [@14]: dpo-load-balance: [proto:ip4 index:37 buckets:1 uRPF:-1 to:[0:0]]
-          [0] [@13]: SR: Segment List index:[0]
+  [@0]: dpo-load-balance: [proto:ip4 index:1 buckets:1 uRPF:0 to:[0:0]]
+    [0] [@0]: dpo-drop ip4
 	Segments:< fc00:0:2222:3333:4444:7777:e006:0 > - Weight: 1      <------------ SRv6 Micro-SID encapsulation
 ```
 

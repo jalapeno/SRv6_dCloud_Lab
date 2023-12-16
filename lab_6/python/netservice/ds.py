@@ -32,6 +32,7 @@ def ds_calc(src_id, dst_id, dst, user, pw, dbname, ctr, intf, dataplane, encap):
 
     loc = [ele for ele in locators if ele != []]
     locatorlist=[x for n in (loc) for x in n]
+    locatorlist.pop(0) # remove first entry as its the ingress SRv6 node
     print()
     print("locator list for data sovereignty path: ", locatorlist)
     usid = []
