@@ -208,7 +208,7 @@ These container images are a set of proof-of-concept data processors that augmen
   
   - The *`linkstate-edge-v4`* and *`linkstate-edge-v6`* processors generate separate graphs of the ipv4 and ipv6 link state topologies using the ls_node_extended elements.
 
-  - The *`ebgp-processor`* loops through the data collections and separates out eBGP and iBGP prefixes.
+  - The *`ebgp-processor`* loops through the data collections and separates out external and internal prefixes. 
   
   - The *`ipv4-topology`* and *`ipv4-topology`* processors loop through the link-state graphs and other collections to add internal and external links, nodes, peers, prefixes, etc. to provide a complete topology model for both IPv4 and IPv6.
   
@@ -274,9 +274,7 @@ fc00:0:1111:e005::      uDT6            'carrots'                      bgp-65000
     topology-678ddb8bb4-89c6d                     1/1     Running   26 (15h ago)   326d
     zookeeper-0                                   1/1     Running   6 (15h ago)    326d
     ```
-3. Check ArangoDB for new *`sr_node`*, *`sr_topology`*, and *`srv6_local_sids`* data collections, and that they contain data. For example, *`sr_node`* should look something like this with seven entries:
-
-  <img src="images/sr_node.png" width="1200">
+3. In ArangoDB you should see a number of new collections such as *`ls_node_extended`*, *`ls_topology_v4`*, *`ls_topology_v6`*, and *`srv6_local_sids`*.
 
  - Note: srv6_local_sids may not populate with data for up to 2 minutes as it is reliant on streaming telemetry configuration of 120 seconds (see xrd01 'telemetry model-driven' config section). 
 
