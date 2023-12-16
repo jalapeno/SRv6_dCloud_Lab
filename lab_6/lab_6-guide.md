@@ -20,7 +20,6 @@ The host-based SRv6 encap/decap could be executed at the Linux networking layer,
   - [Get All Paths](#get-all-paths)
   - [Least Utilized Path](#least-utilized-path)
   - [Low Latency Path](#low-latency-path)
-    - [While jalapeno.py supports both SR and SRv6 for its Network Services, for the remainder of Lab 6 we will focus just on SRv6](#while-jalapenopy-supports-both-sr-and-srv6-for-its-network-services-for-the-remainder-of-lab-6-we-will-focus-just-on-srv6)
   - [Low Latency Re-Route](#low-latency-re-route)
   - [Data Sovereignty Path](#data-sovereignty-path)
 - [Amsterdam VM](#amsterdam-vm)
@@ -291,21 +290,16 @@ listening on ens192, link-type EN10MB (Ethernet), capture size 262144 bytes
 
 *Note: feel free to just spot check 1 or 2 of these:
 
-*`xrd07`* to *`xrd06`*
 ```
 cd cd ~/SRv6_dCloud_Lab/util/
+
 ./tcpdump.sh xrd06-xrd07
-```
 
-*`xrd06`* to *`xrd02`*
-```
 ./tcpdump.sh xrd02-xrd06
-```
 
-*`xrd02`* to *`xrd01`*
-```
 ./tcpdump.sh xrd01-xrd02
 ```
+
  - Example output for the link between *`xrd06`* to *`xrd02`* is below. Note how *`xrd06`* has performed SRv6 micro-SID shift-and-forward on the destination address. Also note how the return traffic is taking SR-MPLS transport (currently). 
 ```
 cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd02-xrd06
@@ -318,47 +312,14 @@ listening on br-07e02174172b, link-type EN10MB (Ethernet), capture size 262144 b
 23:30:46.315159 MPLS (label 100007, exp 0, ttl 61) (label 24010, exp 0, [S], ttl 62) IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 4, seq 10, length 64
 ```
 
-7. Optional: run the least utilized path service with SR encapsulation
-``` 
-./cleanup_rome_routes.sh 
-python3 jalapeno.py -f rome.json -e sr -s lu
-```
- - The client's command line output should display the new route in the routing table:
-```
-cisco@rome:~/SRv6_dCloud_Lab/lab_6/python$ python3 jalapeno.py -f rome.json -e sr -s lu
-src data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'src_peer': '10.0.0.7'}]
-dest data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'dst_peer': '10.0.0.1'}]
-Least Utilized Service
-locators:  ['fc00:0:6666::', 'fc00:0:2222::', 'fc00:0:1111::']
-prefix_sids:  [100006, 100002, 100001]
-srv6 sid:  fc00:0:6666:2222:1111::
-adding linux SR route: ip route add 10.101.2.0/24 encap mpls 100006/100002/100001 via 10.107.1.2 dev ens192
-RTNETLINK answers: File exists
-show linux route table: 
-default via 198.18.128.1 dev ens160 proto static 
-10.0.0.0/24 via 10.107.1.2 dev ens192 proto static 
-10.1.1.0/24 via 10.107.1.2 dev ens192 proto static 
-10.101.1.0/24 via 10.107.1.2 dev ens192 proto static 
-10.101.2.0/24  encap mpls  100006/100002/100001 via 10.107.1.2 dev ens192    <------------
-10.101.2.0/24 via 10.107.1.2 dev ens192 proto static 
-10.101.3.0/24 via 10.107.2.2 dev ens224 proto static 
-10.107.1.0/24 dev ens192 proto kernel scope link src 20.0.0.1 
-10.107.2.0/24 dev ens224 proto kernel scope link src 10.107.2.1 
-198.18.128.0/18 dev ens160 proto kernel scope link src 198.18.128.103  
-```
-
-8. Optional: repeat, or just spot-check the ping and tcpdump steps described in 3 - 5 to see the SR label switching in action
-
 ### Low Latency Path
-The Low Latency Path service will calculate an SR/SRv6 encapsulation instruction for sending traffic over the lowest latency path from a source to a given destination. The procedure for testing/running the Low Latency Path service is the same as the one we followed with Least Utilized Path. 
+The Low Latency Path service will calculate an SSRv6 encapsulation instruction for sending traffic over the lowest latency path from a source to a given destination. The procedure for testing/running the Low Latency Path service is the same as the one we followed with Least Utilized Path. 
 
-Looking at the below diagram the low latency path from Rome to Amsterdam across the network should follow the path in the below diagram. Traffic should flow in the direction of **xrd07** -> **xrd06** -> **xrd05** -> **xrd01**
+The low latency path from Rome to Amsterdam should follow the path shown in the below diagram. Traffic should flow in the direction of **xrd07** -> **xrd06** -> **xrd05** -> **xrd01**
 
 ![Low Latency Path](/topo_drawings/low-latency-path.png)
 
 For full size image see [LINK](/topo_drawings/low-latency-path.png)
-
-#### While jalapeno.py supports both SR and SRv6 for its Network Services, for the remainder of Lab 6 we will focus just on SRv6
 
 1. Low latency SRv6 service on Rome VM:
     ```
@@ -366,7 +327,7 @@ For full size image see [LINK](/topo_drawings/low-latency-path.png)
     python3 jalapeno.py -f rome.json -e srv6 -s ll
     ping 10.101.2.1 -I 20.0.0.1 -i .3
     ```
-    2. As with Least Utilized Path we can run the tcpdump scripts On the XRD VM to see labeled or SRv6 encapsulated traffic traverse the network:
+    1. As with Least Utilized Path we can run the tcpdump scripts On the XRD VM to see labeled or SRv6 encapsulated traffic traverse the network:
     ```
     ./tcpdump.sh xrd06-xrd07
     ```

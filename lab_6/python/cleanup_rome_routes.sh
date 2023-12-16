@@ -2,7 +2,7 @@
 
 result=$(bash -c 'sudo ip route del 10.101.2.0/24  encap seg6 mode encap segs fc00:0:6666:2222:1111::  dev ens192 scope link' 2>&1)
 result=$(bash -c 'sudo ip route del 10.101.2.0/24  encap seg6 mode encap segs fc00:0:6666:2222:1111:e008:: dev ens192 scope link' 2>&1)
-result=$(bash -c 'sudo ip route del 10.101.2.0/24  encap seg6 mode encap segs fc00:0:6666:2222:1111:e006:: dev ens192 scope link' 2>&1)
+result=$(bash -c 'sudo ip route del 10.101.2.0/24  encap seg6 mode encap segs fc00:0:6666:2222:1111:e007:: dev ens192 scope link' 2>&1)
 
 result=$(bash -c 'sudo ip route del 10.101.2.0/24  encap seg6 mode encap segs fc00:0:6666:5555:1111::  dev ens192 scope link' 2>&1)
 result=$(bash -c 'sudo ip route del 10.101.2.0/24  encap seg6 mode encap segs fc00:0:6666:5555:1111:e006::  dev ens192 scope link' 2>&1)
