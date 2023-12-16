@@ -177,7 +177,7 @@ services:
     stdin_open: true
     tty: true
     volumes:
-    - source: ./config/srv6/xrd01.cfg
+    - source: ./config/xrd01.cfg
       target: /etc/xrd/startup.cfg
       type: bind
     - xrd01:/xr-storage/
@@ -231,7 +231,7 @@ services:
     stdin_open: true
     tty: true
     volumes:
-    - source: ./config/srv6/xrd02.cfg
+    - source: ./config/xrd02.cfg
       target: /etc/xrd/startup.cfg
       type: bind
     - xrd02:/xr-storage/
@@ -285,7 +285,7 @@ services:
     stdin_open: true
     tty: true
     volumes:
-    - source: ./config/srv6/xrd03.cfg
+    - source: ./config/xrd03.cfg
       target: /etc/xrd/startup.cfg
       type: bind
     - xrd03:/xr-storage/
@@ -339,7 +339,7 @@ services:
     stdin_open: true
     tty: true
     volumes:
-    - source: ./config/srv6/xrd04.cfg
+    - source: ./config/xrd04.cfg
       target: /etc/xrd/startup.cfg
       type: bind
     - xrd04:/xr-storage/
@@ -447,7 +447,7 @@ services:
     stdin_open: true
     tty: true
     volumes:
-    - source: ./config/srv6/xrd06.cfg
+    - source: ./config/xrd06.cfg
       target: /etc/xrd/startup.cfg
       type: bind
     - xrd06:/xr-storage/
@@ -501,7 +501,7 @@ services:
     stdin_open: true
     tty: true
     volumes:
-    - source: ./config/srv6/xrd07.cfg
+    - source: ./config/xrd07.cfg
       target: /etc/xrd/startup.cfg
       type: bind
     - xrd07:/xr-storage/
