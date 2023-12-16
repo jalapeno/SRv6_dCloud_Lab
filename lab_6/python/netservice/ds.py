@@ -5,14 +5,14 @@ from . import add_route, local_sid
 ### SRv6 Data Sovereignty
 # Query DB for a path that avoids a given country and return srv6 and sr sid info
 def ds_calc(src_id, dst_id, dst, user, pw, dbname, ctr, intf, dataplane, encap):
-    print("dst: ", dst)
+    #print("dst: ", dst)
     client = ArangoClient(hosts='http://198.18.128.101:30852')
     db = client.db(dbname, username=user, password=pw)
     cursor = db.aql.execute("""for p in outbound k_shortest_paths \
         """ + '"%s"' % src_id + """ to """ + '"%s"' % dst_id + """ ipv4_topology \
             options {uniqueVertices: "path", bfs: true} \
             filter p.edges[*].country_codes !like "%"""+'%s' % ctr +"""%" limit 1 \
-                return { path: p.edges[*].remote_node_name, sid: p.edges[*].srv6_sid, prefix_sid: p.edges[*].prefix_sid, \
+                return { path: p.vertices[*].name, sid: p.vertices[*].sids[*].srv6_sid, \
                     countries_traversed: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency), \
                         percent_util_out: avg(p.edges[*].percent_util_out)} """)
 
@@ -28,10 +28,14 @@ def ds_calc(src_id, dst_id, dst, user, pw, dbname, ctr, intf, dataplane, encap):
     for sid in list(locators):
         if sid == None:
             locators.remove(sid)
-    print("locators: ", locators)
+    #print("locators: ", locators)
 
+    loc = [ele for ele in locators if ele != []]
+    locatorlist=[x for n in (loc) for x in n]
+    print()
+    print("locator list for data sovereignty path: ", locatorlist)
     usid = []
-    for s in locators:
+    for s in locatorlist:
         if s != None and usid_block in s:
             usid_list = s.split(usid_block)
             sid = usid_list[1]
@@ -46,7 +50,7 @@ def ds_calc(src_id, dst_id, dst, user, pw, dbname, ctr, intf, dataplane, encap):
         sidlist += str(word) + ":"
 
     ### From here we're going to get the end.dt localsid and add it to the uSID dest
-    locator = locators[-1]
+    locator = locatorlist[-1]
     print("egress node locator: ", locator)
     localsid = local_sid.localsid(user, pw, dbname,locator, usid_block)
     
@@ -59,7 +63,7 @@ def ds_calc(src_id, dst_id, dst, user, pw, dbname, ctr, intf, dataplane, encap):
     newsid = srv6_sid.replace(usd, localsid)
 
     ### Return to original code
-    print("srv6 sid: ", srv6_sid)
+    print("srv6 sid: ", newsid)
 
     ### from here on replace "srv6_sid" variable with "newsid"
 
@@ -69,18 +73,18 @@ def ds_calc(src_id, dst_id, dst, user, pw, dbname, ctr, intf, dataplane, encap):
     path.append(siddict)
 
     ### SR MPLS processing
-    prefix_sid = pdict['prefix_sid']
-    for sid in list(prefix_sid):
-        if sid == None:
-            prefix_sid.remove(sid)
-    print("prefix_sids: ", prefix_sid)
+    prefix_sid = 'prefix_sid'
+    # prefix_sid = pdict['prefix_sid']
+    # for sid in list(prefix_sid):
+    #     if sid == None:
+    #         prefix_sid.remove(sid)
+    # print("prefix_sids: ", prefix_sid)
 
     pathdict = {
             'statusCode': 200,
             'source': src_id,
             'destination': dst_id,
             'sid': newsid,
-            'sr_label_stack': prefix_sid,
             'path': path
         }    
     #print("route_add parameters = sid: ", srv6_sid, "sr_label_stack: ", prefix_sid, "dest: ", dst, "intf: ", intf, "dataplane: ", dataplane)

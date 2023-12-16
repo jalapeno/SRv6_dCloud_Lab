@@ -30,9 +30,9 @@ def lu_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane, encap):
             locators.remove(sid)
     #print("locators: ", locators)
     loc = [ele for ele in locators if ele != []]
-    usid = []
     locatorlist=[x for n in (loc) for x in n]
     print("locator list for least utilized path: ", locatorlist)
+    usid = []
     for s in locatorlist:
         if s != None and usid_block in s:
             usid_list = s.split(usid_block)

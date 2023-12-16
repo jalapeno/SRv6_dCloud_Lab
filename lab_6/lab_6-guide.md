@@ -393,12 +393,6 @@ For full size image see [LINK](/topo_drawings/low-latency-alternate-path.png)
 
     iperf Done. 
     ```
-4. Optional: run the Low Latency service using SR-MPLS encapsulation
-    ```
-    ./cleanup_rome_routes.sh 
-    python3 jalapeno.py -f rome.json -e sr -s ll
-    ping 10.101.2.1 -I 20.0.0.1 -i .3
-    ```
 
 ### Data Sovereignty Path
 The Data Sovereignty service enables the user or application to steer their traffic through a path or geography that is considered safe per legal guidelines or other regulatory framework. In our case the "DS" service allows us to choose a country (or countries) to avoid when transmitting traffic from a source to a given destination. The country to avoid is specified as a country code in the rome.json and amsterdam.json files. In our testing we've specified that traffic should avoid France (FRA). xrd06 is located in Paris, so all requests to the DS service should produce a shortest-path result that avoids xrd06.

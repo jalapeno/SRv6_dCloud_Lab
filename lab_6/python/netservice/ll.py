@@ -31,9 +31,9 @@ def ll_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane, encap):
     prefix_sid = 'prefix_sid'
 
     loc = [ele for ele in locators if ele != []]
-    usid = []
     locatorlist=[x for n in (loc) for x in n]
     print("locator list for low latency path: ", locatorlist)
+    usid = []
     for s in locatorlist:
         if s != None and usid_block in s:
             usid_list = s.split(usid_block)
