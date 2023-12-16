@@ -1,29 +1,8 @@
 ## Contents
 - [Contents](#contents)
-- [xrd01](#xrd01)
 - [xrd05](#xrd05)
 - [xrd06](#xrd06)
-- [xrd07](#xrd07)
 
-## xrd01
-```
-conf t
-
-router bgp 65000
- address-family ipv4 unicast
-  segment-routing srv6
-   locator MyLocator
-  !
- !
- address-family ipv6 unicast
-  segment-routing srv6
-   locator MyLocator
-  !
- !
-!
-commit
-
-```
 
 ## xrd05
 ```
@@ -82,26 +61,6 @@ bmp server 1
  initial-delay 5
  stats-reporting-period 60
  initial-refresh delay 25 spread 2
-!
-commit
-
-```
-
-## xrd07
-```
-conf t
-
-router bgp 65000
- address-family ipv4 unicast
-  segment-routing srv6
-   locator MyLocator
-  !
- !
- address-family ipv6 unicast
-  segment-routing srv6
-   locator MyLocator
-  !
- !
 !
 commit
 

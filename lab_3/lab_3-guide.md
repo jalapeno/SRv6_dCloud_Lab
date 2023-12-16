@@ -209,7 +209,7 @@ The BGP route reflectors will also need to have L3VPN capability added to their 
 
 ## Validate SRv6 L3VPN
 
-Validation command output examples can be found at this [LINK](https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_5/validation-cmd-output.md)
+Validation command output examples can be found at this [LINK](https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_3/validation-cmd-output.md)
 
 1. From **xrd01** run the following set of validation commands (for the sake of time you can paste them in as a group, or spot check some subset of commands):
 
