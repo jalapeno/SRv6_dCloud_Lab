@@ -143,34 +143,38 @@ The Get All Paths Service will query the DB for all paths up to 6-hops in length
       - Sample command line output:
     ```
     cisco@rome:~/SRv6_dCloud_Lab/lab_6/python$ python3 jalapeno.py -f rome.json -s gp -e srv6
-    src data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'src_peer': '10.0.0.7'}]
-    dest data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'dst_peer': '10.0.0.1'}]
+
     Get All Paths Service
     number of paths found:  4
-    SRv6 locators for path:  ['fc00:0:4444::', 'fc00:0:5555::', 'fc00:0:1111::']
-    SR prefix sids for path:  [100004, 100005, 100001]
-    SRv6 locators for path:  ['fc00:0:6666::', 'fc00:0:2222::', 'fc00:0:1111::']
-    SR prefix sids for path:  [100006, 100002, 100001]
-    SRv6 locators for path:  ['fc00:0:6666::', 'fc00:0:5555::', 'fc00:0:1111::']
-    SR prefix sids for path:  [100006, 100005, 100001]
-    SRv6 locators for path:  ['fc00:0:4444::', 'fc00:0:3333::', 'fc00:0:2222::', 'fc00:0:1111::']
-    SR prefix sids for path:  [100004, 100003, 100002, 100001]
+
+    path locator list:  ['fc00:0:7777::', 'fc00:0:4444::', 'fc00:0:5555::', 'fc00:0:1111::']
+    srv6 sid for this path:  fc00:0:7777:4444:5555:1111::
+
+    path locator list:  ['fc00:0:7777::', 'fc00:0:6666::', 'fc00:0:2222::', 'fc00:0:1111::']
+    srv6 sid for this path:  fc00:0:7777:6666:2222:1111::
+
+    path locator list:  ['fc00:0:7777::', 'fc00:0:6666::', 'fc00:0:5555::', 'fc00:0:1111::']
+    srv6 sid for this path:  fc00:0:7777:6666:5555:1111::
+
+    path locator list:  ['fc00:0:7777::', 'fc00:0:4444::', 'fc00:0:3333::', 'fc00:0:2222::', 'fc00:0:1111::']
+    srv6 sid for this path:  fc00:0:7777:4444:3333:2222:1111::
+
     All paths data from unicast_prefix_v4/20.0.0.0_24_10.0.0.7 to unicast_prefix_v4/10.101.2.0_24_10.0.0.1 logged to log/get_paths.json
     ```
     - The code contains a number of console logging instances that are commented out, and some that are active (hence the output above). Note this line which provides a summary of the relevant paths by outputing the SRv6 locators along each path:
 
-      https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_6/python/netservice/gp.py#L43
+      https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_6/python/netservice/gp.py#L46
 
 
     - All the jalapeno network services will output some data to the console. More verbose data will be logged to the lab_6/python/log directory. Check log output:
     ```
     more log/get_paths.json
     ```
-    - We can expect to see a json file with source, destination, and path data which includes srv6 sids and sr label stack info
+    - We can expect to see a json file with source, destination, and path data which includes srv6 locators and sids
 
-    Like in Lab 6 we can also experiment with the script's graph traversal parameters to limit or expand the number of vertex 'hops' the query will search for. Note: ArangoDB considers the source and destination vertices as 'hops' when doing its graph traversal.
+    Like in Lab 5 we can also experiment with the script's graph traversal parameters to limit or expand the number of vertex 'hops' the query will search for. Note: ArangoDB considers the source and destination vertices as 'hops' when doing its graph traversal.
 
-2. Optional: change the 'gp' service's hopcount parameters. Open the netservice/gp.py file in a text editor (vi, vim) and change parameters in line 9: 
+2. Optional: change the 'gp' service's hopcount parameters. Open the netservice/gp.py file in a text editor (vi, vim, nano) and change parameters in line 9: 
 
       https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_6/python/netservice/gp.py#L9
 
@@ -182,7 +186,15 @@ The Get All Paths Service will query the DB for all paths up to 6-hops in length
 
     Example:
     ```
-    SRv6 locators for path:  [None, 'fc00:0:4444::', 'fc00:0:3333::', 'fc00:0:2222::', 'fc00:0:1111::', None]
+    cisco@rome:~/SRv6_dCloud_Lab/lab_6/python$ python3 jalapeno.py -f rome.json -s gp -e srv6
+
+    Get All Paths Service
+    number of paths found:  1
+
+    path locator list:  ['fc00:0:7777::', 'fc00:0:4444::', 'fc00:0:3333::', 'fc00:0:2222::', 'fc00:0:1111::']
+    srv6 sid for this path:  fc00:0:7777:4444:3333:2222:1111::
+
+    All paths data from unicast_prefix_v4/20.0.0.0_24_10.0.0.7 to unicast_prefix_v4/10.101.2.0_24_10.0.0.1 logged to log/get_paths.json
     ```
 
 3. Optional: try increasing the number of hops the graph may traverse:
@@ -193,8 +205,7 @@ The Get All Paths Service will query the DB for all paths up to 6-hops in length
     Save the file and re-run the script. You should see 8 total path options in the command line output and log.
 
 ### Least Utilized Path
-Many segment routing and other SDN solutions focus on the low latency path as their primary use case. We absolutely feel low latency is an important network service, especially for real time applications. However, we believe one of the use cases which deliver the most bang for the buck is "Least Utilized Path". The idea behind this use case is that the routing protocol's chosen best path is usually *The Best Path*. Thus the *Least Utilized* service looks to steer lower priority traffic (backups, content replication, etc.) to lesser used paths and preserve the routing protocol's best path for higher priority traffic.
-
+Many segment routing and other SDN solutions focus on the low latency path as their primary use case. We absolutely feel low latency is an important network service, especially for real time applications. However, we believe one of the use cases which deliver the most bang for the buck is "Least Utilized Path". The idea behind this use case is that the routing protocol's chosen best path is usually *The Best Path*. Because of this the *Least Utilized* service looks to steer lower priority traffic (backups, content replication, etc.) to lesser used paths and preserve the routing protocol's best path for higher priority traffic.
 
 1. Cleanup Rome's routes and execute the least utilized path service with SRv6 encapsulation
     ```

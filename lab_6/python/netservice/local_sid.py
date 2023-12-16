@@ -10,13 +10,13 @@ def localsid(user, pw, dbname, locator, usid_block):
     ### From here we're going to get the end.dt localsid and add it to the uSID dest
 
     locv = locator.replace(usid_block, '')
-    print("locv: ", locv)
+    #print("locv: ", locv)
     locvar = "%" + locv
-    print(locvar)
+    #print(locvar)
     locvar1 = locvar.replace("::", ":")
-    print(locvar1)
+    #print(locvar1)
     locvar2 = locvar1 + "%" 
-    print(locvar2)
+    #print(locvar2)
 
     cursor = db.aql.execute("""for x in srv6_local_sids \
         filter x.fields.table_id == 3758096384 && x.fields.sid like """ + '"%s"' % locvar2 + """ return x.fields.sid """)

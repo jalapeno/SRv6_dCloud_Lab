@@ -6,4 +6,5 @@ kubectl delete -f linkstate-edge-v6.yaml
 kubectl delete -f ebgp-processor.yaml
 kubectl delete -f ipv4-topology.yaml
 kubectl delete -f ipv6-topology.yaml
+kubectl delete -f srv6-localsids.yaml
 

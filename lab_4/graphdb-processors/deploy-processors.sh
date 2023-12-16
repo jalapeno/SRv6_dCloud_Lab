@@ -12,4 +12,6 @@ sleep 2
 
 kubectl apply -f ipv4-topology.yaml
 kubectl apply -f ipv6-topology.yaml
+sleep 2
 
+kubectl apply -f srv6-localsids.yaml
