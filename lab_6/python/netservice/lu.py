@@ -32,7 +32,7 @@ def lu_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane, encap):
     loc = [ele for ele in locators if ele != []]
     usid = []
     locatorlist=[x for n in (loc) for x in n]
-    print("path locator list: ", locatorlist)
+    print("locator list for least utilized path: ", locatorlist)
     for s in locatorlist:
         if s != None and usid_block in s:
             usid_list = s.split(usid_block)
@@ -57,14 +57,14 @@ def lu_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane, encap):
 
     ### this is from original
     srv6_sid = usid_block + sidlist + ipv6_separator
-    print("original: ", srv6_sid)
+    #print("original: ", srv6_sid)
 
     ### replace usd sid with end.dt 
     newsid = srv6_sid.replace(usd, localsid)
-    print("newsid: ", newsid)
+    print("srv6 sid: ", newsid)
 
     ### Return to original code
-    print("srv6 sid: ", srv6_sid)
+    #print("srv6 sid: ", srv6_sid)
 
     ### from here on replace "srv6_sid" variable with "newsid"
     pathdict = {
