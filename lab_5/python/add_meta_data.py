@@ -19,6 +19,7 @@ if db.has_collection('peer'):
 if db.has_collection('ipv4_topology'):
     srt = db.collection('ipv4_topology')
 
+print("sr = ", sr)
 sr.properties()
 srt.properties()
 
