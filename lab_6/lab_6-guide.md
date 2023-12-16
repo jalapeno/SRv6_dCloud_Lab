@@ -645,38 +645,24 @@ The procedure on Amsterdam is the same as Least Utilized Path
 python3 jalapeno.py -f amsterdam.json -e srv6 -s ll
 ```
 
-Example output:
+Example truncated output:
 ```
-cisco@amsterdam:~/SRv6_dCloud_Lab/lab_6/python$ python3 jalapeno.py -f amsterdam.json -e srv6 -s ll
-src data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'src_peer': '10.0.0.1'}]
-dest data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'dst_peer': '10.0.0.7'}]
-Low Latency Service
-locators:  ['fc00:0:5555::', 'fc00:0:6666::', 'fc00:0:7777::']
-prefix_sids:  [100005, 100006, 100007]
-end.dt SID:  ['fc00:0:7777:e006::']
-srv6 sid:  fc00:0:5555:6666:7777::
-adding vpp sr-policy to:  20.0.0.0/24 , with SRv6 encap:  fc00:0:5555:6666:7777:e006::
-sr steer: The requested SR steering policy could not be deleted.
-sr policy: BUG: sr policy returns -1
-Display VPP FIB entry: 
-ipv4-VRF:0, fib_index:0, flow hash:[src dst sport dport proto flowlabel ] epoch:0 flags:none locks:[adjacency:1, default-route:1, ]
-20.0.0.0/24 fib:0 index:36 locks:2
-  SR refs:1 entry-flags:uRPF-exempt, src-flags:added,contributing,active,
-    path-list:[40] locks:2 flags:shared, uPRF-list:39 len:0 itfs:[]
-      path:[48] pl-index:40 ip6 weight=1 pref=0 recursive:  oper-flags:resolved,
-        via 101::101 in fib:2 via-fib:33 via-dpo:[dpo-load-balance:36]
-
  forwarding:   unicast-ip4-chain
-  [@0]: dpo-load-balance: [proto:ip4 index:38 buckets:1 uRPF:40 to:[0:0]]
+  [@0]: dpo-load-balance: [proto:ip4 index:38 buckets:1 uRPF:38 to:[0:0]]
     [0] [@14]: dpo-load-balance: [proto:ip4 index:36 buckets:1 uRPF:-1 to:[0:0]]
           [0] [@13]: SR: Segment List index:[0]
-	Segments:< fc00:0:5555:6666:7777:e006:: > - Weight: 1
+	Segments:< fc00:0:5555:6666:7777:e007:: > - Weight: 1
 ```
+
+2. The Low latency path should be *`xrd01`* -> *`xrd05`* -> *`xrd06`* -> *`xrd07`* -> Rome. 
+   
+3. Optional run a ping from Amsterdam VM and the tcpdump script On XRD VM as follows:
+
+Ping from Amsterdam
 ```
 ping 20.0.0.1 -i .4
 ```
-
-2. The Low latency path should be *`xrd01`* -> *`xrd05`* -> *`xrd06`* -> *`xrd07`* -> Rome. So we can run the tcpdump script On XRD VM as follows, or just check one or two tcpdumps:
+XRD VM tcpdumps
 ```
 ./tcpdump.sh xrd01-xrd05
 ```
@@ -687,14 +673,6 @@ ping 20.0.0.1 -i .4
 ./tcpdump.sh xrd06-xrd07
 ```
 
-4. Optional: Low latency SR-MPLS path on Amsterdam VM:
-```
-python3 jalapeno.py -f amsterdam.json -e sr -s ll
-```
-```
-ping 20.0.0.1 -i .4
-```
-
 ### Data Sovereignty Path 
 
 The procedure on Amsterdam is the same as the previous two services. In amsterdam.json we've specified 'FRA' as the country to avoid, so all results should avoid *`xrd06`*.
@@ -703,36 +681,16 @@ The procedure on Amsterdam is the same as the previous two services. In amsterda
 ```
 python3 jalapeno.py -f amsterdam.json -e srv6 -s ds
 ```
-Example output:
+Example truncated output:
 ```
-cisco@amsterdam:~/SRv6_dCloud_Lab/lab_6/python$ python3 jalapeno.py -f amsterdam.json -e srv6 -s ds
-src data:  [{'id': 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1', 'src_peer': '10.0.0.1'}]
-dest data:  [{'id': 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7', 'dst_peer': '10.0.0.7'}]
-Data Sovereignty Service
-dst:  20.0.0.0/24
-path:  [{'path': [None, 'xrd05', 'xrd04', 'xrd07', None], 'sid': [None, 'fc00:0:5555::', 'fc00:0:4444::', 'fc00:0:7777::', None], 'prefix_sid': [None, 100005, 100004, 100007, None], 'countries_traversed': [[], ['NLD', 'GBR'], ['GBR', 'BEL', 'DEU', 'AUT', 'HUN', 'SRB', 'BGR', 'TUR'], ['TUR', 'GRC', 'ITA'], []], 'latency': 95, 'percent_util_out': 33.333333333333336}]
-locators:  ['fc00:0:5555::', 'fc00:0:4444::', 'fc00:0:7777::']
-egress node locator:  fc00:0:7777::
-end.dt SID:  ['fc00:0:7777:e006::']
-srv6 sid:  fc00:0:5555:4444:7777::
-prefix_sids:  [100005, 100004, 100007]
-adding vpp sr-policy to:  20.0.0.0/24 , with SRv6 encap:  fc00:0:5555:4444:7777:e006::
-unknown input `20.0.0.0/24'
-Display VPP FIB entry: 
-ipv4-VRF:0, fib_index:0, flow hash:[src dst sport dport proto flowlabel ] epoch:0 flags:none locks:[adjacency:1, default-route:1, ]
-20.0.0.0/24 fib:0 index:36 locks:2
-  SR refs:1 entry-flags:uRPF-exempt, src-flags:added,contributing,active,
-    path-list:[40] locks:2 flags:shared, uPRF-list:39 len:0 itfs:[]
-      path:[48] pl-index:40 ip6 weight=1 pref=0 recursive:  oper-flags:resolved,
-        via 101::101 in fib:2 via-fib:33 via-dpo:[dpo-load-balance:35]
-
  forwarding:   unicast-ip4-chain
   [@0]: dpo-load-balance: [proto:ip4 index:38 buckets:1 uRPF:40 to:[0:0]]
-    [0] [@14]: dpo-load-balance: [proto:ip4 index:35 buckets:1 uRPF:-1 to:[0:0]]
+    [0] [@14]: dpo-load-balance: [proto:ip4 index:37 buckets:1 uRPF:-1 to:[0:0]]
           [0] [@13]: SR: Segment List index:[0]
-	Segments:< fc00:0:5555:4444:7777:e006:: > - Weight: 1
+	Segments:< fc00:0:5555:4444:7777:e007:: > - Weight: 1
 ```
-2. The Data Sovereignty path should be *`xrd01`* -> *`xrd05`* -> *`xrd04`* -> *`xrd07`* -> Rome. So we can ping from Amsterdam and run the tcpdump script On XRD VM as follows, or just check one or two tcpdumps:
+1. The Data Sovereignty path should be *`xrd01`* -> *`xrd05`* -> *`xrd04`* -> *`xrd07`* -> Rome. 
+2. Optional: ping from Amsterdam and run the tcpdump script On XRD VM as follows
 
 Amsterdam:
 ```
