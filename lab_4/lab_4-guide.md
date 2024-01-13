@@ -3,7 +3,7 @@
 ### Description
 In Lab 4 we will install the open-source Jalapeno data infrastructure platform. Jalapeno is designed to run on Kubernetes (k8s), which allows for easy integration into existing environments and supports deployment on bare metal, VMs, or in a public cloud. Kubernetes experience is not required for this lab as K8s has been preinstalled on the Jalapeno VM and we have included the required *kubectl* validation commands. 
 
-Prior to working the Jalapeno we will first configure BGP Monitoring Protocol (BMP) on our route reflectors. 
+Prior to deploying Jalapeno we will configure BGP Monitoring Protocol (BMP) on our route reflectors. 
 
 ## Contents
 - [Lab 4: Install Jalapeno and enable BMP \[20 Min\]](#lab-4-install-jalapeno-and-enable-bmp-20-min)
@@ -40,7 +40,7 @@ Jalapeno breaks the data collection and warehousing problem down into a series o
 - **API-Gateway**: is currently under construction so for the lab we'll interact directly with the DB
 - **Jalapeno's installation script** will also deploy a Grafana container, which can be used to create dashboards to visualize the Influx time-series data
 
-One of the primary goals of the Jalapeno project is to be flexible and extensible. In the future we expect Jalapeno might support any number of data collectors and processors. For example the could be a collector/processor pair that creates an LLDP Topology model in the graphDB. Netflow data could be incorporated via a future integration with pmacct. Or an operator might already have a telemetry stack and could choose to selectively integrate Jalapeno's GoBMP/Topology/GraphDB modules into an existing environment running Kafka. We also envision future integrations with other API-driven data warehouses such as Cisco ThousandEyes: https://www.thousandeyes.com/
+One of the primary goals of the Jalapeno project is to be flexible and extensible. In the future we expect Jalapeno might support any number of data collectors and processors. For example the could be a collector/processor pair that creates an LLDP Topology model in the graphDB. Netflow data could be incorporated via a future integration with [pmacct](http://www.pmacct.net/). Or an operator might already have a telemetry stack and could choose to selectively integrate Jalapeno's GoBMP/Topology/GraphDB modules into an existing environment running Kafka. We also envision future integrations with other API-driven data warehouses such as Cisco ThousandEyes: https://www.thousandeyes.com/
 
 ## Validate Jalapeno 
 
