@@ -13,8 +13,7 @@ This is a supplemental lab guide used to deconstruct the forwarding process of t
   - [Packet Walk Results for traffic from Amsterdam to Rome over SRv6](#packet-walk-results-for-traffic-from-amsterdam-to-rome-over-srv6)
   - [IPv4 Encapsulation to SRv6](#ipv4-encapsulation-to-srv6)
   - [SRv6 forwarding](#srv6-forwarding)
-  - [SRv6 decapsulation to IPv4](#srv6-decapsulation-to-ipv4)
-  - [Return to Lab 2](#return-to-lab-2)
+  - [Proceed to Lab 3](#proceed-to-lab-3)
   
 
 ## Lab Objectives
@@ -150,33 +149,11 @@ In lab_1 When we ran the XRd topology setup script it called the **nets.sh** sub
 
 ![Router 1 Topology](/topo_drawings/ltrspg-2212-packet-walk-r3.png)
 
-1. Step #1 insert stuff
+1. On the XRD VM cd into the lab util directory:
     ```
     cd ~/SRv6_dCloud_Lab/util/
     ```
-2. Step #2 insert stuff
-    ```
-    ./tcpdump.sh xrd05-xrd06
-    ```
-3. Run some pings from **xrd01** to **xrd07**:
-    ```
-    ping 10.0.0.7 source lo0
-    ```
-    ```
-    ping fc00:0000:7777::1 source lo0 
-    ```
-
-## SRv6 decapsulation to IPv4
-
-In lab_1 When we ran the XRd topology setup script it called the 'nets.sh' subscript in the ~/SRv6_dCloud_Lab/util directory. The nets.sh resolved the underlying docker network IDs and wrote them to text files in the util directory. As an example link "A" in the topology has a mapped file called xrd01-xrd02 which contains the linux network id we need.
-
-![Router 1 Topology](/topo_drawings/ltrspg-2212-packet-walk-r7.png)
-
-1. Step #1 insert stuff
-    ```
-    cd ~/SRv6_dCloud_Lab/util/
-    ```
-2. Step #2 insert stuff
+2. Run one of the prebuilt tcpdump scripts:
     ```
     ./tcpdump.sh xrd05-xrd06
     ```
@@ -188,5 +165,5 @@ In lab_1 When we ran the XRd topology setup script it called the 'nets.sh' subsc
     ping fc00:0000:7777::1 source lo0
     ```
 
-## Return to Lab 2
-Please proceed to [Lab 2](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_2/lab_2-guide.md)
+## Proceed to Lab 3
+Please proceed to [Lab 3](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_3/lab_3-guide.md)
