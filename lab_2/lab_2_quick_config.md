@@ -294,4 +294,4 @@ segment-routing
  ```
 
  ## Back to Lab 2 Guide
-[Lab 2 Guide](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_2/lab_2-guide.md)
+[Lab 2 Guide](https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_2/lab_2-guide.md#validate-srv6-configuration-and-reachability)

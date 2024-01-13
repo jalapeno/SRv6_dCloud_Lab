@@ -14,6 +14,7 @@ In Lab 2 the student will perform the basic ISIS and BGP sSRv6 configuration on 
   - [SRv6](#srv6)
     - [SRv6 Configuration Steps](#srv6-configuration-steps)
       - [Configure SRv6 on xrd01](#configure-srv6-on-xrd01)
+      - [Validate SRv6 configuration and reachability](#validate-srv6-configuration-and-reachability)
   - [End-to-End Connectivity](#end-to-end-connectivity)
   - [SRv6 Packet Walk](#srv6-packet-walk)
   - [End of Lab 2](#end-of-lab-2)
@@ -28,9 +29,11 @@ The student upon completion of Lab 2 should have achieved the following objectiv
 
 ## Segment Routing Background
 
-Segment Routing (SR) is a source-based routing architecture. A node chooses a path and steers a packet through the network via that path by inserting an ordered list of segments, instructing how subsequent nodes in the path that receive the packet should process it. This simplifies operations and reduces resource requirements in the network by removing network state information from intermediary nodes as path information is encoded via the label stack at the ingress node. Also, because the shortest-path segment includes all Equal-Cost Multi-Path (ECMP) paths to the related node, SR supports the ECMP nature of IP by design. 
+Segment Routing (SR) is a source-based routing architecture. A node chooses a path and steers a packet through the network via that path by inserting an ordered list of segments, instructing how subsequent nodes in the path that receive the packet should process it. This simplifies operations and reduces resource requirements in the network by removing network state from intermediary nodes as path information is encoded via the label stack or SRv6 SID(s) at the ingress node. Also, because the shortest-path segment includes all Equal-Cost Multi-Path (ECMP) paths to the related node, SR supports the ECMP nature of IP by design. 
 
-For more information on SR and SRv6 the segment-routing.net site has a number of tutorials and links to other resources: [segment-routing.net](https://www.segment-routing.net/)  
+For more information on SR and SRv6 the segment-routing.net site has a number of tutorials and links to other resources: 
+
+[segment-routing.net](https://www.segment-routing.net/)  
   
 
 ## SRv6
@@ -38,14 +41,16 @@ Segment Routing over IPv6 (SRv6) extends Segment Routing support via the IPv6 da
 
 SRv6 introduces the Network Programming framework that enables a network operator or an application to specify a packet processing program by encoding a sequence of instructions in the IPv6 packet header. Each instruction is implemented on one or several nodes in the network and identified by an SRv6 Segment Identifier (SID) in the packet. 
 
-In SRv6, an IPv6 address represents an instruction. SRv6 uses a new type of IPv6 Routing Extension Header, called the Segment Routing Header (SRH), in order to encode an ordered list of instructions. The active segment is indicated by the destination address of the packet, and the next segment is indicated by a pointer in the SRH.
+In SRv6, the IPv6 destination address represents an instruction. SRv6 uses a new type of IPv6 Routing Extension Header, called the Segment Routing Header (SRH), in order to encode an ordered list of instructions. The active segment is indicated by the destination address of the packet, and the next segment is indicated by a pointer in the SRH.
 
-In our lab we will be working with SRv6 "micro segment" (SRv6 uSID or just "uSID" for short) instruction. SRv6 uSID is a straightforward extension of the SRv6 Network Programming model:
+In our lab we will use SRv6 "micro segment" (SRv6 uSID or just "uSID" for short) instead of the full SRH. SRv6 uSID is a straightforward extension of the SRv6 Network Programming model:
 
- - The SRv6 Control Plane is leveraged without any change
- - The SRH dataplane encapsulation is leveraged without any change
- - Any SID in the SID list can carry micro segments
- - Based on the Compressed SRv6 Segment List Encoding in SRH [I-D.ietf-spring-srv6-srh-compression] framework
+With SRv6 uSID:
+
+ - The outer IPv6 destination address becomes the uSID carrier with the first 32-bits representing the uSID block, and the 6 remaining 16-bit chunks of the address become uSIDs
+ - The existing ISIS and BGP Control Plane is leveraged without any change
+ - The SRH can be used if our uSID instruction set extends beyond the 6 available in the outer IPv6 destination address
+ - SRv6 uSID is based on the Compressed SRv6 Segment List Encoding in SRH [I-D.ietf-spring-srv6-srh-compression] framework
 
 The most recent IOS-XR Configuration guide for SR/SRv6 and ISIS can be found here: [LINK](https://www.cisco.com/c/en/us/td/docs/iosxr/cisco8000/segment-routing/711x/configuration/guide/b-segment-routing-cg-cisco8000-711x.html)
 
@@ -120,7 +125,9 @@ SRv6 uSID locator and source address information for nodes in the lab:
 
   - Note: once you've configured xrd01 using the above, please proceed to configure the remainder of the routers using the configs found in the 'quick config doc' [HERE](/lab_2/lab_2_quick_config.md) 
 
-4. Validation SRv6 configuration and reachability
+#### Validate SRv6 configuration and reachability
+
+1. Validation commands
     ```
     show segment-routing srv6 sid
     ```

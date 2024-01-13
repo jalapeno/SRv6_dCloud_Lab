@@ -492,7 +492,7 @@ For full size image see [LINK](/topo_drawings/bgp-topology-large.png)
         Originator: 10.0.0.1, Cluster list: 10.0.0.6
     ```
 
-6. Verify the route-reflectors have received BGP-LS NLRIs from **xrd01** and **xrd07**:
+6. Verify the route-reflectors (**xrd05** and **xrd06**) have received BGP-LS NLRIs from **xrd01** and **xrd07**:
     ```
     show bgp link-state link-state summary
     ```
@@ -502,11 +502,11 @@ For full size image see [LINK](/topo_drawings/bgp-topology-large.png)
     ### output truncated ###
 
     Process       RcvTblVer   bRIB/RIB   LabelVer  ImportVer  SendTblVer  StandbyVer
-    Speaker             215        215        215        215         215           0
+    Speaker             187        187        187        187         187           0
 
     Neighbor        Spk    AS MsgRcvd MsgSent   TblVer  InQ OutQ  Up/Down  St/PfxRcd
-    10.0.0.1          0 65000     236     185      215    0    0 02:57:49        107
-    10.0.0.7          0 65000     236     185      215    0    0 02:57:49        107
+    10.0.0.1          0 65000      85      47      187    0    0 00:38:15         93
+    10.0.0.7          0 65000      85      46      187    0    0 00:38:32         93
     ```
 
 ## End of Lab 1
