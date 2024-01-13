@@ -33,4 +33,4 @@ echo "generate docker bridge files for tcpdump utility"
 echo "sudo sysctl -p"
 sudo sysctl -p
 
-echo "XRd containers will take 2 minutes to initialize"
+echo "Setup complete.  XRd containers will take about 2 minutes to initialize"

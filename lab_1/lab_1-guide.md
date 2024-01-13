@@ -227,7 +227,7 @@ ssh cisco@198.18.128.103
     64 bytes from 10.107.1.2: icmp_seq=2 ttl=255 time=1.38 ms
     64 bytes from 10.107.1.2: icmp_seq=3 ttl=255 time=1.30 ms
     ```
-4. Check connectivity from Rome to Jalapeno VM
+4. Optional - Check connectivity from Rome to Jalapeno VM
 ```
 cisco@rome:~$ ping -c 1 198.18.128.101
 PING 198.18.128.101 (198.18.128.101) 56(84) bytes of data.
@@ -273,7 +273,7 @@ ssh cisco@198.18.128.102
     Statistics: 5 sent, 5 received, 0% packet loss
     cisco@amsterdam:~$ 
     ```
-4. Check connectivity from Amsterdam to Jalapeno VM
+4. Optional - Check connectivity from Amsterdam to Jalapeno VM
 ```
 cisco@amsterdam:~$ ping -c 1 198.18.128.101
 PING 198.18.128.101 (198.18.128.101) 56(84) bytes of data.
