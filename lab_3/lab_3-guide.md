@@ -29,7 +29,7 @@ The student upon completion of Lab 3 should have achieved the following objectiv
 * Demonstartion of SRv6 TE traffic steering
 
 ## Configure SRv6 L3VPN
-The SRv6-based IPv4/IPv6 L3VPN featureset enables operation of IPv4/IPv6 L3VPN over a SRv6 data plane. Traditionally L3VPN has been operated over MPLS or SR-MPLS based systems. SRv6-based L3VPN uses the locator/function aspect of SRv6 Segment IDs (SIDs) instead of PE + VPN labels. 
+The SRv6-based IPv4/IPv6 L3VPN featureset enables operation of IPv4/IPv6 L3VPN over a SRv6 data plane. Traditionally L3VPN has been operated over MPLS or SR-MPLS based systems. SRv6 L3VPN uses the locator/function aspect of SRv6 Segment IDs (SIDs) instead of PE + VPN labels. 
 
 Example: 
 
@@ -38,11 +38,11 @@ Example:
 | fc00:0000:7777:|   e004:: |
 
 
-SRv6-based L3VPN functionality interconnects multiple sites to resemble a private network service over public or multi-tenant infrastructure. The basic SRv6 configuration was completed in [Lab 2](/lab_2/lab_2-guide.md).
+SRv6 L3VPN functionality interconnects multiple sites to resemble a private network service over public or multi-tenant infrastructure. The basic SRv6 configuration was completed in [Lab 2](/lab_2/lab_2-guide.md).
 
 In this lab a BGP SID will be allocated in per-VRF mode and provides End.DT4 or End.DT6 functionality. End.DT4/6 represents the Endpoint with decapsulation and IPv4 or v6 lookup in a specific VRF table.
 
-For more details on SRv6 network programming End.DT functionality please see [LINK](https://datatracker.ietf.org/doc/html/rfc8986#name-enddt6-decapsulation-and-sp)
+For more details on SRv6 network programming Endpoint Behavior functionality please see RFC 8986 [LINK](https://datatracker.ietf.org/doc/html/rfc8986#name-enddt6-decapsulation-and-sp)
 
 BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4/6 L3VPN Network Layer Reachability Information (NLRI) and advertises it to IPv6 peering over an SRv6 network. The Ingress PE (provider edge) router encapsulates the VRF IPv4/6 traffic with the SRv6 VPN SID and sends it over the SRv6 network.
 
@@ -53,6 +53,7 @@ BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4/6 L3VPN Network
   Configure the VRF on **xrd01** and **xrd07**:
 
   ```
+  conf t
   vrf carrots
     address-family ipv4 unicast
       import route-target
@@ -138,6 +139,7 @@ The next step is to add the L3VPN configuration into BGP. Because this is SRv6 L
 
     **xrd01** and **xrd07**
     ```
+    conf t
     router bgp 65000
       neighbor-group xrd-ipv6-peer
         address-family vpnv4 unicast
@@ -149,12 +151,15 @@ The next step is to add the L3VPN configuration into BGP. Because this is SRv6 L
     ```
   We will add VRF *carrots* in BGP and enable SRv6 to each address family with the command *`segment-routing srv6`*. In addition we will tie the vrf to the SRv6 locator *`MyLocator`*. 
 
-  Last on xrd01 we will redistribute connected routes using the command *`redistribute connected`*. On xrd07 we will need to redistribute both the connected and static routes to provide reachability to Rome and its additional prefixes. For xrd07 we will add the command *`redistribute static`*
+  Last on xrd01 we will redistribute connected routes using the command *`redistribute connected`*. 
+  
+  On xrd07 we will need to redistribute both the connected and static routes to provide reachability to Rome and its additional prefixes. For xrd07 we will add the command *`redistribute static`*
 
  1. Enable SRv6 for VRF carrots and redistribute connected/static
    
     **xrd01**  
     ```
+    conf t
     router bgp 65000
       vrf carrots
         rd auto
@@ -174,6 +179,7 @@ The next step is to add the L3VPN configuration into BGP. Because this is SRv6 L
 
     **xrd07**  
     ```
+    conf t
     router bgp 65000
       vrf carrots
         rd auto
@@ -197,6 +203,7 @@ The BGP route reflectors will also need to have L3VPN capability added to their 
 
 3. BGP Route Reflectors **xrd05**, **xrd06**  
     ```
+    conf t
     router bgp 65000
     neighbor-group xrd-ipv6-peer
       address-family vpnv4 unicast
@@ -412,7 +419,7 @@ The ingress PE, xrd01, will then be configured with SRv6 segment-lists and SRv6 
      commit
    ```
 
-4. On **xrd01** configure our bulk transport and low latency SRv6 steering policies. Low latency traffic will be forced over the xrd01-05-06-07 path, and bulk transport traffic will take the longer xrd01-02-03-04-07 path:
+4. On **xrd01** configure our bulk transport and low latency SRv6 steering policies. Low latency traffic will be forced over the *xrd01-05-06-07* path, and bulk transport traffic will take the longer *xrd01-02-03-04-07* path:
 
   **xrd01**
   ```
