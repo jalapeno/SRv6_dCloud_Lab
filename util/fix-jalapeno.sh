@@ -1,6 +1,7 @@
 #!/bin/bash
 
 echo "removing k8s components"
+sudo apt-mark unhold kubeadm kubectl kubelet
 sudo apt remove kubeadm kubectl kubelet -y
 sudo systemctl daemon-reload
 
