@@ -515,7 +515,7 @@ The ingress PE, xrd01, will then be configured with SRv6 segment-lists and SRv6 
 #### Validate bulk traffic takes the non-shortest path: xrd01 -> 02 -> 03 -> 04 -> 07 
 1. Run the tcpdump.sh script in the XRD VM's util directory on the following links in the network. These can either be run sequentially while executing the ping in step 2, or you can open individual ssh sessions and run the tcpdumps simultaneously. 
  
-As you run the tcpdumps you should see SRv6 Micro-SID 'shift-and-forward' behavior in action. Feel free to run all, or just one or two tcpdumps:
+As you run the tcpdumps you should see SRv6 Micro-SID 'shift-and-forward' behavior in action. Feel free to run all, or just one or two tcpdumps. Alternatively you can run **./tcpdump-xrd01-02-03-04-07.sh** which will tcpdump for a few seconds along each link in the path.
   
     ```
     cd SRv6_dCloud_Lab/util/
@@ -581,7 +581,7 @@ As you run the tcpdumps you should see SRv6 Micro-SID 'shift-and-forward' behavi
     ping fc00:0:50::1 -i .4
     ```
 
-    Tcpdump along the low latency path (feel free to run one or more of these):
+    Tcpdump along the low latency path (feel free to run one or more of the below, or run **./tcpdump-xrd01-05-06-07.sh** which will tcpdump for a few seconds along each link in the path.
     ```
     ./tcpdump.sh xrd01-xrd05
     ```
