@@ -36,6 +36,9 @@ See results below and notice both the ICMP echo and ICMP echo reply packets with
 >  has multiple ECMP path options.
 
 ```
+./tcpdump.sh xrd01-xrd02
+```
+```
 cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd01-xrd02
 sudo tcpdump -ni br-0a7631e659a1
 tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
@@ -51,14 +54,22 @@ In Lab 2 this step occurs in Router 1. On ingress from the Amsterdam node we rec
 
 ![Router 1 Topology](/topo_drawings/ltrspg-2212-packet-walk-r1.png)
 
-1. Router 1 receives IPv4 packet from Amsterdam and we parse the IPv4 DA address of the packet.
+1. Router 1 receives IPv4 echo request and we see the accompanying echo reply. On the XRD VM run this tcpdump:
+    ```
+    sudo tcpdump -ni ens224 -v
+    ```
     ```
     sudo tcpdump -ni ens224 -v
 
-    11:30:54.987336 IP (tos 0x0, ttl 60, id 8417, offset 0, flags [none], proto ICMP (1), length 84)
-    10.107.1.1 > 10.101.2.1: ICMP echo reply, length 64  <--- See incoming packet with DA of 10.107.1.1
+    17:57:59.454374 IP (tos 0x0, ttl 63, id 55614, offset 0, flags [DF], proto ICMP (1), length 84)
+        10.101.2.1 > 10.107.1.1: ICMP echo request, id 13, seq 4, length 64
+    17:57:59.511935 IP (tos 0x0, ttl 62, id 9926, offset 0, flags [none], proto ICMP (1), length 84)
+        10.107.1.1 > 10.101.2.1: ICMP echo reply, id 13, seq 4, length 64
     ```
-2. From Router 1 we can see a lookup of the IPv4 DA address in the bgpv4 global routing table and show the SRv6 SID associated with the route 10.107.1.0/24 .
+2. From Router 1 we can see a lookup of the IPv4 DA address in the bgpv4 global routing table and show the SRv6 SID associated with the route 10.107.1.0/24.
+    ```
+    show ip bgp ipv4 unicast 10.107.1.0/24
+    ```
     ```
     RP/0/RP0/CPU0:xrd01#show ip bgp ipv4 unicast 10.107.1.0/24
     Fri Dec 15 17:25:40.292 UTC
@@ -84,6 +95,9 @@ In Lab 2 this step occurs in Router 1. On ingress from the Amsterdam node we rec
     ```
 3. Lookup of fc00:0:7777:e004::/48 the in the global IPv6 routing table.
     ```
+    show route ipv6 fc00:0:7777:e004::
+    ```
+    ```
     RP/0/RP0/CPU0:xrd01#show route ipv6 fc00:0:7777:e004::
     Routing entry for fc00:0:7777::/48
      Known via "isis 100", distance 115, metric 4, SRv6-locator, type level-2 <---- Network seen as SRv6 locator
@@ -96,7 +110,10 @@ In Lab 2 this step occurs in Router 1. On ingress from the Amsterdam node we rec
       No advertising protos. 
     ```
 
-5. Lets now lookup in the CEF table to see the forwarding next hop.
+4. Lets now lookup in the CEF table to see the forwarding next hop.
+    ```
+    show ip cef 10.107.1.0/24
+    ```
     ```
     RP/0/RP0/CPU0:xrd01#show ip cef 10.107.1.0/24
     Fri Dec 15 17:39:36.796 UTC
@@ -129,7 +146,7 @@ In Lab 2 this step occurs in Router 1. On ingress from the Amsterdam node we rec
    
 ## SRv6 forwarding
 
-In lab_1 When we ran the XRd topology setup script it called the 'nets.sh' subscript in the ~/SRv6_dCloud_Lab/util directory. The nets.sh resolved the underlying docker network IDs and wrote them to text files in the util directory. As an example link "A" in the topology has a mapped file called xrd01-xrd02 which contains the linux network id we need.
+In lab_1 When we ran the XRd topology setup script it called the **nets.sh** subscript in the ~/SRv6_dCloud_Lab/util directory. The nets.sh script resolved the underlying docker network IDs and wrote them to text files in the util directory. As an example link "A" in the topology has a mapped file called xrd01-xrd02 which contains the linux network id we need.
 
 ![Router 1 Topology](/topo_drawings/ltrspg-2212-packet-walk-r3.png)
 
@@ -146,7 +163,7 @@ In lab_1 When we ran the XRd topology setup script it called the 'nets.sh' subsc
     ping 10.0.0.7 source lo0
     ```
     ```
-    ping fc00:0000:7777::1 source lo0
+    ping fc00:0000:7777::1 source lo0 
     ```
 
 ## SRv6 decapsulation to IPv4

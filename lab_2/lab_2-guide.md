@@ -187,7 +187,7 @@ We'll use 'tcpdump.sh' shell script in the util directory to monitor traffic as 
   ```
   ssh cisco@198.18.128.102
 
-  ping 10.107.1.1
+  ping 10.107.1.1 -i .3 -c 4
   ```
 
   Example tcpdump.sh output:
@@ -201,7 +201,8 @@ We'll use 'tcpdump.sh' shell script in the util directory to monitor traffic as 
   17:44:56.455127 IP6 fc00:0:1111::1 > fc00:0:7777:e004::: IP 10.101.2.1 > 10.107.1.1: ICMP echo request, id 12, seq 15, length 64
   ```
 
-In the example above the outbound ICMP echo requests are captured and you can see the outer IPv6/SRv6 encapsulation. The echo replies are not shown as the network has hashed the replies over a different path. In your case if nothing shows up on the tcpdump output try tcpdumping on the *`xrd02-xrd06`* OR *`xrd04-xrd05`* link:
+In the example above the outbound ICMP echo requests are captured and you can see the outer IPv6/SRv6 encapsulation. The echo replies are not shown as the network has hashed the replies over a different path. In your case if nothing shows up on the tcpdump output you can try tcpdumping on the *`xrd02-xrd06`* OR *`xrd04-xrd05`* link and run the Amsterdam ping again:
+
 Note: the ./tcpdump.sh break sequence is *ctrl-z*
   ```
   sudo ./tcpdump.sh xrd02-xrd06
