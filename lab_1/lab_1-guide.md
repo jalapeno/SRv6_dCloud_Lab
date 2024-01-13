@@ -334,6 +334,9 @@ For full size image see [LINK](/topo_drawings/isis-topology-large.png)
 
 1. SSH into each router and verify that ISIS is up and running on interfaces as identified in the ISIS topology diagram.
     ```
+    show isis interface brief
+    ```
+    ```
     RP/0/RP0/CPU0:xrd03#show isis interface brief
     Thu Dec 22 17:45:24.348 UTC
 
@@ -347,6 +350,9 @@ For full size image see [LINK](/topo_drawings/isis-topology-large.png)
     ```
 
 2. The ISIS topology can be validated from any router. The command output will vary slightly based on router used.
+    ```
+    show isis topology
+    ```
     ```
     RP/0/RP0/CPU0:xrd03#show isis topology
 
@@ -386,6 +392,9 @@ For full size image see [LINK](/topo_drawings/bgp-topology-large.png)
 
 1. SSH into each router listed in the BGP topology diagram and verify neighbors
     ```
+    show ip bgp neighbors brief
+    ```
+    ```
     RP/0/RP0/CPU0:xrd01#show ip bgp neighbors brief
 
     Neighbor        Spk    AS Description                          Up/Down  NBRState
@@ -395,6 +404,9 @@ For full size image see [LINK](/topo_drawings/bgp-topology-large.png)
     fc00:0000:6666::1       0 65000 iBGPv6 to xrd06 RR                   00:21:16 Established 
     ``` 
 2. Verify that router **xrd01** is advertising the attached ipv6 network ```fc00:0:101:1::/64``` 
+    ```
+    show bgp ipv6 unicast advertised summary
+    ```
     ```
     RP/0/RP0/CPU0:xrd01#show bgp ipv6 unicast advertised summary
     Tue Jan 10 21:40:56.812 UTC
@@ -408,6 +420,9 @@ For full size image see [LINK](/topo_drawings/bgp-topology-large.png)
     ```
 3. Verify that router **xrd07** is advertising the attached network ```fc00:0:107:1::/64```   
     ```
+    show bgp ipv6 unicast advertised summary
+    ```
+    ```
     RP/0/RP0/CPU0:xrd07#show bgp ipv6 unicast advertised summary
     Tue Jan 10 21:46:43.311 UTC
     Network            Next Hop        From            Advertised to
@@ -419,6 +434,9 @@ For full size image see [LINK](/topo_drawings/bgp-topology-large.png)
     Processed 2 prefixes, 4 paths
     ```
 4. Verify that router xrd01 has received route ```fc00:0:107:1::/64``` from the route reflectors **xrd05** and **xrd07*. Look for ```Paths: (2 available)```
+    ```
+    show bgp ipv6 unicast fc00:0:107:1::/64
+    ```
     ```
     RP/0/RP0/CPU0:xrd01#show bgp ipv6 unicast fc00:0:107:1::/64
     Tue Jan 10 21:47:51.153 UTC
@@ -446,6 +464,9 @@ For full size image see [LINK](/topo_drawings/bgp-topology-large.png)
     ```
 5. Verify that router xrd07 has received route ```fc00:0:101:1::/64``` from the route reflectors **xrd05** and **xrd07**. Look for ```Paths: (2 available)```
     ```
+    show bgp ipv6 unicast fc00:0:101:1::/64
+    ```
+    ```
     RP/0/RP0/CPU0:xrd07#show bgp ipv6 unicast fc00:0:101:1::/64
     Tue Jan 10 21:48:45.627 UTC
     BGP routing table entry for fc00:0:101:1::/64
@@ -472,6 +493,9 @@ For full size image see [LINK](/topo_drawings/bgp-topology-large.png)
     ```
 
 6. Verify the route-reflectors have received BGP-LS NLRIs from **xrd01** and **xrd07**:
+    ```
+    show bgp link-state link-state summary
+    ```
     ```
     RP/0/RP0/CPU0:xrd05#show bgp link-state link-state summary
 
