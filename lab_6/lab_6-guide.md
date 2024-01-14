@@ -92,7 +92,7 @@ A host or endpoint with the jalapeno.py client can request a network service bet
  
  When executed the client passes its service request as a Shortest Path query to Jalapeno's Arango graph database. The database performs a traversal of its graph and responds with a dataset reflecting the shortest path based on the parameters of the query. The client receives the data, performs some data manipulation as needed and then constructs a local SRv6 route/policy for any traffic it would send to the destination.
 
-Currently the client operates as a CLI tool, which expects to see a set of command line arguments. A user or application may operate the client by specifying the desired network service (-s) and encapsulation (-e), and inputs a json file which contains source and destination info and a few other items.
+Currently the client operates as a CLI tool, which expects to see a set of command line arguments. A user or application may operate the client by specifying the desired network service (-s) and encapsulation (-e), and input a json file which contains source and destination info and a few other items.
 
 For ease of use the currently supported network services are abbreviated: 
 
@@ -109,15 +109,17 @@ For ease of use the currently supported network services are abbreviated:
     Expected output:
     ```
     cisco@rome:~/SRv6_dCloud_Lab/lab_6/python$ python3 jalapeno.py -h
-    usage: Jalapeno client [-h] [-e E] [-f F] [-s S]
+    usage: Jalapeno client [-h] [-e ENCAP] [-f FILE] [-s SERVICE]
 
     takes command line input and calls path calculator functions
 
     optional arguments:
-    -h, --help  show this help message and exit
-    -e E        encapsulation type <sr> <srv6>
-    -f F        json file with src, dst, parameters
-    -s S        requested network service: ll = low_latency, lu = least_utilized, ds = data_sovereignty, gp = get_paths)
+      -h, --help            show this help message and exit
+      -e ENCAP, --encap ENCAP
+                            encapsulation type <sr> <srv6>
+      -f FILE, --file FILE  json file with src, dst, parameters
+      -s SERVICE, --service SERVICE
+                            requested network service: ll = low_latency, lu = least_utilized, ds = data_sovereignty, gp = get_paths
 
     jalapeno.py -f <json file> -e <sr or srv6> -s <ll, lu, ds, or gp>
     ```
