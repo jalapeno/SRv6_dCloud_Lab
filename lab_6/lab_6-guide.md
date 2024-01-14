@@ -363,7 +363,9 @@ For full size image see [LINK](/topo_drawings/low-latency-alternate-path.png)
     ping 10.101.2.1 -I 20.0.0.1 -i .3
     ```
 
-3. Run an iPerf3 test from Rome to Amsterdam. First ssh to Amsterdam VM:
+3. Run an iPerf3 test from Rome to Amsterdam and watch our network crush 250Kbps!
+   
+   First ssh to Amsterdam VM:
     ```
     ssh cisco@198.18.128.102
     ```
@@ -400,8 +402,9 @@ For full size image see [LINK](/topo_drawings/low-latency-alternate-path.png)
     iperf Done. 
     ```
 
+
 ### Data Sovereignty Path
-The Data Sovereignty service enables the user or application to steer their traffic through a path or geography that is considered safe per legal guidelines or other regulatory framework. In our case the "DS" service allows us to choose a country (or countries) to avoid when transmitting traffic from a source to a given destination. The country to avoid is specified as a country code in the rome.json and amsterdam.json files. In our testing we've specified that traffic should avoid France (FRA). xrd06 is located in Paris, so all requests to the DS service should produce a shortest-path result that avoids xrd06.
+The Data Sovereignty service enables the user or application to steer their traffic through a path or geography that is considered safe per legal guidelines or other regulatory framework. In our case the "DS" service allows us to choose a country (or countries) to avoid when transmitting traffic from a source to a given destination. The country to avoid is specified as a country code in the *`rome.json`* and *`amsterdam.json`* files. In our testing we've specified that traffic should avoid France (FRA). *`xrd06`* is located in Paris, so all requests to the DS service should produce a shortest-path result that avoids *`xrd06`*.
 
 The procedure for testing/running the Data Sovereignty Service is the same as the one we followed with Least Utilized and Low Latency Path. Data Sovereignty traffic should flow in the direction of **xrd07** -> **xrd04** -> **xrd05** -> **xrd01**
  
