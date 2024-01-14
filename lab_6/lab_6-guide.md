@@ -726,11 +726,8 @@ XRD VM:
 ```
 ./tcpdump.sh xrd04-xrd07
 ```
-3. Optional: run the script with SR-MPLS encapsulation
-```
-python3 jalapeno.py -f amsterdam.json -e sr -s ds
-```
-4. Optional: modify the amsterdam.json file and replace *`FRA`* with *`DEU`*, *`POL`*, *`BEL`*, etc., then re-run the script.
+
+3. Optional: modify the amsterdam.json file and replace *`FRA`* with *`DEU`*, *`POL`*, *`BEL`*, etc., then re-run the script.
 
 ```
 python3 jalapeno.py -f amsterdam.json -e srv6 -s ds
