@@ -470,7 +470,7 @@ default via 198.18.128.1 dev ens160 proto static metric 100
 50.0.0.0/24 via 10.101.3.2 dev ens224 proto static 
 198.18.128.0/18 dev ens160 proto kernel scope link src 198.18.128.102 
 ```
-1. VPP has been given a startup config which establishes IP connectivity to the network as a whole on bootup.
+4. VPP has been given a startup config which establishes IP connectivity to the network as a whole on bootup.
 ```
 cat /etc/vpp/startup.conf
 ```
@@ -493,7 +493,8 @@ dpdk {
 1. VPP's CLI may be invoked directly:
 ```
 sudo vppctl
-
+```
+```
 show interface address
 ```
 Example:
@@ -515,7 +516,7 @@ vpp#
 vpp# quit
 cisco@amsterdam:~/SRv6_dCloud_Lab/lab_6/python$
 ```
-6. VPP CLI can also b driven from the Linux command line:
+6. VPP CLI can also be driven from the Linux command line:
 ```
 cisco@amsterdam:~/SRv6_dCloud_Lab/lab_6$ sudo vppctl show interface address
 GigabitEthernetb/0/0 (up):
@@ -531,6 +532,7 @@ quit                     # exit VPP CLI
 show ip fib              # show VPP's forwarding table, which will include SR and SRv6 policy/encap info later
 sudo vppctl show ip fib  # same command but executed from Linux
 show interface           # interface status and stats
+sudo vppctl show interface # same command but executed from Linux
 ```
 
 ### Jalapeno Client on Amsterdam:
@@ -620,11 +622,14 @@ sudo vppctl show ip fib 20.0.0.0/24
 ```
 
 3. Run a ping test 
- - From an ssh session on the XRd VM start a tcpdump on the interface facing the Amsterdam VM:
+ - ssh to the **XRd VM** and start a tcpdump on the interface facing the Amsterdam VM:
+```
+ssh cisco@198.18.128.100
+```
 ```
 sudo tcpdump -ni ens224
 ```
- - Return to the first Amsterdam ssh session and ping
+ - Return to your Amsterdam ssh session and ping
 ```
 ping 20.0.0.1 -i .4
 ```
@@ -670,22 +675,22 @@ Example truncated output:
 
 2. The Low latency path should be *`xrd01`* -> *`xrd05`* -> *`xrd06`* -> *`xrd07`* -> Rome. 
    
-3. Optional run a ping from Amsterdam VM and the tcpdump script On XRD VM as follows:
+3. Optional run a ping from Amsterdam VM and the tcpdump script On XRD VM as follows. Your ping times should have dropped at least a few ms:
 
-Ping from Amsterdam
-```
-ping 20.0.0.1 -i .4
-```
-XRD VM tcpdumps
-```
-./tcpdump.sh xrd01-xrd05
-```
-```
-./tcpdump.sh xrd05-xrd06
-```
-```
-./tcpdump.sh xrd06-xrd07
-```
+  Ping from Amsterdam
+  ```
+  ping 20.0.0.1 -i .4
+  ```
+  XRD VM tcpdumps
+  ```
+  ./tcpdump.sh xrd01-xrd05
+  ```
+  ```
+  ./tcpdump.sh xrd05-xrd06
+  ```
+  ```
+  ./tcpdump.sh xrd06-xrd07
+  ```
 
 ### Data Sovereignty Path 
 
