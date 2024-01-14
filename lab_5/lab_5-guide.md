@@ -18,7 +18,7 @@ In Lab 5 we will explore elements of the Jalapeno system. We will log into the K
   - [Arango GraphDB](#arango-graphdb)
   - [Populating the DB with external data](#populating-the-db-with-external-data)
   - [Arango Graph traversals and shortest path queries](#arango-graph-traversals-and-shortest-path-queries)
-    - [Shortest Path](#shortest-path)
+    - [Shortest Path Query](#shortest-path-query)
     - [Note: for all the remaining queries in this lab you can run the query against the return path by simply reversing the startVertex and targetVertex. Example:](#note-for-all-the-remaining-queries-in-this-lab-you-can-run-the-query-against-the-return-path-by-simply-reversing-the-startvertex-and-targetvertex-example)
   - [Shortest path queries using metrics other than hop count](#shortest-path-queries-using-metrics-other-than-hop-count)
     - [Query for the lowest latency path:](#query-for-the-lowest-latency-path)
@@ -132,7 +132,7 @@ In the next set of steps we'll run the CLI to monitor a Kafka topic and watch fo
 In this exercise we are going to stitch together several elements that we have worked on throughout this lab. The routers in our lab have a number of topology-relevant configurations, including several that we've added over the course of labs 1 - 4. We will use the tools to examine how that data is communicated through the network and ultimately collected and populated into Jalapeno's DB.
 
 #### ISIS Link State
-   1. Monitor the BGP-LS *"ls_node"* Kafka topic for incoming BMP messages describing ISIS nodes in the network:
+   1. Monitor the BGP-LS *`ls_node`* Kafka topic for incoming BMP messages describing ISIS nodes in the network:
 
         ```
         ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_node
@@ -234,7 +234,7 @@ In this exercise we are going to stitch together several elements that we have w
         ```
 
    4. With **xrd01** SID locator identified lets see how that is communicated through the BMP from the route reflectors.
-      Monitor the BGP-LS *ls_srv6_sid* topic for incoming BMP messages describing SRv6 SIDs in the network:  
+      Monitor the BGP-LS *`ls_srv6_sid`* topic for incoming BMP messages describing SRv6 SIDs in the network:  
 
       Use ctrl-z to kill the previous kafka console monitor then:
        ```
@@ -381,17 +381,17 @@ In this exercise we are going to stitch together several elements that we have w
     return {Name: x.name, SID: x.sids}
     ```
 
-4. Optional: to run additional basic queries go to the lab_5-queries.md doc [Here](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_5/lab_5-queries.md)
+4. Optional or for reference: feel free to try a number of additional queries in the lab_5-queries.md doc [Here](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_5/lab_5-queries.md)
     
  
 ### Populating the DB with external data 
 
-The *add_meta_data.py* python script will connect to the ArangoDB and populate elements in our data collections with addresses and country codes. Also, due to the fact that we can't run realistic traffic through the XRd topology the script will populate the relevant graphDB elements with synthetic link latency and outbound link utilization data per this diagram:
+The *`add_meta_data.py`* python script will connect to the ArangoDB and populate elements in our data collections with addresses and country codes. Also, due to the fact that we can't run realistic traffic through the XRd topology the script will populate the relevant graphDB elements with synthetic link latency and outbound link utilization data per this diagram:
 
 <img src="/topo_drawings/path-latency-topology.png" width="900">
 
 
-1. Return to the ssh session on the Jalapeno VM and add meta data to the DB:
+1. Return to the ssh session on the Jalapeno VM and add meta data to the DB. Note, if your Jalapeno VM session is still attached to Kakfa, 'ctrl-z' then type 'exit':
 ```
 cd ~/SRv6_dCloud_Lab/lab_5/python/
 python3 add_meta_data.py
@@ -423,8 +423,8 @@ cat nodes.json
 ### Arango Graph traversals and shortest path queries
 General Arango AQL query syntax information [HERE](https://www.arangodb.com/docs/stable/aql/graphs.html)
 
-#### Shortest Path
-This type of query will find the shortest path between two given vertex (startVertex and targetVertex) in your graph. In our case the shortest path between two different nodes in the graph's representation of our network. 
+#### Shortest Path Query
+One of the great things about a GraphDB is it gives us a "shortest path" algorithm out of the box. This type of query will find the shortest path between two given vertex (startVertex and targetVertex) elements in your graph. In our case the shortest path between two different nodes in the graph's representation of our network. 
 Reference this document on the shortest path algorithim in AQL [HERE](https://www.arangodb.com/docs/stable/aql/graphs-shortest-path.html) (2 minute read). 
 
    1. Return to the ArangoDB browser UI and run a shortest path query from **xrd01** to **xrd07**, and have it return SRv6 SID data:
