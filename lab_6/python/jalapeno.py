@@ -11,17 +11,14 @@ def main():
         prog = 'Jalapeno client',
         description = 'takes command line input and calls path calculator functions',
         epilog = 'jalapeno.py -f <json file> -e <sr or srv6> -s <ll, lu, ds, or gp> ')
-    parser.add_argument("-e", help="encapsulation type <sr> <srv6>")
-    parser.add_argument("-f", help="json file with src, dst, parameters")  
-    parser.add_argument("-s", help="requested network service: ll = low_latency, lu = least_utilized, ds = data_sovereignty, gp = get_paths)")
+    parser.add_argument("-e", help="encapsulation type <sr> <srv6>", type=str.lower)
+    parser.add_argument("-f", help="json file with src, dst, parameters", type=str.lower)  
+    parser.add_argument("-s", help="requested network service: ll = low_latency, lu = least_utilized, ds = data_sovereignty, gp = get_paths)", type=str.lower)
     args = parser.parse_args()
 
     encap = args.e
     file = args.f
     service = args.s
-    encap = args.E
-    file = args.F
-    service = args.S
 
     # Check that the required input arguments were passed in
     if not encap or not file or not service:
