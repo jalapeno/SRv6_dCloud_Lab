@@ -381,7 +381,7 @@ In this exercise we are going to stitch together several elements that we have w
     return {Name: x.name, SID: x.sids}
     ```
 
-4. Optional: to run additional basic queries go to the lab_5-queries.md doc [Here](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_5/lab_5-queries.md
+4. Optional: to run additional basic queries go to the lab_5-queries.md doc [Here](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_5/lab_5-queries.md)
     
  
 ### Populating the DB with external data 
