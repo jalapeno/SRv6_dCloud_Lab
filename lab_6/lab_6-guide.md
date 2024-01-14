@@ -404,17 +404,17 @@ For full size image see [LINK](/topo_drawings/low-latency-alternate-path.png)
 
 
 ### Data Sovereignty Path
-The Data Sovereignty service enables the user or application to steer their traffic through a path or geography that is considered safe per legal guidelines or other regulatory framework. In our case the "DS" service allows us to choose a country (or countries) to avoid when transmitting traffic from a source to a given destination. The country to avoid is specified as a country code in the *`rome.json`* and *`amsterdam.json`* files. In our testing we've specified that traffic should avoid France (FRA). *`xrd06`* is located in Paris, so all requests to the DS service should produce a shortest-path result that avoids *`xrd06`*.
+The Data Sovereignty service enables the user or application to steer their traffic through a path or geography that is considered safe per legal guidelines or other regulatory framework. In our case the "DS" service allows us to choose a country (or countries) to avoid when transmitting traffic from a source to a given destination. The country to avoid is specified as a country code in the *`rome.json`* and *`amsterdam.json`* files. In our testing we've specified that traffic should avoid France (FRA) - no offense, its just the easiest path in our topology to demonstrate. *`xrd06`* is located in Paris, so all requests to the DS service should produce a shortest-path result that avoids *`xrd06`*.
 
 The procedure for testing/running the Data Sovereignty Service is the same as the one we followed with Least Utilized and Low Latency Path. Data Sovereignty traffic should flow in the direction of **xrd07** -> **xrd04** -> **xrd05** -> **xrd01**
  
-1. SRv6 on Rome VM:
+1. Run the SRv6 Data Sovereignty service on the Rome VM:
 ```
 ./cleanup_rome_routes.sh 
 python3 jalapeno.py -f rome.json -e srv6 -s ds
 ping 10.101.2.1 -I 20.0.0.1 -i .3
 ```
-2. tcpdump on XRD VM:
+2. Optional tcpdump on XRD VM to see uSID in action:
 ```
 ./tcpdump.sh xrd04-xrd07
 ```
@@ -447,6 +447,11 @@ cat ./amsterdam.json
 ```
 3. Amsterdam has a Linux veth pair connecting kernel forwarding to its onboard VPP instance. The VM has preconfigured ip routes (see /etc/netplan/00-installer-config.yaml) pointing to VPP via its "ams-out" interface:
 ```
+ip link | grep ams-out
+ip route
+```
+Output:
+```
 cisco@amsterdam:~/SRv6_dCloud_Lab/lab_6$ ip link | grep ams-out
 4: vpp-in@ams-out: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
 5: ams-out@vpp-in: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
@@ -465,7 +470,7 @@ default via 198.18.128.1 dev ens160 proto static metric 100
 50.0.0.0/24 via 10.101.3.2 dev ens224 proto static 
 198.18.128.0/18 dev ens160 proto kernel scope link src 198.18.128.102 
 ```
-4. VPP has been given a startup config which establishes IP connectivity to the network as a whole on bootup.
+1. VPP has been given a startup config which establishes IP connectivity to the network as a whole on bootup.
 ```
 cat /etc/vpp/startup.conf
 ```
@@ -485,7 +490,7 @@ dpdk {
 ```
  - VPP startup-config file: https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_1/config/vpp.conf
 
-5. VPP's CLI may be invoked directly:
+1. VPP's CLI may be invoked directly:
 ```
 sudo vppctl
 
