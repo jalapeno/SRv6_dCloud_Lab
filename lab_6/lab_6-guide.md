@@ -5,8 +5,9 @@ Lab 6 is divided into two primary parts. Part 1 is host-based SRv6 using Linux k
 
 The goal of the Jalapeno model is to enable applications to directly control their network experience. We envision a process where the application or endpoint can request some Jalapeno **Network Service** for its traffic. The Jalapeno Network Service queries the DB and provides a response, which includes an SRv6 SID stack (or SR-MPLS, but that's out of scope for this lab). The application or endpoint would then encapsulate its own outbound traffic; aka, the SRv6 encapsulation/decapsulation would be performed at the host where the Application resides. 
 
-The host-based SRv6 encap/decap could be executed at the Linux networking layer, or by an onboard dataplane element such as a vSwitch or VPP, or by a K8s CNI dataplane such as eBPF. The encapsulated traffic, once transmitted from the host, will reach the SRv6 transport network and will be statelessly forwarded per the SRv6 encapsulation or Network Program, thus executing the requested network service. 
+The host-based SRv6 encap/decap could be executed at the Linux networking layer, or by an onboard dataplane element such as a vSwitch or VPP, or by a K8s CNI dataplane such as eBPF (example: [Cilium support for SRv6](https://cilium.io/industries/telcos-datacenters/)). The encapsulated traffic, once transmitted from the host, will reach the SRv6 transport network and will be statelessly forwarded per the SRv6 encapsulation or Network Program, thus executing the requested network service. We're essentially enabling applications to execute their own SRv6 Network Programs!
 
+We feel this ability to perform SRv6 operations at the host or other endpoint is a game changer which opens up enormous potential innovation. 
 
 ## Contents
 - [Lab 6: Host-Based SR/SRv6 and building your own SDN App (BYO-SDN-App)](#lab-6-host-based-srsrv6-and-building-your-own-sdn-app-byo-sdn-app)
