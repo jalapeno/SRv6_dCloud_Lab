@@ -19,6 +19,9 @@ def main():
     encap = args.e
     file = args.f
     service = args.s
+    encap = args.E
+    file = args.F
+    service = args.S
 
     # Check that the required input arguments were passed in
     if not encap or not file or not service:
