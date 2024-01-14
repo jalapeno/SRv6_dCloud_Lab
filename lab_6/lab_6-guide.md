@@ -212,7 +212,7 @@ Many segment routing and other SDN solutions focus on the low latency path as th
     ./cleanup_rome_routes.sh 
     python3 jalapeno.py -f rome.json -e srv6 -s lu
     ```
-    Expected console output:
+    Expected console output should include some log info from the script, and output of linux *ip route* command showing the newly added route with SRv6 encapsulation:
     ```
     cisco@rome:~/SRv6_dCloud_Lab/lab_6/python$ python3 jalapeno.py -f rome.json -e srv6 -s lu
 
@@ -237,15 +237,16 @@ Many segment routing and other SDN solutions focus on the low latency path as th
     198.18.128.0/18 dev ens160 proto kernel scope link src 198.18.128.103 
     ```
 
-2. Check log output and linux ip route:
+2. Optional: the logfile output will show more detailed info:
     ```
     cat log/least_util.json
-
-    ip route
     ```
 
 3. Run a ping test 
  - Open up a second ssh session to the Rome VM
+```
+ssh cisco@198.18.128.103
+```
  - Start tcpdump on the 2nd ssh session. This will capture packets outbound from Rome VM going toward xrd07:
 ```
 sudo tcpdump -ni ens192
@@ -270,12 +271,12 @@ Sending 5, 100-byte ICMP Echos to fc00:0:107:1::1, timeout is 2 seconds:
 Success rate is 100 percent (5/5), round-trip min/avg/max = 1/2/5 ms
 ```
 
-4. Retry the Rome to Amsterdam ping test:
+1. Retry the Rome to Amsterdam ping test:
 ```
 ping 10.101.2.1 -I 20.0.0.1 -i .3
 ```
 
-5. Check the Rome tcpdump to validate traffic is encapsulated with the SRv6 SID. Expected output will be something like:
+1. Check the Rome tcpdump to validate traffic is encapsulated with the SRv6 SID. Expected output will be something like:
 ```
 cisco@rome:~$ sudo tcpdump -ni ens192
 tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
@@ -286,7 +287,7 @@ listening on ens192, link-type EN10MB (Ethernet), capture size 262144 bytes
 18:04:15.241699 IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 3, seq 2, length 64
 ```
 
-6. Return to an SSH session on the XRD VM and use tcpdump.sh <xrd0x-xrd0y>" to capture packets along the path from Rome VM to Amsterdam VM. Given the SRv6 Micro-SID combination seen above, we'll monitor the linux bridges linking *`xrd07`* to *`xrd06`*, *`xrd06`* to *`xrd02`*, then *`xrd02`* to *`xrd01`*:
+1. Return to an SSH session on the XRD VM and use tcpdump.sh <xrd0x-xrd0y>" to capture packets along the path from Rome VM to Amsterdam VM. Given the SRv6 Micro-SID combination seen above, we'll monitor the linux bridges linking *`xrd07`* to *`xrd06`*, *`xrd06`* to *`xrd02`*, then *`xrd02`* to *`xrd01`*:
  - restart the ping if it is stopped
 
 *Note: feel free to just spot check 1 or 2 of these:
