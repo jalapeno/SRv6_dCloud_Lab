@@ -255,7 +255,7 @@ sudo tcpdump -ni ens192
 ```
 ping 10.101.2.1 -I 20.0.0.1 -i .3
 ```
-- Note: as of CLEU24 there is some issue where IPv6 neighbor instances between Rome Linux and the XRd MACVLAN attachment on *`xrd07`*. So if your ping doesn't work try pinging from *`xrd07`* to *`Rome`*. A successful ping should 'wake up' the IPv6 neighborship.
+- Note: as of CLEU24 there is occasionally an issue where IPv6 neighbor instances timeout between Rome Linux and the XRd MACVLAN attachment on *`xrd07`*. So if your ping doesn't work try ssh'ing into *`xrd07`* and ping *`Rome`*. A successful ping should 'wake up' the IPv6 neighborship.
 
 On *`xrd07`*:  
 ```
@@ -271,12 +271,12 @@ Sending 5, 100-byte ICMP Echos to fc00:0:107:1::1, timeout is 2 seconds:
 Success rate is 100 percent (5/5), round-trip min/avg/max = 1/2/5 ms
 ```
 
-1. Retry the Rome to Amsterdam ping test:
+4. Retry the Rome to Amsterdam ping test:
 ```
 ping 10.101.2.1 -I 20.0.0.1 -i .3
 ```
 
-1. Check the Rome tcpdump to validate traffic is encapsulated with the SRv6 SID. Expected output will be something like:
+5. Check the Rome tcpdump to validate traffic is encapsulated with the SRv6 SID. Expected output will be something like:
 ```
 cisco@rome:~$ sudo tcpdump -ni ens192
 tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
@@ -287,7 +287,7 @@ listening on ens192, link-type EN10MB (Ethernet), capture size 262144 bytes
 18:04:15.241699 IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 3, seq 2, length 64
 ```
 
-1. Return to an SSH session on the XRD VM and use tcpdump.sh <xrd0x-xrd0y>" to capture packets along the path from Rome VM to Amsterdam VM. Given the SRv6 Micro-SID combination seen above, we'll monitor the linux bridges linking *`xrd07`* to *`xrd06`*, *`xrd06`* to *`xrd02`*, then *`xrd02`* to *`xrd01`*:
+6. Return to an SSH session on the XRD VM and use tcpdump.sh <xrd0x-xrd0y>" to capture packets along the path from Rome VM to Amsterdam VM. Given the SRv6 Micro-SID combination seen above, we'll monitor the linux bridges linking *`xrd07`* to *`xrd06`*, *`xrd06`* to *`xrd02`*, then *`xrd02`* to *`xrd01`*:
  - restart the ping if it is stopped
 
 *Note: feel free to just spot check 1 or 2 of these:
@@ -315,7 +315,7 @@ listening on br-07e02174172b, link-type EN10MB (Ethernet), capture size 262144 b
 ```
 
 ### Low Latency Path
-The Low Latency Path service will calculate an SSRv6 encapsulation instruction for sending traffic over the lowest latency path from a source to a given destination. The procedure for testing/running the Low Latency Path service is the same as the one we followed with Least Utilized Path. 
+The Low Latency Path service will calculate an SRv6 encapsulation instruction for sending traffic over the lowest latency path from a source to a given destination. The procedure for testing/running the Low Latency Path service is the same as the one we followed with Least Utilized Path. 
 
 The low latency path from Rome to Amsterdam should follow the path shown in the below diagram. Traffic should flow in the direction of **xrd07** -> **xrd06** -> **xrd05** -> **xrd01**
 
@@ -329,7 +329,7 @@ For full size image see [LINK](/topo_drawings/low-latency-path.png)
     python3 jalapeno.py -f rome.json -e srv6 -s ll
     ping 10.101.2.1 -I 20.0.0.1 -i .3
     ```
-    1. As with Least Utilized Path we can run the tcpdump scripts On the XRD VM to see labeled or SRv6 encapsulated traffic traverse the network. 
+    1. As with Least Utilized Path we can run the tcpdump scripts On the XRD VM to see our SRv6 encapsulated traffic traverse the network with uSID shift-and-forward in action (feel free to spot check): 
     ```
     ./tcpdump.sh xrd06-xrd07
     ```
@@ -341,7 +341,7 @@ For full size image see [LINK](/topo_drawings/low-latency-path.png)
     ```
 
 ### Low Latency Re-Route
-Now we are going to simulate a recalculation of the SRv6 topology. The *Sub-Standard Construction Company* has taken out fiber link "G" with a backhoe. Luckily you have paid for optical path redundancy and the link has failed to a geographicaly different route path. The result though is that the primary path latency of *5ms* has increased to *25 ms*. This should cause a new low latency route. Time to test it out!
+Now we are going to simulate a recalculation of the SRv6 topology. The *Sub-Standard Construction Company* has taken out fiber link "G" with a backhoe. Luckily you have paid for optical path redundancy and the link has failed to a geographicaly different path. The result though is that the primary path latency of *5ms* has increased to *25 ms*. This should cause a new low latency route. Time to test it out!
 
 ![Low Latency Path](/topo_drawings/low-latency-alternate-path.png)
 
@@ -354,22 +354,26 @@ For full size image see [LINK](/topo_drawings/low-latency-alternate-path.png)
     cd /home/cisco/SRv6_dCloud_Lab/lab_6/python
     python3 set_latency.py -l G -ms 25
     ```
+    * Note: if your ping is still running you should see its reply time increase from around 55ms to around 85ms
 
-2. Low latency SRv6 service on **Rome VM**:
+2. Re-run the Low latency SRv6 service on **Rome VM**. After running your ping time should decrease to around 70ms:
     ```
     ./cleanup_rome_routes.sh 
     python3 jalapeno.py -f rome.json -e srv6 -s ll
     ping 10.101.2.1 -I 20.0.0.1 -i .3
     ```
 
-3. Run an iPerf3 test
+3. Run an iPerf3 test from Rome to Amsterdam. First ssh to Amsterdam VM:
+    ```
+    ssh cisco@198.18.128.102
+    ```
 
-    Amsterdam VM
+    Then activate the iPerf3 server:
     ```
     iperf3 -s -D
     ```
 
-    Rome VM
+    Start iPerf3 traffic on Rome VM:
     ```
     iperf3 -c 10.101.2.1 -B 20.0.0.1 -w 2700 -M 2700
     ```
