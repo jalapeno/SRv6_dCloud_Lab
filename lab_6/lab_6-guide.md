@@ -109,17 +109,15 @@ For ease of use the currently supported network services are abbreviated:
     Expected output:
     ```
     cisco@rome:~/SRv6_dCloud_Lab/lab_6/python$ python3 jalapeno.py -h
-    usage: Jalapeno client [-h] [-e ENCAP] [-f FILE] [-s SERVICE]
+    usage: Jalapeno client [-h] [-e E] [-f F] [-s S]
 
     takes command line input and calls path calculator functions
 
     optional arguments:
-      -h, --help            show this help message and exit
-      -e ENCAP, --encap ENCAP
-                            encapsulation type <sr> <srv6>
-      -f FILE, --file FILE  json file with src, dst, parameters
-      -s SERVICE, --service SERVICE
-                            requested network service: ll = low_latency, lu = least_utilized, ds = data_sovereignty, gp = get_paths
+      -h, --help  show this help message and exit
+      -e E        encapsulation type <sr> <srv6>
+      -f F        json file with src, dst, parameters
+      -s S        requested network service: ll = low_latency, lu = least_utilized, ds = data_sovereignty, gp = get_paths
 
     jalapeno.py -f <json file> -e <sr or srv6> -s <ll, lu, ds, or gp>
     ```
@@ -131,7 +129,7 @@ For ease of use the currently supported network services are abbreviated:
 
 *Note: the client supports both SRv6 and SR-MPLS, however, we don't have SR-MPLS configured in our lab so we'll only be using the *`-e srv6`* encapsulation option.
 
-The client's network service modules are located in the lab_6 *`python/netservice/`* directory. When invoked the client feeds source and destination from the json file to the *`src_dst.py`* module, which queries the graphDB and returns database ID info for the src and dest prefixes. The client then runs the selected network service module (gp, ll, lu, or ds). The network service module queries and calculates an SRv6 uSID or SR label stack, which will satisfy the network service request. The netservice module then calls the *`add_route.py`* module to create the local SR or SRv6 route or policy.
+The client's network service modules are located in the lab_6 *`python/netservice/`* directory. When invoked the client feeds the source and destination prefixes from the json file to the *`src_dst.py`* module, which queries the graphDB and returns the prefixes' database ID info. The client then runs the selected network service module (gp, ll, lu, or ds). The network service module queries and calculates an SRv6 uSID or SR label stack, which will satisfy the network service request. The netservice module then calls the *`add_route.py`* module to create the local SR or SRv6 route or policy.
 
 ## Rome Network Services
 ### Get All Paths
@@ -207,7 +205,7 @@ The Get All Paths Service will query the DB for all paths up to 6-hops in length
     Save the file and re-run the script. You should see 8 total path options in the command line output and log.
 
 ### Least Utilized Path
-Many segment routing and other SDN solutions focus on the low latency path as their primary use case. We absolutely feel low latency is an important network service, especially for real time applications. However, we believe one of the use cases which deliver the most bang for the buck is "Least Utilized Path". The idea behind this use case is that the routing protocol's chosen best path is usually *The Best Path*. Because of this the *Least Utilized* service looks to steer lower priority traffic (backups, content replication, etc.) to lesser used paths and preserve the routing protocol's best path for higher priority traffic.
+Many segment routing and other SDN solutions focus on the low latency path as their primary use case. We absolutely feel low latency is an important network service, especially for real time applications. However, we believe one of the use cases which deliver the most bang for the buck is "Least Utilized Path". The idea behind this use case is that the routing protocol's chosen best path is very often *The Actual Best Path*. Because of this the *Least Utilized* service looks to steer lower priority traffic (backups, content replication, etc.) to lesser used paths and preserve the routing protocol's "best path" for higher priority traffic.
 
 1. Cleanup Rome's routes and execute the least utilized path service with SRv6 encapsulation
     ```
@@ -232,11 +230,11 @@ Many segment routing and other SDN solutions focus on the low latency path as th
     10.0.0.0/24 via 10.107.1.2 dev ens192 proto static 
     10.1.1.0/24 via 10.107.1.2 dev ens192 proto static 
     10.101.1.0/24 via 10.107.1.2 dev ens192 proto static 
-    10.101.2.0/24 via 10.107.1.2 dev ens192 proto static 
+    10.101.2.0/24  encap seg6 mode encap segs 1 [ fc00:0:6666:2222:1111:e004:: ] dev ens192 scope link  <--------
     10.101.3.0/24 via 10.107.2.2 dev ens224 proto static 
     10.107.1.0/24 dev ens192 proto kernel scope link src 10.107.1.1 
     10.107.2.0/24 dev ens224 proto kernel scope link src 10.107.2.1 
-    198.18.128.0/18 dev ens160 proto kernel scope link src 198.18.128.103
+    198.18.128.0/18 dev ens160 proto kernel scope link src 198.18.128.103 
     ```
 
 2. Check log output and linux ip route:
