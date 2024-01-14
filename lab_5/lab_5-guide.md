@@ -454,14 +454,14 @@ Reference this document on the shortest path algorithim in AQL [HERE](https://ww
 ### Graph Traversals
 A traversal starts at one specific document (startVertex) and follows all edges connected to this document using min depth and max depth values, or in network-engineer-speak "fewest hops" and "most hops".
 
-https://www.arangodb.com/docs/stable/aql/graphs-traversals-explained.html
+ArangoDB reference [LINK](https://www.arangodb.com/docs/stable/aql/graphs-traversals-explained.html)
 
 For our purposes we can use Graph Traversal to find all paths that satisfy a given set of constraints including minimum and maximum hops to consider:
 
 #### Query for the least utilized path
 Backups, data replication, other bulk transfers can oftentimes take a non-best path through the network. In theory the least utilized path could be many hops in length, so we're going to include a notation (1..6) which indicates the query can consider paths with 6 or fewer hops.
     
-   1. First a query for full path data. We expect to see the Arango UI render a topology that includes all seven routers:
+   1. First a query for full path data. We expect to see the Arango UI render a topology that includes all seven routers and our two prefix endpoints:
 
    ```
    FOR v, e, p in 1..6 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' ipv4_topology 
@@ -497,12 +497,12 @@ Backups, data replication, other bulk transfers can oftentimes take a non-best p
         return distinct { path: p.vertices[*].name, sid: p.vertices[*].sids[*].srv6_sid, country_list: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
 
    ```
-   - Note: the graph traversal is inherently loop-free. If you increase the previous query to a max of 10 or 12 hops it should return the same number of results as the 1..8 query because there are no more loop-free paths.
+   - Note: the graph traversal is inherently loop-free (*another win for the GraphDB!*). If you increase the previous query to a max of 10 or 12 hops it should return the same number of results as the 1..8 query because there are no more loop-free paths.
 
 ### K Shortest Paths
 This type of query finds the first k paths in order of length (or weight) between two given documents, startVertex and targetVertex in your graph.
 
-https://www.arangodb.com/docs/stable/aql/graphs-kshortest-paths.html
+ArangoDB reference [LINK](https://www.arangodb.com/docs/stable/aql/graphs-kshortest-paths.html)
 
 #### A Data sovereignty query
 
