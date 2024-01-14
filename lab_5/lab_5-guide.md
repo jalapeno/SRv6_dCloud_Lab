@@ -59,7 +59,7 @@ For additional help on Kafka see this external CLI cheat sheet [HERE](https://me
     pw = cisco123
     ```
 
-2. Login to the Kafka container and cd into the bin directory
+2. Login to the Kafka container and cd into the bin directory. 
     ```
     kubectl exec -it kafka-0 -n jalapeno -- /bin/bash
 
@@ -132,7 +132,7 @@ In the next set of steps we'll run the CLI to monitor a Kafka topic and watch fo
 In this exercise we are going to stitch together several elements that we have worked on throughout this lab. The routers in our lab have a number of topology-relevant configurations, including several that we've added over the course of labs 1 - 4. We will use the tools to examine how that data is communicated through the network and ultimately collected and populated into Jalapeno's DB.
 
 #### ISIS Link State
-   1. Monitor the BGP-LS *"ls_node"* topic for incoming BMP messages describing ISIS nodes in the network:
+   1. Monitor the BGP-LS *"ls_node"* Kafka topic for incoming BMP messages describing ISIS nodes in the network:
 
         ```
         ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_node
@@ -235,6 +235,8 @@ In this exercise we are going to stitch together several elements that we have w
 
    4. With **xrd01** SID locator identified lets see how that is communicated through the BMP from the route reflectors.
       Monitor the BGP-LS *ls_srv6_sid* topic for incoming BMP messages describing SRv6 SIDs in the network:  
+
+      Use ctrl-z to kill the previous kafka console monitor then:
        ```
        ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_srv6_sid
        ```

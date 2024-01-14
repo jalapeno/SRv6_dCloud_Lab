@@ -100,10 +100,11 @@ Most transport SDN systems use BGP-LS to gather and model the underlying IGP top
 
 We'll first establish a BMP session between our route-reflectors and the open-source GoBMP collector, which comes pre-packaged with the Jalapeno install. We'll then enable BMP monitoring of the RRs' BGP peering sessions with our PE routers xrd01 and xrd07. Once established, the RRs' will stream all BGP NLRI info they receive from the PE routers to the GoBMP collector, which will in turn publish the data to Kafka. We'll get more into the Jalapeno data flow in Lab 5.
 
-GoBMP Git Repository [HERE](https://github.com/sbezverk/gobmp)
+The GoBMP Git Repository can be found [HERE](https://github.com/sbezverk/gobmp)
 
 1. BMP configuration on **xrd05** and **xrd06**:
     ```
+    conf t
     bmp server 1
       host 198.18.128.101 port 30511
       description jalapeno GoBMP  
@@ -179,7 +180,7 @@ In lab 1 we configured an SRv6 locator for the BGP global/default table. When we
     show segment-routing srv6 sid
     ```
 
-    Expected output on **xrd01** should look something like:  
+    Expected output on **xrd01** should look something like the below table with both a uDT4 and uDT6 SID in the 'default' context:  
     ```
     RP/0/RP0/CPU0:xrd01#show segment-routing srv6 sid
     Sat Dec 16 03:25:40.943 UTC
@@ -208,7 +209,7 @@ These container images are a set of proof-of-concept data processors that augmen
   
   - The *`linkstate-edge-v4`* and *`linkstate-edge-v6`* processors generate separate graphs of the ipv4 and ipv6 link state topologies using the ls_node_extended elements.
 
-  - The *`ebgp-processor`* loops through the data collections and separates out external and internal prefixes. 
+  - The *`ebgp-processor`* loops through the data collections and separates out external and internal BGP prefixes. 
   
   - The *`ipv4-topology`* and *`ipv4-topology`* processors loop through the link-state graphs and other collections to add internal and external links, nodes, peers, prefixes, etc. to provide a complete topology model for both IPv4 and IPv6.
   
@@ -250,7 +251,7 @@ fc00:0:1111:e005::      uDT6            'carrots'                      bgp-65000
     deployment.apps/ipv6-topology created
     ```
 
-2. Validate the pods are up and running in the 'jalapeno' namespace:
+2. Validate the pods are up and running in the 'jalapeno' namespace. It may take a few seconds for all 6 to become active:
     ```
     kubectl get pods -n jalapeno
     ```
