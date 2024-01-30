@@ -239,6 +239,8 @@ __Amsterdam__
 
 The Amsterdam VM represents a server belonging to a cloud, CDN, or gaming company that serves content to end users (such as the Rome VM) or customer applications over our network. The Amsterdam VM comes with VPP pre-installed. VPP (also known as https://fd.io/) is a very flexible and high performance open source software dataplane. 
 
+![VPP Topology](/topo_drawings/vpp-diagram-ams.png)
+
 1. SSH to Amsterdam Client VM from your laptop. 
 
 ```
