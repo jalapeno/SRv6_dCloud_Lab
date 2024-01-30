@@ -415,9 +415,9 @@ For full size image see [LINK](/topo_drawings/bgp-topology-large.png)
     Tue Jan 10 21:40:56.812 UTC
     Network            Next Hop        From            Advertised to
     fc00:0:101:1::/64  fc00:0:1111::1  Local           fc00:0:5555::1
-                                    Local           fc00:0:6666::1
+                                       Local           fc00:0:6666::1
     fc00:0:1111::1/128 fc00:0:1111::1  Local           fc00:0:5555::1
-                                    Local           fc00:0:6666::1
+                                       Local           fc00:0:6666::1
 
     Processed 2 prefixes, 4 paths
     ```
@@ -430,9 +430,9 @@ For full size image see [LINK](/topo_drawings/bgp-topology-large.png)
     Tue Jan 10 21:46:43.311 UTC
     Network            Next Hop        From            Advertised to
     fc00:0:107:1::/64  fc00:0:7777::1  Local           fc00:0:5555::1
-                                    Local           fc00:0:6666::1
+                                       Local           fc00:0:6666::1
     fc00:0:7777::1/128 fc00:0:7777::1  Local           fc00:0:5555::1
-                                    Local           fc00:0:6666::1
+                                       Local           fc00:0:6666::1
 
     Processed 2 prefixes, 4 paths
     ```
