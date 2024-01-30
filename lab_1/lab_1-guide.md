@@ -242,6 +242,9 @@ The Amsterdam VM represents a server belonging to a cloud, CDN, or gaming compan
 
 ![VPP Topology](/topo_drawings/vpp-diagram-ams.png)
 
+> [!NOTE]
+> Link *M* between Amsterdam and xrd01 will be provisioned in Lab 3.
+
 1. SSH to Amsterdam Client VM from your laptop. 
 
 ```
