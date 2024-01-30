@@ -150,7 +150,8 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     b48429454f4c   xrd06-gi0-xrd07-gi2   bridge    local
     84b7ddd7e018   xrd07-gi3             bridge    local
     ```
-Note the docker Network IDs are unique on creation. Docker's network/bridge naming logic is such that the actual Linux bridge instance names are not predictable. Rather than go through some re-naming process the lab setup script calls another small script called 'nets.sh' which resolves the bridge name and writes it to a file that we'll use later for running tcpdump on the virtual links between routers in our topology.
+> [!NOTE]
+> The docker Network IDs are unique on creation. Docker's network/bridge naming logic is such that the actual Linux bridge instance names are not predictable. Rather than go through some re-naming process the lab setup script calls another small script called 'nets.sh' which resolves the bridge name and writes it to a file that we'll use later for running tcpdump on the virtual links between routers in our topology.
 
  - The scripts and files reside in the lab 'util' directory:
 ```
@@ -378,7 +379,8 @@ For full size image see [LINK](/topo_drawings/isis-topology-large.png)
 ping 10.0.0.7 source lo0
 ping fc00:0000:7777::1 source lo0
 ```
- - Note: normally pinging xrd-to-xrd in this dockerized environment would result in ping times of ~1-3ms. However, the util/nets.sh script, which was triggered at setup, added synthetic latency to the underlying Linux links using the [netem](https://wiki.linuxfoundation.org/networking/netem) 'tc' command line tool. So you'll see a ping RTT of anywhere from ~60ms to ~150ms. This synthetic latency will allow us to really see the effect of later traffic steering execises.
+> [!NOTE]
+> Normally pinging xrd-to-xrd in this dockerized environment would result in ping times of ~1-3ms. However, the util/nets.sh script, which was triggered at setup, added synthetic latency to the underlying Linux links using the [netem](https://wiki.linuxfoundation.org/networking/netem) 'tc' command line tool. So you'll see a ping RTT of anywhere from ~60ms to ~150ms. This synthetic latency will allow us to really see the effect of later traffic steering execises.
 
     Run this command on the XRD VM to see the added synthetic latency:
     ```
