@@ -453,17 +453,17 @@ For full size image see [LINK](/topo_drawings/bgp-topology-large.png)
     Path #1: Received by speaker 0
     Not advertised to any peer
     Local
-        fc00:0:7777::1 (metric 3) from fc00:0:5555::1 (10.0.0.7)
+        fc00:0:7777::1 (metric 3) from fc00:0:5555::1 (10.0.0.7)              <------ origin from xrd07
         Origin IGP, metric 0, localpref 100, valid, internal, best, group-best
         Received Path ID 0, Local Path ID 1, version 17
-        Originator: 10.0.0.7, Cluster list: 10.0.0.5
+        Originator: 10.0.0.7, Cluster list: 10.0.0.5                          <------ route reflector xrd05
     Path #2: Received by speaker 0
     Not advertised to any peer
     Local
-        fc00:0:7777::1 (metric 3) from fc00:0:6666::1 (10.0.0.7)
+        fc00:0:7777::1 (metric 3) from fc00:0:6666::1 (10.0.0.7)              <------ origin from xrd07
         Origin IGP, metric 0, localpref 100, valid, internal
         Received Path ID 0, Local Path ID 0, version 0
-        Originator: 10.0.0.7, Cluster list: 10.0.0.6
+        Originator: 10.0.0.7, Cluster list: 10.0.0.6                          <------ route reflector xrd06
     ```
 5. Verify that router xrd07 has received route ```fc00:0:101:1::/64``` from the route reflectors **xrd05** and **xrd07**. Look for ```Paths: (2 available)```
     ```
@@ -482,17 +482,17 @@ For full size image see [LINK](/topo_drawings/bgp-topology-large.png)
     Path #1: Received by speaker 0
     Not advertised to any peer
     Local
-        fc00:0:1111::1 (metric 3) from fc00:0:5555::1 (10.0.0.1)
+        fc00:0:1111::1 (metric 3) from fc00:0:5555::1 (10.0.0.1)              <------ origin from xrd01
         Origin IGP, metric 0, localpref 100, valid, internal, best, group-best
         Received Path ID 0, Local Path ID 1, version 18
-        Originator: 10.0.0.1, Cluster list: 10.0.0.5
+        Originator: 10.0.0.1, Cluster list: 10.0.0.5                          <------ route reflector xrd05
     Path #2: Received by speaker 0
     Not advertised to any peer
     Local
-        fc00:0:1111::1 (metric 3) from fc00:0:6666::1 (10.0.0.1)
+        fc00:0:1111::1 (metric 3) from fc00:0:6666::1 (10.0.0.1)              <------ origin from xrd01
         Origin IGP, metric 0, localpref 100, valid, internal
         Received Path ID 0, Local Path ID 0, version 0
-        Originator: 10.0.0.1, Cluster list: 10.0.0.6
+        Originator: 10.0.0.1, Cluster list: 10.0.0.6                          <------ route reflector xrd06
     ```
 
 6. Verify the route-reflectors (**xrd05** and **xrd06**) have received BGP-LS NLRIs from **xrd01** and **xrd07**:
