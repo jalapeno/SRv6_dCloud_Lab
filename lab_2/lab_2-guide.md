@@ -148,7 +148,8 @@ SRv6 uSID locator and source address information for nodes in the lab:
     fc00:0:1111:e004::          uDT4              'default'                         bgp-65000           InUse  Y 
     fc00:0:1111:e005::          uDT6              'default'                         bgp-65000           InUse  Y
     ```
-    - Note the bottom two entries. These SIDs belong to BGP and represent End.DT behaviors. Any packet arriving with either of these SIDs as the outer IPv6 destination address will be decasulated and then an LPM lookup in the global/default routing table will be performed on the inner destination address. More on this later in the *`SRv6 Packet Walk`* section.
+> [!NOTE]
+> The bottom two entries. These SIDs belong to BGP and represent End.DT behaviors. Any packet arriving with either of these SIDs as the outer IPv6 destination address will be decasulated and then an LPM lookup in the global/default routing table will be performed on the inner destination address. More on this later in the *`SRv6 Packet Walk`* section.
 
     - Validate the SRv6 prefix-SID configuration. As example for xrd01 look for ```SID value: fc00:0000:1111::```
 
