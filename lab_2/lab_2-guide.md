@@ -3,7 +3,7 @@
 # Lab 2: Base SRv6 Configuration and Validation [20 Min]
 
 ### Description: 
-In Lab 2 the student will perform the basic ISIS and BGP sSRv6 configuration on the lab routers.  
+In Lab 2 the student will perform the basic ISIS and BGP SRv6 configuration on the lab routers.  
 
 ## Contents
 - [Lab 2: Base SRv6 Configuration and Validation \[20 Min\]](#lab-2-base-srv6-configuration-and-validation-20-min)
