@@ -164,7 +164,8 @@ tcpdump.sh  xrd01-xrd05  xrd02-xrd06  xrd04-xrd05  xrd05-xrd06
 ```
 Later we'll use "tcpdump.sh **xrd0x-xrd0y**" to capture packets along the path through the network. 
 
-1. The XRd router instances should be available for SSH access about 2 minutes after spin up.
+> [!IMPORTANT]
+> The XRd router instances should be available for SSH access about 2 minutes after spin up.
 
 ### Validate Jalapeno VM
 The Ubuntu VM *Jalapeno* has Kubernetes pre-installed and running. Later in lab exercise 5 we will install the open-source Jalapeno application.
