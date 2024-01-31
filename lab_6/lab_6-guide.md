@@ -293,7 +293,7 @@ listening on ens192, link-type EN10MB (Ethernet), capture size 262144 bytes
 *Note: feel free to just spot check 1 or 2 of these:
 
 ```
-cd cd ~/SRv6_dCloud_Lab/util/
+cd ~/SRv6_dCloud_Lab/util/
 
 ./tcpdump.sh xrd06-xrd07
 
@@ -406,25 +406,14 @@ For full size image see [LINK](/topo_drawings/low-latency-alternate-path.png)
 ### Data Sovereignty Path
 The Data Sovereignty service enables the user or application to steer their traffic through a path or geography that is considered safe per legal guidelines or other regulatory framework. In our case the "DS" service allows us to choose a country (or countries) to avoid when transmitting traffic from a source to a given destination. The country to avoid is specified as a country code in the *`rome.json`* and *`amsterdam.json`* files. In our testing we've specified that traffic should avoid France (FRA) - no offense, its just the easiest path in our topology to demonstrate. *`xrd06`* is located in Paris, so all requests to the DS service should produce a shortest-path result that avoids *`xrd06`*.
 
-The procedure for testing/running the Data Sovereignty Service is the same as the one we followed with Least Utilized and Low Latency Path. Data Sovereignty traffic should flow in the direction of **xrd07** -> **xrd04** -> **xrd05** -> **xrd01**
+The procedure for testing/running the Data Sovereignty Service is the same as the one we followed with Least Utilized and Low Latency Path. Data Sovereignty traffic should flow in the direction of **xrd07** -> **xrd04** -> **xrd05** -> **xrd01**. We'll skip running the Data Sovereignty service on Rome and will do so later on the Amsterdam VM.
  
-1. Run the SRv6 Data Sovereignty service on the Rome VM:
+For reference if you wanted to run it on Rome:
 ```
 ./cleanup_rome_routes.sh 
 python3 jalapeno.py -f rome.json -e srv6 -s ds
 ping 10.101.2.1 -I 20.0.0.1 -i .3
 ```
-2. Optional tcpdump on XRD VM to see uSID in action:
-```
-./tcpdump.sh xrd04-xrd07
-```
-```
-./tcpdump.sh xrd04-xrd05
-```
-```
-./tcpdump.sh xrd01-xrd05
-```
-
 
 ## Amsterdam VM
 ### POC host-based SRv6 and SR-MPLS SDN using the VPP dataplane
@@ -642,18 +631,9 @@ cisco@xrd:~/SRv6_dCloud_Lab/util$ sudo tcpdump -ni ens224
 01:17:48.949955 IP 20.0.0.1 > 10.101.2.1: ICMP echo reply, id 12, seq 3, length 64
 ```
 
-5. Optional: you can run tcpdump.sh for the hops along the path:
+5. Optional: run the extended ./tcpdump-xrd01-02-03-04-07.sh script for the hops along the path:
 ```
-./tcpdump.sh xrd01-xrd02
-```
-```
-./tcpdump.sh xrd02-xrd03
-```
-```
-./tcpdump.sh xrd03-xrd04
-```
-```
-./tcpdump.sh xrd04-xrd07
+./tcpdump-xrd01-02-03-04-07.sh
 ```
 
 ### Low Latency Path
@@ -681,15 +661,9 @@ Example truncated output:
   ```
   ping 20.0.0.1 -i .4
   ```
-  XRD VM tcpdumps
+  XRD VM extended tcpdump:
   ```
-  ./tcpdump.sh xrd01-xrd05
-  ```
-  ```
-  ./tcpdump.sh xrd05-xrd06
-  ```
-  ```
-  ./tcpdump.sh xrd06-xrd07
+  ./tcpdump-xrd01-05-06-07.sh 
   ```
 
 ### Data Sovereignty Path 
@@ -716,15 +690,9 @@ Amsterdam:
 ping 20.0.0.1 -i .4
 ```
 
-XRD VM:
+XRD VM extended tcpdump:
 ```
-./tcpdump.sh xrd01-xrd05
-```
-```
-./tcpdump.sh xrd05-xrd04
-```
-```
-./tcpdump.sh xrd04-xrd07
+./tcpdump-xrd01-05-06-07.sh 
 ```
 
 3. Optional: modify the amsterdam.json file and replace *`FRA`* with *`DEU`*, *`POL`*, *`BEL`*, etc., then re-run the script.
