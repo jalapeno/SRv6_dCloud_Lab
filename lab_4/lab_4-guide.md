@@ -175,7 +175,7 @@ The GoBMP Git Repository can be found [HERE](https://github.com/sbezverk/gobmp)
 ## BGP SRv6 locator
 In lab 1 we configured an SRv6 locator for the BGP global/default table. When we get to lab 6 we'll use these locators as we'll be sending SRv6 encapsulated traffic directly to/from Amsterdam and Rome. With our endpoints performing SRv6 encapsulation our BGP SRv6 locator will provide the end.DT4/6 function at the egress nodes *`xrd01`* and *`xrd07`* to be able to pop the SRv6 encap and perform a global table lookup on the underlying payload.
 
-1. Optional - re-validate end.DT4/6 SIDs belonging to BGP default table:
+1. Optional: re-validate end.DT4/6 SIDs belonging to BGP default table:
     ```
     show segment-routing srv6 sid
     ```
@@ -213,7 +213,9 @@ These container images are a set of proof-of-concept data processors that augmen
   
   - The *`ipv4-topology`* and *`ipv6-topology`* processors loop through the link-state graphs and other collections to add internal and external links, nodes, peers, prefixes, etc. to provide a complete topology model for both IPv4 and IPv6.
   
-  - The *`srv6-localsids`* processor harvests SRv6 SID data from a Kafka streaming telemetry topic and populates it in the *`sr_local_sids`* collection. This data is not available via BMP and is needed to construct full End.DT SIDs that we'll use in lab 6. Example:
+  - The *`srv6-localsids`* processor harvests SRv6 SID data from a Kafka streaming telemetry topic and populates it in the *`sr_local_sids`* collection. This data is not available via BMP and is needed to construct full End.DT SIDs that we'll use in lab 6. 
+  
+  Example:
 
 ```
 
@@ -228,7 +230,7 @@ fc00:0:1111:e004::      uDT4            'carrots'                      bgp-65000
 fc00:0:1111:e005::      uDT6            'carrots'                      bgp-65000   <---|  "srv6-localsids" processor
 
 ```
-Note: the SRv6 SID streaming telemetry configuration on *`xrd07`*: [mdt_config](https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_1/config/xrd07.cfg#L23)
+Note: the SRv6 SID streaming telemetry configuration on *`xrd07`*: [SRv6 SID mdt path](https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_1/config/xrd07.cfg#L23)
 
 #### Return to the ssh session on the Jalapeno VM
 
