@@ -125,7 +125,7 @@ For additional help on Kafka see this external CLI cheat sheet [HERE](https://me
 
 ### Monitoring a Kafka topic
 
-The *kafka-console-consumer.sh* utility allows one to manually monitor a given topic and see messages as they are published by the GoBMP collector. This gives us a nice troubleshooting tool for scenarios where a router may be sending data to the collector, but the data is not seen in the DB.
+The *`kafka-console-consumer.sh`* utility allows one to manually monitor a given topic and see messages as they are published by the GoBMP collector. This gives us a nice troubleshooting tool for scenarios where a router may be sending data to the collector, but the data is not seen in the DB.
 
 In the next set of steps we'll run the CLI to monitor a Kafka topic and watch for data from GoBMP. GoBMP's topics are fairly quiet unless BGP updates are happening, so once we have our monitoring session up we'll clear BGP-LS on the RR, which should result in a flood of data onto the topic.
 
@@ -321,7 +321,7 @@ In this exercise we are going to stitch together several elements that we have w
     
     For the most basic query below *x* is a object variable with each key field in a record populated as a child object. So basic syntax can be thought of as:
 
-    for *x* in *collection* return *x*
+    *`for *x* in *collection* return *x* `*
 
     ```
     for x in ls_node_extended return x
@@ -392,7 +392,7 @@ The *`add_meta_data.py`* python script will connect to the ArangoDB and populate
 <img src="/topo_drawings/path-latency-topology.png" width="900">
 
 
-1. Return to the ssh session on the Jalapeno VM and add meta data to the DB. Note, if your Jalapeno VM session is still attached to Kakfa, 'ctrl-z' then type 'exit':
+1. Return to the ssh session on the Jalapeno VM and add meta data to the DB. Note, if your Jalapeno VM session is still attached to Kakfa, type *`'ctrl-z'`* then type *`'exit'`*:
 ```
 cd ~/SRv6_dCloud_Lab/lab_5/python/
 python3 add_meta_data.py
@@ -412,9 +412,9 @@ for x in ipv4_topology return { key: x._key, from: x._from, to: x._to, latency: 
 ```
  - Note: only the ISIS links in the DB have latency and utilization numbers. The Amsterdam and Rome VMs are directly connected to PEs **xrd01** and **xrd07**, so their "edge connections" in the DB are effectively zero latency. 
   
-  - The *add_meta_data.py* script has also populated country codes for all the countries a given link traverses from one node to its adjacent peer. Example: **xrd01** is in Amsterdam, and **xrd02** is in Berlin. Thus the **xrd01** <--> **xrd02** link traverses [NLD, DEU]
+  - The *`add_meta_data.py`* script has also populated country codes for all the countries a given link traverses from one node to its adjacent peer. Example: **xrd01** is in Amsterdam, and **xrd02** is in Berlin. Thus the **xrd01** <--> **xrd02** link traverses *`[NLD, DEU]`*
 
-3. Run the get_nodes.py script to get a listing of nodes in the network, their addresses, and SRv6 SID data:
+3. Run the *`get_nodes.py`* script to get a listing of nodes in the network, their addresses, and SRv6 SID data:
 ```
 cd ~/SRv6_dCloud_Lab/lab_5/python/
 python3 get_nodes.py
@@ -422,23 +422,27 @@ cat nodes.json
 ```
 
 ### Arango Graph traversals and shortest path queries
-General Arango AQL query syntax information [HERE](https://www.arangodb.com/docs/stable/aql/graphs.html)
+General Arango AQL graph query syntax information [HERE](https://www.arangodb.com/docs/stable/aql/graphs.html)
 
 #### Shortest Path Query
-One of the great things about a GraphDB is it gives us a "shortest path" algorithm out of the box. This type of query will find the shortest path between two given vertex (startVertex and targetVertex) elements in your graph. In our case the shortest path between two different nodes in the graph's representation of our network. 
+One of the great things about a GraphDB is it gives us a "shortest path" algorithm out of the box. This type of query will find the shortest path between two given vertex *`(startVertex and targetVertex)`* elements in your graph. In our case the shortest path between two different nodes in the graph's representation of our network. 
 Reference this document on the shortest path algorithim in AQL [HERE](https://www.arangodb.com/docs/stable/aql/graphs-shortest-path.html) (2 minute read). 
 
-   1. Return to the ArangoDB browser UI and run a shortest path query from **xrd01** to **xrd07**, and have it return SRv6 SID data:
+   1. Return to the ArangoDB browser UI and run a shortest path query from **xrd01** to **xrd07**, and have it return SRv6 SID data.
    ```
    for v, e in outbound shortest_path 'ls_node_extended/2_0_0_0000.0000.0001' TO 'ls_node_extended/2_0_0_0000.0000.0007' ipv4_topology return  { node: v.name, location: v.location_id, address: v.address, srv6sid: v.sids[*].srv6_sid }
    ```
+   - Note: In the graphDB the **xrd01** and **xrd07** nodes are represented as:
+     - 'ls_node_extended/2_0_0_0000.0000.0001'
+     - 'ls_node_extended/2_0_0_0000.0000.0007'
+
    #### Note: for all the remaining queries in this lab you can run the query against the return path by simply reversing the startVertex and targetVertex. Example:
 
    ```
    for v, e in outbound shortest_path 'ls_node_extended/2_0_0_0000.0000.0007' TO 'ls_node_extended/2_0_0_0000.0000.0001' ipv4_topology return  { node: v.name, location: v.location_id, address: v.address, srv6sid: v.sids[*].srv6_sid }
    ```
 
-   2. Run a shortest path query from source prefix (Amsterdam VM) to destination prefix (Rome VM), include hop by hop latency:
+   1. Run a shortest path query from source prefix (Amsterdam VM) to destination prefix (Rome VM), include hop by hop latency:
    ```
    for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology return  { node: v.name, location: v.location_id, address: v.address, srv6sid: v.sids[*].srv6_sid, latency: e.latency }
    ```
