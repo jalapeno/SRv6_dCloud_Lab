@@ -318,20 +318,21 @@ In this exercise we are going to stitch together several elements that we have w
 
 
 3. Run some DB Queries:
-    ArangoDB uses AQL as it's query syntax language. For the most basic query below *x* is a object variable with each key field in a record populated as a child object.
+    
+    For the most basic query below *x* is a object variable with each key field in a record populated as a child object. So basic syntax can be thought of as:
 
     for *x* in *collection* return *x*
 
     ```
     for x in ls_node_extended return x
     ```
-    This query will return ALL records in the ls_node_extended collection. In our lab topology you should expect 7 records. 
+    This query will return ALL records in the *`ls_node_extended`* collection. In our lab topology you should expect 7 records. 
 
-    Note: after running a query you will need to either comment it out or delete it before running the next query. To comment-out use two forward slashes // as shown in this pic:
+     - Note: after running a query you will need to either comment it out or delete it before running the next query. To comment-out use two forward slashes *`//`* as shown in this pic:
 
     <img src="images/arango-query.png" width="600">
 
-    Next lets get the AQL to return only the key:value field we are interested in. We will query the name of all nodes in the ls_node_extended collection with the below query. To reference a specific key field we use use the format *x.key* syntax.
+    Next lets get the AQL to return only the *`key:value`* field we are interested in. We will query the name of all nodes in the *`ls_node_extended`* collection with the below query. To reference a specific key field we use use the format **x.key** syntax.
     ```
     for x in ls_node_extended return x.name
     ```
