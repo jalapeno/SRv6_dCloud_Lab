@@ -13,8 +13,10 @@ fc00:0:1111:e000::          uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0:P       
 fc00:0:1111:e001::          uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0         isis-100            InUse  Y 
 fc00:0:1111:e002::          uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0:P       isis-100            InUse  Y 
 fc00:0:1111:e003::          uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0         isis-100            InUse  Y 
-fc00:0:1111:e004::          uDT4              'carrots'                         bgp-65000           InUse  Y 
-fc00:0:1111:e005::          uDT6              'carrots'                         bgp-65000           InUse  Y 
+fc00:0:1111:e004::          uDT4              'default'                         bgp-65000           InUse  Y 
+fc00:0:1111:e005::          uDT6              'default'                         bgp-65000           InUse  Y 
+fc00:0:1111:e006::          uDT4              'carrots'                         bgp-65000           InUse  Y 
+fc00:0:1111:e007::          uDT6              'carrots'                         bgp-65000           InUse  Y 
 ```
 
 2. Display BGP vpnv4 address-family info:
