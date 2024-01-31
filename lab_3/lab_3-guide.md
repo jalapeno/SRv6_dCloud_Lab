@@ -40,7 +40,7 @@ Example:
 
 SRv6 L3VPN functionality interconnects multiple sites to resemble a private network service over public or multi-tenant infrastructure. The basic SRv6 configuration was completed in [Lab 2](/lab_2/lab_2-guide.md).
 
-In this lab a BGP SID will be allocated in per-VRF mode and provides End.DT4 or End.DT6 functionality. End.DT4/6 represents the Endpoint with decapsulation and IPv4 or v6 lookup in a specific VRF table.
+In this lab a BGP SID will be allocated in per-VRF mode and provides End.DT4 and End.DT6 functionality. End.DT4/6 represents the Endpoint with decapsulation and IPv4 or v6 lookup in a specific VRF table.
 
 For more details on SRv6 network programming Endpoint Behavior functionality please see RFC 8986 [LINK](https://datatracker.ietf.org/doc/html/rfc8986#name-enddt6-decapsulation-and-sp)
 
