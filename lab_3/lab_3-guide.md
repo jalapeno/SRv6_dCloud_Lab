@@ -280,7 +280,7 @@ Validation command output examples can be found at this [LINK](https://github.co
 
 We will use the below diagram for reference:
 
-![L3VPN Topology](/topo_drawings/l3vpn-topology-large.png)
+![L3VPN Topology](/topo_drawings/l3vpn-slow-fast-path.png)
 
 ### Create SRv6-TE steering policy
 For our SRv6-TE purposes we'll leverage the on-demand nexthop (ODN) feature set. Here is a nice example and explanation of ODN: [HERE](https://xrdocs.io/design/blogs/latest-converged-sdn-transport-ig)
@@ -397,8 +397,6 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
     - Segment list *xrd2347* will execute the explicit path: xrd01 -> 02 -> 03 -> 04 -> 07
     - Segment list *xrd567* will execute the explicit path: xrd01 -> 05 -> 06 -> 07
 
-  ![L3VPN Topology](/topo_drawings/l3vpn-slow-fast-path.png)
-
    **xrd01**
    ```
    conf t
@@ -422,97 +420,96 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
    ```
 
 4. On **xrd01** configure our bulk transport and low latency SRv6 steering policies. Low latency traffic will be forced over the *xrd01-05-06-07* path, and bulk transport traffic will take the longer *xrd01-02-03-04-07* path:
-
-  **xrd01**
-  ```
-  conf t
-  segment-routing
-  traffic-eng
-    policy bulk-transfer
-    srv6
-      locator MyLocator binding-sid dynamic behavior ub6-insert-reduced
-    
-    color 40 end-point ipv6 fc00:0:7777::1
-    candidate-paths
-      preference 100
-      explicit segment-list xrd2347
+  
+   **xrd01**
+   ```
+   conf t
+   segment-routing
+   traffic-eng
+     policy bulk-transfer
+     srv6
+       locator MyLocator binding-sid dynamic behavior ub6-insert-reduced
+     
+     color 40 end-point ipv6 fc00:0:7777::1
+     candidate-paths
+       preference 100
+       explicit segment-list xrd2347
       
-    policy low-latency
-    srv6
-      locator MyLocator binding-sid dynamic behavior ub6-insert-reduced
+     policy low-latency
+     srv6
+       locator MyLocator binding-sid dynamic behavior ub6-insert-reduced
     
-    color 50 end-point ipv6 fc00:0:7777::1
-    candidate-paths
-      preference 100
-      explicit segment-list xrd567
-    commit
-  ```
+     color 50 end-point ipv6 fc00:0:7777::1
+     candidate-paths
+       preference 100
+       explicit segment-list xrd567
+     commit
+   ```
 
 5. Validate **xrd01's** SRv6-TE SID is allocated and that policy is up:
-  ```
-  show segment-routing srv6 sid
-  show segment-routing traffic-eng policy 
-  ```
-  Example output, note the additional uDT VRF carrots and SRv6-TE **uB6 Insert.Red** SIDs added to the list:
-  ```
-  RP/0/RP0/CPU0:xrd01#  show segment-routing srv6 sid
-  Sat Dec 16 02:45:31.772 UTC
+   ```
+   show segment-routing srv6 sid
+   show segment-routing traffic-eng policy 
+   ```
+   Example output, note the additional uDT VRF carrots and SRv6-TE **uB6 Insert.Red** SIDs added to the list:
+   ```
+   RP/0/RP0/CPU0:xrd01#  show segment-routing srv6 sid
+   Sat Dec 16 02:45:31.772 UTC
+ 
+   *** Locator: 'MyLocator' *** 
 
-  *** Locator: 'MyLocator' *** 
-
-  SID                         Behavior          Context                           Owner               State  RW
-  --------------------------  ----------------  --------------------------------  ------------------  -----  --
-  fc00:0:1111::               uN (PSP/USD)      'default':4369                    sidmgr              InUse  Y 
-  fc00:0:1111:e000::          uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0:P       isis-100            InUse  Y 
-  fc00:0:1111:e001::          uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0         isis-100            InUse  Y 
-  fc00:0:1111:e002::          uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0:P       isis-100            InUse  Y 
-  fc00:0:1111:e003::          uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0         isis-100            InUse  Y 
-  fc00:0:1111:e004::          uDT6              'default'                         bgp-65000           InUse  Y 
-  fc00:0:1111:e005::          uDT4              'default'                         bgp-65000           InUse  Y 
-  fc00:0:1111:e006::          uB6 (Insert.Red)  'srte_c_50_ep_fc00:0:7777::1' (50, fc00:0:7777::1)  xtc_srv6            InUse  Y 
-  fc00:0:1111:e007::          uB6 (Insert.Red)  'srte_c_40_ep_fc00:0:7777::1' (40, fc00:0:7777::1)  xtc_srv6            InUse  Y 
-  fc00:0:1111:e008::          uDT4              'carrots'                         bgp-65000           InUse  Y 
-  fc00:0:1111:e009::          uDT6              'carrots'                         bgp-65000           InUse  Y 
-
-
-  RP/0/RP0/CPU0:xrd01#show segment-routing traffic-eng policy 
-  Sat Jan 28 00:06:23.479 UTC
-
-  SR-TE policy database
-  ---------------------
-
-  Color: 50, End-point: fc00:0:7777::1
-    Name: srte_c_50_ep_fc00:0:7777::1
-    Status:
-      Admin: up  Operational: up for 00:23:59 (since Jan 27 23:42:24.041)
-    Candidate-paths:
-      Preference: 100 (configuration) (active)
-        Name: low-latency
-        Requested BSID: dynamic
-        Constraints:
-          Protection Type: protected-preferred
-          Maximum SID Depth: 19 
-        Explicit: segment-list xrd567 (valid)      <------------- HERE
-          Weight: 1, Metric Type: TE
-            SID[0]: fc00:0:5555::/48
-                    Format: f3216
-                    LBL:32 LNL:16 FL:0 AL:80
-            SID[1]: fc00:0:6666::/48
-                    Format: f3216
-                    LBL:32 LNL:16 FL:0 AL:80
-        SRv6 Information:
-          Locator: MyLocator
-          Binding SID requested: Dynamic
-          Binding SID behavior: End.B6.Insert.Red
-    Attributes:
-      Binding SID: fc00:0:1111:e006::
-      Forward Class: Not Configured
-      Steering labeled-services disabled: no
-      Steering BGP disabled: no
-      IPv6 caps enable: yes
-      Invalidation drop enabled: no
-      Max Install Standby Candidate Paths: 0
-  ```
+   SID                         Behavior          Context                           Owner               State  RW
+   --------------------------  ----------------  --------------------------------  ------------------  -----  --
+   fc00:0:1111::               uN (PSP/USD)      'default':4369                    sidmgr              InUse  Y 
+   fc00:0:1111:e000::          uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0:P       isis-100            InUse  Y 
+   fc00:0:1111:e001::          uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0         isis-100            InUse  Y 
+   fc00:0:1111:e002::          uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0:P       isis-100            InUse  Y 
+   fc00:0:1111:e003::          uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0         isis-100            InUse  Y 
+   fc00:0:1111:e004::          uDT6              'default'                         bgp-65000           InUse  Y 
+   fc00:0:1111:e005::          uDT4              'default'                         bgp-65000           InUse  Y 
+   fc00:0:1111:e006::          uB6 (Insert.Red)  'srte_c_50_ep_fc00:0:7777::1' (50, fc00:0:7777::1)  xtc_srv6            InUse  Y 
+   fc00:0:1111:e007::          uB6 (Insert.Red)  'srte_c_40_ep_fc00:0:7777::1' (40, fc00:0:7777::1)  xtc_srv6            InUse  Y 
+   fc00:0:1111:e008::          uDT4              'carrots'                         bgp-65000           InUse  Y 
+   fc00:0:1111:e009::          uDT6              'carrots'                         bgp-65000           InUse  Y 
+   ```
+   ```
+   RP/0/RP0/CPU0:xrd01#show segment-routing traffic-eng policy 
+   Sat Jan 28 00:06:23.479 UTC
+   SR-TE policy database
+   ---------------------
+ 
+   Color: 50, End-point: fc00:0:7777::1
+     Name: srte_c_50_ep_fc00:0:7777::1
+     Status:
+       Admin: up  Operational: up for 00:23:59 (since Jan 27 23:42:24.041)
+     Candidate-paths:
+       Preference: 100 (configuration) (active)
+         Name: low-latency
+         Requested BSID: dynamic
+         Constraints:
+           Protection Type: protected-preferred
+           Maximum SID Depth: 19 
+         Explicit: segment-list xrd567 (valid)      <------------- HERE
+           Weight: 1, Metric Type: TE
+             SID[0]: fc00:0:5555::/48
+                     Format: f3216
+                     LBL:32 LNL:16 FL:0 AL:80
+             SID[1]: fc00:0:6666::/48
+                     Format: f3216
+                     LBL:32 LNL:16 FL:0 AL:80
+         SRv6 Information:
+           Locator: MyLocator
+           Binding SID requested: Dynamic
+           Binding SID behavior: End.B6.Insert.Red
+     Attributes:
+       Binding SID: fc00:0:1111:e006::
+       Forward Class: Not Configured
+       Steering labeled-services disabled: no
+       Steering BGP disabled: no
+       IPv6 caps enable: yes
+       Invalidation drop enabled: no
+       Max Install Standby Candidate Paths: 0
+   ```
 
 ### Validate SRv6-TE steering of L3VPN traffic
 #### Validate bulk traffic takes the non-shortest path: xrd01 -> 02 -> 03 -> 04 -> 07 
@@ -535,7 +532,7 @@ As you run the tcpdumps you should see SRv6 Micro-SID 'shift-and-forward' behavi
     ./tcpdump.sh xrd04-xrd07
     ```
 
-3. Ping from Amsterdam to Rome's bulk transport destination IPv4 and IPv6 addresses:
+2. Ping from Amsterdam to Rome's bulk transport destination IPv4 and IPv6 addresses:
 
     ```
     ping 40.0.0.1 -i .4
