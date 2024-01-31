@@ -22,13 +22,13 @@ fc00:0:1111:e007::          uDT6              'carrots'                         
 2. Display BGP vpnv4 address-family info:
 ```
 RP/0/RP0/CPU0:xrd01#show bgp vpnv4 unicast
-Sat Jan  7 21:04:28.963 UTC
+Wed Jan 31 21:30:56.690 UTC
 BGP router identifier 10.0.0.1, local AS number 65000
 BGP generic scan interval 60 secs
 Non-stop routing is enabled
 BGP table state: Active
 Table ID: 0x0
-BGP main routing table version 47
+BGP main routing table version 12
 BGP NSR Initial initsync version 1 (Reached)
 BGP NSR/ISSU Sync-Group versions 0/0
 BGP scan interval 60 secs
@@ -38,28 +38,19 @@ Status codes: s suppressed, d damped, h history, * valid, > best
 Origin codes: i - IGP, e - EGP, ? - incomplete
    Network            Next Hop            Metric LocPrf Weight Path
 Route Distinguisher: 10.0.0.1:0 (default for vrf carrots)
-Route Distinguisher Version: 45
-*> 10.9.1.0/24        0.0.0.0                  0         32768 ?
-*>i10.9.6.0/24        fc00:0:6666::1           0    100      0 ?
-*>i10.9.7.0/24        fc00:0:7777::1           0    100      0 ?
+Route Distinguisher Version: 9
+*> 10.101.3.0/24      0.0.0.0                  0         32768 ?
 *>i10.107.2.0/24      fc00:0:7777::1           0    100      0 ?
-*>i40.0.0.0/24        fc00:0:7777::1 C:40      0    100      0 ?
-*>i50.0.0.0/24        fc00:0:7777::1 C:50      0    100      0 ?
-Route Distinguisher: 10.0.0.6:0
-Route Distinguisher Version: 5
-*>i10.9.6.0/24        fc00:0:6666::1           0    100      0 ?
+*>i40.0.0.0/24        fc00:0:7777::1           0    100      0 ?
+*>i50.0.0.0/24        fc00:0:7777::1           0    100      0 ?
 Route Distinguisher: 10.0.0.7:0
-Route Distinguisher Version: 47
-*>i10.9.7.0/24        fc00:0:7777::1           0    100      0 ?
-* i                   fc00:0:7777::1           0    100      0 ?
+Route Distinguisher Version: 12
 *>i10.107.2.0/24      fc00:0:7777::1           0    100      0 ?
 * i                   fc00:0:7777::1           0    100      0 ?
-*>i40.0.0.0/24        fc00:0:7777::1 C:40      0    100      0 ?
-* i                   fc00:0:7777::1 C:40      0    100      0 ?
-*>i50.0.0.0/24        fc00:0:7777::1 C:50      0    100      0 ?
-* i                   fc00:0:7777::1 C:50      0    100      0 ?
-
-Processed 11 prefixes, 15 paths
+*>i40.0.0.0/24        fc00:0:7777::1           0    100      0 ?
+* i                   fc00:0:7777::1           0    100      0 ?
+*>i50.0.0.0/24        fc00:0:7777::1           0    100      0 ?
+* i                   fc00:0:7777::1           0    100      0 ?
 ```
 
 3. Display data on a specific SRv6 L3VPN ipv4 prefix:
@@ -106,13 +97,13 @@ Paths: (2 available, best #1)
 4. Display BGP vpnv6 address-family info:
 ```
 RP/0/RP0/CPU0:xrd01#show bgp vpnv6 unicast
-Sat Jan  7 21:06:32.477 UTC
+Wed Jan 31 22:03:53.334 UTC
 BGP router identifier 10.0.0.1, local AS number 65000
 BGP generic scan interval 60 secs
 Non-stop routing is enabled
 BGP table state: Active
 Table ID: 0x0
-BGP main routing table version 28
+BGP main routing table version 12
 BGP NSR Initial initsync version 1 (Reached)
 BGP NSR/ISSU Sync-Group versions 0/0
 BGP scan interval 60 secs
@@ -122,28 +113,21 @@ Status codes: s suppressed, d damped, h history, * valid, > best
 Origin codes: i - IGP, e - EGP, ? - incomplete
    Network            Next Hop            Metric LocPrf Weight Path
 Route Distinguisher: 10.0.0.1:0 (default for vrf carrots)
-Route Distinguisher Version: 28
-*> 10:9:1::/64        ::                       0         32768 ?
-*>i10:9:6::/64        fc00:0:6666::1           0    100      0 ?
-*>i10:9:7::/64        fc00:0:7777::1           0    100      0 ?
+Route Distinguisher Version: 9
 *>ifc00:0:40::/64     fc00:0:7777::1           0    100      0 ?
 *>ifc00:0:50::/64     fc00:0:7777::1           0    100      0 ?
+*> fc00:0:101:3::/64  ::                       0         32768 ?
 *>ifc00:0:107:2::/64  fc00:0:7777::1           0    100      0 ?
-Route Distinguisher: 10.0.0.6:0
-Route Distinguisher Version: 7
-*>i10:9:6::/64        fc00:0:6666::1           0    100      0 ?
 Route Distinguisher: 10.0.0.7:0
-Route Distinguisher Version: 26
-*>i10:9:7::/64        fc00:0:7777::1           0    100      0 ?
-* i                   fc00:0:7777::1           0    100      0 ?
+Route Distinguisher Version: 12
 *>ifc00:0:40::/64     fc00:0:7777::1           0    100      0 ?
 * i                   fc00:0:7777::1           0    100      0 ?
 *>ifc00:0:50::/64     fc00:0:7777::1           0    100      0 ?
 * i                   fc00:0:7777::1           0    100      0 ?
 *>ifc00:0:107:2::/64  fc00:0:7777::1           0    100      0 ?
 * i                   fc00:0:7777::1           0    100      0 ?
-
-Processed 11 prefixes, 15 paths
+          
+Processed 7 prefixes, 10 paths
 ```
 5. Display data on a specific SRv6 L3VPN ipv6 prefix:
 ```
