@@ -274,7 +274,11 @@ Validation command output examples can be found at this [LINK](https://github.co
   ```
 
 ## Configure SRv6-TE steering for L3VPN
-**Rome's** L3VPN IPv4 and IPv6 prefixes are associated with two classes of traffic. The "40" destinations (40.0.0.0/24 and fc00:0:40::/64) are Bulk Transport destinations (content replication or data backups) and thus are latency and loss tolerant. The "50" destinations (50.0.0.0/24 and fc00:0:50::/64) are for real time traffic (live video, etc.) and thus require the lowest latency path available.
+**Rome's** L3VPN IPv4 and IPv6 prefixes are associated with two classes of traffic:
+
+* The "40" destinations (40.0.0.0/24 and fc00:0:40::/64) are Bulk Transport destinations (content replication or data backups) and thus are latency and loss tolerant. 
+  
+* The "50" destinations (50.0.0.0/24 and fc00:0:50::/64) are for real time traffic (live video, etc.) and thus require the lowest latency path available.
 
 We will use the below diagram for reference:
 
@@ -285,7 +289,7 @@ For our SRv6-TE purposes we'll leverage the on-demand nexthop (ODN) feature set.
 
 Using the ODN method, our the egress PE, **xrd07**, will advertise its L3VPN routes with color extended communities. We'll do this by first defining the extcomms, then setting up route-policies to match on destination prefixes and set the extcomm values.
 
-The ingress PE, xrd01, will then be configured with SRv6 segment-lists and SRv6 ODN steering policies that match routes with the respective color and apply the appropriate SID stack on outbound traffic.
+The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and SRv6 ODN steering policies that match routes with the respective color and apply the appropriate SID stack on outbound traffic.
 
 1. On **xrd07** advertise Rome's "40" and "50" prefixes with their respective color extended communities:
 
@@ -325,7 +329,7 @@ The ingress PE, xrd01, will then be configured with SRv6 segment-lists and SRv6 
   commit
   ```
 
-2. Validate vpnv4 and v6 prefixes are received at xrd01 and that they have their color extcomms:  
+2. Validate vpnv4 and v6 prefixes are received at **xrd01** and that they have their color extcomms:  
 
   **xrd01**
   ```
@@ -450,7 +454,7 @@ The ingress PE, xrd01, will then be configured with SRv6 segment-lists and SRv6 
   show segment-routing srv6 sid
   show segment-routing traffic-eng policy 
   ```
-  Example output, note the additional uDT VRF carrots and SRv6-TE uB6 Insert.Red SIDs added to the list:
+  Example output, note the additional uDT VRF carrots and SRv6-TE **uB6 Insert.Red** SIDs added to the list:
   ```
   RP/0/RP0/CPU0:xrd01#  show segment-routing srv6 sid
   Sat Dec 16 02:45:31.772 UTC
@@ -541,7 +545,7 @@ As you run the tcpdumps you should see SRv6 Micro-SID 'shift-and-forward' behavi
     ping fc00:0:40::1 -i .4
     ```
 
-    Example: tcpdump.sh output should look something like below on the xrd02-xrd03 link with both outer SRv6 uSID header and inner IPv4/6 headers. In this case the outbound traffic is taking a non-shortest path.  We don't have a specific policy for return traffic so it will take one of the ECMP shortest paths; thus we do not see replies in the tcpdump output:
+    Example: tcpdump.sh output should look something like below on the **xrd02-xrd03** link with both outer SRv6 uSID header and inner IPv4/6 headers. In this case the outbound traffic is taking a non-shortest path.  We don't have a specific policy for return traffic so it will take one of the ECMP shortest paths; thus we do not see replies in the tcpdump output:
     ```
     IPv4 payload:
 
@@ -592,7 +596,7 @@ As you run the tcpdumps you should see SRv6 Micro-SID 'shift-and-forward' behavi
     ./tcpdump.sh xrd06-xrd07
     ```
 
-    Example: tcpdump.sh output should look something like below on the xrd05-xrd06 link. In this case xrd05 -> 06 -> 07 is one of the IGP shortest paths. In this example the IPv4 ping replies are taking the same return path, however the IPv6 ping replies have been hashed onto one of the other ECMP paths. Your results may vary depending on how the XRd nodes have hashed their flows:
+    Example: tcpdump.sh output should look something like below on the **xrd05-xrd06** link. In this case **xrd05 -> 06 -> 07** is one of the IGP shortest paths. In this test run the IPv4 ping replies are taking the same return path, however the IPv6 ping replies have been hashed onto one of the other ECMP paths. Your results may vary depending on how the XRd nodes have hashed their flows:
     
     ```
     18:47:20.342018 IP6 fc00:0:1111::1 > fc00:0:6666:7777:e004::: IP 10.101.3.1 > 50.0.0.1: ICMP echo request, id 4, seq 1, length 64
