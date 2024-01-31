@@ -16,13 +16,15 @@ for x in ls_link filter x.mt_id_tlv.mt_id !=2 return { key: x._key, router_id: x
 Query for the IGP topology (should match the xrd router topology):
 ```
 for x in ls_topology_v4 return x
-
+```
+```
 for x in ls_topology_v6 return x
 ```
 Query for the entire network topology (should match the xrd topology plus some spokes out to attached BGP networks):
 ```
 for x in ipv4_topology return x
-
+```
+```
 for x in ipv6_topology return x
 ```
 Query the ls_node_extended dataset and return specific k:v pairs:
@@ -30,7 +32,9 @@ Query the ls_node_extended dataset and return specific k:v pairs:
 for x in ls_node_extended return { node: x.router_id, name: x.name, srv6sid: x.sids[*].srv6_sid }
 ```
 
-#### Replaces lab_5 guide query after running add_meta_data.py
+#### Return to lab_5 guide and run the add_meta_data.py step. 
+[add_meta_data](https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_5/lab_5-guide.md#populating-the-db-with-external-data)
+#### Then run this next set of queries
 ```
 for x in ipv4_topology filter x.latency != null return { key: x._key, from: x._from, to: x._to, latency: x.latency, utilization: x.percent_util_out, country_codes: x.country_codes }
 ```

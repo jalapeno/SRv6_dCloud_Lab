@@ -317,7 +317,7 @@ In this exercise we are going to stitch together several elements that we have w
     - ArangoDB will parse the query, execute it and compile the results. If the query is invalid or cannot be executed, the server will return an error that the client can process and react to. If the query can be executed successfully, the server will return the query results (if any) to the client. See ArangoDB documentation [HERE](https://www.arangodb.com/docs/stable/aql/index.html)
 
 
-3. Run some DB Queries:
+3. Run some DB Queries (one the left side of the Arango UI click on Queries):
     
     For the most basic query below *x* is a object variable with each key field in a record populated as a child object. So basic syntax can be thought of as:
 
@@ -433,18 +433,22 @@ Reference this document on the shortest path algorithim in AQL [HERE](https://ww
    for v, e in outbound shortest_path 'ls_node_extended/2_0_0_0000.0000.0001' TO 'ls_node_extended/2_0_0_0000.0000.0007' ipv4_topology return  { node: v.name, location: v.location_id, address: v.address, srv6sid: v.sids[*].srv6_sid }
    ```
    - Note: In the graphDB the **xrd01** and **xrd07** nodes are represented as:
+  
      - 'ls_node_extended/2_0_0_0000.0000.0001'
      - 'ls_node_extended/2_0_0_0000.0000.0007'
 
    #### For all the remaining queries in this lab you can run the query against the return path by simply reversing the startVertex and targetVertex. Example where xrd07 and xrd01 are reversed:
 
    ```
-   for v, e in outbound shortest_path 'ls_node_extended/2_0_0_0000.0000.0007' TO 'ls_node_extended/2_0_0_0000.0000.0001' ipv4_topology return  { node: v.name, location: v.location_id, address: v.address, srv6sid: v.sids[*].srv6_sid }
+   for v, e in outbound shortest_path 'ls_node_extended/2_0_0_0000.0000.0007' 
+        TO 'ls_node_extended/2_0_0_0000.0000.0001' ipv4_topology 
+        return  { node: v.name, location: v.location_id, address: v.address, srv6sid: v.sids[*].srv6_sid }
    ```
 
    1. Next we can expand the diameter of our query. In this case its no longer just ingress router to egress router, its a shortest path query from source prefix (Amsterdam VM) to destination prefix (Rome VM). This example query also includes hop by hop latency:
    ```
-   for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology return  { node: v.name, location: v.location_id, address: v.address, srv6sid: v.sids[*].srv6_sid, latency: e.latency }
+   for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' 
+        TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology return  { node: v.name, location: v.location_id, address: v.address, srv6sid: v.sids[*].srv6_sid, latency: e.latency }
    ```
 
    Thus far all of these shortest path query results are based purely on hop count, which is fine, however, the graphDB also allows us to run a *`weighted shortest path query`* based on any metric or other piece of meta data in the graph!
@@ -453,7 +457,9 @@ Reference this document on the shortest path algorithim in AQL [HERE](https://ww
 
 #### Query for the lowest latency path between Amsterdam and Rome:
    ```
-   for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology OPTIONS {weightAttribute: 'latency' } return  { prefix: v.prefix, name: v.name, srv6sid: v.sids[*].srv6_sid, latency: e.latency }
+   for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' 
+        TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology OPTIONS {weightAttribute: 'latency' } 
+        return  { prefix: v.prefix, name: v.name, srv6sid: v.sids[*].srv6_sid, latency: e.latency }
    ```
 
 ### Graph Traversals
@@ -515,15 +521,18 @@ ArangoDB reference [LINK](https://www.arangodb.com/docs/stable/aql/graphs-kshort
 
  - First a query for full path data:
     ```
-    for p in outbound k_shortest_paths  'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' to 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology options {uniqueVertices: "path"} filter p.edges[*].country_codes !like "%FRA%" return distinct p
+    for p in outbound k_shortest_paths  'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' to 
+        'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology options {uniqueVertices: "path"} filter p.edges[*].country_codes !like "%FRA%" return distinct p
     ```
   The resulting graph shows our two paths that avoid going through France *(xrd06 in Paris)*
   <img src="images/data-sovereignty-query.png" width="600">
 
  - We can run the same query but with filtered output:
     ```
-    for p in outbound k_shortest_paths 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' to 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology filter p.edges[*].country_codes !like "%FRA%" return distinct { path: p.vertices[*].name, 
-        sid: p.vertices[*].sids[*].srv6_sid, countries_traversed: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
+    for p in outbound k_shortest_paths 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' 
+        to 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology filter p.edges[*].country_codes !like "%FRA%" 
+        return distinct { path: p.vertices[*].name, sid: p.vertices[*].sids[*].srv6_sid, 
+        countries_traversed: p.edges[*.country_codes[*], latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
     ```
 
    - The results in the query response should not traverse any links containing the *`FRA`* country code
