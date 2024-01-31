@@ -38,7 +38,7 @@ Jalapeno breaks the data collection and warehousing problem down into a series o
 - **Arango GraphDB** is used for modeling topology data
 - **InfluxDB** is used for warehousing statistical time-series data
 - **API-Gateway**: is currently under construction so for the lab we'll interact directly with the DB
-- **Jalapeno's installation script** will also deploy a Grafana container, which can be used to create dashboards to visualize the Influx time-series data
+- **Jalapeno's installation script** will install all of the above and deploy a Grafana container, which can be used to create dashboards to visualize the Influx time-series data
 
 One of the primary goals of the Jalapeno project is to be flexible and extensible. In the future we expect Jalapeno might support any number of data collectors and processors. For example the could be a collector/processor pair that creates an LLDP Topology model in the graphDB. Netflow data could be incorporated via a future integration with a tool like [pmacct](http://www.pmacct.net/). Or an operator might already have a telemetry stack and could choose to selectively integrate Jalapeno's GoBMP/Topology/GraphDB modules into an existing environment running Kafka. We also envision future integrations with other API-driven data warehouses such as Cisco ThousandEyes: https://www.thousandeyes.com/
 
@@ -98,7 +98,7 @@ The Jalapeno package is preinstalled and running on the **Jalapeno** VM
 
 Most transport SDN systems use BGP-LS to gather and model the underlying IGP topology. Jalapeno is intended to be a more generalized data platform to support use cases beyond internal transport such as VPNs or service chains. Because of this, Jalapeno's primary method of capturing topology data is via BMP. BMP provides all BGP AFI/SAFI info, thus Jalapeno is able to model many different kinds of topology, including the topology of the Internet (at least from the perspective of our peering routers).
 
-We'll first establish a BMP session between our route-reflectors and the open-source GoBMP collector, which comes pre-packaged with the Jalapeno install. We'll then enable BMP monitoring of the RRs' BGP peering sessions with our PE routers xrd01 and xrd07. Once established, the RRs' will stream all BGP NLRI info they receive from the PE routers to the GoBMP collector, which will in turn publish the data to Kafka. We'll get more into the Jalapeno data flow in Lab 5.
+We'll first establish a BMP session between our route-reflectors and the open-source GoBMP collector, which comes pre-packaged with the Jalapeno install. We'll then enable BMP monitoring of the RRs' BGP peering sessions with our PE routers *`xrd01`* and *`xrd07`*. Once established, the RRs' will stream all BGP NLRI info they receive from the PE routers to the GoBMP collector, which will in turn publish the data to Kafka. We'll get more into the Jalapeno data flow in Lab 5.
 
 The GoBMP Git Repository can be found [HERE](https://github.com/sbezverk/gobmp)
 
@@ -173,7 +173,7 @@ The GoBMP Git Repository can be found [HERE](https://github.com/sbezverk/gobmp)
     - unicast_prefix_v6
 
 ## BGP SRv6 locator
-In lab 1 we configured an SRv6 locator for the BGP global/default table. When we get to lab 6 we'll use these locators as we'll be sending SRv6 encapsulated traffic directly to/from Amsterdam and Rome. With our endpoints performing SRv6 encapsulation our BGP SRv6 locator will provide the end.DT4/6 function at the egress nodes *`xrd01`* and *`xrd07`*) to be able to pop the SRv6 encap and perform a global table lookup on the underlying payload.
+In lab 1 we configured an SRv6 locator for the BGP global/default table. When we get to lab 6 we'll use these locators as we'll be sending SRv6 encapsulated traffic directly to/from Amsterdam and Rome. With our endpoints performing SRv6 encapsulation our BGP SRv6 locator will provide the end.DT4/6 function at the egress nodes *`xrd01`* and *`xrd07`* to be able to pop the SRv6 encap and perform a global table lookup on the underlying payload.
 
 1. Optional - re-validate end.DT4/6 SIDs belonging to BGP default table:
     ```
@@ -205,15 +205,15 @@ In lab 1 we configured an SRv6 locator for the BGP global/default table. When we
 ## Install Jalapeno GraphDB Processors
 These container images are a set of proof-of-concept data processors that augment Jalapeno's graphDB modeling of the network.  
 
-  - The *`lsnode-extended`* processor loops through various link-state data collections and gathers relevant SR/SRv6 data for each node in the network and populates the data in a new *`ls_node_extended`* data collection. 
+  - The *`lsnode-extended`* processor loops through existing link-state data collections and gathers relevant SR/SRv6 data for each node in the network and populates the data in a new *`ls_node_extended`* data collection. 
   
   - The *`linkstate-edge-v4`* and *`linkstate-edge-v6`* processors generate separate graphs of the ipv4 and ipv6 link state topologies using the ls_node_extended elements.
 
   - The *`ebgp-processor`* loops through the data collections and separates out external and internal BGP prefixes. 
   
-  - The *`ipv4-topology`* and *`ipv4-topology`* processors loop through the link-state graphs and other collections to add internal and external links, nodes, peers, prefixes, etc. to provide a complete topology model for both IPv4 and IPv6.
+  - The *`ipv4-topology`* and *`ipv6-topology`* processors loop through the link-state graphs and other collections to add internal and external links, nodes, peers, prefixes, etc. to provide a complete topology model for both IPv4 and IPv6.
   
-  - The *`srv6-localsids`* processor harvests SRv6 SID data from a Kafka streaming telemetry topic and populates it in the *`sr_local_sids`* collection. This data is not available via BMP and is needed to construct full End.DT SIDs that we'll use in lab 6.  Example:
+  - The *`srv6-localsids`* processor harvests SRv6 SID data from a Kafka streaming telemetry topic and populates it in the *`sr_local_sids`* collection. This data is not available via BMP and is needed to construct full End.DT SIDs that we'll use in lab 6. Example:
 
 ```
 
@@ -228,6 +228,7 @@ fc00:0:1111:e004::      uDT4            'carrots'                      bgp-65000
 fc00:0:1111:e005::      uDT6            'carrots'                      bgp-65000   <---|  "srv6-localsids" processor
 
 ```
+Note: the SRv6 SID streaming telemetry configuration on *`xrd07`*: [mdt_config](https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_1/config/xrd07.cfg#L23)
 
 #### Return to the ssh session on the Jalapeno VM
 
@@ -277,7 +278,7 @@ fc00:0:1111:e005::      uDT6            'carrots'                      bgp-65000
     ```
 3. In ArangoDB you should see a number of new collections such as *`ls_node_extended`*, *`ls_topology_v4`*, *`ls_topology_v6`*, and *`srv6_local_sids`*.
 
- - Note: srv6_local_sids may not populate with data for up to 2 minutes as it is reliant on streaming telemetry configuration of 120 seconds (see xrd01 'telemetry model-driven' config section). 
+ - Note: *`srv6_local_sids`* may not populate with data for up to 2 minutes as it is reliant on streaming telemetry configuration of 120 seconds. 
 
 ### End of Lab 4
 Please proceed to [Lab 5](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_5/lab_5-guide.md)
