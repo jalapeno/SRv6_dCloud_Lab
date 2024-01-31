@@ -327,74 +327,73 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
    commit
    ```
 
-2. Validate vpnv4 and v6 prefixes are received at **xrd01** and that they have their color extcomms:  
+2. Validate vpnv4 and v6 prefixes are received at **xrd01** and that they have their color extcomms:
+   **xrd01**
+   ```
+   show bgp vpnv4 uni vrf carrots 40.0.0.0/24 
+   show bgp vpnv4 uni vrf carrots 50.0.0.0/24
+   show bgp vpnv6 uni vrf carrots fc00:0:40::/64
+   show bgp vpnv6 uni vrf carrots fc00:0:50::/64
+   ```
+   - For easier reading you can filter the show command output:
+   ```
+   show bgp vpnv4 uni vrf carrots 40.0.0.0/24 | include *olor 
+   ```
 
-  **xrd01**
-  ```
-  show bgp vpnv4 uni vrf carrots 40.0.0.0/24 
-  show bgp vpnv4 uni vrf carrots 50.0.0.0/24
-  show bgp vpnv6 uni vrf carrots fc00:0:40::/64
-  show bgp vpnv6 uni vrf carrots fc00:0:50::/64
-  ```
-  - For easier reading you can filter the show command output:
-  ```
-  show bgp vpnv4 uni vrf carrots 40.0.0.0/24 | include *olor 
-  ```
+   Examples:
+   ```
+   RP/0/RP0/CPU0:xrd01#show bgp vpnv4 uni vrf carrots 40.0.0.0/24
+   Sat Jan  7 21:27:26.645 UTC
+   BGP routing table entry for 40.0.0.0/24, Route Distinguisher: 10.0.0.1:0
+   Versions:
+     Process           bRIB/RIB  SendTblVer
+     Speaker                  58           58
+   Last Modified: Jan  7 21:27:19.204 for 00:00:07
+   Paths: (1 available, best #1)
+     Not advertised to any peer
+     Path #1: Received by speaker 0
+     Not advertised to any peer
+     Local
+       fc00:0:7777::1 (metric 3) from fc00:0:5555::1 (10.0.0.7)
+         Received Label 0xe0040
+         Origin incomplete, metric 0, localpref 100, valid, internal, best, group-best, import-candidate, imported
+         Received Path ID 0, Local Path ID 1, version 30
+         Extended community: Color:40 RT:9:9                      <------------------- HERE
+         Originator: 10.0.0.7, Cluster list: 10.0.0.5
+         PSID-Type:L3, SubTLV Count:1
+         SubTLV:
+           T:1(Sid information), Sid:fc00:0:7777::, Behavior:63, SS-TLV Count:1
+           SubSubTLV:
+             T:1(Sid structure):
+         Source AFI: VPNv4 Unicast, Source VRF: default, Source Route Distinguisher: 10.0.0.7:0
 
-  Examples:
-  ```
-  RP/0/RP0/CPU0:xrd01#show bgp vpnv4 uni vrf carrots 40.0.0.0/24
-  Sat Jan  7 21:27:26.645 UTC
-  BGP routing table entry for 40.0.0.0/24, Route Distinguisher: 10.0.0.1:0
-  Versions:
-    Process           bRIB/RIB  SendTblVer
-    Speaker                  58           58
-  Last Modified: Jan  7 21:27:19.204 for 00:00:07
-  Paths: (1 available, best #1)
-    Not advertised to any peer
-    Path #1: Received by speaker 0
-    Not advertised to any peer
-    Local
-      fc00:0:7777::1 (metric 3) from fc00:0:5555::1 (10.0.0.7)
-        Received Label 0xe0040
-        Origin incomplete, metric 0, localpref 100, valid, internal, best, group-best, import-candidate, imported
-        Received Path ID 0, Local Path ID 1, version 30
-        Extended community: Color:40 RT:9:9                      <------------------- HERE
-        Originator: 10.0.0.7, Cluster list: 10.0.0.5
-        PSID-Type:L3, SubTLV Count:1
-        SubTLV:
-          T:1(Sid information), Sid:fc00:0:7777::, Behavior:63, SS-TLV Count:1
-          SubSubTLV:
-            T:1(Sid structure):
-        Source AFI: VPNv4 Unicast, Source VRF: default, Source Route Distinguisher: 10.0.0.7:0
+   RP/0/RP0/CPU0:xrd01#show bgp vpnv6 uni vrf carrots fc00:0:50::/64
+   Sat Jan  7 21:27:56.050 UTC
+   BGP routing table entry for fc00:0:50::/64, Route Distinguisher: 10.0.0.1:0
+   Versions:
+     Process           bRIB/RIB  SendTblVer
+     Speaker                  46           46
+   Last Modified: Jan  7 21:27:19.204 for 00:00:36
+   Paths: (1 available, best #1)
+     Not advertised to any peer
+     Path #1: Received by speaker 0
+     Not advertised to any peer
+     Local
+       fc00:0:7777::1 (metric 3) from fc00:0:5555::1 (10.0.0.7)
+         Received Label 0xe0050
+         Origin incomplete, metric 0, localpref 100, valid, internal, best, group-best, import-candidate, imported
+         Received Path ID 0, Local Path ID 1, version 34
+         Extended community: Color:50 RT:9:9                      <------------------- HERE
+         Originator: 10.0.0.7, Cluster list: 10.0.0.5
+         PSID-Type:L3, SubTLV Count:1
+         SubTLV:
+           T:1(Sid information), Sid:fc00:0:7777::, Behavior:62, SS-TLV Count:1
+           SubSubTLV:
+             T:1(Sid structure):
+         Source AFI: VPNv6 Unicast, Source VRF: default, Source Route Distinguisher: 10.0.0.7:0
+   ```
 
-  RP/0/RP0/CPU0:xrd01#show bgp vpnv6 uni vrf carrots fc00:0:50::/64
-  Sat Jan  7 21:27:56.050 UTC
-  BGP routing table entry for fc00:0:50::/64, Route Distinguisher: 10.0.0.1:0
-  Versions:
-    Process           bRIB/RIB  SendTblVer
-    Speaker                  46           46
-  Last Modified: Jan  7 21:27:19.204 for 00:00:36
-  Paths: (1 available, best #1)
-    Not advertised to any peer
-    Path #1: Received by speaker 0
-    Not advertised to any peer
-    Local
-      fc00:0:7777::1 (metric 3) from fc00:0:5555::1 (10.0.0.7)
-        Received Label 0xe0050
-        Origin incomplete, metric 0, localpref 100, valid, internal, best, group-best, import-candidate, imported
-        Received Path ID 0, Local Path ID 1, version 34
-        Extended community: Color:50 RT:9:9                      <------------------- HERE
-        Originator: 10.0.0.7, Cluster list: 10.0.0.5
-        PSID-Type:L3, SubTLV Count:1
-        SubTLV:
-          T:1(Sid information), Sid:fc00:0:7777::, Behavior:62, SS-TLV Count:1
-          SubSubTLV:
-            T:1(Sid structure):
-        Source AFI: VPNv6 Unicast, Source VRF: default, Source Route Distinguisher: 10.0.0.7:0
-  ```
-
-1. On **xrd01** configure a pair of SRv6-TE segment lists for steering traffic over these specific paths through the network: 
+3. On **xrd01** configure a pair of SRv6-TE segment lists for steering traffic over these specific paths through the network: 
     - Segment list *xrd2347* will execute the explicit path: xrd01 -> 02 -> 03 -> 04 -> 07
     - Segment list *xrd567* will execute the explicit path: xrd01 -> 05 -> 06 -> 07
 
