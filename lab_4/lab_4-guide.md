@@ -215,22 +215,21 @@ These container images are a set of proof-of-concept data processors that augmen
   
   - The *`srv6-localsids`* processor harvests SRv6 SID data from a Kafka streaming telemetry topic and populates it in the *`sr_local_sids`* collection. This data is not available via BMP and is needed to construct full End.DT SIDs that we'll use in lab 6. 
   
-  Example:
+    Example:
 
-```
+  ```
+  SID                         Behavior          Context                    Owner              
+  ----------------------  --------------  -----------------------------  ------------
+  fc00:0:1111::           uN (PSP/USD)    'default':4369                 sidmgr     <-------- Collected via BMP
+  fc00:0:1111:e000::      uA (PSP/USD)    [Gi0/0/0/1, Link-Local]:0:P    isis-100    <---|   
+  fc00:0:1111:e001::      uA (PSP/USD)    [Gi0/0/0/1, Link-Local]:0      isis-100    <---|  These are not available via BMP
+  fc00:0:1111:e002::      uA (PSP/USD)    [Gi0/0/0/2, Link-Local]:0:P    isis-100    <---|  We collect and process
+  fc00:0:1111:e003::      uA (PSP/USD)    [Gi0/0/0/2, Link-Local]:0      isis-100    <---|  these SIDs via streaming
+  fc00:0:1111:e004::      uDT4            'carrots'                      bgp-65000   <---|  telemetry and the 
+  fc00:0:1111:e005::      uDT6            'carrots'                      bgp-65000   <---|  "srv6-localsids" processor
 
-SID                         Behavior          Context                    Owner              
-----------------------  --------------  -----------------------------  ------------
-fc00:0:1111::           uN (PSP/USD)    'default':4369                 sidmgr     <-------- Collected via BMP
-fc00:0:1111:e000::      uA (PSP/USD)    [Gi0/0/0/1, Link-Local]:0:P    isis-100    <---|   
-fc00:0:1111:e001::      uA (PSP/USD)    [Gi0/0/0/1, Link-Local]:0      isis-100    <---|  These are not available via BMP
-fc00:0:1111:e002::      uA (PSP/USD)    [Gi0/0/0/2, Link-Local]:0:P    isis-100    <---|  We collect and process
-fc00:0:1111:e003::      uA (PSP/USD)    [Gi0/0/0/2, Link-Local]:0      isis-100    <---|  these SIDs via streaming
-fc00:0:1111:e004::      uDT4            'carrots'                      bgp-65000   <---|  telemetry and the 
-fc00:0:1111:e005::      uDT6            'carrots'                      bgp-65000   <---|  "srv6-localsids" processor
-
-```
-Note: the SRv6 SID streaming telemetry configuration on *`xrd07`*: [SRv6 SID mdt path](https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_1/config/xrd07.cfg#L23)
+  ```
+  - Note: the SRv6 SID streaming telemetry configuration on *`xrd07`*: [SRv6 SID mdt path](https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_1/config/xrd07.cfg#L23)
 
 #### Return to the ssh session on the Jalapeno VM
 
@@ -280,7 +279,7 @@ Note: the SRv6 SID streaming telemetry configuration on *`xrd07`*: [SRv6 SID mdt
     ```
 3. In ArangoDB you should see a number of new collections such as *`ls_node_extended`*, *`ls_topology_v4`*, *`ls_topology_v6`*, and *`srv6_local_sids`*.
 
- - Note: *`srv6_local_sids`* may not populate with data for up to 2 minutes as it is reliant on streaming telemetry configuration of 120 seconds. 
+    - Note: *`srv6_local_sids`* may not populate with data for up to 2 minutes as it is reliant on streaming telemetry configuration of 120 seconds. 
 
 ### End of Lab 4
 Please proceed to [Lab 5](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_5/lab_5-guide.md)
