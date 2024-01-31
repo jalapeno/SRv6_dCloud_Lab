@@ -430,7 +430,9 @@ Reference this document on the shortest path algorithim in AQL [HERE](https://ww
 
    1. Return to the ArangoDB browser UI and run a shortest path query from **xrd01** to **xrd07**, and have it return SRv6 SID data.
    ```
-   for v, e in outbound shortest_path 'ls_node_extended/2_0_0_0000.0000.0001' TO 'ls_node_extended/2_0_0_0000.0000.0007' ipv4_topology return  { node: v.name, location: v.location_id, address: v.address, srv6sid: v.sids[*].srv6_sid }
+   for v, e in outbound shortest_path 'ls_node_extended/2_0_0_0000.0000.0001' 
+        TO 'ls_node_extended/2_0_0_0000.0000.0007' ipv4_topology 
+        return  { node: v.name, location: v.location_id, address: v.address, srv6sid: v.sids[*].srv6_sid }
    ```
    - Note: In the graphDB the **xrd01** and **xrd07** nodes are represented as:
   
