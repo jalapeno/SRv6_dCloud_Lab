@@ -149,11 +149,11 @@ The next step is to add the L3VPN configuration into BGP. The *carrots* L3VPN is
         next-hop-self
       commit
     ```
-  Next we add VRF *carrots* in BGP and enable SRv6 to each address family with the command *`segment-routing srv6`*. In addition we will tie the VRF to the SRv6 locator *`MyLocator`*. 
+  Next we add VRF *carrots* into BGP and enable SRv6 to the ipv4 and ipv6 address family with the command *`segment-routing srv6`*. In addition we will tie the VRF to the SRv6 locator *`MyLocator`* configured in an earlier lab. 
 
-  Last on **xrd01** we will redistribute connected routes using the command *`redistribute connected`*. 
+  Last on **xrd01** we will redistribute connected routes using the command *`redistribute connected`*. This will trigger the two interfaces ipv4 and ipv6 networks facing the Amsterdam VM to advertise in VRF *carrots*.
   
-  On **xrd07** we will need to redistribute both the connected and static routes to provide reachability to Rome and its additional prefixes. For xrd07 we will add both *`redistribute connected`* and *`redistribute static`*
+  On **xrd07** we will need to redistribute both the connected and static routes to provide reachability to Rome and its additional prefixes. For **xrd07** we will add both *`redistribute connected`* and *`redistribute static`* command.
 
  1. Enable SRv6 for VRF carrots and redistribute connected/static
    
