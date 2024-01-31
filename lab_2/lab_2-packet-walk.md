@@ -26,7 +26,7 @@ The student upon completion of Lab 2 should have achieved the following objectiv
 
 ## Packet Walk Results for traffic from Amsterdam to Rome over SRv6
 
-The expected results of a packet capture on XRD01 is to see ICMP ipv4 traffic sourced from Amsterdam (10.101.2.1) to Rome (10.107.1.1) use SRv6 encapsulation acroess the networ.
+The expected results of a packet capture on XRD01 is to see ICMP ipv4 traffic sourced from Amsterdam (10.101.2.1) to Rome (10.107.1.1) use SRv6 encapsulation acroess the network.
 
 See results below and notice both the ICMP echo and ICMP echo reply packets with SRv6 encapsulation. 
 > [!NOTE]
