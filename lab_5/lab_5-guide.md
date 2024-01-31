@@ -19,9 +19,9 @@ In Lab 5 we will explore elements of the Jalapeno system. We will log into the K
   - [Populating the DB with external data](#populating-the-db-with-external-data)
   - [Arango Graph traversals and shortest path queries](#arango-graph-traversals-and-shortest-path-queries)
     - [Shortest Path Query](#shortest-path-query)
-    - [Note: for all the remaining queries in this lab you can run the query against the return path by simply reversing the startVertex and targetVertex. Example:](#note-for-all-the-remaining-queries-in-this-lab-you-can-run-the-query-against-the-return-path-by-simply-reversing-the-startvertex-and-targetvertex-example)
+    - [For all the remaining queries in this lab you can run the query against the return path by simply reversing the startVertex and targetVertex. Example where xrd07 and xrd01 are reversed:](#for-all-the-remaining-queries-in-this-lab-you-can-run-the-query-against-the-return-path-by-simply-reversing-the-startvertex-and-targetvertex-example-where-xrd07-and-xrd01-are-reversed)
   - [Shortest path queries using metrics other than hop count](#shortest-path-queries-using-metrics-other-than-hop-count)
-    - [Query for the lowest latency path:](#query-for-the-lowest-latency-path)
+    - [Query for the lowest latency path between Amsterdam and Rome:](#query-for-the-lowest-latency-path-between-amsterdam-and-rome)
   - [Graph Traversals](#graph-traversals)
     - [Query for the least utilized path](#query-for-the-least-utilized-path)
   - [K Shortest Paths](#k-shortest-paths)
@@ -321,7 +321,7 @@ In this exercise we are going to stitch together several elements that we have w
     
     For the most basic query below *x* is a object variable with each key field in a record populated as a child object. So basic syntax can be thought of as:
 
-    *`for *x* in *collection* return *x* `*
+    *`for x in <collection_name> return x `*
 
     ```
     for x in ls_node_extended return x
@@ -436,13 +436,13 @@ Reference this document on the shortest path algorithim in AQL [HERE](https://ww
      - 'ls_node_extended/2_0_0_0000.0000.0001'
      - 'ls_node_extended/2_0_0_0000.0000.0007'
 
-   #### Note: for all the remaining queries in this lab you can run the query against the return path by simply reversing the startVertex and targetVertex. Example:
+   #### For all the remaining queries in this lab you can run the query against the return path by simply reversing the startVertex and targetVertex. Example where xrd07 and xrd01 are reversed:
 
    ```
    for v, e in outbound shortest_path 'ls_node_extended/2_0_0_0000.0000.0007' TO 'ls_node_extended/2_0_0_0000.0000.0001' ipv4_topology return  { node: v.name, location: v.location_id, address: v.address, srv6sid: v.sids[*].srv6_sid }
    ```
 
-   1. Run a shortest path query from source prefix (Amsterdam VM) to destination prefix (Rome VM), include hop by hop latency:
+   1. Next we can expand the diameter of our query. In this case its no longer just ingress router to egress router, its a shortest path query from source prefix (Amsterdam VM) to destination prefix (Rome VM). This example query also includes hop by hop latency:
    ```
    for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology return  { node: v.name, location: v.location_id, address: v.address, srv6sid: v.sids[*].srv6_sid, latency: e.latency }
    ```
@@ -451,20 +451,20 @@ Reference this document on the shortest path algorithim in AQL [HERE](https://ww
 
 ### Shortest path queries using metrics other than hop count
 
-#### Query for the lowest latency path:
+#### Query for the lowest latency path between Amsterdam and Rome:
    ```
    for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology OPTIONS {weightAttribute: 'latency' } return  { prefix: v.prefix, name: v.name, srv6sid: v.sids[*].srv6_sid, latency: e.latency }
    ```
 
 ### Graph Traversals
-A traversal starts at one specific document (startVertex) and follows all edges connected to this document using min depth and max depth values, or in network-engineer-speak "fewest hops" and "most hops".
+A traversal starts at one specific document *`(startVertex)`* and follows all edges connected to this document using min depth and max depth values, or in network-engineer-speak, find all paths between *`Source`* and *`Destination`* with a *`minimum hop count of X and maximum hop count of Y`*.
 
 ArangoDB reference [LINK](https://www.arangodb.com/docs/stable/aql/graphs-traversals-explained.html)
 
-For our purposes we can use Graph Traversal to find all paths that satisfy a given set of constraints including minimum and maximum hops to consider:
+Basically for our purposes we can use Graph Traversal to find all paths that satisfy a given set of constraints including minimum and maximum hops to consider.
 
 #### Query for the least utilized path
-Backups, data replication, other bulk transfers can oftentimes take a non-best path through the network. In theory the least utilized path could be many hops in length, so we're going to include a notation (1..6) which indicates the query can consider paths with 6 or fewer hops.
+Backups, data replication, other bulk transfers can oftentimes take a non-best path through the network. In theory the *`least utilized path`* could be many hops in length, so we're going to include a notation **(1..6)** which indicates the query can consider paths with 6 or fewer hops.
     
    1. First a query for full path data. We expect to see the Arango UI render a topology that includes all seven routers and our two prefix endpoints:
 
@@ -505,28 +505,28 @@ Backups, data replication, other bulk transfers can oftentimes take a non-best p
    - Note: the graph traversal is inherently loop-free (*another win for the GraphDB!*). If you increase the previous query to a max of 10 or 12 hops it should return the same number of results as the 1..8 query because there are no more loop-free paths.
 
 ### K Shortest Paths
-This type of query finds the first k paths in order of length (or weight) between two given documents, startVertex and targetVertex in your graph.
+This type of query finds the first **k** paths in order of length (or weight) between two given documents - the startVertex and targetVertex in your graph.
 
 ArangoDB reference [LINK](https://www.arangodb.com/docs/stable/aql/graphs-kshortest-paths.html)
 
 #### A Data sovereignty query
 
-1. We'll use the K Shortest Paths query method to find one or more suitable paths from Amsterdam to Rome that avoids France:
+1. We'll use the *`K Shortest Paths`* query method to find one or more suitable paths from Amsterdam to Rome that avoids France:
 
- - Full path data:
+ - First a query for full path data:
     ```
     for p in outbound k_shortest_paths  'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' to 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology options {uniqueVertices: "path"} filter p.edges[*].country_codes !like "%FRA%" return distinct p
     ```
-  The resulting graph shows our two paths that avoid going through France (xrd06 in Paris)
+  The resulting graph shows our two paths that avoid going through France *(xrd06 in Paris)*
   <img src="images/data-sovereignty-query.png" width="600">
 
- - The same query but with filtered output:
+ - We can run the same query but with filtered output:
     ```
     for p in outbound k_shortest_paths 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' to 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology filter p.edges[*].country_codes !like "%FRA%" return distinct { path: p.vertices[*].name, 
         sid: p.vertices[*].sids[*].srv6_sid, countries_traversed: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
     ```
 
-   - The results in the query response should not traverse any links containing the FRA country code
+   - The results in the query response should not traverse any links containing the *`FRA`* country code
 
    - Optional: feel free to run queries to `avoid` other countries as well. Just replace *`FRA`* in the query string with any of these country codes:  *`GBR`*, *`DEU`*, *`BRU`*, *`POL`*, *`TUR`*, *`UKR`*, *`MDA`*, *`BGR`*, *`AUT`*, *`HUN`*, *`SRB`*. You'll notice interesting results on some queries where the *xrd05 - xrd04* link traverses many countries.
 
