@@ -290,43 +290,42 @@ In our lab we will configure **xrd07** as the egress PE router with the ODN meth
 The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and SRv6 ODN steering policies that match routes with the respective color and apply the appropriate SID stack on outbound traffic.
 
 1. On **xrd07** advertise Rome's "40" and "50" prefixes with their respective color extended communities:
+   **xrd07**
+   ```
+   conf t
+   extcommunity-set opaque bulk-transfer
+     40
+   end-set
+ 
+   extcommunity-set opaque low-latency
+     50
+   end-set
 
-  **xrd07**
-  ```
-  conf t
-  extcommunity-set opaque bulk-transfer
-    40
-  end-set
+   route-policy set-color
+     if destination in (40.0.0.0/24) then
+       set extcommunity color bulk-transfer
+     endif
+     if destination in (50.0.0.0/24) then
+       set extcommunity color low-latency
+     endif
+     if destination in (fc00:0:40::/64) then
+       set extcommunity color bulk-transfer
+     endif
+     if destination in (fc00:0:50::/64) then
+       set extcommunity color low-latency
+     endif
+     pass
+   end-policy
 
-  extcommunity-set opaque low-latency
-    50
-  end-set
-
-  route-policy set-color
-    if destination in (40.0.0.0/24) then
-      set extcommunity color bulk-transfer
-    endif
-    if destination in (50.0.0.0/24) then
-      set extcommunity color low-latency
-    endif
-    if destination in (fc00:0:40::/64) then
-      set extcommunity color bulk-transfer
-    endif
-    if destination in (fc00:0:50::/64) then
-      set extcommunity color low-latency
-    endif
-    pass
-  end-policy
-
-  router bgp 65000
-  neighbor-group xrd-ipv6-peer
-    address-family vpnv4 unicast
-    route-policy set-color out
+   router bgp 65000
+   neighbor-group xrd-ipv6-peer
+     address-family vpnv4 unicast
+     route-policy set-color out
     
-    address-family vpnv6 unicast
-    route-policy set-color out
-  commit
-  ```
+     address-family vpnv6 unicast
+     route-policy set-color out
+   commit
+   ```
 
 2. Validate vpnv4 and v6 prefixes are received at **xrd01** and that they have their color extcomms:  
 
