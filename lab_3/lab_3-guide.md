@@ -48,7 +48,7 @@ BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4/6 L3VPN Network
 
 
   ### Configure VRF
-  This lab will use the VRF *carrots* for IPv4 and IPv6 vpn. The *carrots* vrf is configured only on the two edge routers in our SP network: **xrd01** and **xrd07**. Intermediate routers do not need to be vrf aware and are instead forwarding on the SRv6 data plane.
+  This lab will use the VRF *carrots* for IPv4 and IPv6 VPN. The *carrots* vrf is configured only on the two edge routers in our SP network: **xrd01** and **xrd07**. Intermediate routers do not need to be vrf aware and are instead forwarding on the SRv6 data plane.
 
   Configure the VRF on **xrd01** and **xrd07**:
 
