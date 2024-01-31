@@ -536,11 +536,8 @@ ArangoDB reference [LINK](https://www.arangodb.com/docs/stable/aql/graphs-kshort
 
  - We can run the same query but with filtered output:
     ```
-    for p in outbound k_shortest_paths 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' 
-        to 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology filter p.edges[*].country_codes !like "%FRA%" 
-        return distinct { path: p.vertices[*].name, sid: p.vertices[*].sids[*].srv6_sid, 
-        countries_traversed: p.edges[*.country_codes[*], latency: sum(p.edges[*].latency), 
-        percent_util_out: avg(p.edges[*].percent_util_out)}
+    for p in outbound k_shortest_paths 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' to 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology filter p.edges[*].country_codes !like "%FRA%" return distinct { path: p.vertices[*].name, 
+            sid: p.vertices[*].sids[*].srv6_sid, countries_traversed: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
     ```
 
    - The results in the query response should not traverse any links containing the *`FRA`* country code
