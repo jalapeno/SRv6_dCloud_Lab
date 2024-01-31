@@ -337,6 +337,7 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
    ```
 > [!TIP]
 > For easier reading you can filter the show command output:
+   
    ```
    show bgp vpnv4 uni vrf carrots 40.0.0.0/24 | include *olor 
    ```
