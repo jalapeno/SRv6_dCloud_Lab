@@ -448,7 +448,9 @@ Reference this document on the shortest path algorithim in AQL [HERE](https://ww
    1. Next we can expand the diameter of our query. In this case its no longer just ingress router to egress router, its a shortest path query from source prefix (Amsterdam VM) to destination prefix (Rome VM). This example query also includes hop by hop latency:
    ```
    for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' 
-        TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology return  { node: v.name, location: v.location_id, address: v.address, srv6sid: v.sids[*].srv6_sid, latency: e.latency }
+        TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology 
+        return  { node: v.name, location: v.location_id, address: v.address, 
+        srv6sid: v.sids[*].srv6_sid, latency: e.latency }
    ```
 
    Thus far all of these shortest path query results are based purely on hop count, which is fine, however, the graphDB also allows us to run a *`weighted shortest path query`* based on any metric or other piece of meta data in the graph!
@@ -494,7 +496,9 @@ Backups, data replication, other bulk transfers can oftentimes take a non-best p
    ```
    for v, e, p in 1..6 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' ipv4_topology 
        options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
-       return distinct { path: p.vertices[*].name, sid: p.vertices[*].sids[*].srv6_sid, countries_traversed: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
+       return distinct { path: p.vertices[*].name, sid: p.vertices[*].sids[*].srv6_sid, 
+       countries_traversed: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency), 
+       percent_util_out: avg(p.edges[*].percent_util_out)}
    ```
    We no longer see the UI render a topology, but we do get a nice subset of the output data. Also note the *return* instruction in the query specifies that it should add up the `latency` values, and do an average calculation on `percent_util_out` values.
     
@@ -505,7 +509,9 @@ Backups, data replication, other bulk transfers can oftentimes take a non-best p
    ```
     for v, e, p in 1..8 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' ipv4_topology 
         options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
-        return distinct { path: p.vertices[*].name, sid: p.vertices[*].sids[*].srv6_sid, country_list: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
+        return distinct { path: p.vertices[*].name, sid: p.vertices[*].sids[*].srv6_sid, 
+        country_list: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency), 
+        percent_util_out: avg(p.edges[*].percent_util_out)}
 
    ```
    - Note: the graph traversal is inherently loop-free (*another win for the GraphDB!*). If you increase the previous query to a max of 10 or 12 hops it should return the same number of results as the 1..8 query because there are no more loop-free paths.
@@ -522,7 +528,8 @@ ArangoDB reference [LINK](https://www.arangodb.com/docs/stable/aql/graphs-kshort
  - First a query for full path data:
     ```
     for p in outbound k_shortest_paths  'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' to 
-        'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology options {uniqueVertices: "path"} filter p.edges[*].country_codes !like "%FRA%" return distinct p
+        'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology options {uniqueVertices: "path"} 
+        filter p.edges[*].country_codes !like "%FRA%" return distinct p
     ```
   The resulting graph shows our two paths that avoid going through France *(xrd06 in Paris)*
   <img src="images/data-sovereignty-query.png" width="600">
@@ -532,7 +539,8 @@ ArangoDB reference [LINK](https://www.arangodb.com/docs/stable/aql/graphs-kshort
     for p in outbound k_shortest_paths 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' 
         to 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology filter p.edges[*].country_codes !like "%FRA%" 
         return distinct { path: p.vertices[*].name, sid: p.vertices[*].sids[*].srv6_sid, 
-        countries_traversed: p.edges[*.country_codes[*], latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
+        countries_traversed: p.edges[*.country_codes[*], latency: sum(p.edges[*].latency), 
+        percent_util_out: avg(p.edges[*].percent_util_out)}
     ```
 
    - The results in the query response should not traverse any links containing the *`FRA`* country code
