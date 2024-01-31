@@ -194,7 +194,7 @@ We'll use 'tcpdump.sh' shell script in the util directory to monitor traffic as 
 
   Example tcpdump.sh output:
   ```
-  cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd02-xrd06
+  cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd05-xrd06
   sudo tcpdump -ni br-343a0d248d8e
   tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
   listening on br-343a0d248d8e, link-type EN10MB (Ethernet), capture size 262144 bytes

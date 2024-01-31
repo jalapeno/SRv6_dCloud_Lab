@@ -295,6 +295,7 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
 
   **xrd07**
   ```
+  conf t
   extcommunity-set opaque bulk-transfer
     40
   end-set
@@ -404,6 +405,7 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
 
    **xrd01**
    ```
+   conf t
    segment-routing
     traffic-eng
      segment-lists
@@ -427,6 +429,7 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
 
   **xrd01**
   ```
+  conf t
   segment-routing
   traffic-eng
     policy bulk-transfer
