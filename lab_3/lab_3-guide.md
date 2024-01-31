@@ -48,7 +48,7 @@ BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4/6 L3VPN Network
 
 
   ### Configure VRF
-  This lab will use the VRF *carrots* for IPv4 and IPv6 VPN. The *carrots* vrf is configured only on the two edge routers in our SP network: **xrd01** and **xrd07**. Intermediate routers do not need to be vrf aware and are instead forwarding on the SRv6 data plane.
+  This lab will use the VRF *carrots* for IPv4 and IPv6 VPN. The *carrots* VRF is configured only on the two edge routers in our SP network: **xrd01** and **xrd07**. Intermediate routers do not need to be VRF aware and are instead forwarding on the SRv6 data plane.
 
   Configure the VRF on **xrd01** and **xrd07**:
 
@@ -71,7 +71,7 @@ BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4/6 L3VPN Network
   ```
 
   ### Add VRF to router interfaces for L3VPN
-  Now that our vrf *carrots* has been created lets get the vrf added to the applicable interfaces. For **xrd01** we will use  interface *GigabitEthernet0/0/0/3* which connects to Amsterdam over link *M*. For **xrd07** we will use interface *GigabitEthernet0/0/0/3* which connects to Rome over link *K*.
+  Now that our VRF *carrots* has been created lets get the VRF added to the applicable interfaces. For **xrd01** we will use  interface *GigabitEthernet0/0/0/3* which connects to Amsterdam over link *M*. For **xrd07** we will use interface *GigabitEthernet0/0/0/3* which connects to Rome over link *K*.
 
 ![iPerf Test](/topo_drawings/iperf-l3vpn.png)
 
@@ -149,7 +149,7 @@ The next step is to add the L3VPN configuration into BGP. The *carrots* L3VPN is
         next-hop-self
       commit
     ```
-  Next we add VRF *carrots* in BGP and enable SRv6 to each address family with the command *`segment-routing srv6`*. In addition we will tie the vrf to the SRv6 locator *`MyLocator`*. 
+  Next we add VRF *carrots* in BGP and enable SRv6 to each address family with the command *`segment-routing srv6`*. In addition we will tie the VRF to the SRv6 locator *`MyLocator`*. 
 
   Last on xrd01 we will redistribute connected routes using the command *`redistribute connected`*. 
   
