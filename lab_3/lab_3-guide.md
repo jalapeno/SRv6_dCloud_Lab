@@ -99,7 +99,7 @@ BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4/6 L3VPN Network
 
 
  2. Add VRF static routes  
-     In addition to configuring *GigabitEthernet0/0/0/3* to be a member of VRF carrots, **xrd07** will need a pair of static routes for reachability to **Rome's** "40" and "50" network prefixes:  
+     In addition to configuring *GigabitEthernet0/0/0/3* to be a member of VRF carrots, **xrd07** will need a pair of static routes for reachability to **Rome's** "40" and "50" network prefixes. Later we'll create SRv6-TE steering policies for traffic to the "40" and "50" prefixes:  
 
     **xrd07**
     ```
@@ -133,7 +133,7 @@ BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4/6 L3VPN Network
     ```
 
 ### Configure BGP L3VPN Peering
-The next step is to add the L3VPN configuration into BGP. Because this is SRv6 L3VPN we will be adding both vpnv4 and vpnv6 address-families to the BGP neighbor-group for ipv6 peers. For example you will enable L3VPN in the neighbor-group template by issuing the *address-family vpnv4/6 unicast* command.
+The next step is to add the L3VPN configuration into BGP. The *carrots* L3VPN is dual-stack so we will be adding both vpnv4 and vpnv6 address-families to the BGP neighbor-group for ipv6 peers. For example you will enable L3VPN in the neighbor-group template by issuing the *address-family vpnv4/6 unicast* command.
   
  1. Enable BGP L3VPN 
 
@@ -149,11 +149,11 @@ The next step is to add the L3VPN configuration into BGP. Because this is SRv6 L
         next-hop-self
       commit
     ```
-  We will add VRF *carrots* in BGP and enable SRv6 to each address family with the command *`segment-routing srv6`*. In addition we will tie the vrf to the SRv6 locator *`MyLocator`*. 
+  Next we add VRF *carrots* in BGP and enable SRv6 to each address family with the command *`segment-routing srv6`*. In addition we will tie the vrf to the SRv6 locator *`MyLocator`*. 
 
   Last on xrd01 we will redistribute connected routes using the command *`redistribute connected`*. 
   
-  On xrd07 we will need to redistribute both the connected and static routes to provide reachability to Rome and its additional prefixes. For xrd07 we will add the command *`redistribute static`*
+  On xrd07 we will need to redistribute both the connected and static routes to provide reachability to Rome and its additional prefixes. For xrd07 we will add both *`redistribute connected`* and *`redistribute static`*
 
  1. Enable SRv6 for VRF carrots and redistribute connected/static
    
