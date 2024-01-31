@@ -155,7 +155,7 @@ The next step is to add the L3VPN configuration into BGP. The *carrots* L3VPN is
   
   On **xrd07** we will need to redistribute both the connected and static routes to provide reachability to Rome and its additional prefixes. For **xrd07** we will add both *`redistribute connected`* and *`redistribute static`* command.
 
- 1. Enable SRv6 for VRF carrots and redistribute connected/static
+ 2. Enable SRv6 for VRF carrots and redistribute connected/static
    
     **xrd01**  
     ```
