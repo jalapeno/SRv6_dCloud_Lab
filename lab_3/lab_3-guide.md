@@ -274,7 +274,7 @@ Validation command output examples can be found at this [LINK](https://github.co
 ## Configure SRv6-TE steering for L3VPN
 **Rome's** L3VPN IPv4 and IPv6 prefixes are associated with two classes of traffic:
 
-* The **"40"** destinations (40.0.0.0/24 and fc00:0:40::/64) are Bulk Transport destinations (content replication or data backups) and thus are latency and loss tolerant. 
+* The **"40"** destinations (40.0.0.0/24 and fc00:0:40::/64) are bulk transport destinations (content replication or data backups) and thus are latency and loss tolerant. 
   
 * The **"50"** destinations (50.0.0.0/24 and fc00:0:50::/64) are for real time traffic (live video, etc.) and thus require the lowest latency path available.
 
