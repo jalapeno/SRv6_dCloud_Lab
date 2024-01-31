@@ -198,9 +198,9 @@ BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4/6 L3VPN Network
         commit
       ```
 
-The BGP route reflectors will also need to have L3VPN capability added to their peering group.
+3. The BGP route reflectors will also need to have L3VPN capability added to their peering group.
 
-3. BGP Route Reflectors **xrd05**, **xrd06**  
+   BGP Route Reflectors **xrd05**, **xrd06**  
     ```
     conf t
     router bgp 65000
