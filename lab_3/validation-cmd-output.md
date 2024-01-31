@@ -171,17 +171,6 @@ Paths: (2 available, best #1)
 ```
 6. Pings from xrd01:
 ```
-RP/0/RP0/CPU0:xrd01#ping vrf carrots 10.9.6.1
-Sat Jan  7 21:08:54.854 UTC
-Type escape sequence to abort.
-Sending 5, 100-byte ICMP Echos to 10.9.6.1 timeout is 2 seconds:
-!!!!!
-Success rate is 100 percent (5/5), round-trip min/avg/max = 2/2/3 ms
-RP/0/RP0/CPU0:xrd01#ping vrf carrots 10:9:6::1 
-Sat Jan  7 21:09:00.588 UTC
-Type escape sequence to abort.
-Sending 5, 100-byte ICMP Echos to 10:9:6::1, timeout is 2 seconds:
-!!!!!
 Success rate is 100 percent (5/5), round-trip min/avg/max = 2/2/3 ms
 RP/0/RP0/CPU0:xrd01#ping vrf carrots 40.0.0.1
 Sat Jan  7 21:09:05.650 UTC
