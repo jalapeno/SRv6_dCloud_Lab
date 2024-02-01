@@ -279,7 +279,8 @@ These container images are a set of proof-of-concept data processors that augmen
     ```
 3. In ArangoDB you should see a number of new collections such as *`ls_node_extended`*, *`ls_topology_v4`*, *`ls_topology_v6`*, and *`srv6_local_sids`*.
 
-    - Note: *`srv6_local_sids`* may not populate with data for up to 2 minutes as it is reliant on streaming telemetry configuration of 120 seconds. 
+> [!NOTE]
+> *`srv6_local_sids`* may not populate with data for up to 2 minutes as it is reliant on streaming telemetry configuration of 120 seconds. 
 
 ### End of Lab 4
 Please proceed to [Lab 5](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_5/lab_5-guide.md)
