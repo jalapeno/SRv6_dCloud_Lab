@@ -195,8 +195,8 @@ In lab 1 we configured an SRv6 locator for the BGP global/default table. When we
     fc00:0:1111:e002::          uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0:P       isis-100            InUse  Y 
     fc00:0:1111:e003::          uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0         isis-100            InUse  Y 
     fc00:0:1111:e004::          uDT4              'default'                         bgp-65000           InUse  Y 
+    fc00:0:1111:e006::          uDT6              'default'                         bgp-65000           InUse  Y
     fc00:0:1111:e005::          uDT4              'carrots'                         bgp-65000           InUse  Y 
-    fc00:0:1111:e006::          uDT6              'default'                         bgp-65000           InUse  Y 
     fc00:0:1111:e007::          uDT6              'carrots'                         bgp-65000           InUse  Y 
     fc00:0:1111:e008::          uB6 (Insert.Red)  'srte_c_50_ep_fc00:0:7777::1' (50, fc00:0:7777::1)  xtc_srv6            InUse  Y 
     fc00:0:1111:e009::          uB6 (Insert.Red)  'srte_c_40_ep_fc00:0:7777::1' (40, fc00:0:7777::1)  xtc_srv6            InUse  Y 
