@@ -554,10 +554,7 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
     18:44:13.668766 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e005::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:40::1: ICMP6, echo request, seq 2, length 64
     ```
 
-> [!IMPORTANT]
-> We have found an occasional issue where IPv6 neighbor discovery fails between **Amsterdam** Linux and the XRd MACVLAN attachment on **xrd01**. So if your IPv6 ping from *`Amsterdam`* doesn't work try pinging from **xrd01** to **Amsterdam** over the VRF carrots interface. A successful ping should 'wake up' the IPv6 neighborship.
-
-On **xrd01**
+    On **xrd01**
     ```
     ping vrf carrots fc00:0:101:3::1 
     ```
@@ -571,6 +568,9 @@ On **xrd01**
     Success rate is 100 percent (5/5), round-trip min/avg/max = 3/4/4 ms
     RP/0/RP0/CPU0:xrd01#
     ```
+
+> [!IMPORTANT]
+> We have found an occasional issue where IPv6 neighbor discovery fails between **Amsterdam** Linux and the XRd MACVLAN attachment on **xrd01**. So if your IPv6 ping from *`Amsterdam`* doesn't work try pinging from **xrd01** to **Amsterdam** over the VRF carrots interface. A successful ping should 'wake up' the IPv6 neighborship.
 
 #### Validate low latency traffic takes the path: xrd01 -> 05 -> 06 -> 07 
 1.  Ping from **Amsterdam** to **Rome's** low latency destination IPv4 and IPv6 addresses while running the tcpdump script:
