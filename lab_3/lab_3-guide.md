@@ -555,10 +555,9 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
     ```
 
 > [!IMPORTANT]
-> We have found an occasional issue where IPv6 neighbor discovery fails between *`Amsterdam`* Linux and the XRd MACVLAN attachment on *`xrd01`*. So if your IPv6 ping from *`Amsterdam`* doesn't work try pinging from **xrd01** to **Amsterdam** over the VRF carrots interface. A successful ping should 'wake up' the IPv6 neighborship.
+> We have found an occasional issue where IPv6 neighbor discovery fails between **Amsterdam** Linux and the XRd MACVLAN attachment on **xrd01**. So if your IPv6 ping from *`Amsterdam`* doesn't work try pinging from **xrd01** to **Amsterdam** over the VRF carrots interface. A successful ping should 'wake up' the IPv6 neighborship.
 
-    On **xrd01**
-    
+On **xrd01**
     ```
     ping vrf carrots fc00:0:101:3::1 
     ```
