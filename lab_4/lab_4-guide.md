@@ -173,7 +173,7 @@ The GoBMP Git Repository can be found [HERE](https://github.com/sbezverk/gobmp)
     - unicast_prefix_v6
 
 ## BGP SRv6 locator
-In lab 1 we configured an SRv6 locator for the BGP global/default table. When we get to lab 6 we'll use these locators as we'll be sending SRv6 encapsulated traffic directly to/from Amsterdam and Rome. With our endpoints performing SRv6 encapsulation our BGP SRv6 locator will provide the end.DT4/6 function at the egress nodes *`xrd01`* and *`xrd07`* to be able to pop the SRv6 encap and perform a global table lookup on the underlying payload.
+In lab 1 we configured an SRv6 locator for the BGP global/default table. When we get to lab 6 we'll use these locators as we'll be sending SRv6 encapsulated traffic directly to/from Amsterdam and Rome. With our endpoints performing SRv6 encapsulation our BGP SRv6 locator will provide the end.DT4/6 function at the egress nodes **xrd01** and **xrd07** to be able to pop the SRv6 encap and perform a global table lookup on the underlying payload.
 
 1. Optional: re-validate end.DT4/6 SIDs belonging to BGP default table:
     ```
