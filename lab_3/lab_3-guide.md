@@ -513,26 +513,25 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
 
 ### Validate SRv6-TE steering of L3VPN traffic
 #### Validate bulk traffic takes the non-shortest path: xrd01 -> 02 -> 03 -> 04 -> 07 
-1. Run the tcpdump.sh script in the XRD VM's util directory on the following links in the network. These can either be run sequentially while executing the ping in step 2, or you can open individual ssh sessions and run the tcpdumps simultaneously. 
- 
-As you run the tcpdumps you should see SRv6 Micro-SID 'shift-and-forward' behavior in action. Feel free to run all, or just one or two tcpdumps. Alternatively you can run **./tcpdump-xrd01-02-03-04-07.sh** which will tcpdump for a few seconds along each link in the path.
-  
-    ```
-    cd SRv6_dCloud_Lab/util/
+1. Run the tcpdump.sh script in the XRD VM's util directory on the following links in the network. These can either be run sequentially while executing the ping in step 2, or you can open individual ssh sessions and run the tcpdumps simultaneously.
+   As you run the tcpdumps you should see SRv6 Micro-SID 'shift-and-forward' behavior in action. Feel free to run all, or just one or two tcpdumps. Alternatively you can run **./tcpdump-xrd01-02-03-04-07.sh** which will tcpdump for a few seconds along each link in the path.
 
-    ./tcpdump.sh xrd01-xrd02
-    ```
-    ```
+   ```
+   cd SRv6_dCloud_Lab/util/
+
+   ./tcpdump.sh xrd01-xrd02
+   ```
+   ```
     ./tcpdump.sh xrd02-xrd03
-    ```
-    ```
+   ```
+   ```
     ./tcpdump.sh xrd03-xrd04
-    ```
-    ```
+   ```
+   ```
     ./tcpdump.sh xrd04-xrd07
-    ```
+   ```
 
-2. Ping from Amsterdam to Rome's bulk transport destination IPv4 and IPv6 addresses:
+3. Ping from Amsterdam to Rome's bulk transport destination IPv4 and IPv6 addresses:
 
     ```
     ping 40.0.0.1 -i .4
@@ -554,9 +553,10 @@ As you run the tcpdumps you should see SRv6 Micro-SID 'shift-and-forward' behavi
     18:44:13.668766 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e005::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:40::1: ICMP6, echo request, seq 2, length 64
     ```
 
-    - Note: we have found an occasional issue where IPv6 neighbor discovery fails between *`Amsterdam`* Linux and the XRd MACVLAN attachment on *`xrd01`*. So if your IPv6 ping from *`Amsterdam`* doesn't work try pinging from *`xrd01`* to *`Amsterdam`* over the VRF carrots interface. A successful ping should 'wake up' the IPv6 neighborship.
+> [!IMPORTANT]
+> We have found an occasional issue where IPv6 neighbor discovery fails between *`Amsterdam`* Linux and the XRd MACVLAN attachment on *`xrd01`*. So if your IPv6 ping from *`Amsterdam`* doesn't work try pinging from **xrd01** to **Amsterdam** over the VRF carrots interface. A successful ping should 'wake up' the IPv6 neighborship.
 
-    On *`xrd01`*:  
+    On **xrd01**:  
     ```
     ping vrf carrots fc00:0:101:3::1 
     ```
