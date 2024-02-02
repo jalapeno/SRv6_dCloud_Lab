@@ -414,11 +414,11 @@ Our first use case is to make path selection through the network based on the cu
 > [!TIP]
 > General Arango AQL graph query syntax information can be found [HERE](https://www.arangodb.com/docs/stable/aql/graphs.html). Please reference this document on the shortest path algorithim in AQL [HERE](https://www.arangodb.com/docs/stable/aql/graphs-shortest-path.html) (2 minute read).
 
-In this use case we want to idenitfy the lowest latency path between **xrd01** and **xrd07**. We will utilize Arango's shortest path query capabilities and specify latency as our meta-data field to calculate on. See image below which shows the shortest latency path we expect to be returned by our query.
+In this use case we want to idenitfy the lowest latency path for traffic originating from the 10.101.1.0/24 (Amsterdam) destined to 20.0.0.0/24 (Rome). We will utilize Arango's shortest path query capabilities and specify latency as our weighted attribute pulled from the meta-data. See image below which shows the shortest latency path we expect to be returned by our query.
 
 <img src="/topo_drawings/low-latency-path.png" width="900">
 
-   1. Return to the ArangoDB browser UI and run a shortest path query from **xrd01** to **xrd07**, and have it return SRv6 SID data.
+   1. Return to the ArangoDB browser UI and run a shortest path query from 10.101.1.0/24 to 20.0.0.0/24 , and have it return SRv6 SID data.
       ```
       for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' 
           TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology OPTIONS {weightAttribute: 'latency' } 
@@ -426,7 +426,7 @@ In this use case we want to idenitfy the lowest latency path between **xrd01** a
       ```
    
    2. Examine the table output and it should match the expected path in the diagram above. See sample output below.
-   <img src="images/arango-latancy-data.png" width="900">
+   <img src="images/arango-latency-data.png" width="900">
 
    3. If we wanted to implement the returned query data into SRv6 TE steering XR config we would create a policy like the below example.
       ```
