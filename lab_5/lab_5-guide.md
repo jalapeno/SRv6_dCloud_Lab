@@ -420,12 +420,19 @@ In this use case we want to idenitfy the lowest latency path between **xrd01** a
 
    1. Return to the ArangoDB browser UI and run a shortest path query from **xrd01** to **xrd07**, and have it return SRv6 SID data.
       ```
-      for v, e in outbound shortest_path 'ls_node_extended/2_0_0_0000.0000.0001' 
-          TO 'ls_node_extended/2_0_0_0000.0000.0007' ipv4_topology 
-          return  { node: v.name, location: v.location_id, address: v.address, srv6sid: v.sids[*].srv6_sid }
+      for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' 
+          TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology OPTIONS {weightAttribute: 'latency' } 
+          return  { prefix: v.prefix, name: v.name, srv6sid: v.sids[*].srv6_sid, latency: e.latency }
       ```
-   2. Examine the table output 
+   
+   2. Examine the table output and it should match the expected path in the diagram above. See sample output below.
+   <img src="images/arango-latancy-data.png" width="900">
 
+   3. If we wanted to implement the returned query data into SRv6 TE steering XR config we would create a policy like the below example.
+      ```
+      
+      ```
+  
 
 ### Use Case 2: Lowest Bandwidth Utilization Path
 
