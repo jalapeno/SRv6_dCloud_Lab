@@ -429,8 +429,29 @@ In this use case we want to idenitfy the lowest latency path for traffic origina
    <img src="images/arango-latency-data.png" width="900">
 
    3. If we wanted to implement the returned query data into SRv6 TE steering XR config we would create a policy like the below example.
+      This xr config would define the hops returned from our query between router **xrd01** (source) and **xrd07** (desitination)
       ```
-      
+      segment-routing
+        traffic-eng
+          segment-lists
+            segment-list xrd567
+              srv6
+                index 10 sid fc00:0:5555::
+                index 20 sid fc00:0:6666::
+      ```
+
+      Recall from Lab 3 that **xrd07** is advertising the prefix 20.0.0.0This xr config would then match the desired traffic for low latency policy
+      ```
+      segment-routing
+        traffic-eng
+          policy low-latency
+            srv6
+             locator MyLocator binding-sid dynamic behavior ub6-insert-reduced
+ 
+           color 50 end-point ipv6 fc00:0:7777::1
+             candidate-paths
+             preference 100
+             explicit segment-list xrd567
       ```
   
 
