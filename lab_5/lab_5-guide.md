@@ -416,7 +416,7 @@ Our first use case is to make path selection through the network based on the cu
 
 In this use case we want to idenitfy the lowest latency path between **xrd01** and **xrd07**. We will utilize Arango's shortest path query capabilities and specify latency as our meta-data field to calculate on. See image below which shows the shortest latency path we expect to be returned by our query.
 
-<img src="/topo_drawings/low-latency-topology.png" width="900">
+<img src="/topo_drawings/low-latency-path.png" width="900">
 
    1. Return to the ArangoDB browser UI and run a shortest path query from **xrd01** to **xrd07**, and have it return SRv6 SID data.
       ```
