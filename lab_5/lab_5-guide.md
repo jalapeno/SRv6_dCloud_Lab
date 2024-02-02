@@ -157,9 +157,9 @@ In this exercise we are going to stitch together several elements that we have w
             "action": "add",
             "router_hash": "0669df0f031fb83e345267a9679bbc6a",
             "domain_id": 0,
-            "router_ip": "10.0.0.5",       <---- Reporting router
+            "router_ip": "10.0.0.5",       <---- Reporting router xrd05
             "peer_hash": "ef9f1cc86e4617df24d4675e2b55bbe2",
-            "peer_ip": "10.0.0.1",         <---- Source router
+            "peer_ip": "10.0.0.1",         <---- Source router xrd01
             "peer_asn": 65000,
             "timestamp": "2023-01-13T20:20:51.000164765Z",
             "igp_router_id": "0000.0000.0001",  <-------- Link State Node ID
