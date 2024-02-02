@@ -18,7 +18,10 @@ At the end of this lab we will explore the power of coupling the meta-data gathe
     - [ISIS Link State](#isis-link-state)
     - [SRv6 Locator SID](#srv6-locator-sid)
   - [Arango GraphDB](#arango-graphdb)
-  - [Populating the DB with external data](#populating-the-db-with-external-data)
+    - [Populating the DB with external data](#populating-the-db-with-external-data)
+  - [Use Case 1: Lowest Latency Path](#use-case-1:-lowest-latency-path)
+  - [Use Case 2: Lowest Bandwidth Utilization Path](#use-case-2:-lowest-bandwidth-utlization-path)
+  - [Use Case 3: Data Sovereignty Path](#use-case-3:-data-sovereignty-path)
   - [End of lab 5](#end-of-lab-5)
 
 ## Lab Objectives
@@ -405,6 +408,11 @@ The *`add_meta_data.py`* python script will connect to the ArangoDB and populate
 > [!NOTE]
 > The *`add_meta_data.py`* script has also populated country codes for all the countries a given link traverses from one node to its adjacent peer. Example: **xrd01** is in Amsterdam, and **xrd02** is in Berlin. Thus the **xrd01** <--> **xrd02** link traverses *`[NLD, DEU]`*
 
+### Use Case 1: Lowest Latency Path
+
+### Use Case 2: Lowest Bandwidth Utilization Path
+
+### Use Case 3: Data Sovereignty Path
 
 ### End of lab 5
 Please proceed to [Lab 6](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_6/lab_6-guide.md)
