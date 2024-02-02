@@ -19,10 +19,11 @@ At the end of this lab we will explore the power of coupling the meta-data gathe
     - [SRv6 Locator SID](#srv6-locator-sid)
   - [Arango GraphDB](#arango-graphdb)
     - [Populating the DB with external data](#populating-the-db-with-external-data)
-  - [Use Case 1: Lowest Latency Path](#use-case-1-lowest-latency-path)
-  - [Use Case 2: Lowest Bandwidth Utilization Path](#use-case-2-lowest-bandwidth-utilization-path)
-  - [Use Case 3: Data Sovereignty Path](#use-case-3-data-sovereignty-path)
-  - [End of lab 5](#end-of-lab-5)
+- [Use Case 1: Lowest Latency Path](#use-case-1-lowest-latency-path)
+  - [SRv6-TE for XR Global Routing Table](#srv6-te-for-xr-global-routing-table)
+- [Use Case 2: Lowest Bandwidth Utilization Path](#use-case-2-lowest-bandwidth-utilization-path)
+- [Use Case 3: Data Sovereignty Path](#use-case-3-data-sovereignty-path)
+- [End of lab 5](#end-of-lab-5)
 
 ## Lab Objectives
 The student upon completion of Lab 5 should have achieved the following objectives:
@@ -427,8 +428,25 @@ In this use case we want to idenitfy the lowest latency path for traffic origina
    
    2. Examine the table output and it should match the expected path in the diagram above. See sample output below.
    <img src="images/arango-latency-data.png" width="900">
+#### SRv6-TE for XR Global Routing Table
+Now we will modify the configuration for **xrd07** to incorporate SRv6-TE policy for route 20.0.0.0/24. Lets log in and get configuring!
 
-   3. If we wanted to implement the returned query data into SRv6 TE steering XR config we would create a policy like the below example.
+1. On router **xrd07** add in config to advertise the global prefix with the low latency community.
+   ```
+   route-policy set-global-color
+      if destination in (20.0.0.0/24) then
+        set extcommunity color low-latency
+      endif
+      pass
+   end-policy 
+   ```
+2. Add in BGP configuration to link the set-global-color policy to the ipv4 peering group
+   ```
+    neighbor-group xrd-ipv4-peer
+      address-family ipv4 unicast
+       route-policy set-global-color out 
+   ```
+3. If we wanted to implement the returned query data into SRv6-TE steering XR config on router **xrd01** we would create a policy like the below example.
       This xr config would define the hops returned from our query between router **xrd01** (source) and **xrd07** (desitination)
       ```
       segment-routing
@@ -439,20 +457,8 @@ In this use case we want to idenitfy the lowest latency path for traffic origina
                 index 10 sid fc00:0:5555::
                 index 20 sid fc00:0:6666::
       ```
-
-      Recall from Lab 3 that **xrd07** is advertising the prefix 20.0.0.0This xr config would then match the desired traffic for low latency policy
-      ```
-      segment-routing
-        traffic-eng
-          policy low-latency
-            srv6
-             locator MyLocator binding-sid dynamic behavior ub6-insert-reduced
- 
-           color 50 end-point ipv6 fc00:0:7777::1
-             candidate-paths
-             preference 100
-             explicit segment-list xrd567
-      ```
+> [!NOTE]
+> The configuration in step #3 was already configured in Lab 3 and is for informational purposes only.
   
 
 ### Use Case 2: Lowest Bandwidth Utilization Path
