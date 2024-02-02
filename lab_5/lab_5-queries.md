@@ -59,3 +59,11 @@ for v, e, p in 1..6 outbound 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topol
 
 ```
 
+#### Shortest path from host to host
+Next we can expand the diameter of our query. In this case its no longer just ingress router to egress router, its a shortest path query from source prefix (Amsterdam VM) to destination prefix (Rome VM). This example query also includes hop by hop latency:
+```
+for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' 
+    TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology 
+    return  { node: v.name, location: v.location_id, address: v.address, 
+    srv6sid: v.sids[*].srv6_sid, latency: e.latency }
+```
