@@ -324,9 +324,9 @@ In this exercise we are going to stitch together several elements that we have w
     *`for x in <collection_name> return x `*
 
     ```
-    for x in ls_node_extended return x
+    for x in ls_node return x
     ```
-    This query will return ALL records in the *`ls_node_extended`* collection. In our lab topology you should expect 7 records. 
+    This query will return ALL records in the *`ls_node`* collection. In our lab topology you should expect 7 records. 
 
      - Note: after running a query you will need to either comment it out or delete it before running the next query. To comment-out use two forward slashes *`//`* as shown in this pic:
 
