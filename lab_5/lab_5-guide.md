@@ -463,7 +463,35 @@ Now we will modify the configuration for **xrd07** to incorporate SRv6-TE policy
   
 
 ### Use Case 2: Lowest Bandwidth Utilization Path
+In this use case we want to idenitfy the lowest utilized path for traffic originating from the 10.101.1.0/24 (Amsterdam) destined to 20.0.0.0/24 (Rome). We will utilize Arango's shortest path query capabilities and specify utilization as our weighted attribute pulled from the meta-data. See image below which shows the shortest latency path we expect to be returned by our query.
 
+<img src="/topo_drawings/low-utilization-path.png" width="900">
+
+   1. Return to the ArangoDB browser UI and run a shortest path query from 10.101.1.0/24 to 20.0.0.0/24 , and have it return SRv6 SID data.
+      ```
+      for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' 
+          TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology options { weightAttribute: 'percent_util_out' } filter e.mt_id != 2
+      return { node: v._key, name: v.name, sid: v.sids[*].srv6_sid, util: e.percent_util_out }
+      ```
+   
+   2. Examine the table output and it should match the expected path in the diagram above. See sample output below.
+   <img src="images/arango-utilization-data.png" width="900">
+
+  3. If we wanted to implement the returned query data into SRv6-TE steering XR config on router **xrd01** we would create a policy like the below example.
+      This xr config would define the hops returned from our query between router **xrd01** (source) and **xrd07** (desitination)
+      ```
+      segment-routing
+        traffic-eng
+          segment-lists
+            segment-list xrd567
+              srv6
+               index 10 sid fc00:0:2222::
+               index 20 sid fc00:0:3333::
+               index 30 sid fc00:0:4444:: 
+      ```
+> [!NOTE]
+> The configuration in step #3 was already configured in Lab 3 and is for informational purposes only.
+  
 ### Use Case 3: Data Sovereignty Path
 
 ### End of lab 5
