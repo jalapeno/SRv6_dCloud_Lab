@@ -150,7 +150,7 @@ In this exercise we are going to stitch together several elements that we have w
         clear bgp link-state link-state * soft
         ```
 
-        On the Kafka console we expect to see 14 json objects representing BMP messages coming from our 2 route reflectors and describing our 7 different ISIS nodes. Example message:
+        On the Kafka console we expect to see 14 json objects representing BMP messages when we perform a soft reset of the BGP session in **xrd01**. This will cause router **xrd01** to repopulate it's ISIS node data which is then mirrored to the BGP route reflectors. Below is one of the records received through BMP by Jalapeno and sent through the Kafka bus for **xrd01** own ISIS link state node record.
 
         ```json
         {
@@ -163,7 +163,7 @@ In this exercise we are going to stitch together several elements that we have w
             "peer_asn": 65000,
             "timestamp": "2023-01-13T20:20:51.000164765Z",
             "igp_router_id": "0000.0000.0001",  <-------- Link State Node ID
-            "router_id": "10.0.0.1",
+            "router_id": "10.0.0.1",         <---- Source router xrd01
             "asn": 65000,
             "mt_id_tlv": [
                 {
@@ -177,11 +177,11 @@ In this exercise we are going to stitch together several elements that we have w
                     "mt_id": 2
                 }
             ],
-            "area_id": "49.0901",
-            "protocol": "IS-IS Level 2",
+            "area_id": "49.0901",                <---- Area ID
+            "protocol": "IS-IS Level 2",         <---- ISIS Level 2
             "protocol_id": 2,
             "name": "xrd01",
-            "ls_sr_capabilities": {
+            "ls_sr_capabilities": {              <---- From here down SR xrd01 local attributes meta data
                 "flags": {
                     "i_flag": true,
                     "v_flag": false
