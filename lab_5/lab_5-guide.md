@@ -412,8 +412,7 @@ The *`add_meta_data.py`* python script will connect to the ArangoDB and populate
 Our first use case is to make path selection through the network based on the cummulative link latency from A to Z. Using latency meta-data is not something traditional routing protocols can do. It may be possible to statically build routes through your network using weights to define a path. However, what these work arounds cannot do is provide path selection based on near real time data which is possible with an application like Jalapeno. This provides customers to have a flexible network policy that can react to changes in the WAN environment.
 
 > [!TIP]
-> General Arango AQL graph query syntax information [HERE](https://www.arangodb.com/docs/stable/aql/graphs.html)
-> Reference this document on the shortest path algorithim in AQL [HERE](https://www.arangodb.com/docs/stable/aql/graphs-shortest-path.html) (2 minute read).
+> General Arango AQL graph query syntax information can be found [HERE](https://www.arangodb.com/docs/stable/aql/graphs.html). Please reference this document on the shortest path algorithim in AQL [HERE](https://www.arangodb.com/docs/stable/aql/graphs-shortest-path.html) (2 minute read).
 
 In this use case we want to idenitfy the lowest latency path between **xrd01** and **xrd07**. We will utilize Arango's shortest path query capabilities and specify latency as our meta-data field to calculate on. See image below which shows the shortest latency path we expect to be returned by our query.
 
