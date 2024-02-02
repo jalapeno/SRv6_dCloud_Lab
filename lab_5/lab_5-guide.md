@@ -460,6 +460,17 @@ Now we will modify the configuration for **xrd07** to incorporate SRv6-TE policy
                 index 10 sid fc00:0:5555::
                 index 20 sid fc00:0:6666::
       ```
+      Now we add in a SRv6-TE policy that connects the *extcommunity/color 50* to our segment list *xrd567*
+      ```
+      policy low-latency
+        srv6
+          locator MyLocator binding-sid dynamic behavior ub6-insert-reduced
+   
+        color 50 end-point ipv6 fc00:0:7777::1
+        candidate-paths
+          preference 100
+            explicit segment-list xrd567
+      ```
 > [!NOTE]
 > The configuration in step #3 was already configured in Lab 3 and is for informational purposes only.
   
