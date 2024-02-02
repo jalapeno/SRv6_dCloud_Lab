@@ -428,6 +428,7 @@ In this use case we want to idenitfy the lowest latency path for traffic origina
    
    2. Examine the table output and it should match the expected path in the diagram above. See sample output below.
    <img src="images/arango-latency-data.png" width="900">
+
 #### SRv6-TE for XR Global Routing Table
 Now we will modify the configuration for **xrd07** to incorporate SRv6-TE policy for route 20.0.0.0/24. Lets log in and get configuring!
 
