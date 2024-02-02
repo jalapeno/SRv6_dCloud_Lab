@@ -421,17 +421,18 @@ One of the great things about a GraphDB is it gives us a "shortest path" algorit
 Reference this document on the shortest path algorithim in AQL [HERE](https://www.arangodb.com/docs/stable/aql/graphs-shortest-path.html) (2 minute read). 
 
    1. Return to the ArangoDB browser UI and run a shortest path query from **xrd01** to **xrd07**, and have it return SRv6 SID data.
-   ```
-   for v, e in outbound shortest_path 'ls_node_extended/2_0_0_0000.0000.0001' 
-        TO 'ls_node_extended/2_0_0_0000.0000.0007' ipv4_topology 
-        return  { node: v.name, location: v.location_id, address: v.address, srv6sid: v.sids[*].srv6_sid }
-   ```
-   - Note: In the graphDB the **xrd01** and **xrd07** nodes are represented as:
-  
-     - 'ls_node_extended/2_0_0_0000.0000.0001'
-     - 'ls_node_extended/2_0_0_0000.0000.0007'
+      ```
+      for v, e in outbound shortest_path 'ls_node_extended/2_0_0_0000.0000.0001' 
+          TO 'ls_node_extended/2_0_0_0000.0000.0007' ipv4_topology 
+      return  { node: v.name, location: v.location_id, address: v.address, srv6sid: v.sids[*].srv6_sid }
+      ```
+> [!NOTE]
+> In the graphDB the **xrd01** and **xrd07** nodes are represented as:
+> 'ls_node_extended/2_0_0_0000.0000.0001'
+> 'ls_node_extended/2_0_0_0000.0000.0007'
 
-   #### For all the remaining queries in this lab you can run the query against the return path by simply reversing the startVertex and targetVertex. Example where xrd07 and xrd01 are reversed:
+> [!NOTE]
+> For all the remaining queries in this lab you can run the query against the return path by simply reversing the startVertex and targetVertex. Example where **xrd07** and **xrd01** are reversed:
 
    ```
    for v, e in outbound shortest_path 'ls_node_extended/2_0_0_0000.0000.0007' 
@@ -439,15 +440,14 @@ Reference this document on the shortest path algorithim in AQL [HERE](https://ww
         return  { node: v.name, location: v.location_id, address: v.address, srv6sid: v.sids[*].srv6_sid }
    ```
 
-   1. Next we can expand the diameter of our query. In this case its no longer just ingress router to egress router, its a shortest path query from source prefix (Amsterdam VM) to destination prefix (Rome VM). This example query also includes hop by hop latency:
-   ```
-   for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' 
-        TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology 
-        return  { node: v.name, location: v.location_id, address: v.address, 
-        srv6sid: v.sids[*].srv6_sid, latency: e.latency }
-   ```
-
-   Thus far all of these shortest path query results are based purely on hop count, which is fine, however, the graphDB also allows us to run a *`weighted shortest path query`* based on any metric or other piece of meta data in the graph!
+   2. Next we can expand the diameter of our query. In this case its no longer just ingress router to egress router, its a shortest path query from source prefix (Amsterdam VM) to destination prefix (Rome VM). This example query also includes hop by hop latency:
+      ```
+      for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' 
+          TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology 
+          return  { node: v.name, location: v.location_id, address: v.address, 
+          srv6sid: v.sids[*].srv6_sid, latency: e.latency }
+      ```
+      Thus far all of these shortest path query results are based purely on hop count, which is fine, however, the graphDB also allows us to run a *`weighted shortest path query`* based on any metric or other piece of meta data in the graph!
 
 ### Shortest path queries using metrics other than hop count
 
