@@ -1,9 +1,15 @@
 ## Lab 6: Host-Based SR/SRv6 and building your own SDN App (BYO-SDN-App)
 
 ### Description
-Lab 6 is divided into two primary parts. Part 1 is host-based SRv6 using Linux kernel capabilities on the Rome VM. Part 2 will be host-based SRv6 using VPP on the Amsterdam VM.
+The goals of the Jalapeno project are to to enable applications to directly control their network experience, and to enable developers to quickly and easily build network control/SDN applications. 
 
-The goal of the Jalapeno model is to enable applications to directly control their network experience. We envision a process where the application or endpoint can request some Jalapeno **Network Service** for its traffic. The Jalapeno Network Service queries the DB and provides a response, which includes an SRv6 SID stack (or SR-MPLS, but that's out of scope for this lab). The application or endpoint would then encapsulate its own outbound traffic; aka, the SRv6 encapsulation/decapsulation would be performed at the host where the Application resides. 
+We envision a process where a client application or endpoint can make a request for specific network treatment from an SDN App. The SDN App would query Jalapeno's DB and provide a response, which includes an SRv6 SID stack (or SR-MPLS, but that's out of scope for this lab). The application or endpoint would then encapsulate its own outbound traffic; aka, the SRv6 encapsulation/decapsulation would be performed at the host where the Application resides.
+
+Using Jalapeno and just a few hours of python coding we were able to build an SRv6 SDN App called **"srv6-sdn-app.py"** (we're the creative types). *`srv6-sdn-app.py`* can program SRv6-TE routes/policies on Linux and on VPP. Its not a very sophisticated App, but it gives a sense of the power and possibilities when combining SRv6 and host-based or cloud-native networking. And if the two of us can cobble together a functional SDN App in a few hours, imagine what a group of real developers could do in a few short weeks!
+
+In Lab 6 is divided into two parts. In part 1 you'll use *`srv6-sdn-app`* to program host-based SRv6 using Linux kernel capabilities on the Rome VM. In part 2 we'll program host-based SRv6 using VPP on the Amsterdam VM.
+
+ 
 
 The host-based SRv6 encap/decap could be executed at the Linux networking layer, or by an onboard dataplane element such as a vSwitch or VPP, or by a K8s CNI dataplane such as eBPF (example: [Cilium support for SRv6](https://cilium.io/industries/telcos-datacenters/)). The encapsulated traffic, once transmitted from the host, will reach the SRv6 transport network and will be statelessly forwarded per the SRv6 encapsulation or Network Program, thus executing the requested network service. 
 
