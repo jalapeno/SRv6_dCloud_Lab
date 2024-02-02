@@ -76,16 +76,11 @@ For additional help on Kafka see this external CLI cheat sheet [HERE](https://me
     ```
     ./kafka-topics.sh --list  --bootstrap-server localhost:9092
     ```
-    - A few seconds after running the *--list* command you should see the following list of topics toward the bottom on the command output:
+    - A few seconds after running the *--list* command you should see the following list of topics toward the bottom on the command output. See truncated output below.
+
     ```
     gobmp.parsed.evpn
     gobmp.parsed.evpn_events
-    gobmp.parsed.flowspec
-    gobmp.parsed.flowspec_events
-    gobmp.parsed.flowspec_v4
-    gobmp.parsed.flowspec_v4_events
-    gobmp.parsed.flowspec_v6
-    gobmp.parsed.flowspec_v6_events
     gobmp.parsed.l3vpn
     gobmp.parsed.l3vpn_events
     gobmp.parsed.l3vpn_v4
@@ -102,12 +97,6 @@ For additional help on Kafka see this external CLI cheat sheet [HERE](https://me
     gobmp.parsed.ls_srv6_sid_events
     gobmp.parsed.peer
     gobmp.parsed.peer_events
-    gobmp.parsed.sr_policy
-    gobmp.parsed.sr_policy_events
-    gobmp.parsed.sr_policy_v4
-    gobmp.parsed.sr_policy_v4_events
-    gobmp.parsed.sr_policy_v6
-    gobmp.parsed.sr_policy_v6_events
     gobmp.parsed.unicast_prefix
     gobmp.parsed.unicast_prefix_events
     gobmp.parsed.unicast_prefix_v4
