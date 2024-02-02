@@ -448,7 +448,7 @@ Now we will modify the configuration for **xrd07** to incorporate SRv6-TE policy
        route-policy set-global-color out 
    ```
 3. If we wanted to implement the returned query data into SRv6-TE steering XR config on router **xrd01** we would create a policy like the below example.
-      This xr config would define the hops returned from our query between router **xrd01** (source) and **xrd07** (desitination)
+      This XR config would define the hops returned from our query between router **xrd01** (source) and **xrd07** (desitination)
       ```
       segment-routing
         traffic-eng
@@ -478,7 +478,7 @@ In this use case we want to idenitfy the lowest utilized path for traffic origin
    <img src="images/arango-utilization-data.png" width="900">
 
   3. If we wanted to implement the returned query data into SRv6-TE steering XR config on router **xrd01** we would create a policy like the below example.
-      This xr config would define the hops returned from our query between router **xrd01** (source) and **xrd07** (desitination)
+      This XR config would define the hops returned from our query between router **xrd01** (source) and **xrd07** (desitination)
       ```
       segment-routing
         traffic-eng
