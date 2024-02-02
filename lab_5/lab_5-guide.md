@@ -409,6 +409,24 @@ The *`add_meta_data.py`* python script will connect to the ArangoDB and populate
 > The *`add_meta_data.py`* script has also populated country codes for all the countries a given link traverses from one node to its adjacent peer. Example: **xrd01** is in Amsterdam, and **xrd02** is in Berlin. Thus the **xrd01** <--> **xrd02** link traverses *`[NLD, DEU]`*
 
 ### Use Case 1: Lowest Latency Path
+Our first use case is to make path selection through the network based on the cummulative link latency from A to Z. Using latency meta-data is not something traditional routing protocols can do. It may be possible to statically build routes through your network using weights to define a path. However, what these work arounds cannot do is provide path selection based on near real time data which is possible with an application like Jalapeno. This provides customers to have a flexible network policy that can react to changes in the WAN environment.
+
+> [!TIP]
+> General Arango AQL graph query syntax information [HERE](https://www.arangodb.com/docs/stable/aql/graphs.html)
+> Reference this document on the shortest path algorithim in AQL [HERE](https://www.arangodb.com/docs/stable/aql/graphs-shortest-path.html) (2 minute read).
+
+In this use case we want to idenitfy the lowest latency path between **xrd01** and **xrd07**. We will utilize Arango's shortest path query capabilities and specify latency as our meta-data field to calculate on. See image below which shows the shortest latency path we expect to be returned by our query.
+
+<img src="/topo_drawings/low-latency-topology.png" width="900">
+
+   1. Return to the ArangoDB browser UI and run a shortest path query from **xrd01** to **xrd07**, and have it return SRv6 SID data.
+      ```
+      for v, e in outbound shortest_path 'ls_node_extended/2_0_0_0000.0000.0001' 
+          TO 'ls_node_extended/2_0_0_0000.0000.0007' ipv4_topology 
+          return  { node: v.name, location: v.location_id, address: v.address, srv6sid: v.sids[*].srv6_sid }
+      ```
+   2. Examine the table output 
+
 
 ### Use Case 2: Lowest Bandwidth Utilization Path
 
