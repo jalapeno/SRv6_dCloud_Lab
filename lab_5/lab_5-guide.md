@@ -416,6 +416,8 @@ Our first use case is to make path selection through the network based on the cu
 > General Arango AQL graph query syntax information can be found [HERE](https://www.arangodb.com/docs/stable/aql/graphs.html). Please reference this document on the shortest path algorithim in AQL [HERE](https://www.arangodb.com/docs/stable/aql/graphs-shortest-path.html) (2 minute read).
 
 In this use case we want to idenitfy the lowest latency path for traffic originating from the 10.101.1.0/24 (Amsterdam) destined to 20.0.0.0/24 (Rome). We will utilize Arango's shortest path query capabilities and specify latency as our weighted attribute pulled from the meta-data. See image below which shows the shortest latency path we expect to be returned by our query.
+> [!NOTE]
+> This query is being performed in the global routing table.
 
 <img src="/topo_drawings/low-latency-path.png" width="900">
 
@@ -464,6 +466,9 @@ Now we will modify the configuration for **xrd07** to incorporate SRv6-TE policy
 
 ### Use Case 2: Lowest Bandwidth Utilization Path
 In this use case we want to idenitfy the lowest utilized path for traffic originating from the 10.101.1.0/24 (Amsterdam) destined to 20.0.0.0/24 (Rome). We will utilize Arango's shortest path query capabilities and specify utilization as our weighted attribute pulled from the meta-data. See image below which shows the shortest latency path we expect to be returned by our query.
+
+> [!NOTE]
+> This query is being performed in the global routing table.
 
 <img src="/topo_drawings/low-utilization-path.png" width="900">
 
