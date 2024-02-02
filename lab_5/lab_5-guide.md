@@ -336,6 +336,7 @@ In this exercise we are going to stitch together several elements that we have w
     ```
     for x in ls_node_extended return x.name
     ```
+    Expected output from Arango query:
     ```   
     "xrd01",
     "xrd02",
