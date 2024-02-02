@@ -19,9 +19,9 @@ At the end of this lab we will explore the power of coupling the meta-data gathe
     - [SRv6 Locator SID](#srv6-locator-sid)
   - [Arango GraphDB](#arango-graphdb)
     - [Populating the DB with external data](#populating-the-db-with-external-data)
-  - [Use Case 1: Lowest Latency Path](#use-case-1:-lowest-latency-path)
-  - [Use Case 2: Lowest Bandwidth Utilization Path](#use-case-2:-lowest-bandwidth-utlization-path)
-  - [Use Case 3: Data Sovereignty Path](#use-case-3:-data-sovereignty-path)
+  - [Use Case 1: Lowest Latency Path](#use-case-1-lowest-latency-path)
+  - [Use Case 2: Lowest Bandwidth Utilization Path](#use-case-2-lowest-bandwidth-utlization-path)
+  - [Use Case 3: Data Sovereignty Path](#use-case-3-data-sovereignty-path)
   - [End of lab 5](#end-of-lab-5)
 
 ## Lab Objectives
