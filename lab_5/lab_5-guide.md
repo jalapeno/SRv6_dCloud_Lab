@@ -394,33 +394,35 @@ The *`add_meta_data.py`* python script will connect to the ArangoDB and populate
 
 
 1. Return to the ssh session on the Jalapeno VM and add meta data to the DB. Note, if your Jalapeno VM session is still attached to Kakfa, type *`'ctrl-z'`* then type *`'exit'`*:
-```
-cd ~/SRv6_dCloud_Lab/lab_5/python/
-python3 add_meta_data.py
-```
-Expected output:
-```
-cisco@jalapeno:~/SRv6_dCloud_Lab/lab_5/python$ python3 add_meta_data.py 
-adding addresses, country codes, and synthetic latency data to the graph
-adding location, country codes, latency, and link utilization data
-meta data added
-```
+   ```
+   cd ~/SRv6_dCloud_Lab/lab_5/python/
+   python3 add_meta_data.py
+   ```
+   Expected output:
+   ```
+   cisco@jalapeno:~/SRv6_dCloud_Lab/lab_5/python$ python3 add_meta_data.py
+   adding addresses, country codes, and synthetic latency data to the graph
+   adding location, country codes, latency, and link utilization data
+   meta data added
+   ```
 
 2. Validate meta data with an ArangoDB query:
-```
-for x in ipv4_topology return { key: x._key, from: x._from, to: x._to, latency: x.latency, 
+   ```
+   for x in ipv4_topology return { key: x._key, from: x._from, to: x._to, latency: x.latency, 
     utilization: x.percent_util_out, country_codes: x.country_codes }
-```
- - Note: only the ISIS links in the DB have latency and utilization numbers. The Amsterdam and Rome VMs are directly connected to PEs **xrd01** and **xrd07**, so their "edge connections" in the DB are effectively zero latency. 
+   ```
+> [!NOTE]
+> Only the ISIS links in the DB have latency and utilization numbers. The Amsterdam and Rome VMs are directly connected to PEs **xrd01** and **xrd07**, so their "edge connections" in the DB are effectively zero latency. 
   
-  - The *`add_meta_data.py`* script has also populated country codes for all the countries a given link traverses from one node to its adjacent peer. Example: **xrd01** is in Amsterdam, and **xrd02** is in Berlin. Thus the **xrd01** <--> **xrd02** link traverses *`[NLD, DEU]`*
+> [!NOTE]
+> The *`add_meta_data.py`* script has also populated country codes for all the countries a given link traverses from one node to its adjacent peer. Example: **xrd01** is in Amsterdam, and **xrd02** is in Berlin. Thus the **xrd01** <--> **xrd02** link traverses *`[NLD, DEU]`*
 
 3. Run the *`get_nodes.py`* script to get a listing of nodes in the network, their addresses, and SRv6 SID data:
-```
-cd ~/SRv6_dCloud_Lab/lab_5/python/
-python3 get_nodes.py
-cat nodes.json
-```
+   ```
+   cd ~/SRv6_dCloud_Lab/lab_5/python/
+   python3 get_nodes.py
+   cat nodes.json
+   ```
 
 ### Arango Graph traversals and shortest path queries
 General Arango AQL graph query syntax information [HERE](https://www.arangodb.com/docs/stable/aql/graphs.html)
