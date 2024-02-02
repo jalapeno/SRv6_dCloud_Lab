@@ -500,22 +500,20 @@ In this use case we want to idenitfy the lowest utilized path for traffic origin
   3. If we wanted to implement the returned query data into SRv6-TE steering XR config on router **xrd01** we would create a policy like the below example.
      
   4. On router **xrd07** add in config to advertise the global prefix with the bulk transfer community.
-   ```
-   extcommunity-set opaque bulk-transfer
-     40
-   end-set
-
-   route-policy set-global-color
-      if destination in (20.0.0.0/24) then
-        set extcommunity color bulk-transfer
-      endif
-      pass
-   end-policy 
-   ```
-  5. If we wanted to implement the returned query data into SRv6-TE steering XR config on router **xrd01** we would create a policy like the below example.
-     This XR config would define the hops returned from our query between router **xrd01** (source) and **xrd07** (desitination)
      ```
-     Configs **xrd01**
+     extcommunity-set opaque bulk-transfer
+       40
+     end-set
+
+     route-policy set-global-color
+        if destination in (20.0.0.0/24) then
+          set extcommunity color bulk-transfer
+        endif
+        pass
+     end-policy 
+     ```
+  5. On router **xrd01** config would define the hops returned from our query between router **xrd01** (source) and **xrd07** (desitination)
+   
       ```
       segment-routing
         traffic-eng
