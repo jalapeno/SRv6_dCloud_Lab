@@ -397,7 +397,7 @@ The *`add_meta_data.py`* python script will connect to the ArangoDB and populate
    ```
 
    Example Output:
-   <img src="/topo_drawings/arango-meta-data.png" width="900">
+   <img src="images/arango-meta-data.png" width="900">
    
 > [!NOTE]
 > Only the ISIS links in the DB have latency and utilization numbers. The Amsterdam and Rome VMs are directly connected to PEs **xrd01** and **xrd07**, so their "edge connections" in the DB are effectively zero latency. 
