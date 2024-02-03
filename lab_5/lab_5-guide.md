@@ -459,7 +459,8 @@ Now we will modify the configuration for **xrd07** to incorporate SRv6-TE policy
    ```
 3. If we wanted to implement the returned query data into SRv6-TE steering config on router **xrd01** we would create a policy like the below example. 
    
-> [!NOTE] We already created the segment-list and policy back in Lab 3, so now the policy will be re-used for steering global table traffic to *20.0.0.0/24*.
+> [!NOTE]
+> We already created the segment-list and policy back in Lab 3, so now the policy will be re-used for steering global table traffic to *20.0.0.0/24*.
    
       For review, the below SRv6 segment-list would define the hops returned from our query between router **xrd01** (source) and **xrd07** (destination). The segment-list doesn't need to include *`fc00:0:7777::`* as **xrd07's** SRv6 uSID is automatically added as it represents the SRv6 policy endpoint.
       ```
@@ -484,14 +485,14 @@ Now we will modify the configuration for **xrd07** to incorporate SRv6-TE policy
       ```
 
 ### Use Case 2: Lowest Bandwidth Utilization Path
-In this use case we want to idenitfy the lowest utilized path for traffic originating from the 10.101.1.0/24 (Amsterdam) destined to 20.0.0.0/24 (Rome). We will utilize Arango's shortest path query capabilities and specify utilization as our weighted attribute pulled from the meta-data. See image below which shows the shortest latency path we expect to be returned by our query.
+In this use case we want to idenitfy the lowest utilized path for traffic originating from the *10.101.1.0/24* (Amsterdam) prefix destined to *20.0.0.0/24* (Rome). We will utilize Arango's shortest path query capabilities and specify link utilization as our *weighted attribute* pulled from the meta-data. See image below which shows the shortest latency path we expect to be returned by our query.
 
 > [!NOTE]
 > This query is being performed in the global routing table.
 
 <img src="/topo_drawings/low-utilization-path.png" width="900">
 
-   1. Return to the ArangoDB browser UI and run a shortest path query from 10.101.1.0/24 to 20.0.0.0/24 , and have it return SRv6 SID data.
+   1. Return to the ArangoDB browser UI and run a shortest path query from 10.101.1.0/24 to 20.0.0.0/24, and have it return SRv6 SID data.
       ```
       for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' 
           TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology options { weightAttribute: 'percent_util_out' } filter e.mt_id != 2
@@ -503,7 +504,7 @@ In this use case we want to idenitfy the lowest utilized path for traffic origin
 
   3. If we wanted to implement the returned query data into SRv6-TE steering XR config on router **xrd01** we would create a policy like the below example.
      
-  4. On router **xrd07** add in config to advertise the global prefix with the bulk transfer community.
+  4. Optional: on router **xrd07** add in config to advertise the global prefix with the bulk transfer community.
      ```
      extcommunity-set opaque bulk-transfer
        40
@@ -516,7 +517,7 @@ In this use case we want to idenitfy the lowest utilized path for traffic origin
         pass
      end-policy 
      ```
-  5. On router **xrd01** config would define the hops returned from our query between router **xrd01** (source) and **xrd07** (desitination)
+  5. On router **xrd01** we would add an SRv6 segment-list config to define the hops returned from our query between router **xrd01** (source) and **xrd07** (destination). 
    
       ```
       segment-routing
@@ -527,19 +528,28 @@ In this use case we want to idenitfy the lowest utilized path for traffic origin
                index 10 sid fc00:0:2222::
                index 20 sid fc00:0:3333::
                index 30 sid fc00:0:4444:: 
+
+          policy bulk-transfer
+           srv6
+            locator MyLocator binding-sid dynamic behavior ub6-insert-reduced
+           !
+           color 40 end-point ipv6 fc00:0:7777::1
+           candidate-paths
+            preference 100
+             explicit segment-list xrd2347
       ```
 > [!NOTE]
-> The configuration in step #3 was already configured in Lab 3 and is for informational purposes only.
+> This configuration was applied in Lab 3 and is shown here for informational purposes only.
   
 ### Use Case 3: Data Sovereignty Path
-In this use case we want to idenitfy a path originating from the 10.101.1.0/24 (Amsterdam) destined to 20.0.0.0/24 (Rome) that avoids passing through France. We will utilize Arango's shortest path query capabilities for shortest hop count and filter out results that pass through **xrd06** based in Paris, France. See image below which shows the shortest latency path we expect to be returned by our query.
+In this use case we want to idenitfy a path originating from the *10.101.1.0/24* (Amsterdam) destined to *20.0.0.0/24* (Rome) that avoids passing through France (perhaps there's a toll on the link). We will utilize Arango's shortest path query capability and filter out results that pass through **xrd06** based in Paris, France. See image below which shows the shortest latency path we expect to be returned by our query.
 
 > [!NOTE]
 > This query is being performed in the global routing table.
 
 <img src="/topo_drawings/geo-path.png" width="900">
 
-   1. Return to the ArangoDB browser UI and run a shortest path query from 10.101.1.0/24 to 20.0.0.0/24 , and have it return SRv6 SID data.
+   1. Return to the ArangoDB browser UI and run a shortest path query from *10.101.1.0/24* to *20.0.0.0/24* , and have it return SRv6 SID data.
       ```
       for p in outbound k_shortest_paths  'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' 
           TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology 
@@ -553,7 +563,7 @@ In this use case we want to idenitfy a path originating from the 10.101.1.0/24 (
    2. Examine the table output and it should match the expected path in the diagram above. See sample output below.
    <img src="images/arango-geo-data.png" width="900">
    
-   3. As in previous examples you modify the XR configs to reflect the segment list returned by the Arango query. 
+   3. As in previous examples you could create an SRv6-TE segment-list and policy reflecting the SID list returned by the Arango query. 
      
 
 ### End of lab 5
