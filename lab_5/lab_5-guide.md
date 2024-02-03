@@ -18,12 +18,12 @@ At the end of this lab we will explore the power of coupling the meta-data gathe
     - [ISIS Link State](#isis-link-state)
     - [SRv6 Locator SID](#srv6-locator-sid)
   - [Arango GraphDB](#arango-graphdb)
-    - [Populating the DB with external data](#populating-the-db-with-external-data)
-- [Use Case 1: Lowest Latency Path](#use-case-1-lowest-latency-path)
-  - [SRv6-TE for XR Global Routing Table](#srv6-te-for-xr-global-routing-table)
-- [Use Case 2: Lowest Bandwidth Utilization Path](#use-case-2-lowest-bandwidth-utilization-path)
-- [Use Case 3: Data Sovereignty Path](#use-case-3-data-sovereignty-path)
-- [End of lab 5](#end-of-lab-5)
+  - [Populating the DB with external data](#populating-the-db-with-external-data)
+  - [Use Case 1: Lowest Latency Path](#use-case-1-lowest-latency-path)
+    - [SRv6-TE for XR Global Routing Table](#srv6-te-for-xr-global-routing-table)
+  - [Use Case 2: Lowest Bandwidth Utilization Path](#use-case-2-lowest-bandwidth-utilization-path)
+  - [Use Case 3: Data Sovereignty Path](#use-case-3-data-sovereignty-path)
+  - [End of lab 5](#end-of-lab-5)
 
 ## Lab Objectives
 The student upon completion of Lab 5 should have achieved the following objectives:
@@ -417,7 +417,7 @@ Our first use case is to make path selection through the network based on the cu
 
 In this use case we want to idenitfy the lowest latency path for traffic originating from the 10.101.1.0/24 (Amsterdam) destined to 20.0.0.0/24 (Rome). We will utilize Arango's shortest path query capabilities and specify latency as our weighted attribute pulled from the meta-data. See image below which shows the shortest latency path we expect to be returned by our query.
 > [!NOTE]
-> This query is being performed in the global routing table.
+> The 10.101.1.0/24 and 20.0.0.0/24 prefixes are in the global routing table, which is reflected in the query.
 
 <img src="/topo_drawings/low-latency-path.png" width="900">
 
