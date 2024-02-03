@@ -57,7 +57,8 @@ The student upon completion of Lab 6 should have achieved the following objectiv
 * Using Python to to program SRv6 forwarding entries on a Linux host
 
 > [!NOTE]
-> The python code used in this lab has a dependency on the python-arango module. The module has been preinstalled on both the Rome and Amsterdam VMs, however, if one wishes to recreate this lab in their own environment, any client node will need to install the module. We also suggest upgrading the http 'requests' library as that will eliminate some cosmetic http error codes.*
+> The python code used in this lab has a dependency on the python-arango module. The module has been preinstalled on both the Rome and Amsterdam VMs, however, if one wishes to recreate this lab in their own environment, any client node will need to install the module. We also suggest upgrading the http *'requests'* library as that will eliminate some cosmetic http error codes.
+> For reference:
 ```
 sudo apt install python3-pip
 pip install python-arango 
@@ -95,7 +96,7 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
    ```
 
 ### jalapeno.py:
-Both the Rome and Amsterdam VM's are pre-loaded with the *`jalapeno.py`* App. When we run `jalapeno.py` it will program a local route or SR-policy with SRv6 encapsulation, which will allow the VM to *`self-encapsulate`* its outbound traffic and the XRd network will statelessly forward the traffic per the SRv6 encapsulation.
+Both the Rome and Amsterdam VM's are pre-loaded with the *`jalapeno.py`* App. When we run `jalapeno.py` it will program a local route/policy with SRv6 encapsulation, which will allow the VM to *`self-encapsulate`* its outbound traffic. The XRd network will then statelessly forward the traffic per the SRv6 encapsulation.
 
  `jalapeno.py's` currently supported network services are: 
 

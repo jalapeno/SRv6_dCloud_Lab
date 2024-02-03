@@ -8,9 +8,6 @@ def get_src_dst(src, prefix, user, pw, dbname):
     cursor = db.aql.execute("""for u in unicast_prefix_v4 filter u.prefix == """  + '"%s"' % src +  """ \
         return { id: u._id, src_peer: u.peer_ip } """)
     src_dict = [doc for doc in cursor]
-    # print("""for u in unicast_prefix_v4 filter u.prefix == """  + '"%s"' % src +  """ \
-    #     return { id: u._id, src_peer: u.peer_ip } """)
-    # print("src data: ", src_dict)
 
     # Get destination prefix ID to end graph traversal
     aql = db.aql
