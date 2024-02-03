@@ -1,27 +1,30 @@
-## Lab 6: Host-Based SR/SRv6 and building your own SDN App (BYO-SDN-App)
+## Lab 6: Host-Based SR/SRv6 and building your own SDN App
 
 ### Description
 The goals of the Jalapeno project are:
 
-1. Enable applications to directly control their network experience, by giving them the ability to apply SRv6 policies/encapsulations to their own traffic
+1. Enable applications to directly control their network experience by giving them the ability to apply SRv6 policies/encapsulations to their own traffic
    
-2. Enable developers to quickly and easily build network control or SDN Apps that client applications may use to control their network experience
+2. Enable developers to quickly and easily build network control or SDN Apps that client applications may use achieve goal #1 
 
-We won't claim to be developers, but using Jalapeno and just a few hours of python coding we were able to build an SRv6 SDN App called **"jalapeno.py"**. Our App can program SRv6-TE routes/policies on Linux and on [VPP](https://fd.io/). Its not a very sophisticated App, but it gives a sense of the power and possibilities when combining SRv6 and host-based or cloud-native networking. And if the two of us knuckleheads can cobble together a functional SDN App in a few hours, imagine what a group of real developers could do in a few short weeks!
+We won't claim to be professional developers, but using Jalapeno and just a few hours of python coding we were able to build an SRv6 SDN App called **"jalapeno.py"**. Our App can program SRv6-TE routes/policies on Linux hosts/VMs and on [VPP](https://fd.io/). Its not a very sophisticated App, but it gives a sense of the power and possibilities when combining *SRv6 and host-based or cloud-native networking*. 
+
+And if the two of us knuckleheads can cobble together a functional SDN App in a few hours, imagine what a group of real developers could do in a few short weeks!
 
 Why host-based SRv6? 
 
 * We get tremendous control of the SRv6 SIDs and our encapsulation depth isn't subject to ASIC limitations
 * With host-based SRv6 traffic reaches the transport network already encapsulated, thus the ingress PE or SRv6-TE headend doesn't need all the resource intense policy configuration; they just statelessly forward traffic per the SRv6 encapsulation or Network Program
+* We could extend SRv6 into the Cloud! Or to IoT devices or other endpoints connected to the physical network...
  
 We feel this ability to perform SRv6 operations at the host or other endpoint is a game changer which opens up enormous potential for innovation!
 
-Lab 6 is divided into two parts. In part 1 you'll use *`jalapeno.py`* to program the Rome VM with SRv6 Linux kernel routes. In part 2 we'll program host-based SRv6 using VPP on the Amsterdam VM.
+Back to business. Lab 6 is divided into two parts. In part 1 you'll use *`jalapeno.py`* to program the Rome VM with SRv6 Linux kernel routes. In part 2 we'll program host-based SRv6 using VPP on the Amsterdam VM.
 
 In a future version of this lab we hope to program SRv6 routes/policies using a K8s CNI dataplane such as eBPF (example: [Cilium support for SRv6](https://cilium.io/industries/telcos-datacenters/)). 
 
 ## Contents
-- [Lab 6: Host-Based SR/SRv6 and building your own SDN App (BYO-SDN-App)](#lab-6-host-based-srsrv6-and-building-your-own-sdn-app-byo-sdn-app)
+- [Lab 6: Host-Based SR/SRv6 and building your own SDN App](#lab-6-host-based-srsrv6-and-building-your-own-sdn-app)
   - [Description](#description)
 - [Contents](#contents)
 - [Lab Objectives](#lab-objectives)
