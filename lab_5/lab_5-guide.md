@@ -416,6 +416,8 @@ Our first use case is to make path selection through the network based on the cu
 > General Arango AQL graph query syntax information can be found [HERE](https://www.arangodb.com/docs/stable/aql/graphs.html). Please reference this document on the shortest path algorithim in AQL [HERE](https://www.arangodb.com/docs/stable/aql/graphs-shortest-path.html) (2 minute read).
 
 In this use case we want to idenitfy the lowest latency path for traffic originating from the 10.101.1.0/24 (Amsterdam) destined to 20.0.0.0/24 (Rome). We will utilize Arango's shortest path query capabilities and specify latency as our weighted attribute pulled from the meta-data. See image below which shows the shortest latency path we expect to be returned by our query.
+> [!NOTE]
+> This query is being performed in the global routing table.
 
 <img src="/topo_drawings/low-latency-path.png" width="900">
 
@@ -434,6 +436,10 @@ Now we will modify the configuration for **xrd07** to incorporate SRv6-TE policy
 
 1. On router **xrd07** add in config to advertise the global prefix with the low latency community.
    ```
+   extcommunity-set opaque low-latency
+     50
+   end-set
+
    route-policy set-global-color
       if destination in (20.0.0.0/24) then
         set extcommunity color low-latency
@@ -448,7 +454,7 @@ Now we will modify the configuration for **xrd07** to incorporate SRv6-TE policy
        route-policy set-global-color out 
    ```
 3. If we wanted to implement the returned query data into SRv6-TE steering XR config on router **xrd01** we would create a policy like the below example.
-      This xr config would define the hops returned from our query between router **xrd01** (source) and **xrd07** (desitination)
+      This XR config would define the hops returned from our query between router **xrd01** (source) and **xrd07** (desitination)
       ```
       segment-routing
         traffic-eng
@@ -458,12 +464,26 @@ Now we will modify the configuration for **xrd07** to incorporate SRv6-TE policy
                 index 10 sid fc00:0:5555::
                 index 20 sid fc00:0:6666::
       ```
+      Now we add in a SRv6-TE policy that connects the *extcommunity/color 50* to our segment list *xrd567*
+      ```
+      policy low-latency
+        srv6
+          locator MyLocator binding-sid dynamic behavior ub6-insert-reduced
+   
+        color 50 end-point ipv6 fc00:0:7777::1
+        candidate-paths
+          preference 100
+            explicit segment-list xrd567
+      ```
 > [!NOTE]
 > The configuration in step #3 was already configured in Lab 3 and is for informational purposes only.
   
 
 ### Use Case 2: Lowest Bandwidth Utilization Path
 In this use case we want to idenitfy the lowest utilized path for traffic originating from the 10.101.1.0/24 (Amsterdam) destined to 20.0.0.0/24 (Rome). We will utilize Arango's shortest path query capabilities and specify utilization as our weighted attribute pulled from the meta-data. See image below which shows the shortest latency path we expect to be returned by our query.
+
+> [!NOTE]
+> This query is being performed in the global routing table.
 
 <img src="/topo_drawings/low-utilization-path.png" width="900">
 
@@ -478,7 +498,22 @@ In this use case we want to idenitfy the lowest utilized path for traffic origin
    <img src="images/arango-utilization-data.png" width="900">
 
   3. If we wanted to implement the returned query data into SRv6-TE steering XR config on router **xrd01** we would create a policy like the below example.
-      This xr config would define the hops returned from our query between router **xrd01** (source) and **xrd07** (desitination)
+     
+  4. On router **xrd07** add in config to advertise the global prefix with the bulk transfer community.
+     ```
+     extcommunity-set opaque bulk-transfer
+       40
+     end-set
+
+     route-policy set-global-color
+        if destination in (20.0.0.0/24) then
+          set extcommunity color bulk-transfer
+        endif
+        pass
+     end-policy 
+     ```
+  5. On router **xrd01** config would define the hops returned from our query between router **xrd01** (source) and **xrd07** (desitination)
+   
       ```
       segment-routing
         traffic-eng

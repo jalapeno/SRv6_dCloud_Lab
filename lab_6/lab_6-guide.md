@@ -1,19 +1,24 @@
 ## Lab 6: Host-Based SR/SRv6 and building your own SDN App (BYO-SDN-App)
 
 ### Description
-The goals of the Jalapeno project are to to enable applications to directly control their network experience, and to enable developers to quickly and easily build network control/SDN applications. 
+The goals of the Jalapeno project are:
 
-We envision a process where a client application or endpoint can make a request for specific network treatment from an SDN App. The SDN App would query Jalapeno's DB and provide a response, which includes an SRv6 SID stack (or SR-MPLS, but that's out of scope for this lab). The application or endpoint would then encapsulate its own outbound traffic; aka, the SRv6 encapsulation/decapsulation would be performed at the host where the Application resides.
+1. Enable applications to directly control their network experience, by giving them the ability to apply SRv6 policies/encapsulations to their own traffic
+   
+2. Enable developers to quickly and easily build network control or SDN Apps that client applications may use to control their network experience
 
-Using Jalapeno and just a few hours of python coding we were able to build an SRv6 SDN App called **"srv6-sdn-app.py"** (we're the creative types). *`srv6-sdn-app.py`* can program SRv6-TE routes/policies on Linux and on VPP. Its not a very sophisticated App, but it gives a sense of the power and possibilities when combining SRv6 and host-based or cloud-native networking. And if the two of us can cobble together a functional SDN App in a few hours, imagine what a group of real developers could do in a few short weeks!
+We won't claim to be developers, but using Jalapeno and just a few hours of python coding we were able to build an SRv6 SDN App called **"jalapeno.py"**. Our App can program SRv6-TE routes/policies on Linux and on [VPP](https://fd.io/). Its not a very sophisticated App, but it gives a sense of the power and possibilities when combining SRv6 and host-based or cloud-native networking. And if the two of us knuckleheads can cobble together a functional SDN App in a few hours, imagine what a group of real developers could do in a few short weeks!
 
-In Lab 6 is divided into two parts. In part 1 you'll use *`srv6-sdn-app`* to program host-based SRv6 using Linux kernel capabilities on the Rome VM. In part 2 we'll program host-based SRv6 using VPP on the Amsterdam VM.
+Why host-based SRv6? 
 
+* We get tremendous control of the SRv6 SIDs and our encapsulation depth isn't subject to ASIC limitations
+* With host-based SRv6 traffic reaches the transport network already encapsulated, thus the ingress PE or SRv6-TE headend doesn't need all the resource intense policy configuration; they just statelessly forward traffic per the SRv6 encapsulation or Network Program
  
-
-The host-based SRv6 encap/decap could be executed at the Linux networking layer, or by an onboard dataplane element such as a vSwitch or VPP, or by a K8s CNI dataplane such as eBPF (example: [Cilium support for SRv6](https://cilium.io/industries/telcos-datacenters/)). The encapsulated traffic, once transmitted from the host, will reach the SRv6 transport network and will be statelessly forwarded per the SRv6 encapsulation or Network Program, thus executing the requested network service. 
-
 We feel this ability to perform SRv6 operations at the host or other endpoint is a game changer which opens up enormous potential for innovation!
+
+Lab 6 is divided into two parts. In part 1 you'll use *`jalapeno.py`* to program the Rome VM with SRv6 Linux kernel routes. In part 2 we'll program host-based SRv6 using VPP on the Amsterdam VM.
+
+In a future version of this lab we hope to program SRv6 routes/policies using a K8s CNI dataplane such as eBPF (example: [Cilium support for SRv6](https://cilium.io/industries/telcos-datacenters/)). 
 
 ## Contents
 - [Lab 6: Host-Based SR/SRv6 and building your own SDN App (BYO-SDN-App)](#lab-6-host-based-srsrv6-and-building-your-own-sdn-app-byo-sdn-app)
@@ -22,7 +27,7 @@ We feel this ability to perform SRv6 operations at the host or other endpoint is
 - [Lab Objectives](#lab-objectives)
 - [Rome VM: Segment Routing \& SRv6 on Linux](#rome-vm-segment-routing--srv6-on-linux)
   - [Preliminary steps for SR/SRv6 on Rome VM](#preliminary-steps-for-srsrv6-on-rome-vm)
-- [Jalapeno python client:](#jalapeno-python-client)
+  - [jalapeno.py:](#jalapenopy)
 - [Rome Network Services](#rome-network-services)
   - [Get All Paths](#get-all-paths)
   - [Least Utilized Path](#least-utilized-path)
@@ -31,7 +36,7 @@ We feel this ability to perform SRv6 operations at the host or other endpoint is
   - [Data Sovereignty Path](#data-sovereignty-path)
 - [Amsterdam VM](#amsterdam-vm)
   - [POC host-based SRv6 and SR-MPLS SDN using the VPP dataplane](#poc-host-based-srv6-and-sr-mpls-sdn-using-the-vpp-dataplane)
-  - [Jalapeno Client on Amsterdam:](#jalapeno-client-on-amsterdam)
+  - [jalapeno.py on Amsterdam:](#jalapenopy-on-amsterdam)
 - [Amsterdam Network Services](#amsterdam-network-services)
   - [Get All Paths](#get-all-paths-1)
   - [Least Utilized Path](#least-utilized-path-1)
@@ -76,7 +81,7 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
    ```
    cat rome.json                 <------- data jalapeno.py will use to execute its query and program its SRv6 route
    cat cleanup_rome_routes.sh    <------- script to cleanup any old SRv6 routes
-   cat jalapeno.py               <------- python client that takes cmd line args to request/execute an SRv6 network service
+   cat jalapeno.py               <------- python app that takes cmd line args to request/execute an SRv6 network service
    ls netservice/                <------- contains python libraries available to jalapeno.py for calculating SRv6 SIDs
 
    ```
@@ -86,19 +91,19 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
    sudo ip sr tunsrc set fc00:0:107:1::1
    ```
 
-## Jalapeno python client:
-Both the Rome and Amsterdam VM's are pre-loaded with a python client, *`jalapeno.py`*, that will execute our Jalapeno Network Service per the process described above. When we run the client it will program a local route or SR-policy with SRv6 encapsulation, which will allow the VM to "self-encapsulate" its outbound traffic and the xrd network will statelessly forward the traffic per the SRv6 encapsulation.
+### jalapeno.py:
+Both the Rome and Amsterdam VM's are pre-loaded with the *`jalapeno.py`* App. When we run `jalapeno.py` it will program a local route or SR-policy with SRv6 encapsulation, which will allow the VM to *`self-encapsulate`* its outbound traffic and the xrd network will statelessly forward the traffic per the SRv6 encapsulation.
 
-A host or endpoint with the jalapeno.py client can request a network service between a given source and destination. The client's currently supported network services are: 
+ `jalapeno.py's` currently supported network services are: 
 
  - Low Latency Path
  - Least Utilized Path
  - Data Sovereignty Path
  - Get All Paths (informational only)
  
- When executed the client passes its service request as a Shortest Path query to Jalapeno's Arango graph database. The database performs a traversal of its graph and responds with a dataset reflecting the shortest path based on the parameters of the query. The client receives the data, performs some data manipulation as needed and then constructs a local SRv6 route/policy for any traffic it would send to the destination.
+ When executed `jalapeno.py` passes its service request as a Shortest Path query to the graph database. The database performs a graph-traversal, as seen in lab 5, and responds with a dataset reflecting the shortest path per the parameters of the query. `jalapeno.py` receives the data and constructs a local SRv6 route/policy for any traffic it would send to the destination.
 
-Currently the client operates as a CLI tool, which expects to see a set of command line arguments. A user or application may operate the client by specifying the desired network service (-s) and encapsulation (-e), and input a json file which contains source and destination info and a few other items.
+Currently `jalapeno.py` operates as a CLI tool, which expects to see a set of command line arguments specifying network service (-s), encapsulation (-e), and input a json file which contains source and destination info and a few other items.
 
 For ease of use the currently supported network services are abbreviated: 
 
@@ -128,14 +133,14 @@ For ease of use the currently supported network services are abbreviated:
     jalapeno.py -f <json file> -e <sr or srv6> -s <ll, lu, ds, or gp>
     ```
 
-    Example client command with network-service arguments:
+    Example command with network-service arguments asking for the least utilized srv6 path to the destination specified in rome.json:
     ```
     python3 jalapeno.py -f rome.json -e srv6 -s lu
     ```
 
-*Note: the client supports both SRv6 and SR-MPLS, however, we don't have SR-MPLS configured in our lab so we'll only be using the *`-e srv6`* encapsulation option.
+*Note: the jalapeno.py supports both SRv6 and SR-MPLS, however, we don't have SR-MPLS configured in our lab so we'll only be using the *`-e srv6`* encapsulation option.
 
-The client's network service modules are located in the lab_6 *`python/netservice/`* directory. When invoked the client feeds the source and destination prefixes from the json file to the *`src_dst.py`* module, which queries the graphDB and returns the prefixes' database ID info. The client then runs the selected network service module (gp, ll, lu, or ds). The network service module queries and calculates an SRv6 uSID or SR label stack, which will satisfy the network service request. The netservice module then calls the *`add_route.py`* module to create the local SR or SRv6 route or policy.
+*`jalapeno.py's`* network service modules are located in the lab_6 *`python/netservice/`* directory. When invoked `jalapeno.py` feeds the source and destination prefixes from the json file to the *`src_dst.py`* module, which queries the graphDB and returns the prefixes' database ID info. `jalapeno.py` then runs the selected network service module (gp, ll, lu, or ds). The network service module queries and calculates an SRv6 uSID or SR label stack, which will satisfy the network service request. The netservice module then calls the *`add_route.py`* module to create the local SR or SRv6 route or policy.
 
 ## Rome Network Services
 ### Get All Paths
@@ -211,7 +216,7 @@ The Get All Paths Service will query the DB for all paths up to 6-hops in length
     Save the file and re-run the script. You should see 8 total path options in the command line output and log.
 
 ### Least Utilized Path
-Many segment routing and other SDN solutions focus on the low latency path as their primary use case. We absolutely feel low latency is an important network service, especially for real time applications. However, we believe one of the use cases which deliver the most bang for the buck is "Least Utilized Path". The idea behind this use case is that the routing protocol's chosen best path is very often *The Actual Best Path*. Because of this the *Least Utilized* service looks to steer lower priority traffic (backups, content replication, etc.) to lesser used paths and preserve the routing protocol's "best path" for higher priority traffic.
+Many segment routing and other SDN solutions focus on the low latency path as their primary use case. We absolutely feel low latency is an important network service, especially for real time applications. However, we believe one of the use cases which deliver the most bang for the buck is "Least Utilized Path". The idea behind this use case is that the routing protocol's chosen best path is very often *The Actual Best Path*. Because of this `jalapeno.py's` *`Least Utilized`* service looks to steer lower priority traffic (backups, content replication, etc.) to lesser used paths and preserve the routing protocol's "best path" for higher priority traffic.
 
 1. Cleanup Rome's routes and execute the least utilized path service with SRv6 encapsulation
     ```
@@ -410,7 +415,7 @@ For full size image see [LINK](/topo_drawings/low-latency-alternate-path.png)
 
 
 ### Data Sovereignty Path
-The Data Sovereignty service enables the user or application to steer their traffic through a path or geography that is considered safe per legal guidelines or other regulatory framework. In our case the "DS" service allows us to choose a country (or countries) to avoid when transmitting traffic from a source to a given destination. The country to avoid is specified as a country code in the *`rome.json`* and *`amsterdam.json`* files. In our testing we've specified that traffic should avoid France (FRA) - no offense, its just the easiest path in our topology to demonstrate. *`xrd06`* is located in Paris, so all requests to the DS service should produce a shortest-path result that avoids *`xrd06`*.
+The Data Sovereignty service enables the user or application to steer their traffic through a path or geography that is considered safe per a set of legal guidelines or other regulatory framework. In our case the *`DS`* service allows us to choose a country (or countries) to avoid when transmitting traffic from a source to a given destination. The country to avoid is specified as a country code in the *`rome.json`* and *`amsterdam.json`* files. In our testing we've specified that traffic should avoid France (FRA) - no offense, its just the easiest path in our topology to demonstrate. *`xrd06`* is located in Paris, so all requests to the DS service should produce a shortest-path result that avoids *`xrd06`*.
 
 The procedure for testing/running the Data Sovereignty Service is the same as the one we followed with Least Utilized and Low Latency Path. Data Sovereignty traffic should flow in the direction of **xrd07** -> **xrd04** -> **xrd05** -> **xrd01**. We'll skip running the Data Sovereignty service on Rome and will do so later on the Amsterdam VM.
  
@@ -425,7 +430,7 @@ ping 10.101.2.1 -I 20.0.0.1 -i .3
 ### POC host-based SRv6 and SR-MPLS SDN using the VPP dataplane
 In our lab the Amsterdam VM represents a content server whose application owners wish to provide optimal user experience, while balancing out the need for bulk content replication.  They've chosen to use VPP as their host-based SR/SRv6 forwarding engine, and have subscribed to the network services made available by our Jalapeno system.
 
-Like the Rome VM, Amsterdam has the same python client that can query Jalapeno for SR/SRv6 path data, and then program its local VPP dataplane with ip route with SR/SRv6 encapsulation.
+Like the Rome VM, Amsterdam has the same `jalapeno.py` App that can query Jalapeno for SR/SRv6 path data, and then program its local VPP dataplane with ip route with SR/SRv6 encapsulation.
 
 1. Login to the Amsterdam VM
 ```
@@ -530,24 +535,18 @@ show interface           # interface status and stats
 sudo vppctl show interface # same command but executed from Linux
 ```
 
-### Jalapeno Client on Amsterdam:
-The client operates on Amsterdam the same way it operates on the Rome VM, and it supports the same set of network services. *`amsterdam.json`*` specifies to the use of a *VPP* dataplane, therefore the client will construct a VPP SRv6 route/policy upon completing its path calculation.
-
+### jalapeno.py on Amsterdam:
+`jalapeno.py` operates on Amsterdam the same way it operates on the Rome VM, and it supports the same set of network services. *`amsterdam.json`* specifies to the use of a *`VPP`* dataplane, therefore the `jalapeno.py` will construct a VPP SRv6 route/policy upon completing its path calculation.
 
 ## Amsterdam Network Services
 ### Get All Paths
 
-The Get All Paths Service will query the DB for all paths which meet certain parameters, between source and destination prefixes.
+Examples for running the Get All Paths, Least Utilized, and Low Latency services on Amsterdam VM
 
-1. Run the 'gp' service from Amsterdam:
+1. Amsterdam 'get all paths':
 ``` 
 python3 jalapeno.py -f amsterdam.json -e srv6 -s gp
 ```
- - check log output:
-```
-more log/get_paths.json
-```
- - We can expect to see a json file with source, destination, and SR/SRv6 path data
  - Expected console output:
 
 ```
@@ -574,7 +573,7 @@ The Least Utilized Path service behaves the same on Amsterdam as on Rome, except
 
 Once the "LU" path service is executed Amsterdam will be able to steer content replication traffic away from the best path and onto the least utilized path, thus preserving the routing protocol's best path for streaming video.
 
-Note: the client automatically cleans up old VPP routes/SR-policies prior to installing new ones:
+Note: `jalapeno.py` automatically cleans up old VPP routes/SR-policies prior to installing new ones:
 
 1. Execute the least utilized path service with SRv6 encapsulation
 ``` 
@@ -609,14 +608,12 @@ ipv4-VRF:0, fib_index:0, flow hash:[src dst sport dport proto flowlabel ] epoch:
 	Segments:< fc00:0:2222:3333:4444:7777:e007:0 > - Weight: 1      <------------ SRv6 Micro-SID encapsulation
 ```
 
-2. Check log output and local routing table. You can also check the VPP FIB entry from linux:
+1. You can also check the VPP FIB entry from linux:
  ```
-cat log/least_utilized.json
-ip route
 sudo vppctl show ip fib 20.0.0.0/24
 ```
 
-3. Run a ping test 
+2. Run a ping test 
  - ssh to the **XRd VM** and start a tcpdump on the interface facing the Amsterdam VM:
 ```
 ssh cisco@198.18.128.100
@@ -629,7 +626,7 @@ sudo tcpdump -ni ens224
 ping 20.0.0.1 -i .4
 ```
 
-4. Validate outbound traffic is encapsulated in the SRv6 label stack. Expected output will be something like:
+3. Validate outbound traffic is encapsulated in the SRv6 label stack. Expected output will be something like:
 ```
 cisco@xrd:~/SRv6_dCloud_Lab/util$ sudo tcpdump -ni ens224
 <snip>
@@ -637,7 +634,7 @@ cisco@xrd:~/SRv6_dCloud_Lab/util$ sudo tcpdump -ni ens224
 01:17:48.949955 IP 20.0.0.1 > 10.101.2.1: ICMP echo reply, id 12, seq 3, length 64
 ```
 
-5. Optional: run the extended ./tcpdump-xrd01-02-03-04-07.sh script for the hops along the path:
+4. Optional: run the extended ./tcpdump-xrd01-02-03-04-07.sh script for the hops along the path:
 ```
 ./tcpdump-xrd01-02-03-04-07.sh
 ```
@@ -674,7 +671,7 @@ Example truncated output:
 
 ### Data Sovereignty Path 
 
-The procedure on Amsterdam is the same as the previous two services. In amsterdam.json we've specified 'FRA' as the country to avoid, so all results should avoid *`xrd06`*.
+The procedure on Amsterdam is the same as the previous two services. In *`amsterdam.json`* we've specified *`FRA`* as the country to avoid, so all results should avoid *`xrd06`*.
  
 1. Data Sovereignty via SRv6 path from Amsterdam VM:
 ```
@@ -688,8 +685,8 @@ Example truncated output:
           [0] [@13]: SR: Segment List index:[0]
 	Segments:< fc00:0:5555:4444:7777:e007:: > - Weight: 1
 ```
-1. The Data Sovereignty path should be *`xrd01`* -> *`xrd05`* -> *`xrd04`* -> *`xrd07`* -> Rome. 
-2. Optional: ping from Amsterdam and run the tcpdump script On XRD VM as follows
+2. The Data Sovereignty path should be *`xrd01`* -> *`xrd05`* -> *`xrd04`* -> *`xrd07`* -> Rome. 
+3. Optional: ping from Amsterdam and run the tcpdump script On XRD VM as follows
 
 Amsterdam:
 ```
@@ -701,7 +698,7 @@ XRD VM extended tcpdump:
 ./tcpdump-xrd01-05-06-07.sh 
 ```
 
-3. Optional: modify the amsterdam.json file and replace *`FRA`* with *`DEU`*, *`POL`*, *`BEL`*, etc., then re-run the script.
+4. Optional: modify the amsterdam.json file and replace *`FRA`* with *`DEU`*, *`POL`*, *`BEL`*, etc., then re-run the script.
 
 ```
 python3 jalapeno.py -f amsterdam.json -e srv6 -s ds
