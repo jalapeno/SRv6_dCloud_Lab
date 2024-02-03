@@ -19,10 +19,11 @@ At the end of this lab we will explore the power of coupling the meta-data gathe
     - [SRv6 Locator SID](#srv6-locator-sid)
   - [Arango GraphDB](#arango-graphdb)
     - [Populating the DB with external data](#populating-the-db-with-external-data)
-  - [Use Case 1: Lowest Latency Path](#use-case-1-lowest-latency-path)
-  - [Use Case 2: Lowest Bandwidth Utilization Path](#use-case-2-lowest-bandwidth-utilization-path)
-  - [Use Case 3: Data Sovereignty Path](#use-case-3-data-sovereignty-path)
-  - [End of lab 5](#end-of-lab-5)
+- [Use Case 1: Lowest Latency Path](#use-case-1-lowest-latency-path)
+  - [SRv6-TE for XR Global Routing Table](#srv6-te-for-xr-global-routing-table)
+- [Use Case 2: Lowest Bandwidth Utilization Path](#use-case-2-lowest-bandwidth-utilization-path)
+- [Use Case 3: Data Sovereignty Path](#use-case-3-data-sovereignty-path)
+- [End of lab 5](#end-of-lab-5)
 
 ## Lab Objectives
 The student upon completion of Lab 5 should have achieved the following objectives:
@@ -415,6 +416,8 @@ Our first use case is to make path selection through the network based on the cu
 > General Arango AQL graph query syntax information can be found [HERE](https://www.arangodb.com/docs/stable/aql/graphs.html). Please reference this document on the shortest path algorithim in AQL [HERE](https://www.arangodb.com/docs/stable/aql/graphs-shortest-path.html) (2 minute read).
 
 In this use case we want to idenitfy the lowest latency path for traffic originating from the 10.101.1.0/24 (Amsterdam) destined to 20.0.0.0/24 (Rome). We will utilize Arango's shortest path query capabilities and specify latency as our weighted attribute pulled from the meta-data. See image below which shows the shortest latency path we expect to be returned by our query.
+> [!NOTE]
+> This query is being performed in the global routing table.
 
 <img src="/topo_drawings/low-latency-path.png" width="900">
 
@@ -428,14 +431,102 @@ In this use case we want to idenitfy the lowest latency path for traffic origina
    2. Examine the table output and it should match the expected path in the diagram above. See sample output below.
    <img src="images/arango-latency-data.png" width="900">
 
-   3. If we wanted to implement the returned query data into SRv6 TE steering XR config we would create a policy like the below example.
+#### SRv6-TE for XR Global Routing Table
+Now we will modify the configuration for **xrd07** to incorporate SRv6-TE policy for route 20.0.0.0/24. Lets log in and get configuring!
+
+1. On router **xrd07** add in config to advertise the global prefix with the low latency community.
+   ```
+   extcommunity-set opaque low-latency
+     50
+   end-set
+
+   route-policy set-global-color
+      if destination in (20.0.0.0/24) then
+        set extcommunity color low-latency
+      endif
+      pass
+   end-policy 
+   ```
+2. Add in BGP configuration to link the set-global-color policy to the ipv4 peering group
+   ```
+    neighbor-group xrd-ipv4-peer
+      address-family ipv4 unicast
+       route-policy set-global-color out 
+   ```
+3. If we wanted to implement the returned query data into SRv6-TE steering XR config on router **xrd01** we would create a policy like the below example.
+      This XR config would define the hops returned from our query between router **xrd01** (source) and **xrd07** (desitination)
       ```
-      
+      segment-routing
+        traffic-eng
+          segment-lists
+            segment-list xrd567
+              srv6
+                index 10 sid fc00:0:5555::
+                index 20 sid fc00:0:6666::
       ```
+      Now we add in a SRv6-TE policy that connects the *extcommunity/color 50* to our segment list *xrd567*
+      ```
+      policy low-latency
+        srv6
+          locator MyLocator binding-sid dynamic behavior ub6-insert-reduced
+   
+        color 50 end-point ipv6 fc00:0:7777::1
+        candidate-paths
+          preference 100
+            explicit segment-list xrd567
+      ```
+> [!NOTE]
+> The configuration in step #3 was already configured in Lab 3 and is for informational purposes only.
   
 
 ### Use Case 2: Lowest Bandwidth Utilization Path
+In this use case we want to idenitfy the lowest utilized path for traffic originating from the 10.101.1.0/24 (Amsterdam) destined to 20.0.0.0/24 (Rome). We will utilize Arango's shortest path query capabilities and specify utilization as our weighted attribute pulled from the meta-data. See image below which shows the shortest latency path we expect to be returned by our query.
 
+> [!NOTE]
+> This query is being performed in the global routing table.
+
+<img src="/topo_drawings/low-utilization-path.png" width="900">
+
+   1. Return to the ArangoDB browser UI and run a shortest path query from 10.101.1.0/24 to 20.0.0.0/24 , and have it return SRv6 SID data.
+      ```
+      for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' 
+          TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology options { weightAttribute: 'percent_util_out' } filter e.mt_id != 2
+      return { node: v._key, name: v.name, sid: v.sids[*].srv6_sid, util: e.percent_util_out }
+      ```
+   
+   2. Examine the table output and it should match the expected path in the diagram above. See sample output below.
+   <img src="images/arango-utilization-data.png" width="900">
+
+  3. If we wanted to implement the returned query data into SRv6-TE steering XR config on router **xrd01** we would create a policy like the below example.
+     
+  4. On router **xrd07** add in config to advertise the global prefix with the bulk transfer community.
+     ```
+     extcommunity-set opaque bulk-transfer
+       40
+     end-set
+
+     route-policy set-global-color
+        if destination in (20.0.0.0/24) then
+          set extcommunity color bulk-transfer
+        endif
+        pass
+     end-policy 
+     ```
+  5. On router **xrd01** config would define the hops returned from our query between router **xrd01** (source) and **xrd07** (desitination)
+   
+      ```
+      segment-routing
+        traffic-eng
+          segment-lists
+            segment-list xrd567
+              srv6
+               index 10 sid fc00:0:2222::
+               index 20 sid fc00:0:3333::
+               index 30 sid fc00:0:4444:: 
+      ```
+> [!NOTE]
+> The configuration in step #3 was already configured in Lab 3 and is for informational purposes only.
+  
 ### Use Case 3: Data Sovereignty Path
 
 ### End of lab 5
