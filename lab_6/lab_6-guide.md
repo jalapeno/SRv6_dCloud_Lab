@@ -138,7 +138,8 @@ For ease of use the currently supported network services are abbreviated:
     python3 jalapeno.py -f rome.json -e srv6 -s lu
     ```
 
-*Note: the jalapeno.py supports both SRv6 and SR-MPLS, however, we don't have SR-MPLS configured in our lab so we'll only be using the *`-e srv6`* encapsulation option.
+> [!NOTE]
+> The jalapeno.py supports both SRv6 and SR-MPLS, however, we don't have SR-MPLS configured in our lab so we'll only be using the *`-e srv6`* encapsulation option.
 
 *`jalapeno.py's`* network service modules are located in the lab_6 *`python/netservice/`* directory. When invoked `jalapeno.py` feeds the source and destination prefixes from the json file to the *`src_dst.py`* module, which queries the graphDB and returns the prefixes' database ID info. `jalapeno.py` then runs the selected network service module (gp, ll, lu, or ds). The network service module queries and calculates an SRv6 uSID or SR label stack, which will satisfy the network service request. The netservice module then calls the *`add_route.py`* module to create the local SR or SRv6 route or policy.
 
