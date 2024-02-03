@@ -92,7 +92,7 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
    ```
 
 ### jalapeno.py:
-Both the Rome and Amsterdam VM's are pre-loaded with the *`jalapeno.py`* App. When we run `jalapeno.py` it will program a local route or SR-policy with SRv6 encapsulation, which will allow the VM to *`self-encapsulate`* its outbound traffic and the xrd network will statelessly forward the traffic per the SRv6 encapsulation.
+Both the Rome and Amsterdam VM's are pre-loaded with the *`jalapeno.py`* App. When we run `jalapeno.py` it will program a local route or SR-policy with SRv6 encapsulation, which will allow the VM to *`self-encapsulate`* its outbound traffic and the XRd network will statelessly forward the traffic per the SRv6 encapsulation.
 
  `jalapeno.py's` currently supported network services are: 
 
