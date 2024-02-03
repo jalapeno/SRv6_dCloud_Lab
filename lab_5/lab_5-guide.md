@@ -415,13 +415,13 @@ Our first use case is to make path selection through the network based on the cu
 > [!TIP]
 > General Arango AQL graph query syntax information can be found [HERE](https://www.arangodb.com/docs/stable/aql/graphs.html). Please reference this document on the shortest path algorithim in AQL [HERE](https://www.arangodb.com/docs/stable/aql/graphs-shortest-path.html) (2 minute read).
 
-In this use case we want to idenitfy the lowest latency path for traffic originating from the 10.101.1.0/24 (Amsterdam) destined to 20.0.0.0/24 (Rome). We will utilize Arango's shortest path query capabilities and specify latency as our weighted attribute pulled from the meta-data. See image below which shows the shortest latency path we expect to be returned by our query.
+In this use case we want to idenitfy the lowest latency path for traffic originating from the *`10.101.1.0/24`* (Amsterdam) destined to *`20.0.0.0/24`* (Rome). We will utilize Arango's shortest path query capabilities and specify latency as our weighted attribute pulled from the meta-data. See image below which shows the shortest latency path we expect to be returned by our query.
 > [!NOTE]
-> The 10.101.1.0/24 and 20.0.0.0/24 prefixes are in the global routing table, which is reflected in the query.
+> The *10.101.1.0/24* and *20.0.0.0/24* prefixes are in the global routing table, which is reflected in the query.
 
 <img src="/topo_drawings/low-latency-path.png" width="900">
 
-   1. Return to the ArangoDB browser UI and run a shortest path query from 10.101.1.0/24 to 20.0.0.0/24 , and have it return SRv6 SID data.
+   1. Return to the ArangoDB browser UI and run a shortest path query from *10.101.1.0/24* to *20.0.0.0/24* , and have it return SRv6 SID data.
       ```
       for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' 
           TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology OPTIONS {weightAttribute: 'latency' } 
@@ -436,6 +436,7 @@ Now we will modify the configuration for **xrd07** to incorporate SRv6-TE policy
 
 1. On router **xrd07** add in config to advertise the global prefix with the low latency community.
    ```
+   conf t
    extcommunity-set opaque low-latency
      50
    end-set
@@ -446,15 +447,21 @@ Now we will modify the configuration for **xrd07** to incorporate SRv6-TE policy
       endif
       pass
    end-policy 
+   commit
    ```
 2. Add in BGP configuration to link the set-global-color policy to the ipv4 peering group
    ```
-    neighbor-group xrd-ipv4-peer
+    router bgp 65000
+     neighbor-group xrd-ipv4-peer
       address-family ipv4 unicast
        route-policy set-global-color out 
+    commit
    ```
-3. If we wanted to implement the returned query data into SRv6-TE steering XR config on router **xrd01** we would create a policy like the below example.
-      This XR config would define the hops returned from our query between router **xrd01** (source) and **xrd07** (desitination)
+3. If we wanted to implement the returned query data into SRv6-TE steering config on router **xrd01** we would create a policy like the below example. 
+   
+> [!NOTE] We already created the segment-list and policy back in Lab 3, so now the policy will be re-used for steering global table traffic to *20.0.0.0/24*.
+   
+      For review, the below SRv6 segment-list would define the hops returned from our query between router **xrd01** (source) and **xrd07** (destination). The segment-list doesn't need to include *`fc00:0:7777::`* as **xrd07's** SRv6 uSID is automatically added as it represents the SRv6 policy endpoint.
       ```
       segment-routing
         traffic-eng
@@ -464,7 +471,7 @@ Now we will modify the configuration for **xrd07** to incorporate SRv6-TE policy
                 index 10 sid fc00:0:5555::
                 index 20 sid fc00:0:6666::
       ```
-      Now we add in a SRv6-TE policy that connects the *extcommunity/color 50* to our segment list *xrd567*
+      Here is the accompanying SRv6-TE policy that connects the *extcommunity/color 50* to our segment list *xrd567*
       ```
       policy low-latency
         srv6
@@ -475,9 +482,6 @@ Now we will modify the configuration for **xrd07** to incorporate SRv6-TE policy
           preference 100
             explicit segment-list xrd567
       ```
-> [!NOTE]
-> The configuration in step #3 was already configured in Lab 3 and is for informational purposes only.
-  
 
 ### Use Case 2: Lowest Bandwidth Utilization Path
 In this use case we want to idenitfy the lowest utilized path for traffic originating from the 10.101.1.0/24 (Amsterdam) destined to 20.0.0.0/24 (Rome). We will utilize Arango's shortest path query capabilities and specify utilization as our weighted attribute pulled from the meta-data. See image below which shows the shortest latency path we expect to be returned by our query.
