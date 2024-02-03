@@ -528,6 +528,29 @@ In this use case we want to idenitfy the lowest utilized path for traffic origin
 > The configuration in step #3 was already configured in Lab 3 and is for informational purposes only.
   
 ### Use Case 3: Data Sovereignty Path
+In this use case we want to idenitfy a path originating from the 10.101.1.0/24 (Amsterdam) destined to 20.0.0.0/24 (Rome) that avoids passing through France. We will utilize Arango's shortest path query capabilities for shortest hop count and filter out results that pass through **xrd06** based in Paris, France. See image below which shows the shortest latency path we expect to be returned by our query.
+
+> [!NOTE]
+> This query is being performed in the global routing table.
+
+<img src="/topo_drawings/geo-path.png" width="900">
+
+   1. Return to the ArangoDB browser UI and run a shortest path query from 10.101.1.0/24 to 20.0.0.0/24 , and have it return SRv6 SID data.
+      ```
+      for p in outbound k_shortest_paths  'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' 
+          TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology 
+            options {uniqueVertices: "path", bfs: true} 
+            filter p.edges[*].country_codes !like "FRA" limit 1 
+                return { path: p.vertices[*].name, sid: p.vertices[*].sids[*].srv6_sid, 
+                    countries_traversed: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency), 
+                        percent_util_out: avg(p.edges[*].percent_util_out)} 
+      ```
+   
+   2. Examine the table output and it should match the expected path in the diagram above. See sample output below.
+   <img src="images/arango-geo-data.png" width="900">
+   
+   3. As in previous examples you modify the XR configs to reflect the segment list returned by the Arango query. 
+     
 
 ### End of lab 5
 Please proceed to [Lab 6](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_6/lab_6-guide.md)
