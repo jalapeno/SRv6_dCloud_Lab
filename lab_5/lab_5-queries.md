@@ -13,7 +13,12 @@ Query for all IPv4 IGP links and return specific k:v pairs:
 for x in ls_link filter x.mt_id_tlv.mt_id !=2 return { key: x._key, router_id: x.router_id, 
     igp_id: x.igp_router_id, local_ip: x.local_link_ip, remote_ip: x.remote_link_ip }
 ```
-Query for the IGP topology (should match the xrd router topology):
+Query for the base IGP topology (Nodes and Links):
+```
+for x in ls_node_edge return x
+```
+
+Query for the full IGP topology including IGP prefixes (should match the xrd router topology):
 ```
 for x in ls_topology_v4 return x
 ```
