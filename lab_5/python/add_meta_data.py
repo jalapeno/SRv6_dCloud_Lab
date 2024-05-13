@@ -1,4 +1,5 @@
 # Script writes site and link meta data into the Arango graphDB
+# requires https://pypi.org/project/python-arango/
 # python3 add_meta_data.py
 
 from arango import ArangoClient
@@ -24,6 +25,7 @@ ipv4topo.properties()
 
 print("adding addresses, country codes, and synthetic latency data to the graph")
 
+# get the ls_node DB key and populate the document with location and latency data
 r01 = lsn.get('2_0_0_0000.0000.0001')
 r01['location_id'] = 'AMS001'
 r01['country_code'] = 'NLD'
