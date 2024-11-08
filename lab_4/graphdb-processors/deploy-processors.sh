@@ -1,4 +1,4 @@
-#/bin/sh
+#!/bin/sh
 
 kubectl apply -f linkstate-node-ext.yaml
 sleep 2

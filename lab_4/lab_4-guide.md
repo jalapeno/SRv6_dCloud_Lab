@@ -6,7 +6,7 @@ In Lab 4 we will install the open-source Jalapeno data infrastructure platform. 
 Prior to deploying Jalapeno we will configure BGP Monitoring Protocol (BMP) on our route reflectors. 
 
 ## Contents
-- [Lab 4: Install Jalapeno and enable BMP \[20 Min\]](#lab-4-install-jalapeno-and-enable-bmp-20-min)
+- [Lab 4: Jalapeno and BMP \[20 Min\]](#lab-4-jalapeno-and-bmp-20-min)
     - [Description](#description)
   - [Contents](#contents)
   - [Lab Objectives](#lab-objectives)
@@ -29,7 +29,7 @@ The student upon completion of Lab 4 should have achieved the following objectiv
 Project Jalapeno combines existing open source tools with some new stuff we've developed into a data collection and warehousing infrastructure intended to enable development of network service applications. Think of it as applying microservices architecture and concepts to SDN: give developers the ability to quickly and easily build microservice control planes on top of a common data infrastructure. More information on Jalapeno can be found at the Jalapeno Git repository: [LINK](https://github.com/cisco-open/jalapeno/blob/main/README.md)
 
 ### Jalapeno Architecture and Data Flow
-![jalapeno_architecture](https://github.com/cisco-open/jalapeno/blob/main/docs/diagrams/jalapeno_architecture.png)
+![jalapeno_architecture](https://github.com/cisco-open/jalapeno/blob/main/docs/img/jalapeno_architecture.png)
 
 Jalapeno breaks the data collection and warehousing problem down into a series of components and services:
 - **Data Collector** services such as GoBMP and Telegraf collect network topology and statistics and publish to Kafka

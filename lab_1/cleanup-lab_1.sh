@@ -1,4 +1,4 @@
-#/bin/sh
+#!/bin/sh
 
 docker-compose -f docker-compose-lab_1.yml down
 

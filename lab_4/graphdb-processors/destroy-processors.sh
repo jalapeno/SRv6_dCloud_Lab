@@ -1,4 +1,4 @@
-#/bin/sh
+#!/bin/sh
 
 kubectl delete -f linkstate-node-ext.yaml
 kubectl delete -f linkstate-edge-v4.yaml

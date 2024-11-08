@@ -1,4 +1,4 @@
-#/bin/sh
+#!/bin/sh
 
 ### run cleanup script to eliminate any stale docker network instances or volumes 
 
