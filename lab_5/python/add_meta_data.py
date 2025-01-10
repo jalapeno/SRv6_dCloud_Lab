@@ -11,14 +11,14 @@ dbname = "jalapeno"
 client = ArangoClient(hosts='http://198.18.128.101:30852')
 db = client.db(dbname, username=user, password=pw)
 
-if db.has_collection('ls_node_extended'):
-    lsn = db.collection('ls_node_extended')
+if db.has_collection('igp_node'):
+    lsn = db.collection('igp_node')
 
 if db.has_collection('peer'):
     pr = db.collection('peer')
 
-if db.has_collection('ipv4_topology'):
-    ipv4topo = db.collection('ipv4_topology')
+if db.has_collection('ipv4_graph'):
+    ipv4topo = db.collection('ipv4_graph')
 
 lsn.properties()
 ipv4topo.properties()

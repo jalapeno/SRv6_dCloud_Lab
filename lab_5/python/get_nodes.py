@@ -5,20 +5,20 @@ import json
 from arango import ArangoClient
 client = ArangoClient(hosts='http://198.18.128.101:30852')
 db = client.db('jalapeno', username='root', password='jalapeno')
-if db.has_collection('ls_node_extended'):
-    sr = db.collection('ls_node_extended')
+if db.has_collection('igp_node'):
+    sr = db.collection('igp_node')
 
 if db.has_collection('peer'):
     pr = db.collection('peer')
 
-if db.has_collection('ipv4_topology'):
-    topo = db.collection('ipv4_topology')
+if db.has_collection('ipv4_graph'):
+    topo = db.collection('ipv4_graph')
 
 sr.properties()
 pr.properties()
 
 aql = db.aql
-cursor = db.aql.execute("for s in ls_node_extended return \
+cursor = db.aql.execute("for s in igp_node return \
     { key: s._key, name: s.name, router_id: s.router_id, \
         city: s.location_id, address: s.address, srv6_sid: s.srv6_sid }")
 nodes = [doc for doc in cursor]
