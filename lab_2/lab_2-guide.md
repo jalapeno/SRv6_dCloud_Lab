@@ -16,6 +16,7 @@ In Lab 2 the student will perform the basic ISIS and BGP SRv6 configuration on t
       - [Configure SRv6 on xrd01](#configure-srv6-on-xrd01)
       - [Validate SRv6 configuration and reachability](#validate-srv6-configuration-and-reachability)
   - [End-to-End Connectivity](#end-to-end-connectivity)
+      - [need to discuss if we want to keep this and re-work tcpdump using](#need-to-discuss-if-we-want-to-keep-this-and-re-work-tcpdump-using)
   - [SRv6 Packet Walk](#srv6-packet-walk)
   - [End of Lab 2](#end-of-lab-2)
   
@@ -173,6 +174,10 @@ SRv6 uSID locator and source address information for nodes in the lab:
 
 ## End-to-End Connectivity
 
+#### need to discuss if we want to keep this and re-work tcpdump using
+```
+sudo ip netns exec clab-cleu25-XR01 tcpdump -ni Gi0-0-0-1
+```
 In lab_1 When we ran the XRd topology setup script it called the 'nets.sh' subscript in the ~/SRv6_dCloud_Lab/util directory. The nets.sh resolved the underlying docker network IDs and wrote them to text files in the util directory. As an example link "A" in the topology has a mapped file called xrd01-xrd02 which contains the linux network id we need.
 
 We'll use 'tcpdump.sh' shell script in the util directory to monitor traffic as it traverses the XRd network. Running "./tcpdump.sh xrd0x-xrd0y" will execute Linux TCPdump on the specified Linux bridge instance that links a pair of XRd routers. Note traffic through the network may travel via one or more ECMP paths, so we may need to try tcpdump.sh on different links before we see anything meaningful in the output
