@@ -17,6 +17,7 @@ In Lab 3 we will establish a Layer-3 VPN named "carrots" which will use SRv6 tra
     - [Create SRv6-TE steering policy](#create-srv6-te-steering-policy)
     - [Validate SRv6-TE steering of L3VPN traffic](#validate-srv6-te-steering-of-l3vpn-traffic)
       - [Validate bulk traffic takes the non-shortest path: xrd01 -\> 02 -\> 03 -\> 04 -\> 07](#validate-bulk-traffic-takes-the-non-shortest-path-xrd01---02---03---04---07)
+      - [replace with netns tcpdump:](#replace-with-netns-tcpdump)
       - [Validate low latency traffic takes the path: xrd01 -\> 05 -\> 06 -\> 07](#validate-low-latency-traffic-takes-the-path-xrd01---05---06---07)
     - [End of Lab 3](#end-of-lab-3)
 
@@ -513,6 +514,12 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
 
 ### Validate SRv6-TE steering of L3VPN traffic
 #### Validate bulk traffic takes the non-shortest path: xrd01 -> 02 -> 03 -> 04 -> 07 
+
+#### replace with netns tcpdump:
+```
+sudo ip netns exec clab-cleu25-XR01 tcpdump -ni Gi0-0-0-1
+```
+
 1. Run the tcpdump.sh script in the XRD VM's util directory on the following links in the network. These can either be run sequentially while executing the ping in step 2, or you can open individual ssh sessions and run the tcpdumps simultaneously.
    As you run the tcpdumps you should see SRv6 Micro-SID 'shift-and-forward' behavior in action. Feel free to run all, or just one or two tcpdumps. Alternatively you can run **./tcpdump-xrd01-02-03-04-07.sh** which will tcpdump for a few seconds along each link in the path.
 
