@@ -14,10 +14,12 @@ topology for all subsequent lab exercises. Second, we will validate that the pre
     - [User Credentials](#user-credentials)
     - [Management Network Topology](#management-network-topology)
     - [Launch and Validate XRD Topology](#launch-and-validate-xrd-topology)
+      - [check if this step is still needed with clab macvtaps](#check-if-this-step-is-still-needed-with-clab-macvtaps)
     - [Validate Jalapeno VM](#validate-jalapeno-vm)
     - [Validate Client VMs](#validate-client-vms)
     - [Connect to Routers](#connect-to-routers)
   - [Validate ISIS Topology](#validate-isis-topology)
+      - [need to discuss if we want to keep this step, if so we can adapt util/nets.sh to do something like this:](#need-to-discuss-if-we-want-to-keep-this-step-if-so-we-can-adapt-utilnetssh-to-do-something-like-this)
   - [Validate BGP Topology](#validate-bgp-topology)
   - [End of Lab 1](#end-of-lab-1)
   
@@ -59,7 +61,7 @@ For full size image see [LINK](/topo_drawings/management-network.png)
    ```
    Example output for pod01:
    ```
-   cisco@xrd:~$ ls
+   cisco@clab-cleu25-XR:~$ ls
    Downloads  images  pod01  SRv6_dCloud_Lab
    ```
 
@@ -74,10 +76,10 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     docker ps
     ```
     ```
-    cisco@xrd:~/SRv6_dCloud_Lab/lab_1$ docker ps
+    cisco@clab-cleu25-XR:~/SRv6_dCloud_Lab/lab_1$ docker ps
     CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
     
-    cisco@xrd:~/SRv6_dCloud_Lab/lab_1$ docker network ls
+    cisco@clab-cleu25-XR:~/SRv6_dCloud_Lab/lab_1$ docker network ls
     NETWORK ID     NAME      DRIVER    SCOPE
     cfd793a3a770   bridge    bridge    local
     b948b6ba5918   host      host      local
@@ -88,82 +90,65 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     ```
     cd lab_1
     ```
-    - run the XRd topology setup script
+    - run the Containerlab topology setup script
     ``` 
-    ./setup-lab_1.sh
+   sudo clab deploy -t lab_1-topology.yml
     ```
     - Look for the below output from the end of the script confirming XRd instances 1-7 were created
     ```
-    Creating xrd03 ... done
-    Creating xrd04 ... done
-    Creating xrd06 ... done
-    Creating xrd02 ... done
-    Creating xrd05 ... done
-    Creating xrd07 ... done
-    Creating xrd01 ... done
+╭──────────────────┬─────────────────────────────────┬─────────┬────────────────╮
+│       Name       │            Kind/Image           │  State  │ IPv4/6 Address │
+├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
+│ clab-cleu25-XR01 │ cisco_xrd                       │ running │ 10.254.254.101 │
+│                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
+├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
+│ clab-cleu25-XR02 │ cisco_xrd                       │ running │ 10.254.254.102 │
+│                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
+├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
+│ clab-cleu25-XR03 │ cisco_xrd                       │ running │ 10.254.254.103 │
+│                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
+├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
+│ clab-cleu25-XR04 │ cisco_xrd                       │ running │ 10.254.254.104 │
+│                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
+├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
+│ clab-cleu25-XR05 │ cisco_xrd                       │ running │ 10.254.254.105 │
+│                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
+├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
+│ clab-cleu25-XR06 │ cisco_xrd                       │ running │ 10.254.254.106 │
+│                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
+├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
+│ clab-cleu25-XR07 │ cisco_xrd                       │ running │ 10.254.254.107 │
+│                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
+╰──────────────────┴─────────────────────────────────┴─────────┴────────────────╯
     ```
-    Look for status of `done` for each **xrd 01 -> 07**
+    Look for status of `running` for each **xrd 01 -> 07**
 
 6. Check that the docker containers were created and running
     ```
     docker ps
     ```
     ```
-    cisco@xrd:~/SRv6_dCloud_Lab/lab_1$ docker ps
-    CONTAINER ID   IMAGE                            COMMAND                  CREATED              STATUS              PORTS     NAMES
-    37960e0fea97   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd07
-    1dd2e4ef748f   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd05
-    970b0c888565   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd01
-    4bd9ccd3e183   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd02
-    9af05fddc01f   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd03
-    c48dc39398ef   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd04
-    7d0436c26cc8   ios-xr/xrd-control-plane:7.8.1   "/bin/sh -c /sbin/xr…"   About a minute ago   Up About a minute             xrd06
+cisco@clab-cleu25-XR:~/SRv6_dCloud_Lab/lab_1$ docker ps
+CONTAINER ID   IMAGE                             COMMAND            CREATED              STATUS              PORTS     NAMES
+154a01f24f83   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   About a minute ago   Up About a minute             clab-cleu25-XR04
+6c6263562dbe   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   About a minute ago   Up About a minute             clab-cleu25-XR06
+9b2aee80ca89   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   About a minute ago   Up About a minute             clab-cleu25-XR07
+781490cb60aa   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   About a minute ago   Up About a minute             clab-cleu25-XR02
+1ae2788db5cc   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   About a minute ago   Up About a minute             clab-cleu25-XR01
+2c0619c64ddb   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   About a minute ago   Up About a minute             clab-cleu25-XR05
+0746009f0974   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   About a minute ago   Up About a minute             clab-cleu25-XR03
     ```
-7. Confirm the docker networks were created. 
+7. Confirm the docker networks were created 
+   #### check if this step is still needed with clab macvtaps
     ```
     docker network ls
     ```
     ```
-    cisco@xrd:~/SRv6_dCloud_Lab/lab_1$ docker network ls
+    cisco@clab-cleu25-XR:~/SRv6_dCloud_Lab/lab_1$ docker network ls
     NETWORK ID     NAME                  DRIVER    SCOPE
-    cfd793a3a770   bridge                bridge    local
-    b948b6ba5918   host                  host      local
-    8ff8a898b08c   lab_1_macvlan0        macvlan   local
-    62e49899e77a   lab_1_macvlan1        macvlan   local
-    f7f3312f9e29   lab_1_mgmt            bridge    local
-    2d455a6860aa   lab_1_xrd05-host      bridge    local
-    00bae5fdbe48   lab_1_xrd06-host      bridge    local
-    bdf431ee7377   none                  null      local
-    336a27055564   xrd01-gi1-xrd02-gi0   bridge    local
-    da281230d4b3   xrd01-gi2-xrd05-gi0   bridge    local
-    a9cdde56cefa   xrd01-gi3             bridge    local
-    c254a6c88536   xrd02-gi1-xrd03-gi0   bridge    local
-    2fec9b3e52a5   xrd02-gi2-xrd06-gi1   bridge    local
-    942edff76963   xrd02-gi3             bridge    local
-    7a6f21c0cb6a   xrd03-gi1-xrd04-gi0   bridge    local
-    3c6d5ff6828f   xrd03-gi2             bridge    local
-    e3eb44320373   xrd03-gi3             bridge    local
-    c03ebf10229b   xrd04-gi1-xrd07-gi1   bridge    local
-    331c62bb019a   xrd04-gi2-xrd05-gi1   bridge    local
-    8a2cb5e8083d   xrd04-gi3             bridge    local
-    b300884b2030   xrd05-gi2-xrd06-gi2   bridge    local
-    b48429454f4c   xrd06-gi0-xrd07-gi2   bridge    local
-    84b7ddd7e018   xrd07-gi3             bridge    local
+ 
+
     ```
-> [!NOTE]
-> The docker Network IDs are unique on creation. Docker's network/bridge naming logic is such that the actual Linux bridge instance names are not predictable. Rather than go through some re-naming process the lab setup script calls another small script called 'nets.sh' which resolves the bridge name and writes it to a file that we'll use later for running tcpdump on the virtual links between routers in our topology.
-
- - The scripts and files reside in the lab 'util' directory:
-```
-ls ~/SRv6_dCloud_Lab/util/
-```
-```
-cisco@xrd:~/SRv6_dCloud_Lab$ ls ~/SRv6_dCloud_Lab/util/
-nets.sh     xrd01-xrd02  xrd02-xrd03  xrd03-xrd04  xrd04-xrd07  xrd06-xrd07
-tcpdump.sh  xrd01-xrd05  xrd02-xrd06  xrd04-xrd05  xrd05-xrd06
-
-```
-Later we'll use "tcpdump.sh **xrd0x-xrd0y**" to capture packets along the path through the network. 
 
 > [!IMPORTANT]
 > The XRd router instances should be available for SSH access about 2 minutes after spin up.
@@ -176,12 +161,12 @@ Jalapeno will collect BGP Monitoring Protocol (BMP) and streaming telemetry data
 1. Validate router reachability to Jalapeno VM (no need to check all routers, but will be good to validate **xrd05** and **xrd06**):
 
 ```
-ssh cisco@xrd05
+ssh cisco@clab-cleu25-XR05
 ping 198.18.128.101
 ```
 
 ```
-cisco@xrd:~$ ssh cisco@xrd05
+cisco@clab-cleu25-XR:~$ ssh cisco@clab-cleu25-XR05
 Warning: Permanently added 'xrd05,10.254.254.105' (ECDSA) to the list of known hosts.
 Password: 
 Last login: Sun Jan 29 22:44:15 2023 from 10.254.254.1
@@ -290,7 +275,7 @@ PING 198.18.128.101 (198.18.128.101) 56(84) bytes of data.
 ### Connect to Routers
 1. Starting from the XRD VM ssh into each router instance 1-7 per the management topology diagram above. Example:
 ```
-ssh cisco@xrd01
+ssh cisco@clab-cleu25-XR01
 ```
 
 2. Confirm that the configured interfaces are in an `UP | UP` state
@@ -382,12 +367,23 @@ For full size image see [LINK](/topo_drawings/isis-topology-large.png)
 ping 10.0.0.7 source lo0
 ping fc00:0000:7777::1 source lo0
 ```
+
+#### need to discuss if we want to keep this step, if so we can adapt util/nets.sh to do something like this:
+```
+sudo ip netns exec clab-cleu25-XR01 tc qdisc add dev Gi0-0-0-1 root netem delay 30000
+```
 > [!NOTE]
 > Normally pinging xrd-to-xrd in this dockerized environment would result in ping times of ~1-3ms. However, the util/nets.sh script, which was triggered at setup, added synthetic latency to the underlying Linux links using the [netem](https://wiki.linuxfoundation.org/networking/netem) 'tc' command line tool. So you'll see a ping RTT of anywhere from ~60ms to ~150ms. This synthetic latency will allow us to really see the effect of later traffic steering execises.
 
-    Run this command on the XRD VM to see the added synthetic latency:
+    Run one or more of these commands on the XRD VM to see the added synthetic latency:
     ```
-    sudo tc qdisc list | grep delay
+    sudo ip netns exec clab-cleu25-XR01 tc qdisc list | grep delay
+    sudo ip netns exec clab-cleu25-XR02 tc qdisc list | grep delay
+    sudo ip netns exec clab-cleu25-XR03 tc qdisc list | grep delay
+    sudo ip netns exec clab-cleu25-XR04 tc qdisc list | grep delay
+    sudo ip netns exec clab-cleu25-XR05 tc qdisc list | grep delay
+    sudo ip netns exec clab-cleu25-XR06 tc qdisc list | grep delay
+    sudo ip netns exec clab-cleu25-XR07 tc qdisc list | grep delay
     ```
 
 ## Validate BGP Topology
