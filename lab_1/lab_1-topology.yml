@@ -1,135 +1,73 @@
-# Run this script to generate the lab_1 docker-compose-lab_1.yml file
-# ../xr-compose -f docker-compose-lab_1.yml -i ios-xr/xrd-control-plane:7.8.1
+# Containerlab topology file for Cisco Live EU 2025
 
-services:
+name: cleu25
 
-# XRd containers
-  xrd01:
-    xr_startup_cfg: config/xrd01.cfg
-    xr_interfaces:
-      - Gi0/0/0/0
-      - Gi0/0/0/1
-      - Gi0/0/0/2
-      - Gi0/0/0/3
-      - Mg0/RP0/CPU0/0
+  
+mgmt:
+  network: clab-management-network
+  ipv4-subnet: 10.254.254.0/24
+  
+topology:
+  nodes:
+    XR01:
+      kind: cisco_xrd
+      image: ios-xr/xrd-control-plane:24.3.2
+      startup-config: lab_1/config/xrd01.cfg
+      mgmt-ipv4: 10.254.254.101
+      
 
-  xrd02:
-    xr_startup_cfg: config/xrd02.cfg
-    xr_interfaces:
-      - Gi0/0/0/0
-      - Gi0/0/0/1
-      - Gi0/0/0/2
-      - Gi0/0/0/3
-      - Mg0/RP0/CPU0/0
-  xrd03:
-    xr_startup_cfg: config/xrd03.cfg
-    xr_interfaces:
-      - Gi0/0/0/0
-      - Gi0/0/0/1
-      - Gi0/0/0/2
-      - Gi0/0/0/3
-      - Mg0/RP0/CPU0/0
-  xrd04:
-    xr_startup_cfg: config/xrd04.cfg
-    xr_interfaces:
-      - Gi0/0/0/0
-      - Gi0/0/0/1
-      - Gi0/0/0/2
-      - Gi0/0/0/3
-      - Mg0/RP0/CPU0/0
-  xrd05:
-    xr_startup_cfg: config/xrd05.cfg
-    xr_interfaces:
-      - Gi0/0/0/0
-      - Gi0/0/0/1
-      - Gi0/0/0/2
-      - Gi0/0/0/3
-      - Mg0/RP0/CPU0/0
-  xrd06:
-    xr_startup_cfg: config/xrd06.cfg
-    xr_interfaces:
-      - Gi0/0/0/0
-      - Gi0/0/0/1
-      - Gi0/0/0/2
-      - Gi0/0/0/3
-      - Mg0/RP0/CPU0/0
-  xrd07:
-    xr_startup_cfg: config/xrd07.cfg
-    xr_interfaces:
-      - Gi0/0/0/0
-      - Gi0/0/0/1
-      - Gi0/0/0/2
-      - Gi0/0/0/3
-      - Mg0/RP0/CPU0/0
+    XR02:
+      kind: cisco_xrd
+      image: ios-xr/xrd-control-plane:24.3.2
+      startup-config: lab_1/config/xrd02.cfg
+      mgmt-ipv4: 10.254.254.102
 
-xr_l2networks:
-  - ["xrd01:Gi0/0/0/1", "xrd02:Gi0/0/0/0"]
-  - ["xrd01:Gi0/0/0/2", "xrd05:Gi0/0/0/0"]
-  - ["xrd02:Gi0/0/0/1", "xrd03:Gi0/0/0/0"]
-  - ["xrd02:Gi0/0/0/2", "xrd06:Gi0/0/0/1"]
-  - ["xrd03:Gi0/0/0/1", "xrd04:Gi0/0/0/0"]
-  - ["xrd04:Gi0/0/0/1", "xrd07:Gi0/0/0/1"]
-  - ["xrd04:Gi0/0/0/2", "xrd05:Gi0/0/0/1"]
-  - ["xrd05:Gi0/0/0/2", "xrd06:Gi0/0/0/2"]
-  - ["xrd06:Gi0/0/0/0", "xrd07:Gi0/0/0/2"]
+    XR03:
+      kind: cisco_xrd
+      image: ios-xr/xrd-control-plane:24.3.2
+      startup-config: lab_1/config/xrd03.cfg
+      mgmt-ipv4: 10.254.254.103
 
-networks:
-  # macvlan: 
-    # xrd-VM ens224: xrd01 gi0/0/0/0 -> Amsterdam VPP
-    # xrd-VM ens256: xrd07 gi0/0/0/0 -> Rome ens192
-    # xrd-VM ens161: xrd07 gi0/0/0/3 -> Rome ens224
-    # xrd-VM ens193: xrd01 gi0/0/0/3 -> Amsterdam ens224
-  macvlan0:
-    driver: macvlan
-    driver_opts:
-      parent: ens224
-    ipam:
-      config:
-        - subnet: 10.101.1.0/24
-  macvlan1:
-    driver: macvlan
-    driver_opts:
-      parent: ens256
-    ipam:
-      config:
-        - subnet: 10.107.1.0/24
-  macvlan2:
-    driver: macvlan
-    driver_opts:
-      parent: ens161
-    ipam:
-      config:
-        - subnet: 10.107.2.0/24
-  macvlan3:
-    driver: macvlan
-    driver_opts:
-      parent: ens193
-    ipam:
-      config:
-        - subnet: 10.101.3.0/24
-  mgmt:
-    xr_interfaces:
-      - xrd01:Mg0/RP0/CPU0/0
-      - xrd02:Mg0/RP0/CPU0/0
-      - xrd03:Mg0/RP0/CPU0/0
-      - xrd04:Mg0/RP0/CPU0/0
-      - xrd05:Mg0/RP0/CPU0/0
-      - xrd06:Mg0/RP0/CPU0/0
-      - xrd07:Mg0/RP0/CPU0/0
-    ipam:
-      config:
-        - subnet: 10.254.254.0/24
+    XR04:
+      kind: cisco_xrd
+      image: ios-xr/xrd-control-plane:24.3.2
+      startup-config: lab_1/config/xrd04.cfg
+      mgmt-ipv4: 10.254.254.104
 
-  xrd05-host:
-    ipam:
-      config:
-        - subnet: 10.1.1.24/29
-    xr_interfaces:
-      - xrd05:Gi0/0/0/3
+    XR05:
+      kind: cisco_xrd
+      image: ios-xr/xrd-control-plane:24.3.2
+      startup-config: lab_1/config/xrd05.cfg
+      mgmt-ipv4: 10.254.254.105
 
-  xrd06-host:
-    ipam:
-      config:
-        - subnet: 10.1.1.32/29
-    xr_interfaces:
-      - xrd06:Gi0/0/0/3
+    XR06:
+      kind: cisco_xrd
+      image: ios-xr/xrd-control-plane:24.3.2
+      startup-config: lab_1/config/xrd06.cfg
+      mgmt-ipv4: 10.254.254.106
+
+    XR07:
+      kind: cisco_xrd
+      image: ios-xr/xrd-control-plane:24.3.2
+      startup-config: lab_1/config/xrd07.cfg
+      mgmt-ipv4: 10.254.254.107
+
+
+  links:
+
+    # Link between XR Routers
+    - endpoints: ["XR01:Gi0-0-0-1", "XR02:Gi0-0-0-0"]      
+    - endpoints: ["XR01:Gi0-0-0-2", "XR05:Gi0-0-0-0"]
+    - endpoints: ["XR02:Gi0-0-0-1", "XR03:Gi0-0-0-0"]
+    - endpoints: ["XR02:Gi0-0-0-2", "XR06:Gi0-0-0-1"]
+    - endpoints: ["XR05:Gi0-0-0-1", "XR04:Gi0-0-0-2"]
+    - endpoints: ["XR05:Gi0-0-0-2", "XR06:Gi0-0-0-2"]
+    - endpoints: ["XR03:Gi0-0-0-1", "XR04:Gi0-0-0-0"]
+    - endpoints: ["XR04:Gi0-0-0-1", "XR07:Gi0-0-0-1"]
+    - endpoints: ["XR06:Gi0-0-0-0", "XR07:Gi0-0-0-2"]
+
+    # Link betwen XR01/XR07 and the Amsterdamn/Rome VM  
+    - endpoints: ["XR01:Gi0-0-0-0", "macvlan:ens224"]
+    - endpoints: ["XR01:Gi0-0-0-3", "macvlan:ens193"]
+    - endpoints: ["XR07:Gi0-0-0-0", "macvlan:ens256"]
+    - endpoints: ["XR07:Gi0-0-0-3", "macvlan:ens161"]
