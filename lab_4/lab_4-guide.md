@@ -15,8 +15,6 @@ Prior to deploying Jalapeno we will configure BGP Monitoring Protocol (BMP) on o
   - [Validate Jalapeno](#validate-jalapeno)
   - [BGP Monitoring Protocol (BMP)](#bgp-monitoring-protocol-bmp)
   - [BGP SRv6 locator](#bgp-srv6-locator)
-  - [Install Jalapeno GraphDB Processors](#install-jalapeno-graphdb-processors)
-      - [Return to the ssh session on the Jalapeno VM](#return-to-the-ssh-session-on-the-jalapeno-vm)
     - [End of Lab 4](#end-of-lab-4)
 
 ## Lab Objectives
@@ -37,8 +35,9 @@ Jalapeno breaks the data collection and warehousing problem down into a series o
 - **Kafka** is used as a message bus between Collectors and Processors
 - **Arango GraphDB** is used for modeling topology data
 - **InfluxDB** is used for warehousing statistical time-series data
-- **API-Gateway**: is currently under construction so for the lab we'll interact directly with the DB
-- **Jalapeno's installation script** will install all of the above and deploy a Grafana container, which can be used to create dashboards to visualize the Influx time-series data
+- **Grafana**: is used for visualizing the Influx time-series data and supports user creation of custom dashboards
+- **REST API**: is used as a communication layer between the Jalapeno UI and external applications or clients, and the Jalapeno GraphDB
+- **Jalapeno UI**: is a web application that allows users to interact with the Jalapeno topology model and path calculation tools. Note: the UI is still under construction, so not all functionality is available yet.
 
 One of the primary goals of the Jalapeno project is to be flexible and extensible. In the future we expect Jalapeno might support any number of data collectors and processors. For example the could be a collector/processor pair that creates an LLDP Topology model in the graphDB. Netflow data could be incorporated via a future integration with a tool like [pmacct](http://www.pmacct.net/). Or an operator might already have a telemetry stack and could choose to selectively integrate Jalapeno's GoBMP/Topology/GraphDB modules into an existing environment running Kafka. We also envision future integrations with other API-driven data warehouses such as Cisco ThousandEyes: https://www.thousandeyes.com/
 
@@ -59,30 +58,59 @@ The Jalapeno package is preinstalled and running on the **Jalapeno** VM
     Output should look something like:  
 
     ```
-    cisco@jalapeno:~/jalapeno/install$ kubectl get pods -A
     NAMESPACE             NAME                                           READY   STATUS    RESTARTS        AGE
-    jalapeno-collectors   gobmp-5db68bd644-hzs82                         1/1     Running   3 (4m5s ago)    4m25s  
-    jalapeno-collectors   telegraf-ingress-deployment-5b456574dc-wdhjk   1/1     Running   1 (4m2s ago)    4m25s  
-    jalapeno              arangodb-0                                     1/1     Running   0               4m33s
-    jalapeno              grafana-deployment-565756bd74-x2szz            1/1     Running   0               4m32s
-    jalapeno              influxdb-0                                     1/1     Running   0               4m32s
-    jalapeno              kafka-0                                        1/1     Running   0               4m33s
-    jalapeno              lslinknode-edge-b954577f9-k8w6l                1/1     Running   4 (3m35s ago)   4m18s
-    jalapeno              telegraf-egress-deployment-5795ffdd9c-t8xrp    1/1     Running   2 (4m11s ago)   4m19s
-    jalapeno              topology-678ddb8bb4-rt9jg                      1/1     Running   3 (4m1s ago)    4m19s
-    jalapeno              zookeeper-0                                    1/1     Running   0               4m33s
-    kube-system           calico-kube-controllers-798cc86c47-d482k       1/1     Running   4 (16m ago)     14d
-    kube-system           calico-node-jd7cw                              1/1     Running   4 (16m ago)     14d
-    kube-system           coredns-565d847f94-fr8pp                       1/1     Running   4 (16m ago)     14d
-    kube-system           coredns-565d847f94-grmtl                       1/1     Running   4 (16m ago)     14d
-    kube-system           etcd-jalapeno                                  1/1     Running   5 (16m ago)     14d
-    kube-system           kube-apiserver-jalapeno                        1/1     Running   5 (16m ago)     14d
-    kube-system           kube-controller-manager-jalapeno               1/1     Running   6 (16m ago)     14d
-    kube-system           kube-proxy-pmwft                               1/1     Running   5 (16m ago)     14d
-    kube-system           kube-scheduler-jalapeno                        1/1     Running   6 (16m ago)     14d
+    jalapeno-collectors   gobmp-5db68bd644-8kbmw                         1/1     Running   1 (50s ago)     84s
+    jalapeno-collectors   telegraf-ingress-deployment-5b456574dc-242f9   1/1     Running   0               84s
+    jalapeno              arangodb-0                                     1/1     Running   0               92s
+    jalapeno              grafana-deployment-565756bd74-nmp6g            1/1     Running   0               91s
+    jalapeno              igp-graph-5f7fcd6f88-4tjjq                     1/1     Running   2 (52s ago)     78s
+    jalapeno              influxdb-0                                     1/1     Running   0               92s
+    jalapeno              ipv4-graph-7ccc46bc57-zld2p                    1/1     Running   2 (51s ago)     77s
+    jalapeno              ipv6-graph-56db757fc9-v7tkm                    1/1     Running   2 (52s ago)     76s
+    jalapeno              jalapeno-api-5d8469557-w4dcm                   1/1     Running   0               91s
+    jalapeno              jalapeno-ui-54f8f95c5d-9vns7                   1/1     Running   0               90s
+    jalapeno              kafka-0                                        1/1     Running   0               92s
+    jalapeno              lslinknode-edge-b954577f9-jmkn4                1/1     Running   3 (56s ago)     78s
+    jalapeno              srv6-localsids-78c644bc76-bplp9                1/1     Running   0               77s
+    jalapeno              telegraf-egress-deployment-5795ffdd9c-8lpd4    1/1     Running   0               78s
+    jalapeno              topology-678ddb8bb4-4kmq8                      1/1     Running   1 (46s ago)     79s
+    jalapeno              zookeeper-0                                    1/1     Running   0               93s
+    kube-system           cilium-k8fht                                   1/1     Running   3 (168m ago)    362d
+    kube-system           cilium-operator-6f5db4f885-nmpwb               1/1     Running   3 (168m ago)    362d
+    kube-system           coredns-565d847f94-nmt4n                       1/1     Running   0               167m
+    kube-system           coredns-565d847f94-sg8fl                       1/1     Running   3 (168m ago)    362d
+    kube-system           etcd-jalapeno                                  1/1     Running   19 (168m ago)   362d
+    kube-system           kube-apiserver-jalapeno                        1/1     Running   3 (168m ago)    362d
+    kube-system           kube-controller-manager-jalapeno               1/1     Running   3 (168m ago)    362d
+    kube-system           kube-proxy-g8nbn                               1/1     Running   3 (168m ago)    362d
+    kube-system           kube-scheduler-jalapeno                        1/1     Running   3 (168m ago)    362d
     ```
 
-2. Here are some additional k8s commands to try. Note the different outputs when specifying a particular namespace (-n option) vs. all namespaces (-A option):
+2. Display only the pods in the jalapeno namespace:
+    ```
+    kubectl get pods -n jalapeno
+    ```
+    Expected output:
+    ```
+    cisco@jalapeno:~$ kubectl get pods -n jalapeno
+    NAME                                          READY   STATUS    RESTARTS      AGE
+    arangodb-0                                    1/1     Running   0             39m  <-------- Arango GraphDB
+    grafana-deployment-565756bd74-nmp6g           1/1     Running   0             39m  <-------- Grafana
+    igp-graph-5f7fcd6f88-4tjjq                    1/1     Running   2 (38m ago)   39m  <-------- IGP Topology Processor
+    influxdb-0                                    1/1     Running   0             39m  <-------- Influx Time-Series DB
+    ipv4-graph-7ccc46bc57-zld2p                   1/1     Running   2 (38m ago)   38m  <-------- IPv4 Topology Processor
+    ipv6-graph-56db757fc9-v7tkm                   1/1     Running   2 (38m ago)   38m  <-------- IPv6 Topology Processor
+    jalapeno-api-5d8469557-w4dcm                  1/1     Running   0             39m  <-------- Jalapeno REST API
+    jalapeno-ui-54f8f95c5d-9vns7                  1/1     Running   0             39m  <-------- Jalapeno UI
+    kafka-0                                       1/1     Running   0             39m  <-------- Kafka
+    lslinknode-edge-b954577f9-jmkn4               1/1     Running   3 (38m ago)   39m  <-------- LS Link & Node Processor
+    srv6-localsids-78c644bc76-bplp9               1/1     Running   0             39m  <-------- SRv6 Localsids Processor
+    telegraf-egress-deployment-5795ffdd9c-8lpd4   1/1     Running   0             39m  <-------- Telegraf Egress Collector  
+    topology-678ddb8bb4-4kmq8                     1/1     Running   1 (38m ago)   39m  <-------- BMP Topology Processor
+    zookeeper-0                                   1/1     Running   0             39m  <-------- Zookeeper
+    ```
+
+4. Optional: here are some additional k8s commands to try. Note the different outputs when specifying a particular namespace (-n option) vs. all namespaces (-A option):
     ```
     kubectl get pods -n jalapeno                      <-------- display all pods/containers in the Jalapeno namespace
     kubectl get pods -n jalapeno-collectors           <-------- display all pods/containers in the Jalapeno-Collectors namespace
@@ -96,11 +124,11 @@ The Jalapeno package is preinstalled and running on the **Jalapeno** VM
 
 ## BGP Monitoring Protocol (BMP)
 
-Most transport SDN systems use BGP-LS to gather and model the underlying IGP topology. Jalapeno is intended to be a more generalized data platform to support use cases beyond internal transport such as VPNs or service chains. Because of this, Jalapeno's primary method of capturing topology data is via BMP. BMP provides all BGP AFI/SAFI info, thus Jalapeno is able to model many different kinds of topologies, including the topology of the Internet (at least from the perspective of our peering routers).
+Most transport SDN systems use BGP-LS to gather and model the underlying IGP topology. Jalapeno is intended to be a more generalized data platform to support development of all sorts of use cases such as VPNs or service chains. Because of this, Jalapeno's primary method of capturing topology data is via BMP. BMP provides all BGP AFI/SAFI info, thus Jalapeno is able to model many different kinds of topologies, including the topology of the Internet (at least from the perspective of our peering routers).
 
 We'll first establish a BMP session between our route-reflectors and the open-source GoBMP collector, which comes pre-packaged with the Jalapeno install. We'll then enable BMP monitoring of the RRs' BGP peering sessions with our PE routers **xrd01** and **xrd07**. Once established, the RRs' will stream all BGP NLRI info they receive from the PE routers to the GoBMP collector, which will in turn publish the data to Kafka. We'll get more into the Jalapeno data flow in Lab 5.
 
-The GoBMP Git Repository can be found [HERE](https://github.com/sbezverk/gobmp)
+Reference: the GoBMP Git Repository can be found [HERE](https://github.com/sbezverk/gobmp)
 
 1. BMP configuration on **xrd05** and **xrd06**:
     ```
@@ -159,7 +187,7 @@ The GoBMP Git Repository can be found [HERE](https://github.com/sbezverk/gobmp)
 
   <img src="images/arango-collections.png" width="1000">
 
-1. Feel free to spot check the various data collections in Arango. Several will be empty as they are for future use. With successful BMP processing we would expect to see data in all the following collections:
+4. Feel free to spot check the various data collections in Arango. Several will be empty as they are for future use. With successful BMP processing we would expect to see data in all the following collections:
 
     - l3vpn_v4_prefix
     - l3vpn_v6_prefix
@@ -172,11 +200,29 @@ The GoBMP Git Repository can be found [HERE](https://github.com/sbezverk/gobmp)
     - unicast_prefix_v4
     - unicast_prefix_v6
 
+5. Test the Jalapeno REST API:
+
+   - From the ssh session on the Jalapeno VM or the XRD VM validate the Jalapeno REST API is running:
+    ```
+    curl http://198.18.128.101:30800/api/v1/collections
+    curl http://198.18.128.101:30800/api/v1/collections/ls_node
+    ```
+    - We installed the jq tool to help with nicer JSON parsing.
+    ```
+    curl http://198.18.128.101:30800/api/v1/graphs/igpv4_graph/vertices/keys | jq .
+    curl http://198.18.128.101:30800/api/v1/graphs/igpv4_graph/edges | jq .
+    ```
+
+   - The API also has auto-generated documentation at: http://198.18.128.101:30800/docs/
+
+We'll test the Jalapeno UI a bit later in the lab.
+
 ## BGP SRv6 locator
 In lab 1 we configured an SRv6 locator for the BGP global/default table. When we get to lab 6 we'll use these locators as we'll be sending SRv6 encapsulated traffic directly to/from Amsterdam and Rome. With our endpoints performing SRv6 encapsulation our BGP SRv6 locator will provide the end.DT4/6 function at the egress nodes **xrd01** and **xrd07** to be able to pop the SRv6 encap and perform a global table lookup on the underlying payload.
 
-1. Optional: re-validate end.DT4/6 SIDs belonging to BGP default table:
+1. Optional: ssh to **xrd01** and re-validate end.DT4/6 SIDs belonging to BGP default table:
     ```
+    ssh cisco@clab-cleu25-XR01
     show segment-routing srv6 sid
     ```
 
@@ -202,85 +248,26 @@ In lab 1 we configured an SRv6 locator for the BGP global/default table. When we
     fc00:0:1111:e009::          uB6 (Insert.Red)  'srte_c_40_ep_fc00:0:7777::1' (40, fc00:0:7777::1)  xtc_srv6            InUse  Y 
     RP/0/RP0/CPU0:xrd01#
     ``` 
-## Install Jalapeno GraphDB Processors
-These container images are a set of proof-of-concept data processors that augment Jalapeno's graphDB modeling of the network.  
 
-  - The *`lsnode-extended`* processor loops through existing link-state data collections and gathers relevant SR/SRv6 data for each node in the network and populates the data in a new *`ls_node_extended`* data collection. 
   
-  - The *`linkstate-edge-v4`* and *`linkstate-edge-v6`* processors generate separate graphs of the ipv4 and ipv6 link state topologies using the ls_node_extended elements.
-
-  - The *`ebgp-processor`* loops through the data collections and separates out external and internal BGP prefixes. 
-  
-  - The *`ipv4-topology`* and *`ipv6-topology`* processors loop through the link-state graphs and other collections to add internal and external links, nodes, peers, prefixes, etc. to provide a complete topology model for both IPv4 and IPv6.
-  
-  - The *`srv6-localsids`* processor harvests SRv6 SID data from a Kafka streaming telemetry topic and populates it in the *`sr_local_sids`* collection. This data is not available via BMP and is needed to construct full End.DT SIDs that we'll use in lab 6. 
+  - The *`kubectl get pods -n jalapeno`* command will show you all the k8s containers that make up the Jalapeno application, including the *`srv6-localsids`* processor. This processor harvests SRv6 SID data from a Kafka streaming telemetry topic and populates it in the *`sr_local_sids`* collection. This data is not available via BMP and is needed to construct full End.DT SIDs that we'll use in lab 6. 
   
     Example:
 
-  ```
-  SID                         Behavior          Context                    Owner              
-  ----------------------  --------------  -----------------------------  ------------
-  fc00:0:1111::           uN (PSP/USD)    'default':4369                 sidmgr     <-------- Collected via BMP
-  fc00:0:1111:e000::      uA (PSP/USD)    [Gi0/0/0/1, Link-Local]:0:P    isis-100    <---|   
-  fc00:0:1111:e001::      uA (PSP/USD)    [Gi0/0/0/1, Link-Local]:0      isis-100    <---|  These are not available via BMP
-  fc00:0:1111:e002::      uA (PSP/USD)    [Gi0/0/0/2, Link-Local]:0:P    isis-100    <---|  We collect and process
-  fc00:0:1111:e003::      uA (PSP/USD)    [Gi0/0/0/2, Link-Local]:0      isis-100    <---|  these SIDs via streaming
-  fc00:0:1111:e004::      uDT4            'carrots'                      bgp-65000   <---|  telemetry and the 
-  fc00:0:1111:e005::      uDT6            'carrots'                      bgp-65000   <---|  "srv6-localsids" processor
-
-  ```
-  - Note: the SRv6 SID streaming telemetry configuration on *`xrd07`*: [SRv6 SID mdt path](https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_1/config/xrd07.cfg#L23)
-
-#### Return to the ssh session on the Jalapeno VM
-
-1. Install Jalapeno GraphDB Processors with the 'deploy' shell script. The script will execute *kubectl apply -f < yaml filename > * commands which launch the specified pods per the yaml configurations
+    ```
+    SID                         Behavior          Context                    Owner              
+    ----------------------  --------------  -----------------------------  ------------
+    fc00:0:1111::           uN (PSP/USD)    'default':4369                 sidmgr     <-------- Collected via BMP
+    fc00:0:1111:e000::      uA (PSP/USD)    [Gi0/0/0/1, Link-Local]:0:P    isis-100    <---|   
+    fc00:0:1111:e001::      uA (PSP/USD)    [Gi0/0/0/1, Link-Local]:0      isis-100    <---|  These are not available via BMP
+    fc00:0:1111:e002::      uA (PSP/USD)    [Gi0/0/0/2, Link-Local]:0:P    isis-100    <---|  We collect and process
+    fc00:0:1111:e003::      uA (PSP/USD)    [Gi0/0/0/2, Link-Local]:0      isis-100    <---|  these SIDs via streaming
+    fc00:0:1111:e004::      uDT4            'carrots'                      bgp-65000   <---|  telemetry and the 
+    fc00:0:1111:e005::      uDT6            'carrots'                      bgp-65000   <---|  "srv6-localsids" processor
 
     ```
-    cd ~/SRv6_dCloud_Lab/lab_4/graphdb-processors
-
-    cat deploy-processors.sh
-   
-    ./deploy-processors.sh
-    ```
-    - Example output:
-    ```
-    cisco@jalapeno:~/SRv6_dCloud_Lab/lab_4/graphdb-processors$ ./deploy-processors.sh 
-    deployment.apps/linkstate-node-ext created
-    deployment.apps/linkstate-edge-v4 created
-    deployment.apps/linkstate-edge-v6 created
-    deployment.apps/ebgp-processor created
-    deployment.apps/ipv4-topology created
-    deployment.apps/ipv6-topology created
-    ```
-
-2. Validate the pods are up and running in the 'jalapeno' namespace. It may take a few seconds for all 6 to become active:
-    ```
-    kubectl get pods -n jalapeno
-    ```
-    #### Expected output:  
-    Look for the new pods running in the jalapeno namespace
-    ```
-    cisco@jalapeno:~/SRv6_dCloud_Lab/lab_4/graphdb-processors$ kubectl get pods -n jalapeno
-    NAME                                          READY   STATUS    RESTARTS       AGE
-    arangodb-0                                    1/1     Running   6 (15h ago)    326d
-    ebgp-processor-558948c6-6ltrp                 1/1     Running   0              38s        <------ eBGP proc
-    grafana-deployment-565756bd74-b5vpd           1/1     Running   6 (15h ago)    326d
-    influxdb-0                                    1/1     Running   6 (15h ago)    326d
-    ipv4-topology-85b8c6d5b4-z7cjd                1/1     Running   0              36s        <------ ipv4 topo
-    ipv6-topology-bd57bdf54-g858l                 1/1     Running   0              35s        <------ ipv6 topo
-    kafka-0                                       1/1     Running   8 (15h ago)    326d
-    linkstate-edge-v4-6585877c8c-vv2kz            1/1     Running   0              41s        <------ lsv4 topo
-    linkstate-edge-v6-77f87bf449-qnw85            1/1     Running   0              40s        <------ lsv6 topo
-    linkstate-node-ext-7bb97dcf89-gt7s4           1/1     Running   0              43s        <------ ls node extended
-    lslinknode-edge-b954577f9-bjnsh               1/1     Running   27 (15h ago)   326d
-    telegraf-egress-deployment-5795ffdd9c-277xn   1/1     Running   25 (15h ago)   326d
-    topology-678ddb8bb4-89c6d                     1/1     Running   26 (15h ago)   326d
-    zookeeper-0                                   1/1     Running   6 (15h ago)    326d
-    ```
-3. In ArangoDB you should see a number of new collections such as *`ls_node_extended`*, *`ls_topology_v4`*, *`ls_topology_v6`*, and *`srv6_local_sids`*.
-
-> [!NOTE]
-> *`srv6_local_sids`* may not populate with data for up to 2 minutes as it is reliant on streaming telemetry configuration of 120 seconds. 
+  > [!NOTE]
+  > The SRv6 SID streaming telemetry configuration on *`xrd07`*: [SRv6 SID mdt path](https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_1/config/xrd07.cfg#L23)
 
 ### End of Lab 4
 Please proceed to [Lab 5](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_5/lab_5-guide.md)
