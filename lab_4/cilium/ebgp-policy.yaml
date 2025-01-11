@@ -1,0 +1,59 @@
+apiVersion: "cilium.io/v2alpha1"
+kind: CiliumBGPPeeringPolicy
+metadata:
+  name: k8s-cp-node00
+spec:
+  nodeSelector:
+    matchLabels:
+      kubernetes.io/hostname: k8s-cp-node00
+  virtualRouters:
+  - localASN: 65014
+    exportPodCIDR: true
+    mapSRv6VRFs: true
+    srv6LocatorPoolSelector:
+      matchLabels:
+        export: "true"
+    neighbors:
+    - peerAddress: "10.14.1.1/32"
+      peerASN: 65010
+      families:
+       - afi: ipv4
+         safi: unicast
+    - peerAddress: "2001:db8:18:14::1/128"
+      peerASN: 65010
+      families:
+        - afi: ipv6
+          safi: unicast
+        - afi: ipv4
+          safi: mpls_vpn
+
+---
+
+apiVersion: "cilium.io/v2alpha1"
+kind: CiliumBGPPeeringPolicy
+metadata:
+  name: k8s-wkr-node01
+spec:
+  nodeSelector:
+    matchLabels:
+      kubernetes.io/hostname: k8s-wkr-node01
+  virtualRouters:
+  - localASN: 65015
+    exportPodCIDR: true
+    mapSRv6VRFs: true
+    srv6LocatorPoolSelector:
+      matchLabels:
+        export: "true"
+    neighbors:
+    - peerAddress: "10.15.1.1/32"
+      peerASN: 65010
+      families:
+       - afi: ipv4
+         safi: unicast
+    - peerAddress: "2001:db8:18:15::1/128"
+      peerASN: 65010
+      families:
+        - afi: ipv6
+          safi: unicast
+        - afi: ipv4
+          safi: mpls_vpn

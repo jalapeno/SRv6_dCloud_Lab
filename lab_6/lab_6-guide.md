@@ -7,9 +7,11 @@ The goals of the Jalapeno project are:
    
 2. Enable developers to quickly and easily build network control or SDN Apps that client applications may use achieve goal #1 
 
-We won't claim to be professional developers, but using Jalapeno and just a few hours of python coding we were able to build an SRv6 SDN App called **"jalapeno.py"**. Our App can program SRv6-TE routes/policies on Linux hosts/VMs and on [VPP](https://fd.io/). Its not a very sophisticated App, but it gives a sense of the power and possibilities when combining *SRv6 and host-based or cloud-native networking*. 
+We won't claim to be professional developers, but using Jalapeno and just a few hours of python coding we were able to build an SRv6 SDN App called **"jalapeno.py"**. Our App can program SRv6-TE routes/policies on Linux hosts/VMs and on [VPP](https://fd.io/). Hopefully soon we'll be able to do the same for Cilium!
 
-And if the two of us knuckleheads can cobble together a functional SDN App in a few hours, imagine what a group of real developers could do in a few short weeks!
+Its not a very sophisticated App, but it gives a sense of the power and possibilities when combining *SRv6 and host-based or cloud-native networking*. 
+
+And if the two of us knuckleheads can cobble together a functional SDN App in a couple of hours, imagine what a group of real developers could do in a few short weeks!
 
 Why host-based SRv6? 
 
@@ -19,10 +21,6 @@ Why host-based SRv6?
  
 We feel this ability to perform SRv6 operations at the host or other endpoint is a game changer which opens up enormous potential for innovation!
 
-Back to business. Lab 6 is divided into two parts. In part 1 you'll use *`jalapeno.py`* to program the Rome VM with SRv6 Linux kernel routes. In part 2 we'll program host-based SRv6 using VPP on the Amsterdam VM.
-
-In a future version of this lab we hope to program SRv6 routes/policies using a K8s CNI dataplane such as eBPF (example: [Cilium support for SRv6](https://cilium.io/industries/telcos-datacenters/)). 
-
 ## Contents
 - [Lab 6: Host-Based SR/SRv6 and building your own SDN App](#lab-6-host-based-srsrv6-and-building-your-own-sdn-app)
   - [Description](#description)
@@ -31,6 +29,7 @@ In a future version of this lab we hope to program SRv6 routes/policies using a 
 - [Rome VM: Segment Routing \& SRv6 on Linux](#rome-vm-segment-routing--srv6-on-linux)
   - [Preliminary steps for SR/SRv6 on Rome VM](#preliminary-steps-for-srsrv6-on-rome-vm)
   - [jalapeno.py:](#jalapenopy)
+    - [fix the writeup of this section](#fix-the-writeup-of-this-section)
 - [Rome Network Services](#rome-network-services)
   - [Get All Paths](#get-all-paths)
   - [Least Utilized Path](#least-utilized-path)
@@ -52,7 +51,7 @@ The student upon completion of Lab 6 should have achieved the following objectiv
 
 * Understanding of the SRv6 stack available in Linux
 * Understanding the use of VPP as a host-based SRv6 forwarding element 
-* How to query Jalapeno with Python for network topology and SRv6 data
+* How to query Jalapeno API with Python for network topology and SRv6 data
 * Using Python to craft specific SRv6 headers for traffic steering or other use cases
 * Using Python to to program SRv6 forwarding entries on a Linux host
 
@@ -105,7 +104,7 @@ Both the Rome and Amsterdam VM's are pre-loaded with the *`jalapeno.py`* App. Wh
  - Data Sovereignty Path
  - Get All Paths (informational only)
  
- When executed `jalapeno.py` passes its service request as a Shortest Path query to the graph database. The database performs a graph-traversal, as seen in lab 5, and responds with a dataset reflecting the shortest path per the parameters of the query. `jalapeno.py` receives the data and constructs a local SRv6 route/policy for any traffic it would send to the destination.
+ When executed `jalapeno.py` passes its service request as an API call to execute a Shortest Path query on the graph database. The database performs a graph-traversal, as seen in lab 5, and responds with a dataset reflecting the shortest path per the parameters of the query. `jalapeno.py` receives the data and constructs a local SRv6 route/policy for any traffic it would send to the destination.
 
 Currently `jalapeno.py` operates as a CLI tool, which expects to see a set of command line arguments specifying network service (-s), encapsulation (-e), and input a json file which contains source and destination info and a few other items.
 
@@ -145,7 +144,9 @@ For ease of use the currently supported network services are abbreviated:
 > [!NOTE]
 > The jalapeno.py supports both SRv6 and SR-MPLS, however, we don't have SR-MPLS configured in our lab so we'll only be using the *`-e srv6`* encapsulation option.
 
-*`jalapeno.py's`* network service modules are located in the lab_6 *`python/netservice/`* directory. When invoked `jalapeno.py` feeds the source and destination prefixes from the json file to the *`src_dst.py`* module, which queries the graphDB and returns the prefixes' database ID info. `jalapeno.py` then runs the selected network service module (gp, ll, lu, or ds). The network service module queries and calculates an SRv6 uSID or SR label stack, which will satisfy the network service request. The netservice module then calls the *`add_route.py`* module to create the local SR or SRv6 route or policy.
+#### fix the writeup of this section
+
+*`jalapeno.py's`* network service modules are located in the lab_6 *`python/netservice/`* directory. When invoked `jalapeno.py` feeds the source and destination prefixes from the json file to the *`src_dst.py`* module, which calls the API and returns the prefixes' database ID info. `jalapeno.py` then runs the selected network service module (gp, ll, lu, or ds). The network service module queries and calculates an SRv6 uSID or SR label stack, which will satisfy the network service request. The netservice module then calls the *`add_route.py`* module to create the local SR or SRv6 route or policy.
 
 ## Rome Network Services
 ### Get All Paths
@@ -188,32 +189,7 @@ The Get All Paths Service will query the DB for all paths up to 6-hops in length
     ```
     - We can expect to see a json file with source, destination, and path data which includes srv6 locators and sids
 
-    Like in Lab 5 we can also experiment with the script's graph traversal parameters to limit or expand the number of vertex 'hops' the query will search for. Note: ArangoDB considers the source and destination vertices as 'hops' when doing its graph traversal.
-
-2. Optional: change the 'gp' service's hopcount parameters. Open the netservice/gp.py file in a text editor (vi, vim, nano) and change parameters in line 9: 
-
-      https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_6/python/netservice/gp.py#L9
-
-    Change it to read:
-    ```
-    for v, e, p in 6..6 outbound
-    ```
-    Save gp.py and re-run the script. The *`6..6`* syntax indicates the traversal should ONLY consider paths 6 hops in length. Given our topology a re-run of the client *`python3 jalapeno.py -f rome.json -s gp -e srv6`* you should output only a single path option in the command line output and log.
-
-    Example:
-    ```
-    cisco@rome:~/SRv6_dCloud_Lab/lab_6/python$ python3 jalapeno.py -f rome.json -s gp -e srv6
-
-    Get All Paths Service
-    number of paths found:  1
-
-    path locator list:  ['fc00:0:7777::', 'fc00:0:4444::', 'fc00:0:3333::', 'fc00:0:2222::', 'fc00:0:1111::']
-    srv6 sid for this path:  fc00:0:7777:4444:3333:2222:1111::
-
-    All paths data from unicast_prefix_v4/20.0.0.0_24_10.0.0.7 to unicast_prefix_v4/10.101.2.0_24_10.0.0.1 logged to log/get_paths.json
-    ```
-
-3. Optional: try increasing the number of hops the graph may traverse:
+2. Optional: try increasing the number of hops the graph may traverse:
 
     ```
     for v, e, p in 1..8 outbound
@@ -272,7 +248,7 @@ sudo tcpdump -ni ens192
 ping 10.101.2.1 -I 20.0.0.1 -i .3
 ```
 > [!NOTE]
-> As of CLEU24 there is occasionally an issue where IPv6 neighbor instances timeout between Rome Linux and the XRd MACVLAN attachment on *`xrd07`*. So if your ping doesn't work try ssh'ing into *`xrd07`* and ping *`Rome`*. A successful ping should 'wake up' the IPv6 neighborship.
+> As of CLEU25 there is occasionally an issue where IPv6 neighbor instances timeout between Rome Linux and the XRd MACVLAN attachment on *`xrd07`*. So if your ping doesn't work try ssh'ing into *`xrd07`* and ping *`Rome`*. A successful ping should 'wake up' the IPv6 neighborship.
 
 On *`xrd07`*:  
 ```
@@ -310,13 +286,7 @@ listening on ens192, link-type EN10MB (Ethernet), capture size 262144 bytes
 *Note: feel free to just spot check 1 or 2 of these:
 
 ```
-cd ~/SRv6_dCloud_Lab/util/
-
-./tcpdump.sh xrd06-xrd07
-
-./tcpdump.sh xrd02-xrd06
-
-./tcpdump.sh xrd01-xrd02
+netns tcpdump 
 ```
 
  - Example output for the link between *`xrd06`* to *`xrd02`* is below. Note how *`xrd06`* has performed SRv6 micro-SID shift-and-forward on the destination address. Also note how the return traffic is taking SR-MPLS transport (currently). 

@@ -1,4 +1,4 @@
-# Lab 4: Jalapeno and BMP [20 Min]
+# Lab 5: Jalapeno and BMP [20 Min]
 
 ### Description
 In Lab 4 we will install the open-source Jalapeno data infrastructure platform. Jalapeno is designed to run on Kubernetes (K8s), which allows for easy integration into existing environments and supports deployment on bare metal, VMs, or in a public cloud. Kubernetes experience is not required for this lab as K8s has been preinstalled on the Jalapeno VM and we have included the required *kubectl* validation commands. 
@@ -6,7 +6,7 @@ In Lab 4 we will install the open-source Jalapeno data infrastructure platform. 
 Prior to deploying Jalapeno we will configure BGP Monitoring Protocol (BMP) on our route reflectors. 
 
 ## Contents
-- [Lab 4: Jalapeno and BMP \[20 Min\]](#lab-4-jalapeno-and-bmp-20-min)
+- [Lab 5: Jalapeno and BMP \[20 Min\]](#lab-5-jalapeno-and-bmp-20-min)
     - [Description](#description)
   - [Contents](#contents)
   - [Lab Objectives](#lab-objectives)
@@ -58,54 +58,49 @@ The Jalapeno package is preinstalled and running on the **Jalapeno** VM
     Output should look something like:  
 
     ```
-    NAMESPACE             NAME                                           READY   STATUS    RESTARTS        AGE
-    jalapeno-collectors   gobmp-5db68bd644-8kbmw                         1/1     Running   1 (50s ago)     84s
-    jalapeno-collectors   telegraf-ingress-deployment-5b456574dc-242f9   1/1     Running   0               84s
-    jalapeno              arangodb-0                                     1/1     Running   0               92s
-    jalapeno              grafana-deployment-565756bd74-nmp6g            1/1     Running   0               91s
-    jalapeno              igp-graph-5f7fcd6f88-4tjjq                     1/1     Running   2 (52s ago)     78s
-    jalapeno              influxdb-0                                     1/1     Running   0               92s
-    jalapeno              ipv4-graph-7ccc46bc57-zld2p                    1/1     Running   2 (51s ago)     77s
-    jalapeno              ipv6-graph-56db757fc9-v7tkm                    1/1     Running   2 (52s ago)     76s
-    jalapeno              jalapeno-api-5d8469557-w4dcm                   1/1     Running   0               91s
-    jalapeno              jalapeno-ui-54f8f95c5d-9vns7                   1/1     Running   0               90s
-    jalapeno              kafka-0                                        1/1     Running   0               92s
-    jalapeno              lslinknode-edge-b954577f9-jmkn4                1/1     Running   3 (56s ago)     78s
-    jalapeno              srv6-localsids-78c644bc76-bplp9                1/1     Running   0               77s
-    jalapeno              telegraf-egress-deployment-5795ffdd9c-8lpd4    1/1     Running   0               78s
-    jalapeno              topology-678ddb8bb4-4kmq8                      1/1     Running   1 (46s ago)     79s
-    jalapeno              zookeeper-0                                    1/1     Running   0               93s
-    kube-system           cilium-k8fht                                   1/1     Running   3 (168m ago)    362d
-    kube-system           cilium-operator-6f5db4f885-nmpwb               1/1     Running   3 (168m ago)    362d
-    kube-system           coredns-565d847f94-nmt4n                       1/1     Running   0               167m
-    kube-system           coredns-565d847f94-sg8fl                       1/1     Running   3 (168m ago)    362d
-    kube-system           etcd-jalapeno                                  1/1     Running   19 (168m ago)   362d
-    kube-system           kube-apiserver-jalapeno                        1/1     Running   3 (168m ago)    362d
-    kube-system           kube-controller-manager-jalapeno               1/1     Running   3 (168m ago)    362d
-    kube-system           kube-proxy-g8nbn                               1/1     Running   3 (168m ago)    362d
-    kube-system           kube-scheduler-jalapeno                        1/1     Running   3 (168m ago)    362d
+    cisco@jalapeno:~/jalapeno/install$ kubectl get pods -A
+    NAMESPACE     NAME                                           READY   STATUS    RESTARTS         AGE
+    jalapeno      arangodb-0                                     1/1     Running   0                86s
+    jalapeno      gobmp-5db68bd644-dgg7w                         1/1     Running   1 (44s ago)      78s
+    jalapeno      grafana-deployment-565756bd74-d26pj            1/1     Running   0                86s
+    jalapeno      influxdb-0                                     1/1     Running   0                86s
+    jalapeno      jalapeno-api-5d8469557-gpz8j                   1/1     Running   0                85s
+    jalapeno      jalapeno-ui-54f8f95c5d-pn79v                   1/1     Running   0                84s
+    jalapeno      kafka-0                                        1/1     Running   0                87s
+    jalapeno      lslinknode-edge-b954577f9-w46gf                1/1     Running   3 (53s ago)      72s
+    jalapeno      telegraf-egress-deployment-5795ffdd9c-7xjj4    1/1     Running   0                73s
+    jalapeno      telegraf-ingress-deployment-5b456574dc-vlnvq   1/1     Running   0                79s
+    jalapeno      topology-678ddb8bb4-klzmt                      1/1     Running   1 (41s ago)      73s
+    jalapeno      zookeeper-0                                    1/1     Running   0                87s
+    kube-system   cilium-k8fht                                   1/1     Running   3 (4h41m ago)    363d
+    kube-system   cilium-operator-6f5db4f885-nmpwb               1/1     Running   3 (4h41m ago)    363d
+    kube-system   coredns-565d847f94-nmt4n                       1/1     Running   0                4h40m
+    kube-system   coredns-565d847f94-sg8fl                       1/1     Running   3 (4h41m ago)    363d
+    kube-system   etcd-jalapeno                                  1/1     Running   19 (4h41m ago)   363d
+    kube-system   kube-apiserver-jalapeno                        1/1     Running   3 (4h41m ago)    363d
+    kube-system   kube-controller-manager-jalapeno               1/1     Running   3 (4h41m ago)    363d
+    kube-system   kube-proxy-g8nbn                               1/1     Running   3 (4h41m ago)    363d
+    kube-system   kube-scheduler-jalapeno                        1/1     Running   3 (4h41m ago)    363d
     ```
 
 2. Display only the pods in the jalapeno namespace:
     ```
     kubectl get pods -n jalapeno
     ```
-    Expected output:
+    Output will look something like:
     ```
     cisco@jalapeno:~$ kubectl get pods -n jalapeno
     NAME                                          READY   STATUS    RESTARTS      AGE
     arangodb-0                                    1/1     Running   0             39m  <-------- Arango GraphDB
+    gobmp-5db68bd644-p8r24                        1/1     Running   1 (90s ago)   38m  <-------- GoBMP Collector
     grafana-deployment-565756bd74-nmp6g           1/1     Running   0             39m  <-------- Grafana
-    igp-graph-5f7fcd6f88-4tjjq                    1/1     Running   2 (38m ago)   39m  <-------- IGP Topology Processor
     influxdb-0                                    1/1     Running   0             39m  <-------- Influx Time-Series DB
-    ipv4-graph-7ccc46bc57-zld2p                   1/1     Running   2 (38m ago)   38m  <-------- IPv4 Topology Processor
-    ipv6-graph-56db757fc9-v7tkm                   1/1     Running   2 (38m ago)   38m  <-------- IPv6 Topology Processor
     jalapeno-api-5d8469557-w4dcm                  1/1     Running   0             39m  <-------- Jalapeno REST API
     jalapeno-ui-54f8f95c5d-9vns7                  1/1     Running   0             39m  <-------- Jalapeno UI
     kafka-0                                       1/1     Running   0             39m  <-------- Kafka
     lslinknode-edge-b954577f9-jmkn4               1/1     Running   3 (38m ago)   39m  <-------- LS Link & Node Processor
-    srv6-localsids-78c644bc76-bplp9               1/1     Running   0             39m  <-------- SRv6 Localsids Processor
-    telegraf-egress-deployment-5795ffdd9c-8lpd4   1/1     Running   0             39m  <-------- Telegraf Egress Collector  
+    telegraf-egress-deployment-5795ffdd9c-8lpd4   1/1     Running   0             39m  <-------- Telegraf Egress Processor
+    telegraf-ingress-deployment-5b456574dc-cxt9v  1/1     Running   0             38m  <-------- Telegraf Ingress Collector
     topology-678ddb8bb4-4kmq8                     1/1     Running   1 (38m ago)   39m  <-------- BMP Topology Processor
     zookeeper-0                                   1/1     Running   0             39m  <-------- Zookeeper
     ```
@@ -250,7 +245,7 @@ In lab 1 we configured an SRv6 locator for the BGP global/default table. When we
     ``` 
 
   
-  - The *`kubectl get pods -n jalapeno`* command will show you all the k8s containers that make up the Jalapeno application, including the *`srv6-localsids`* processor. This processor harvests SRv6 SID data from a Kafka streaming telemetry topic and populates it in the *`sr_local_sids`* collection. This data is not available via BMP and is needed to construct full End.DT SIDs that we'll use in lab 6. 
+  - As we saw earlier in the lab, the *`kubectl get pods -n jalapeno`* command will show you all the k8s containers that make up the Jalapeno application, including the *`srv6-localsids`* processor. This processor harvests SRv6 SID data from a Kafka streaming telemetry topic and populates it in the *`sr_local_sids`* collection. This data is not available via BMP and is needed to construct full End.DT SIDs that we'll use in lab 6. 
   
     Example:
 
@@ -267,7 +262,7 @@ In lab 1 we configured an SRv6 locator for the BGP global/default table. When we
 
     ```
   > [!NOTE]
-  > The SRv6 SID streaming telemetry configuration on *`xrd07`*: [SRv6 SID mdt path](https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_1/config/xrd07.cfg#L23)
+  > The SRv6 SID streaming telemetry configuration for capturing *`xrd07's`* srv6 sid data can be seen here: [SRv6 SID mdt path](https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_1/config/xrd07.cfg#L23)
 
 ### End of Lab 4
 Please proceed to [Lab 5](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_5/lab_5-guide.md)
