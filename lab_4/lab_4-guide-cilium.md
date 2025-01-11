@@ -28,47 +28,12 @@ The original lab was developed in partnership with Arkadiusz Kaliwoda, Cisco SE 
 
 Kubernetes and Cilium Enterprise are pre-installed on the Rome VM.
 
+1. CD into the lab_4/cilium directory and check out the contents
 ```
-cd ~/cilium-srv6/cilium/
+cd ~/SRv6_dCloud_lab/lab_4/cilium/
 ```
 
-1. Install Cilium Enterprise via this Helm chart: [cilium-helm-enterprise.yaml](cilium/helm-cilium-enterprise.yaml)
-```
-helm install cilium isovalent/cilium --version 1.15.6  --namespace kube-system -f helm-cilium-enterprise.yaml 
-```
-  Note: some key lines in the yaml where we specify SRv6 attributes under *enterprise*. We're also enabling Cilium BGP from the outset:
-
-  ```
-  ipv6:
-    enabled: true
-  enterprise:
-    srv6:
-      enabled: true
-      encapMode: reduced
-      locatorPoolEnabled: true
-  bgpControlPlane:
-    enabled: true
-  ```
-
-  The install command output should look something like:
-
-  ```
-  cisco@k8s-cp-node00:~/cilium-srv6/cilium$ helm install cilium isovalent/cilium --version 1.15.6  --namespace kube-system -f helm-cilium-enterprise.yaml 
-  NAME: cilium
-  LAST DEPLOYED: Sun Aug 18 12:06:50 2024
-  NAMESPACE: kube-system
-  STATUS: deployed
-  REVISION: 1
-  TEST SUITE: None
-  NOTES:
-  You have successfully installed Cilium.
-
-  Your release version is 1.15.6.
-
-  For any further help, visit https://docs.cilium.io/en/v1.15/gettinghelp
-  ```
-
-5. Run a couple commands to verify the Cilium Installation
+2. Run a couple commands to verify the Cilium Installation
 
   Display Cilium daemonset status:
   ```
@@ -77,25 +42,11 @@ helm install cilium isovalent/cilium --version 1.15.6  --namespace kube-system -
 
   The output should show 2 cilium daemonsets (ds) available, example:
   ```
-  cisco@k8s-cp-node00:~/cilium-srv6/cilium$ kubectl get ds -n kube-system cilium
+  cisco@rome:~/cilium-srv6/cilium$ kubectl get ds -n kube-system cilium
   NAME     DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR            AGE
   cilium   2         2         2       2            2           kubernetes.io/os=linux   62s
   ```
 
-  Note: if the previous output shows '0' under AVAILABLE give it a couple minutes and try again. If its still showing '0' the K8s cluster may need to be reset (rare)
-
-  Helm get values (sort of a 'show run' for the Helm/Cilium install)
-  ```
-  helm get values cilium -n kube-system
-  ```
-
-6. The default behavior for Kubernetes is to not run application pods or containers on the control plane node. This is loosely analogous to networks where route reflectors are usually not deployed inline and carrying transport traffic. However, we're running a small cluster in the lab and we want the ability to deploy pods on the control plane node, so in kube-speak we need to "untaint" it. To untaint the control plane node we run the "kubectl taint nodes ... " command with a "-" sign at the end:
-
-  ```
-  kubectl taint nodes --all node-role.kubernetes.io/control-plane-
-  ```
-
-  If the command output returns "taint "node-role.kubernetes.io/control-plane" not found" then the node is already untainted
 
 ##  Setup Cilium BGP Peering
 First a brief explanation of *`Kubernetes Custom Resource Definitions (CRDs)`*. 
@@ -110,33 +61,33 @@ A CRD applied to a single element in the K8s cluster would be analogous configur
 
 CRDs come in YAML file format and in the next several sections of this lab we'll apply CRDs to the K8s cluster to setup Cilium BGP peering, establish Cilium SRv6 locator ranges, create VRFs, etc.
 
-The initial version of this guide assumes eBGP peering between k8s nodes and *`xrd14`* & *`xrd15`*. For reference an example iBGP CRD/YAML file can be found in the cilium-srv6/cilium directory.
+For the sake of simplicity in this lab we'll use iBGP peering between our Rome K8s node and our route reflectors xrd05 and xrd06. 
 
-Here is a partial Cilium eBGP CRD (aka eBGP configuration) with notes:
+Here is a partial Cilium iBGP CRD (aka iBGP configuration) with notes:
 ```
 apiVersion: "cilium.io/v2alpha1"
 kind: CiliumBGPPeeringPolicy
 metadata:
-  name: k8s-wkr-node01
+  name: rome
 spec:
   nodeSelector:
     matchLabels:
-      kubernetes.io/hostname: k8s-wkr-node01    <--- node to which this portion of config belongs
+      kubernetes.io/hostname: rome    <--- node to which this portion of config belongs
   virtualRouters:
-  - localASN: 65015                 <--- worker node's BGP ASN
+  - localASN: 65000                 <--- Rome's BGP ASN
     exportPodCIDR: true             <--- advertise local PodCIDR prefix
     mapSRv6VRFs: true               <--- SRv6 L3VPN
     srv6LocatorPoolSelector:        
       matchLabels:
         export: "true"              <--- advertise Locator prefix into BGP IPv6 underlay
     neighbors:
-    - peerAddress: "10.15.1.1/32"   <--- ipv4 peer address for xrd15
-      peerASN: 65010
+    - peerAddress: "10.0.0.5/32"   <--- ipv4 peer address for xrd05
+      peerASN: 65000
       families:                     <--- address families for this BGP session
        - afi: ipv4
          safi: unicast
-    - peerAddress: "2001:db8:18:15::1/128"   <--- ipv6 peer address for xrd15
-      peerASN: 65010
+    - peerAddress: "fc00:0:5555::1/128"   <--- ipv6 peer address for xrd05
+      peerASN: 65000
       families:
         - afi: ipv6               <--- address families for this BGP session
           safi: unicast
@@ -145,33 +96,29 @@ spec:
           
 ```
 
-You may review the entire Cilium eBGP policy yaml here: [Cilium BGP](cilium/ebgp-policy.yaml). Note the ebgp-policy.yaml file has BGP configuration/peering parameters for both the control plane node and worker node.
+You may review the entire Cilium iBGP policy yaml here: [Cilium BGP](cilium/ibgp-policy.yaml). 
 
-1. Apply the Cilium eBGP policy - On the k8s control plane vm cd into the cilium directory and apply the Cilium BGP CRD
+1. Apply the Cilium iBGP policy - On the k8s control plane vm cd into the cilium directory and apply the Cilium BGP CRD
 ```
 cd ~/cilium-srv6/cilium/
-kubectl apply -f ebgp-policy.yaml
+kubectl apply -f ibgp-policy.yaml
 ```
 
-  Note: the upstream XRd peers (xrd14 and xrd15) have already been configured per the Containerlab topology definitions, example: 
+### configure xrd05 and xrd06, and make sure xrd07 has the vpnv4 pass prefixes knob set
 
-  [xrd14.cfg](containerlab-xrd/xrd-config/xrd14.cfg)
-
-2. From the control plane node verify Cilium BGP peering with the following cilium CLI:
+1. On Rome verify Cilium BGP peering with the following cilium CLI:
 ```
 cilium bgp peers
 ```
 
   We expect to see v4 and v6 sessions active and advertisement and receipt of a number of BGP NLRIs for ipv4, ipv6, and ipv4/mpls_vpn (aka, SRv6 L3VPN). Example:
   ```
-  cisco@k8s-cp-node00:~/cilium-srv6/cilium$ cilium bgp peers
+  cisco@rome:~/cilium-srv6/cilium$ cilium bgp peers
   Node             Local AS   Peer AS   Peer Address        Session State   Uptime   Family          Received   Advertised
-  k8s-cp-node00    65014      65010     10.14.1.1           established     2m36s    ipv4/unicast    20         1    
+  rome    65014      65010     10.14.1.1           established     2m36s    ipv4/unicast    20         1    
                   65014      65010     2001:db8:18:14::1   established     2m36s    ipv6/unicast    32         1    
                                                                                     ipv4/mpls_vpn   6          0    
-  k8s-wkr-node01   65015      65010     10.15.1.1           established     2m35s    ipv4/unicast    20         1    
-                  65015      65010     2001:db8:18:15::1   established     2m35s    ipv6/unicast    32         1    
-                                                                                    ipv4/mpls_vpn   6          0    
+  
   ```
 
 ## Cilium SRv6 Sidmanager and Locators
@@ -195,14 +142,14 @@ kubectl get sidmanager -o custom-columns="NAME:.metadata.name,ALLOCATIONS:.spec.
 ```
 
   The example output below shows Cilium having allocated locator prefixes as follows:
-  #### k8s-cp-node00: fc00:0:15b::/48
-  #### k8s-wkr-node01: fc00:0:134::/48
+  #### rome: fc00:0:15b::/48
+
 
   We'll want to keep track of the allocated locator prefixes as we'll need to redistribute them from BGP into ISIS later in the lab.
 
   Example output:
   ```
-  cisco@k8s-cp-node00:~$ kubectl get sidmanager -o yaml
+  cisco@rome:~$ kubectl get sidmanager -o yaml
   apiVersion: v1
   items:
   - apiVersion: isovalent.com/v1alpha1
@@ -210,7 +157,7 @@ kubectl get sidmanager -o custom-columns="NAME:.metadata.name,ALLOCATIONS:.spec.
     metadata:
       creationTimestamp: "2024-08-18T19:12:50Z"
       generation: 1
-      name: k8s-cp-node00
+      name: rome
       resourceVersion: "2593"
       uid: 4220c57d-478d-4764-92c9-d050e4a53a9a
     spec:
@@ -226,54 +173,31 @@ kubectl get sidmanager -o custom-columns="NAME:.metadata.name,ALLOCATIONS:.spec.
         poolRef: pool0                   <---- locator pool name/id 
     status:
       sidAllocations: []  <---- no SIDs yet, we'll see SIDs allocated when we create VRFs in the next step
-  - apiVersion: isovalent.com/v1alpha1
-    kind: IsovalentSRv6SIDManager
-    metadata:
-      creationTimestamp: "2024-08-18T19:12:50Z"
-      generation: 1
-      name: k8s-wkr-node01
-      resourceVersion: "2594"
-      uid: bb01d730-2e9a-44e7-9b17-90f2df7ae553
-    spec:
-      locatorAllocations:
-      - locators:
-        - behaviorType: uSID
-          prefix: fc00:0:134::/48        <---------- Locator for the worker node
-          structure:
-            argumentLenBits: 0
-            functionLenBits: 16
-            locatorBlockLenBits: 32
-            locatorNodeLenBits: 16
-        poolRef: pool0
-    status:
-      sidAllocations: []
-  kind: List
-  metadata:
-    resourceVersion: ""
+
 
   ```
 
 ## Establish Cilium VRFs
-1. Add vrf(s) - this example also adds a couple alpine linux container pods to vrf blue:
-   [vrf-blue.yaml](cilium/vrf-blue.yaml)
+1. Add vrf(s) - this example also adds a couple alpine linux container pods to vrf carrots:
+   [vrf-carrots.yaml](cilium/vrf-carrots.yaml)
 ```
-kubectl apply -f vrf-blue.yaml
+kubectl apply -f vrf-carrots.yaml
 ```
 
 2. Verify VRF and sid allocation on the control plane node:
 ```
-kubectl get sidmanager k8s-cp-node00 -o yaml
+kubectl get sidmanager rome -o yaml
 ```
 
   Example output from sidmanager:
   ```
-  cisco@k8s-cp-node00:~/cilium-srv6/cilium/cilium$ kubectl get sidmanager k8s-cp-node00 -o yaml
+  cisco@rome:~/cilium-srv6/cilium/cilium$ kubectl get sidmanager rome -o yaml
   apiVersion: isovalent.com/v1alpha1
   kind: IsovalentSRv6SIDManager
   metadata:
     creationTimestamp: "2024-08-18T19:12:50Z"
     generation: 1
-    name: k8s-cp-node00
+    name: rome
     resourceVersion: "27756"
     uid: 4220c57d-478d-4764-92c9-d050e4a53a9a
   spec:
@@ -293,10 +217,10 @@ kubectl get sidmanager k8s-cp-node00 -o yaml
       sids:
       - behavior: uDT4      <----------- uSID L3VPN IPv4 table lookup
         behaviorType: uSID
-        metadata: blue
+        metadata: carrots
         owner: srv6-manager
         sid:
-          addr: 'fc00:0:15b:e46b::'  <---- uSID locator+function entry for control plane node VRF blue
+          addr: 'fc00:0:15b:e46b::'  <---- uSID locator+function entry for control plane node VRF carrots
           structure:
             argumentLenBits: 0
             functionLenBits: 16
@@ -304,45 +228,40 @@ kubectl get sidmanager k8s-cp-node00 -o yaml
             locatorNodeLenBits: 16
   ```
 
-3. optional: verify sidmanager status for the k8s worker node (this command should still be run on `k8s-cp-node00`):
-```
-kubectl get sidmanager k8s-wkr-node01 -o yaml
-```
-
-4. optional: create vrf-red:
+1. optional: create vrf-red:
 ```
 kubectl apply -f vrf-red.yaml
 ```
 
-5.  Run some kubectl commands to verify pod status, etc.
+1.  Run some kubectl commands to verify pod status, etc.
 ```
 kubectl get pods -A
 ```
 
   ```
-  kubectl describe pod -n blue bluepod0
+  kubectl describe pod -n carrots carrotspod0
   ```
-  The kubectl get pods -A command should show a pair of bluepods up and running.
+  The kubectl get pods -A command should show a pair of carrots pods up and running.
 
   Example:
   ```
-  kubectl get pod -n blue bluepod0 -o=jsonpath="{.status.podIPs}"
+  kubectl get pod -n carrots carrotspod0 -o=jsonpath="{.status.podIPs}"
   ```
   example output:
   ```
   [{"ip":"10.142.1.25"},{"ip":"2001:db8:142:1::f0cb"}]
   ```
 
-6. Exec into one of the bluepod containers and ping the Cilium CNI gateway:
+6. Exec into one of the carrotspod containers and ping the Cilium CNI gateway:
 ```
-kubectl exec -it -n blue bluepod0 -- sh
+kubectl exec -it -n carrots carrotspod0 -- sh
 ip route
 ping <the "default via" address in ip route output>
 ```
 
   Output should look something like:
   ```
-  cisco@k8s-cp-node00:~/cilium-srv6/cilium$ kubectl exec -it -n blue bluepod0 -- sh
+  cisco@rome:~/cilium-srv6/cilium$ kubectl exec -it -n carrots carrotspod0 -- sh
   ip route/ # ip route
   default via 10.200.1.14 dev eth0 
   10.200.1.14 dev eth0 scope link 
@@ -365,8 +284,7 @@ exit
 
 1. Per the previous set of steps, once allocated SIDs appear, we need to annotate the node. This will tell Cilium to program eBPF egress policies: 
 ```
-kubectl annotate --overwrite nodes k8s-cp-node00 cilium.io/bgp-virtual-router.65014="router-id=10.14.1.2,srv6-responder=true"
-kubectl annotate --overwrite nodes k8s-wkr-node01 cilium.io/bgp-virtual-router.65015="router-id=10.15.1.2,srv6-responder=true"
+kubectl annotate --overwrite nodes rome cilium.io/bgp-virtual-router.65014="router-id=10.14.1.2,srv6-responder=true"
 ```
 
 2. Verify SRv6 Egress Policies:
@@ -376,7 +294,7 @@ kubectl get IsovalentSRv6EgressPolicy -o yaml
 
   Example of partial output:
   ```
-  cisco@k8s-cp-node00:~/cilium-srv6/cilium$ kubectl get IsovalentSRv6EgressPolicy -o yaml
+  cisco@rome:~/cilium-srv6/cilium$ kubectl get IsovalentSRv6EgressPolicy -o yaml
   apiVersion: v1
   items:
   - apiVersion: isovalent.com/v1alpha1
@@ -403,7 +321,7 @@ kubectl get IsovalentSRv6EgressPolicy -o yaml
       uid: badc91bf-7624-42cb-bcc1-99fa1ec187cb
     spec:
       destinationCIDRs:
-      - 10.10.1.0/24                       <---- destination prefix in VRF blue (vrfID 1000012)
+      - 10.10.1.0/24                       <---- destination prefix in VRF carrots (vrfID 1000012)
       destinationSID: 'fc00:0:10:e004::'   <---- prefix is reachable via xrd10. Cilium/eBPF will encapsulate using this SID
       vrfID: 1000012
   kind: List
@@ -492,21 +410,21 @@ show isis ipv6 route
 
   Note: per the topology diagrams above *`xrd01`* and *`xrd02`* are members of the simulated Core/WAN network. The WAN is running a separate ISIS instance and BGP ASN from the small DC hosting our K8s VMs. In this network we have the ability to extend our K8s/Cilium SRv6 L3VPNs beyond the DC/WAN domain boundary to remote PE nodes in simulation of a multi-domain service provider or large Enterprise. Most of the XRd nodes already have their SRv6 L3VPN / BGP configs in place, however, the appendix section of this lab includes steps to configure a VRF and connected loopback interface on *`xrd08`* and join it to one of the Cilium L3VPN instances.
 
-5. Verify VRF Blue is preconfigured on *`xrd10`* in the local ISIS DC domain, and *`xrd02`* which is in the external WAN domain
+5. Verify VRF carrots is preconfigured on *`xrd10`* in the local ISIS DC domain, and *`xrd02`* which is in the external WAN domain
 
   Example on *`xrd10`* (these steps can be repeated on *`xrd02`* while specifying bgp 65000)
   ```
   ssh cisco@clab-cilium-srv6-xrd10
 
   show run interface Loopback12  
-  show run router bgp 65010 vrf blue
+  show run router bgp 65010 vrf carrots
   ```
 
-  In the bgp vrf blue output we should see *`redistribute connected`*, which means the router is advertising its loopback12 prefix into the SRv6 L3VPN VRF.
+  In the bgp vrf carrots output we should see *`redistribute connected`*, which means the router is advertising its loopback12 prefix into the SRv6 L3VPN VRF.
 
-6. ssh into the *`k8s-cp-node00`* and then exec into a bluepod container. Ping *`xrd10's`* vrf-blue interface, then ping *`xrd02's`* vrf-blue interface:
+6. ssh into the *`rome`* and then exec into a carrotspod container. Ping *`xrd10's`* vrf-carrots interface, then ping *`xrd02's`* vrf-carrots interface:
 ```
-kubectl exec -it bluepod0 -n blue -- sh
+kubectl exec -it carrotspod0 -n carrots -- sh
 ping 10.10.1.1 -i .3 -c 4
 ping 10.12.0.1 -i .3 -c 4
 ```
@@ -539,7 +457,7 @@ ping 10.12.0.1 -i .3 -c 4
 ### You have completed the Cilium-SRv6 lab, huzzah!
 
 ## Appendix 1: other Useful Commands
-The following commands can all be run from the k8s-cp-node00:
+The following commands can all be run from the rome:
 
 1. Self explanatory Cilium BGP commands:
 ```
@@ -568,7 +486,7 @@ cilium bgp routes available ipv6 unicast
 
   Get Cilium eBPF info for SID, VRF, and SRv6 Policy - note: first run kubectl get pods to get the cilium agent pod names:
   ```
-  cisco@k8s-cp-node00:~$ kubectl get pods -n kube-system
+  cisco@rome:~$ kubectl get pods -n kube-system
   NAME                                    READY   STATUS    RESTARTS      AGE
   cilium-97pz8                            1/1     Running   0             20m
   cilium-kxdcd                            1/1     Running   0             20m
@@ -586,15 +504,15 @@ cilium bgp routes available ipv6 unicast
 
   Example output:
   ```
-  cisco@k8s-cp-node00:~$ kubectl exec -n kube-system cilium-97pz8 -- cilium-dbg bpf srv6 sid
+  cisco@rome:~$ kubectl exec -n kube-system cilium-97pz8 -- cilium-dbg bpf srv6 sid
   Defaulted container "cilium-agent" out of: cilium-agent, config (init), mount-cgroup (init), apply-sysctl-overwrites (init), mount-bpf-fs (init), wait-for-node-init (init), clean-cilium-state (init), install-cni-binaries (init)
   SID                VRF ID
   fc00:0:12d:2f3::   1000012
-  cisco@k8s-cp-node00:~$ kubectl exec -n kube-system cilium-kxdcd -- cilium-dbg bpf srv6 sid
+  cisco@rome:~$ kubectl exec -n kube-system cilium-kxdcd -- cilium-dbg bpf srv6 sid
   Defaulted container "cilium-agent" out of: cilium-agent, config (init), mount-cgroup (init), apply-sysctl-overwrites (init), mount-bpf-fs (init), wait-for-node-init (init), clean-cilium-state (init), install-cni-binaries (init)
   SID                 VRF ID
   fc00:0:12c:8d1d::   1000012
-  cisco@k8s-cp-node00:~$ 
+  cisco@rome:~$ 
   ```
 
   Get Cilium global config:
@@ -611,7 +529,7 @@ helm uninstall cilium -n kube-system
 
 2.  helm list
 ```
-cisco@k8s-cp-node00:~/cilium$ helm list -n kube-system
+cisco@rome:~/cilium$ helm list -n kube-system
 NAME  	NAMESPACE  	REVISION	UPDATED                              	STATUS  	CHART        	APP VERSION
 cilium	kube-system	1       	2024-08-13 21:30:50.1523314 -0700 PDT	deployed	cilium-1.15.6	1.15.6    
 ```
@@ -620,9 +538,9 @@ cilium	kube-system	1       	2024-08-13 21:30:50.1523314 -0700 PDT	deployed	ciliu
 May cause Cilium's eBPF SRv6 programming to fail (the features are currently beta)
 
 ```
-cisco@k8s-cp-node00:~/cilium$ kubectl apply -f loc-pool-test.yaml 
+cisco@rome:~/cilium$ kubectl apply -f loc-pool-test.yaml 
 isovalentsrv6locatorpool.isovalent.com/pool0 created
-cisco@k8s-cp-node00:~/cilium$ kubectl get IsovalentSRv6EgressPolicy -o yaml
+cisco@rome:~/cilium$ kubectl get IsovalentSRv6EgressPolicy -o yaml
 apiVersion: v1
 items: []
 kind: List
@@ -650,7 +568,7 @@ router static
 
 Note: if the ToR/DC domain has an eBGP relationship with other outside domains (WAN, etc.) BGP IPv6 unicast will advertise the /64 locator networks out, but the /128 won't appear in DC BGP without some other redistribution (static /128 into DC BGP?). 
 
-## Appendix 3: configure VRF blue on xrd08
+## Appendix 3: configure VRF carrots on xrd08
 Note: as of August 30, 2024 this section is under construction
 
 1. From *`topology-host`* ssh to *`xrd08`*
@@ -662,7 +580,7 @@ ssh cisco@clab-cilium-srv6-xrd08
   ```
   conf t
 
-  vrf blue
+  vrf carrots
   address-family ipv4 unicast
     import route-target
     12:12
@@ -681,11 +599,11 @@ ssh cisco@clab-cilium-srv6-xrd08
   !
   !
   interface Loopback12
-  vrf blue
+  vrf carrots
   ipv4 address 10.12.8.1 255.255.255.0
   !
   router bgp 65000
-  vrf blue
+  vrf carrots
     rd auto
     address-family ipv4 unicast
     segment-routing srv6

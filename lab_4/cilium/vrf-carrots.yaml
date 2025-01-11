@@ -1,26 +1,26 @@
 kind: Namespace
 apiVersion: v1
 metadata:
-  name: blue
+  name: carrots
   labels:
-    name: blue
+    name: carrots
 
 ---
 
 apiVersion: isovalent.com/v1alpha1
 kind: IsovalentVRF
 metadata:
-  name: blue
+  name: carrots
 spec:
-  vrfID: 1000012
-  importRouteTarget: "12:12"
-  exportRouteTarget: "12:12"
+  vrfID: 1000107
+  importRouteTarget: "9:9"
+  exportRouteTarget: "9:9"
   locatorPoolRef: pool0
   rules:
   - selectors:
     - endpointSelector:
         matchLabels:
-          vrf: blue
+          vrf: carrots
     destinationCIDRs:
     - 0.0.0.0/0
 
@@ -29,10 +29,10 @@ spec:
 apiVersion: v1
 kind: Pod
 metadata:
-  namespace: blue
+  namespace: carrots
   labels:
     app: alpine-ping
-    vrf: blue
+    vrf: carrots
   name: bluepod0
 spec:
   containers:
@@ -49,10 +49,10 @@ spec:
 apiVersion: v1
 kind: Pod
 metadata:
-  namespace: blue
+  namespace: carrots
   labels:
     app: alpine-ping
-    vrf: blue
+    vrf: carrots
   name: bluepod1
 spec:
   containers:
