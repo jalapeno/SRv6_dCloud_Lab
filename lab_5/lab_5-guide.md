@@ -1,7 +1,7 @@
 ## Lab 5: Exploring Project Jalapeno [30 Min]
 
 ### Description
-In Lab 5 we will explore the open-source Jalapeno data infrastructure platform. Jalapeno is designed to run on Kubernetes (K8s), which allows for easy integration into existing environments and supports deployment on bare metal, VMs, or in a public cloud. Kubernetes experience is not required for this lab as K8s has been preinstalled on the Jalapeno VM and we have included the required *kubectl* validation commands. 
+In Lab 5 we will explore the open-source Jalapeno data infrastructure platform. Jalapeno is designed to run on Kubernetes (K8s), which allows for easy integration into existing environments and supports deployment on bare metal, VMs, or in a public cloud. Kubernetes experience is not required for this lab as K8s has been preinstalled on the Jalapeno VM and we have included the required *kubectl* validation commands. We've also included a brief guide to installing Kubernetes on your own host or VM: [K8s Install Instructions](lab_5/k8s-install-instructions.md).
 
 Prior to exploring Jalapeno we will configure BGP Monitoring Protocol (BMP) on our route reflectors. 
 
