@@ -33,7 +33,7 @@
     <emulator>/usr/bin/qemu-system-x86_64</emulator>
     <disk type='file' device='disk'>
       <driver name='qemu' type='qcow2'/>
-      <source file='/home/cisco/images/rome-k8s-node.qcow2'/>
+      <source file='/home/cisco/images/k8s-cp-node00.qcow2'/>
       <target dev='vda' bus='virtio'/>
     </disk>
     <interface type='network'>
@@ -46,7 +46,7 @@
     </interface>
     <interface type='network'>
       <mac address="52:54:60:01:a0:08"/>   
-      <source network='rome-k8s' bridge='rome-k8s'/>
+      <source network='berlin-k8s' bridge='berlin-k8s'/>
       <target dev='vnet1'/>
       <model type='virtio'/>
       <alias name='net0'/>
