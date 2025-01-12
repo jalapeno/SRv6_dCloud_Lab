@@ -8,3 +8,15 @@
       args:
         chdir: /home/cisco/SRv6_dCloud_Lab
       ignore_errors: yes
+
+    - name: virsh define the k8s-cp-node00
+      command: virsh define /home/cisco/SRv6_dCloud_Lab/lab_4/k8s-cp-node00/k8s-cp-node00.xml
+      ignore_errors: yes
+
+    - name: virsh start network
+      command: virsh net-start default
+      ignore_errors: yes
+
+    - name: virsh start k8s-cp-node00
+      command: virsh start k8s-cp-node00
+      ignore_errors: yes
