@@ -52,7 +52,7 @@ topology:
       startup-config: config/xrd07.cfg
       mgmt-ipv4: 10.254.254.107
 
-    k8s-cp-node:
+    k8s-cp-node00:
       kind: bridge
 
   links:
@@ -75,4 +75,4 @@ topology:
     - endpoints: ["XR07:Gi0-0-0-3", "macvlan:ens161"]
 
     # Link between XR07 and the k8s-cp-node
-    - endpoints: ["XR03:Gi0-0-0-2", "k8s-cp-node:XR03-Gi0-0-0-2"]
+    - endpoints: ["XR03:Gi0-0-0-2", "k8s-cp-node00:XR03-Gi0-0-0-2"]
