@@ -1,4 +1,4 @@
-# Lab 5: Jalapeno and BMP [20 Min]
+# Lab 4: SRv6 for Kubernetes with Cilium [20 Min]
 
 ### Description
 Note: This portion of the lab makes use of Cilium Enterprise, which is a licensed set of features. The Cilium SRv6 feature set is not available in the open source version. If you are interested in SRv6 on Cilium or other Enterprise features, please contact the relevant Isovalent sales team.  
@@ -10,13 +10,8 @@ https://cilium.io/labs/
 The original lab was developed in partnership with Arkadiusz Kaliwoda, Cisco SE in EMEA SP
 
 ### Contents
+* Description [LINK](#description)
 * Cloud-Native SRv6 with Cilium [LINK](#cloud-native-srv6-with-cilium)
-* Introduction [LINK](#introduction)
-* Containerlab [LINK](#containerlab)
-* Ansible deploy XRd topology and K8s VMs [LINK](#ansible-deploy-xrd-topology-and-k8s-vms)
-* Accessing XRd routers [LINK](#accessing-xrd-routers)
-* Initialize the Cluster [LINK](#initialize-the-kubernetes-cluster)
-* Install and Configure Cilium Enterprise CNI [LINK](#install-and-configure-cilium-enterprise-cni)
 * Setup Cilium BGP Peering [LINK](#setup-cilium-bgp-peering)
 * Cilium SRv6 Sidmanager and Locators [LINK](#cilium-srv6-sidmanager-and-locators)
 * Establish Cilium VRFs [LINK](#establish-cilium-vrfs)
@@ -28,8 +23,9 @@ The original lab was developed in partnership with Arkadiusz Kaliwoda, Cisco SE 
 
 Kubernetes and Cilium Enterprise are pre-installed on the Rome VM.
 
-1. CD into the lab_4/cilium directory and check out the contents
+1. SSH into the Rome VM and cd into the lab_4/cilium directory and check out the contents
 ```
+ssh cisco@198.18.128.101
 cd ~/SRv6_dCloud_lab/lab_4/cilium/
 ```
 
@@ -615,3 +611,6 @@ ssh cisco@clab-cilium-srv6-xrd08
   ```
 
 note: In a future version of this lab we hope to program SRv6 routes/policies using a K8s CNI dataplane such as eBPF (example: [Cilium support for SRv6](https://cilium.io/industries/telcos-datacenters/)). 
+
+### End of lab 4
+Please proceed to [Lab 5](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_5/lab_5-guide.md)
