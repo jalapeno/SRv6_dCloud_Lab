@@ -33,7 +33,7 @@
     <emulator>/usr/bin/qemu-system-x86_64</emulator>
     <disk type='file' device='disk'>
       <driver name='qemu' type='qcow2'/>
-      <source file='/home/cisco/images/k8s-cp-node00.qcow2'/>
+      <source file='/home/cisco/images/rome-k8s-node.qcow2'/>
       <target dev='vda' bus='virtio'/>
     </disk>
     <interface type='network'>
