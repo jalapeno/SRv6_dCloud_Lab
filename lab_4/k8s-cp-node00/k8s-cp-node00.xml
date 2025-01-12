@@ -1,6 +1,6 @@
 <domain type='kvm'>
-  <name>rome-k8s-node</name>
-  <description>ubuntu-22.04-vm0</description>
+  <name>k8s-cp-node00</name>
+  <description>k8s-cp-node00</description>
   <memory unit='MB'>4000</memory>
   <currentMemory unit='MB'>4000</currentMemory>
   <cpu mode='custom' match='exact' check='partial'>
