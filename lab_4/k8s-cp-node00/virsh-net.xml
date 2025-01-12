@@ -1,5 +1,0 @@
-<network>
-  <name>berlin-k8s</name>
-  <forward mode="bridge"/>
-  <bridge name="berlin-k8s"/>
-</network>
