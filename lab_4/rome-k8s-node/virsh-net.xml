@@ -1,0 +1,5 @@
+<network>
+  <name>rome-k8s</name>
+  <forward mode="bridge"/>
+  <bridge name="rome-k8s"/>
+</network>
