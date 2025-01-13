@@ -186,7 +186,6 @@ For the list of *interface names* created in a *network namespace* use the follo
 sudo ip netns clab-cleu25-xrd01 iplink show
 ```
 ```html
-{
 cisco@xrd:~/SRv6_dCloud_Lab/lab_1$ sudo ip netns exec clab-cleu25-xrd01 ip link show
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
@@ -205,7 +204,6 @@ cisco@xrd:~/SRv6_dCloud_Lab/lab_1$ sudo ip netns exec clab-cleu25-xrd01 ip link 
 
 199: Gi0-0-0-3@if5: <BROADCAST,MULTICAST,PROMISC,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
     link/ether aa:c1:ab:f2:a2:fe brd ff:ff:ff:ff:ff:ff link-netnsid 0
-}
 ```
 
 ```
