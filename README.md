@@ -17,25 +17,22 @@ Cisco routers that run the IOS-XR operating system 7.X and newer support the SRv
 * Lab 1 - XRd Topology Setup and Validation [LINK](/lab_1/lab_1-guide.md)
 * Lab 2 - Config and Test Baseline SRv6 [LINK](/lab_2/lab_2-guide.md)
 * Lab 3 - Config SRv6 L3VPN with SRv6-TE [LINK](/lab_3/lab_3-guide.md)
-* Lab 4 - Config BMP and install Jalapeno [LINK](/lab_4/lab_4-guide.md)
-* Lab 5 - A Tour of Jalapeno [LINK](/lab_5/lab_5-guide.md)
-* Lab 6 - Build Your Own Cloud-Native SDN [LINK](/lab_6/lab_6-guide.md)
+* Lab 4 - Kubernetes SRv6 with Cilium [LINK](/lab_4/lab_4-guide.md)
+* Lab 5 - Host based SRv6 [LINK](/lab_5/lab_5-guide.md)
 
 
 ## Github Repository Overview
-Each of the labs is designed to be completed in the order presented. Lab 1 will launch our XRd topology with baseline configurations. In each subsequent lab (2-6) we'll add SRv6 configurations and make use of our SRv6 network.
+Each of the labs is designed to be completed in the order presented. Lab 1 will launch our XRd topology with baseline configurations. In each subsequent lab (2-5) we'll add SRv6 configurations and make use of our SRv6 network.
 
 ### Root Directory
 
-| File Name     | Description                                                                              |
-|:--------------|:-----------------------------------------------------------------------------------------|
-| host_check    | Runs an analysis to verify whether and how many XRd's can run on your host               |
-| xr-compose    | Processes an XRd topo YAML file and creates a docker-compose file to launch the topology |
+| File Name      | Description                                                         |
+|:---------------|:--------------------------------------------------------------------|
+| ansible        | Ansible scripts for configuration reside                            |
+| topo_drawings  | Lab diagrams location                                               |
+| util           | Utility scripts                                                     |
+| lab_1 -> lab_5 | Individual lab folders                                              |
 
-```
-Example:
-./xr-compose -f docker-compose-lab_1.yml -li ios-xr/xrd-control-plane:7.8.1
-```
 
 ### Individual Lab Directories
 Within each lab directory you should see several files of importance:
