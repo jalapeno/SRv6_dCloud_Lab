@@ -1,8 +1,8 @@
 # Lab 1 Guide: XRd Topology Setup and Validation [30 Min]
-The Cisco Live LTRSPG-2212 lab makes heavy use of the dockerized IOS-XR router known as XRd. If you wish to explore XRd and its uses beyond the scope of this lab the xrdocs team has posted a number of tutorials here: https://xrdocs.io/virtual-routing/tags/#xrd-tutorial-series
+The Cisco Live LTRSPG-2212 lab makes heavy use of containerlab to orchestrate our dockerized IOS-XR router known as XRd. If you wish to explore XRd and its uses beyond the scope of this lab the xrdocs team has posted a number of tutorials here: https://xrdocs.io/virtual-routing/tags/#xrd-tutorial-series
 
 ### Description: 
-In Lab 1 we will launch the XRd topology and validate it is up and running. This will be the baseline 
+In Lab 1 we will user containerlab to launch the XRd topology and validate it is up and running. This will be the baseline 
 topology for all subsequent lab exercises. Second, we will validate that the pre-configured ISIS and BGP routing protocols are running and seeing the correct topology. 
 
 ## Contents
@@ -26,7 +26,8 @@ The student upon completion of Lab 1 should have achieved the following objectiv
 
 * Access all devices in the lab
 * Deployed the XRd network topology
-* Familiarity with the lab topology and components
+* Familiarity with the lab topology
+* Familiarity with containerlab
 * Confirm IPv4 and IPv6 connectivity   
 
 
@@ -88,9 +89,9 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     ```
     cd lab_1
     ```
-    - run the XRd topology setup script
+    - run the containerlab cli to deploy the XRd Lab-1 topology defined in the yaml file.
     ``` 
-    ./setup-lab_1.sh
+    sudo containerlab deploy -t lab_1-topology.yaml
     ```
     - Look for the below output from the end of the script confirming XRd instances 1-7 were created
     ```
