@@ -1,11 +1,11 @@
 apiVersion: "cilium.io/v2alpha1"
 kind: CiliumBGPPeeringPolicy
 metadata:
-  name: berlin-bgp-policy
+  name: rome-bgp-policy
 spec:
   nodeSelector:
     matchLabels:
-      kubernetes.io/hostname: berlin
+      kubernetes.io/hostname: rome
   virtualRouters:
   - localASN: 65000
     exportPodCIDR: true

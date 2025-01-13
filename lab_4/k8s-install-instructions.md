@@ -1,4 +1,6 @@
-### reference: https://thenewstack.io/how-to-deploy-kubernetes-with-kubeadm-and-containerd/
+## Reference: Kubernetes Install Instructions
+
+#### instructions borrowed and edited from: https://thenewstack.io/how-to-deploy-kubernetes-with-kubeadm-and-containerd/
 
 This document is for reference only and will not be used during the Cisco Live lab. Please feel free to refer to these instructions later if you are building your own K8s lab or cluster. These instructions have been verified on Ubuntu 20.04 and 22.04
 
