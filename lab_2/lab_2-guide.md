@@ -200,7 +200,7 @@ cisco@xrd:~/SRv6_dCloud_Lab/lab_1$ sudo ip netns exec clab-cleu25-xrd01 ip link 
 +    link/ether aa:c1:ab:94:44:ec brd ff:ff:ff:ff:ff:ff link-netns clab-cleu25-xrd02
 ```
 ```markdown
-196: Gi0-0-0-0@if6: <BROADCAST,MULTICAST,PROMISC,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
+196: <!--- Gi0-0-0-0 ---> @if6: <BROADCAST,MULTICAST,PROMISC,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
     link/ether aa:c1:ab:d2:30:a0 brd ff:ff:ff:ff:ff:ff link-netnsid 0
 
 199: **Gi0-0-0-3** @if5: <BROADCAST,MULTICAST,PROMISC,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
