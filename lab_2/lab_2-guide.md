@@ -185,18 +185,23 @@ For the list of *interface names* created in a *network namespace* use the follo
 ```
 sudo ip netns clab-cleu25-xrd01 iplink show
 ```
-```
+```json
 cisco@xrd:~/SRv6_dCloud_Lab/lab_1$ sudo ip netns exec clab-cleu25-xrd01 ip link show
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+
 169: eth0@if170: <BROADCAST,MULTICAST,PROMISC,UP,LOWER_UP> mtu 9000 qdisc noqueue state UP mode DEFAULT group default 
     link/ether 02:42:0a:fe:fe:65 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+
 177: Gi0-0-0-2@if178: <BROADCAST,MULTICAST,PROMISC,UP,LOWER_UP> mtu 9000 qdisc noqueue state UP mode DEFAULT group default 
     link/ether aa:c1:ab:a2:6d:3f brd ff:ff:ff:ff:ff:ff link-netns clab-cleu25-xrd05
+
 183: Gi0-0-0-1@if184: <BROADCAST,MULTICAST,PROMISC,UP,LOWER_UP> mtu 9000 qdisc noqueue state UP mode DEFAULT group default 
     link/ether aa:c1:ab:94:44:ec brd ff:ff:ff:ff:ff:ff link-netns clab-cleu25-xrd02
+
 196: Gi0-0-0-0@if6: <BROADCAST,MULTICAST,PROMISC,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
     link/ether aa:c1:ab:d2:30:a0 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+
 199: Gi0-0-0-3@if5: <BROADCAST,MULTICAST,PROMISC,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
     link/ether aa:c1:ab:f2:a2:fe brd ff:ff:ff:ff:ff:ff link-netnsid 0
 ```
