@@ -74,7 +74,5 @@ topology:
     - endpoints: ["XR07:Gi0-0-0-0", "macvlan:ens256"]
     - endpoints: ["XR07:Gi0-0-0-3", "macvlan:ens161"]
 
+    # Link between XR03 and the Berlin VM
     - endpoints: ["XR03:Gi0-0-0-2", "macvlan:ens225"]
-
-    # Link between XR07 and the k8s-cp-node
-    #- endpoints: ["XR03:Gi0-0-0-2", "k8s-cp-node00:XR03-Gi0-0-0-2"]
