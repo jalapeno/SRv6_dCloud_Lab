@@ -39,6 +39,7 @@ spec:
         - afi: ipv4
           safi: mpls_vpn
 ---
+apiVersion: "cilium.io/v2alpha1"
 kind: CiliumBGPAdvertisement
 metadata:
   name: bgp-advertisements
