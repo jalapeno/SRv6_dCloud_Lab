@@ -13,27 +13,27 @@
     #   command: virsh define /home/cisco/SRv6_dCloud_Lab/lab_4/k8s-cp-node00/k8s-cp-node00.xml
     #   ignore_errors: yes
 
-    # - name: virsh start network
-    #   command: virsh net-start default
-    #   ignore_errors: yes
+    - name: virsh start network
+      command: virsh net-start default
+      ignore_errors: yes
 
     # - name: virsh define k8s-cp-node00 network
     #   command: virsh net-define /home/cisco/SRv6_dCloud_Lab/lab_4/k8s-cp-node00/k8s-cp-node00-net.xml
     #   ignore_errors: yes
 
-    # - name: virsh net start k8s-cp-node00
-    #   command: virsh net-start k8s-cp-node00
-    #   ignore_errors: yes
+    - name: virsh net start k8s-cp-node00
+      command: virsh net-start k8s-cp-node00
+      ignore_errors: yes
 
-    # - name: virsh start k8s-cp-node00
-    #   command: virsh start k8s-cp-node00
-    #   ignore_errors: yes
+    - name: virsh start k8s-cp-node00
+      command: virsh start k8s-cp-node00
+      ignore_errors: yes
 
 
-    # - name: iptables -A FORWARD -j ACCEPT
-    #   command: iptables -A FORWARD -j ACCEPT
-    #   ignore_errors: yes
+    - name: iptables -A FORWARD -j ACCEPT
+      command: iptables -A FORWARD -j ACCEPT
+      ignore_errors: yes
 
-    # - name: iptables -t nat -A POSTROUTING -s 10.44.1.0/24 -o ens160 -j MASQUERADE
-    #   command: iptables -t nat -A POSTROUTING -s 10.44.1.0/24 -o ens160 -j MASQUERADE
-    #   ignore_errors: yes
+    - name: iptables -t nat -A POSTROUTING -s 10.44.1.0/24 -o ens160 -j MASQUERADE
+      command: iptables -t nat -A POSTROUTING -s 10.44.1.0/24 -o ens160 -j MASQUERADE
+      ignore_errors: yes
