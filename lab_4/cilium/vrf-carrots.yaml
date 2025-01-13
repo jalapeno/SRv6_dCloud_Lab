@@ -33,12 +33,12 @@ metadata:
   labels:
     app: alpine-ping
     vrf: carrots
-  name: bluepod0
+  name: carrots0
 spec:
   containers:
   - image: alpine:latest
     imagePullPolicy: IfNotPresent
-    name: bluepod0
+    name: carrots0
     command:
       - /bin/sh
       - "-c"
@@ -53,12 +53,12 @@ metadata:
   labels:
     app: alpine-ping
     vrf: carrots
-  name: bluepod1
+  name: carrots1
 spec:
   containers:
   - image: alpine:latest
     imagePullPolicy: IfNotPresent
-    name: bluepod1
+    name: carrots1
     command:
       - /bin/sh
       - "-c"
