@@ -147,10 +147,9 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     clab-cleu25-xrd01 (id: 1)
     clab-cleu25-xrd05 (id: 0) 
     ```
-> [!IMPORTANT]
-> INSERT NETWORK NAME SPACE INFO
 
- - The scripts and files reside in the lab 'util' directory. This is where the tcpdump scripts reside.
+
+ - The scripts and files reside in the lab 'util' directory.
 ```
 ls ~/SRv6_dCloud_Lab/util/
 ```
