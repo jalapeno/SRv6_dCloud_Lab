@@ -15,7 +15,6 @@ topology:
       startup-config: config/xrd01.cfg
       mgmt-ipv4: 10.254.254.101
       
-
     xrd02:
       kind: cisco_xrd
       image: ios-xr/xrd-control-plane:24.3.2
