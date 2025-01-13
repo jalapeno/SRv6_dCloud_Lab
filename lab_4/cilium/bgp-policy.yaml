@@ -38,4 +38,17 @@ spec:
           safi: unicast
         - afi: ipv4
           safi: mpls_vpn
-
+---
+kind: CiliumBGPAdvertisement
+metadata:
+  name: bgp-advertisements
+  labels:
+    advertise: bgp
+spec:
+  advertisements:
+    - advertisementType: "Service"
+      service:
+        addresses:
+          - ClusterIP
+          - ExternalIP
+          - LoadBalancerIP
