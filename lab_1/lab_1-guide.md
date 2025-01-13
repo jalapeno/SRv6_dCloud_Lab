@@ -96,30 +96,23 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     - Look for the below output from the end of the script confirming XRd instances 1-7 were created
 
 
-│:       Name     :│:           Kind/Image           │ :State :│:IPv4/6 Address    :│
-├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
-│ clab-cleu25-XR01 │ cisco_xrd                       │ running │ 10.254.254.101 │
-│                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
-├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
-│ clab-cleu25-XR02 │ cisco_xrd                       │ running │ 10.254.254.102 │
-│                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
-├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
-│ clab-cleu25-XR03 │ cisco_xrd                       │ running │ 10.254.254.103 │
-│                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
-├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
-│ clab-cleu25-XR04 │ cisco_xrd                       │ running │ 10.254.254.104 │
-│                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
-├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
-│ clab-cleu25-XR05 │ cisco_xrd                       │ running │ 10.254.254.105 │
-│                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
-├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
-│ clab-cleu25-XR06 │ cisco_xrd                       │ running │ 10.254.254.106 │
-│                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
-├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
-│ clab-cleu25-XR07 │ cisco_xrd                       │ running │ 10.254.254.107 │
-│                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
+│       Name       │            Kind/Image           │  State   │IPv4/6 Address │
+|:----------------:|:--------------------------------|:--------:|:--------------|
+│ clab-cleu25-XR01 │ cisco_xrd                       │ running  │ 10.254.254.101 │
+│                  │ ios-xr/xrd-control-plane:24.3.2 │          │ N/A            │
+│ clab-cleu25-XR02 │ cisco_xrd                       │ running  │ 10.254.254.102 │
+│                  │ ios-xr/xrd-control-plane:24.3.2 │          │ N/A            │
+│ clab-cleu25-XR03 │ cisco_xrd                       │ running  │ 10.254.254.103 │
+│                  │ ios-xr/xrd-control-plane:24.3.2 │          │ N/A            │
+│ clab-cleu25-XR04 │ cisco_xrd                       │ running  │ 10.254.254.104 │
+│                  │ ios-xr/xrd-control-plane:24.3.2 │          │ N/A            │
+│ clab-cleu25-XR05 │ cisco_xrd                       │ running  │ 10.254.254.105 │
+│                  │ ios-xr/xrd-control-plane:24.3.2 │          │ N/A            │
+│ clab-cleu25-XR06 │ cisco_xrd                       │ running  │ 10.254.254.106 │
+│                  │ ios-xr/xrd-control-plane:24.3.2 │          │ N/A            │
+│ clab-cleu25-XR07 │ cisco_xrd                       │ running  │ 10.254.254.107 │
+│                  │ ios-xr/xrd-control-plane:24.3.2 │          │ N/A            │
 
-    Look for status of `done` for each **xrd 01 -> 07**
 
 6. Check that the docker containers were created and running
     ```
