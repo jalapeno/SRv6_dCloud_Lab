@@ -34,6 +34,8 @@ See results below and notice both the ICMP echo and ICMP echo reply packets with
 >  Path selection using the global routing table as you will see in the detailed packet walk below
 >  has multiple ECMP path options.
 
+![Router 1 Topology](/topo_drawings/packet-walk-r1.png)
+
 ```
 ./tcpdump.sh xrd01-xrd02
 ```
@@ -50,8 +52,6 @@ listening on br-0a7631e659a1, link-type EN10MB (Ethernet), capture size 262144 b
 ## IPv4 Encapsulation to SRv6
 
 In Lab 2 this step occurs in Router 1. On ingress from the Amsterdam node we receive an IPv4 packet that needs forwarding to Rome. We will walk through the process of determining that SRv6 encapsulation is required and lookup process.
-
-![Router 1 Topology](/topo_drawings/ltrspg-2212-packet-walk-r1.png)
 
 1. Router 1 receives IPv4 echo request and we see the accompanying echo reply. On the XRD VM run this tcpdump:
     ```
@@ -147,7 +147,7 @@ In Lab 2 this step occurs in Router 1. On ingress from the Amsterdam node we rec
 
 In lab_1 When we ran the XRd topology setup script it called the **nets.sh** subscript in the *~/SRv6_dCloud_Lab/util* directory. The nets.sh script resolved the underlying docker network IDs and wrote them to text files in the util directory. As an example the link between **xrd01** anbd **xrd02** in the topology has a mapped file called *xrd01-xrd02* which contains the linux network id we need.
 
-![Router 1 Topology](/topo_drawings/ltrspg-2212-packet-walk-r3.png)
+![Router 1 Topology](/topo_drawings/packet-walk-r3.png)
 
 1. On the XRD VM cd into the lab util directory:
     ```
