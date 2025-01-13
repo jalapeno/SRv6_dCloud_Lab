@@ -28,3 +28,12 @@
     # - name: virsh start k8s-cp-node00
     #   command: virsh start k8s-cp-node00
     #   ignore_errors: yes
+
+
+    # - name: iptables -A FORWARD -j ACCEPT
+    #   command: iptables -A FORWARD -j ACCEPT
+    #   ignore_errors: yes
+
+    # - name: iptables -t nat -A POSTROUTING -s 10.44.1.0/24 -o ens160 -j MASQUERADE
+    #   command: iptables -t nat -A POSTROUTING -s 10.44.1.0/24 -o ens160 -j MASQUERADE
+    #   ignore_errors: yes
