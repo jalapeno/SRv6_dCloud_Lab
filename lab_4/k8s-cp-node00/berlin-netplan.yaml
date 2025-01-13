@@ -16,13 +16,13 @@ network:
     ens192:
       addresses:
         - 198.18.4.103/24
-        - fc00:0:103:1::103/64
+        - fc00:0:103:1::1/64
       gateway4: 198.18.4.1
       routes:
         - to: 10.0.0.0/24
           via: 198.18.4.2
         - to: fc00:0::/32
-          via: fc00:0:103:1::1
+          via: fc00:0:103:1::2
       nameservers:
         addresses:
         - 198.18.4.1
