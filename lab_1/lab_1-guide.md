@@ -114,7 +114,7 @@ For full size image see [LINK](/topo_drawings/management-network.png)
 │ clab-cleu25-XR05 │ cisco_xrd                       │ running │ 10.254.254.105 │
 │                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
 ├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
-│ clab-cleu25-XR06 │ cisco_xrd                       │ running │ 10.254.254.106 │
+│ clab-cleu25-xrd06 │ cisco_xrd                       │ running │ 10.254.254.106 │
 │                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
 ├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
 │ clab-cleu25-XR07 │ cisco_xrd                       │ running │ 10.254.254.107 │
@@ -131,7 +131,7 @@ For full size image see [LINK](/topo_drawings/management-network.png)
 cisco@clab-cleu25-XR:~/SRv6_dCloud_Lab/lab_1$ docker ps
 CONTAINER ID   IMAGE                             COMMAND            CREATED              STATUS              PORTS     NAMES
 154a01f24f83   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   About a minute ago   Up About a minute             clab-cleu25-XR04
-6c6263562dbe   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   About a minute ago   Up About a minute             clab-cleu25-XR06
+6c6263562dbe   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   About a minute ago   Up About a minute             clab-cleu25-xrd06
 9b2aee80ca89   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   About a minute ago   Up About a minute             clab-cleu25-XR07
 781490cb60aa   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   About a minute ago   Up About a minute             clab-cleu25-XR02
 1ae2788db5cc   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   About a minute ago   Up About a minute             clab-cleu25-XR01
@@ -382,7 +382,7 @@ sudo ip netns exec clab-cleu25-XR01 tc qdisc add dev Gi0-0-0-1 root netem delay 
     sudo ip netns exec clab-cleu25-XR03 tc qdisc list | grep delay
     sudo ip netns exec clab-cleu25-XR04 tc qdisc list | grep delay
     sudo ip netns exec clab-cleu25-XR05 tc qdisc list | grep delay
-    sudo ip netns exec clab-cleu25-XR06 tc qdisc list | grep delay
+    sudo ip netns exec clab-cleu25-xrd06 tc qdisc list | grep delay
     sudo ip netns exec clab-cleu25-XR07 tc qdisc list | grep delay
     ```
 
