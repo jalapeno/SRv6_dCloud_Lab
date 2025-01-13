@@ -141,39 +141,20 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     3c5243db8903   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   2 minutes ago   Up 2 minutes             clab-cleu25-XR03
     ```
     
-7. Confirm the docker networks were created. 
+7. Confirm that containerlabs created network name spaces for each XRd container 
     ```
-    docker network ls
+    sudo ip netns ls
     ```
     ```
-    cisco@xrd:~/SRv6_dCloud_Lab/lab_1$ docker network ls
-    NETWORK ID     NAME                  DRIVER    SCOPE
-    cfd793a3a770   bridge                bridge    local
-    b948b6ba5918   host                  host      local
-    8ff8a898b08c   lab_1_macvlan0        macvlan   local
-    62e49899e77a   lab_1_macvlan1        macvlan   local
-    f7f3312f9e29   lab_1_mgmt            bridge    local
-    2d455a6860aa   lab_1_xrd05-host      bridge    local
-    00bae5fdbe48   lab_1_xrd06-host      bridge    local
-    bdf431ee7377   none                  null      local
-    336a27055564   xrd01-gi1-xrd02-gi0   bridge    local
-    da281230d4b3   xrd01-gi2-xrd05-gi0   bridge    local
-    a9cdde56cefa   xrd01-gi3             bridge    local
-    c254a6c88536   xrd02-gi1-xrd03-gi0   bridge    local
-    2fec9b3e52a5   xrd02-gi2-xrd06-gi1   bridge    local
-    942edff76963   xrd02-gi3             bridge    local
-    7a6f21c0cb6a   xrd03-gi1-xrd04-gi0   bridge    local
-    3c6d5ff6828f   xrd03-gi2             bridge    local
-    e3eb44320373   xrd03-gi3             bridge    local
-    c03ebf10229b   xrd04-gi1-xrd07-gi1   bridge    local
-    331c62bb019a   xrd04-gi2-xrd05-gi1   bridge    local
-    8a2cb5e8083d   xrd04-gi3             bridge    local
-    b300884b2030   xrd05-gi2-xrd06-gi2   bridge    local
-    b48429454f4c   xrd06-gi0-xrd07-gi2   bridge    local
-    84b7ddd7e018   xrd07-gi3             bridge    local
+    cisco@xrd:~/SRv6_dCloud_Lab/lab_1$ sudo ip netns ls
+    clab-cleu25-XR02 (id: 6)
+    clab-cleu25-XR03 (id: 4)
+    clab-cleu25-XR06 (id: 5)
+    clab-cleu25-XR07 (id: 2)
+    clab-cleu25-XR04 (id: 3)
+    clab-cleu25-XR01 (id: 1)
+    clab-cleu25-XR05 (id: 0) 
     ```
-> [!NOTE]
-> The docker Network IDs are unique on creation. Docker's network/bridge naming logic is such that the actual Linux bridge instance names are not predictable. Rather than go through some re-naming process the lab setup script calls another small script called 'nets.sh' which resolves the bridge name and writes it to a file that we'll use later for running tcpdump on the virtual links between routers in our topology.
 
  - The scripts and files reside in the lab 'util' directory:
 ```
