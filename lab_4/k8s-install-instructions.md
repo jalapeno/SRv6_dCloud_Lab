@@ -16,8 +16,7 @@ sudo nano /etc/fstab
 
 1. apt update/upgrade
 ```
-sudo apt update 
-sudo apt upgrade -y
+sudo apt update && sudo apt upgrade -y
 ```
 
 1. add curl/https packages, keys, etc.
