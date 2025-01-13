@@ -100,25 +100,25 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     ╭──────────────────┬─────────────────────────────────┬─────────┬────────────────╮
     │       Name       │            Kind/Image           │  State  │ IPv4/6 Address │
     ├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
-    │ clab-cleu25-XR01 │ cisco_xrd                       │ running │ 10.254.254.101 │
+    │ clab-cleu25-xrd01│ cisco_xrd                       │ running │ 10.254.254.101 │
     │                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
     ├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
-    │ clab-cleu25-XR02 │ cisco_xrd                       │ running │ 10.254.254.102 │
+    │ clab-cleu25-xrd02│ cisco_xrd                       │ running │ 10.254.254.102 │
     │                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
     ├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
-    │ clab-cleu25-XR03 │ cisco_xrd                       │ running │ 10.254.254.103 │
+    │ clab-cleu25-xrd03│ cisco_xrd                       │ running │ 10.254.254.103 │
     │                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
     ├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
-    │ clab-cleu25-XR04 │ cisco_xrd                       │ running │ 10.254.254.104 │
+    │ clab-cleu25-xrd04│ cisco_xrd                       │ running │ 10.254.254.104 │
     │                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
     ├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
-    │ clab-cleu25-XR05 │ cisco_xrd                       │ running │ 10.254.254.105 │
+    │ clab-cleu25-xrd05│ cisco_xrd                       │ running │ 10.254.254.105 │
     │                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
     ├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
-    │ clab-cleu25-XR06 │ cisco_xrd                       │ running │ 10.254.254.106 │
+    │ clab-cleu25-xrd06│ cisco_xrd                       │ running │ 10.254.254.106 │
     │                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
     ├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
-    │ clab-cleu25-XR07 │ cisco_xrd                       │ running │ 10.254.254.107 │
+    │ clab-cleu25-xrd07│ cisco_xrd                       │ running │ 10.254.254.107 │
     │                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
     ╰──────────────────┴─────────────────────────────────┴─────────┴────────────────╯
     ```
@@ -130,13 +130,13 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     ```
     cisco@xrd:~/SRv6_dCloud_Lab/lab_1$ docker ps
     CONTAINER ID   IMAGE                             COMMAND            CREATED         STATUS         PORTS     NAMES
-    f61b80607b75   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   2 minutes ago   Up 2 minutes             clab-cleu25-XR02
-    d1a2b3af4162   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   2 minutes ago   Up 2 minutes             clab-cleu25-XR01
-    9b23f213cc68   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   2 minutes ago   Up 2 minutes             clab-cleu25-XR04
-    8d8a2fdd7716   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   2 minutes ago   Up 2 minutes             clab-cleu25-XR07
-    2e6b88c8176f   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   2 minutes ago   Up 2 minutes             clab-cleu25-XR05
-    a3cbe1b58021   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   2 minutes ago   Up 2 minutes             clab-cleu25-XR06
-    3c5243db8903   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   2 minutes ago   Up 2 minutes             clab-cleu25-XR03
+    f61b80607b75   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   2 minutes ago   Up 2 minutes             clab-cleu25-xrd02
+    d1a2b3af4162   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   2 minutes ago   Up 2 minutes             clab-cleu25-xrd01
+    9b23f213cc68   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   2 minutes ago   Up 2 minutes             clab-cleu25-xrd04
+    8d8a2fdd7716   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   2 minutes ago   Up 2 minutes             clab-cleu25-xrd07
+    2e6b88c8176f   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   2 minutes ago   Up 2 minutes             clab-cleu25-xrd05
+    a3cbe1b58021   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   2 minutes ago   Up 2 minutes             clab-cleu25-xrd06
+    3c5243db8903   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   2 minutes ago   Up 2 minutes             clab-cleu25-xrd03
     ```
     
 7. Confirm that containerlabs created network name spaces for each XRd container 
@@ -145,27 +145,21 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     ```
     ```
     cisco@xrd:~/SRv6_dCloud_Lab/lab_1$ sudo ip netns ls
-    clab-cleu25-XR02 (id: 6)
-    clab-cleu25-XR03 (id: 4)
-    clab-cleu25-XR06 (id: 5)
-    clab-cleu25-XR07 (id: 2)
-    clab-cleu25-XR04 (id: 3)
-    clab-cleu25-XR01 (id: 1)
-    clab-cleu25-XR05 (id: 0) 
+    clab-cleu25-xrd02 (id: 6)
+    clab-cleu25-xrd03 (id: 4)
+    clab-cleu25-xrd06 (id: 5)
+    clab-cleu25-xrd07 (id: 2)
+    clab-cleu25-xrd04 (id: 3)
+    clab-cleu25-xrd01 (id: 1)
+    clab-cleu25-xrd05 (id: 0) 
     ```
 > [!IMPORTANT]
 > INSERT NETWORK NAME SPACE INFO
 
- - The scripts and files reside in the lab 'util' directory:
+ - The scripts and files reside in the lab 'util' directory. This is where the tcpdump scripts reside.
 ```
 ls ~/SRv6_dCloud_Lab/util/
 ```
-```
-cisco@xrd:~/SRv6_dCloud_Lab$ ls ~/SRv6_dCloud_Lab/util/
-nets.sh     xrd01-xrd02  xrd02-xrd03  xrd03-xrd04  xrd04-xrd07  xrd06-xrd07
-tcpdump.sh  xrd01-xrd05  xrd02-xrd06  xrd04-xrd05  xrd05-xrd06
-
-    ```
 
 > [!IMPORTANT]
 > The XRd router instances should be available for SSH access about 2 minutes after spin up.
@@ -292,7 +286,7 @@ PING 198.18.128.101 (198.18.128.101) 56(84) bytes of data.
 ### Connect to Routers
 1. Starting from the XRD VM ssh into each router instance 1-7 per the management topology diagram above. Example:
 ```
-ssh cisco@clab-cleu25-XR01
+ssh cisco@clab-cleu25-xrd01
 ```
 
 2. Confirm that the configured interfaces are in an `UP | UP` state
@@ -394,13 +388,13 @@ sudo ip netns exec clab-cleu25-XR01 tc qdisc add dev Gi0-0-0-1 root netem delay 
 
     Run one or more of these commands on the XRD VM to see the added synthetic latency:
     ```
-    sudo ip netns exec clab-cleu25-XR01 tc qdisc list | grep delay
-    sudo ip netns exec clab-cleu25-XR02 tc qdisc list | grep delay
-    sudo ip netns exec clab-cleu25-XR03 tc qdisc list | grep delay
-    sudo ip netns exec clab-cleu25-XR04 tc qdisc list | grep delay
-    sudo ip netns exec clab-cleu25-XR05 tc qdisc list | grep delay
-    sudo ip netns exec clab-cleu25-XR06 tc qdisc list | grep delay
-    sudo ip netns exec clab-cleu25-XR07 tc qdisc list | grep delay
+    sudo ip netns exec clab-cleu25-xrd01 tc qdisc list | grep delay
+    sudo ip netns exec clab-cleu25-xrd02 tc qdisc list | grep delay
+    sudo ip netns exec clab-cleu25-xrd03 tc qdisc list | grep delay
+    sudo ip netns exec clab-cleu25-xrd04 tc qdisc list | grep delay
+    sudo ip netns exec clab-cleu25-xrd05 tc qdisc list | grep delay
+    sudo ip netns exec clab-cleu25-xrd06 tc qdisc list | grep delay
+    sudo ip netns exec clab-cleu25-xrd07 tc qdisc list | grep delay
     ```
 
 ## Validate BGP Topology
@@ -454,7 +448,7 @@ For full size image see [LINK](/topo_drawings/bgp-topology-large.png)
 
     Processed 2 prefixes, 4 paths
     ```
-4. Verify that router xrd01 has received route ```fc00:0:107:1::/64``` from the route reflectors **xrd05** and **xrd07*. Look for ```Paths: (2 available)```
+4. Verify that router xrd01 has received route ```fc00:0:107:1::/64``` from the route reflectors **xrd05** and **xrd07**. Look for ```Paths: (2 available)```
     ```
     show bgp ipv6 unicast fc00:0:107:1::/64
     ```
