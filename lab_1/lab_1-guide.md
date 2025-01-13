@@ -1,8 +1,8 @@
 # Lab 1 Guide: XRd Topology Setup and Validation [30 Min]
-The Cisco Live LTRSPG-2212 lab makes heavy use of the dockerized IOS-XR router known as XRd. If you wish to explore XRd and its uses beyond the scope of this lab the xrdocs team has posted a number of tutorials here: https://xrdocs.io/virtual-routing/tags/#xrd-tutorial-series
+The Cisco Live LTRSPG-2212 lab makes heavy use of containerlab to orchestrate our dockerized IOS-XR router known as XRd. If you wish to explore XRd and its uses beyond the scope of this lab the xrdocs team has posted a number of tutorials here: https://xrdocs.io/virtual-routing/tags/#xrd-tutorial-series
 
 ### Description: 
-In Lab 1 we will launch the XRd topology and validate it is up and running. This will be the baseline 
+In Lab 1 we will user containerlab to launch the XRd topology and validate it is up and running. This will be the baseline 
 topology for all subsequent lab exercises. Second, we will validate that the pre-configured ISIS and BGP routing protocols are running and seeing the correct topology. 
 
 ## Contents
@@ -27,8 +27,9 @@ topology for all subsequent lab exercises. Second, we will validate that the pre
 The student upon completion of Lab 1 should have achieved the following objectives:
 
 * Access all devices in the lab
-* Deployed the XRd network topology using containerlab
-* Familiarity with the lab topology and components
+* Deployed the XRd network topology
+* Familiarity with the lab topology
+* Familiarity with containerlab
 * Confirm IPv4 and IPv6 connectivity   
 
 
@@ -90,63 +91,79 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     ```
     cd lab_1
     ```
-    - run the Containerlab topology setup script
+    - run the containerlab cli to deploy the XRd Lab-1 topology defined in the yaml file.
     ``` 
-   sudo clab deploy -t lab_1-topology.yml
+    sudo containerlab deploy -t lab_1-topology.yaml
     ```
     - Look for the below output from the end of the script confirming XRd instances 1-7 were created
     ```
-╭──────────────────┬─────────────────────────────────┬─────────┬────────────────╮
-│       Name       │            Kind/Image           │  State  │ IPv4/6 Address │
-├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
-│ clab-cleu25-XR01 │ cisco_xrd                       │ running │ 10.254.254.101 │
-│                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
-├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
-│ clab-cleu25-XR02 │ cisco_xrd                       │ running │ 10.254.254.102 │
-│                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
-├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
-│ clab-cleu25-XR03 │ cisco_xrd                       │ running │ 10.254.254.103 │
-│                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
-├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
-│ clab-cleu25-XR04 │ cisco_xrd                       │ running │ 10.254.254.104 │
-│                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
-├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
-│ clab-cleu25-XR05 │ cisco_xrd                       │ running │ 10.254.254.105 │
-│                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
-├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
-│ clab-cleu25-XR06 │ cisco_xrd                       │ running │ 10.254.254.106 │
-│                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
-├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
-│ clab-cleu25-XR07 │ cisco_xrd                       │ running │ 10.254.254.107 │
-│                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
-╰──────────────────┴─────────────────────────────────┴─────────┴────────────────╯
+    ╭──────────────────┬─────────────────────────────────┬─────────┬────────────────╮
+    │       Name       │            Kind/Image           │  State  │ IPv4/6 Address │
+    ├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
+    │ clab-cleu25-XR01 │ cisco_xrd                       │ running │ 10.254.254.101 │
+    │                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
+    ├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
+    │ clab-cleu25-XR02 │ cisco_xrd                       │ running │ 10.254.254.102 │
+    │                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
+    ├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
+    │ clab-cleu25-XR03 │ cisco_xrd                       │ running │ 10.254.254.103 │
+    │                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
+    ├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
+    │ clab-cleu25-XR04 │ cisco_xrd                       │ running │ 10.254.254.104 │
+    │                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
+    ├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
+    │ clab-cleu25-XR05 │ cisco_xrd                       │ running │ 10.254.254.105 │
+    │                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
+    ├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
+    │ clab-cleu25-XR06 │ cisco_xrd                       │ running │ 10.254.254.106 │
+    │                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
+    ├──────────────────┼─────────────────────────────────┼─────────┼────────────────┤
+    │ clab-cleu25-XR07 │ cisco_xrd                       │ running │ 10.254.254.107 │
+    │                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
+    ╰──────────────────┴─────────────────────────────────┴─────────┴────────────────╯
     ```
-    Look for status of `running` for each **xrd 01 -> 07**
 
 6. Check that the docker containers were created and running
     ```
     docker ps
     ```
     ```
-cisco@clab-cleu25-XR:~/SRv6_dCloud_Lab/lab_1$ docker ps
-CONTAINER ID   IMAGE                             COMMAND            CREATED              STATUS              PORTS     NAMES
-154a01f24f83   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   About a minute ago   Up About a minute             clab-cleu25-XR04
-6c6263562dbe   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   About a minute ago   Up About a minute             clab-cleu25-XR06
-9b2aee80ca89   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   About a minute ago   Up About a minute             clab-cleu25-XR07
-781490cb60aa   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   About a minute ago   Up About a minute             clab-cleu25-XR02
-1ae2788db5cc   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   About a minute ago   Up About a minute             clab-cleu25-XR01
-2c0619c64ddb   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   About a minute ago   Up About a minute             clab-cleu25-XR05
-0746009f0974   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   About a minute ago   Up About a minute             clab-cleu25-XR03
+    cisco@xrd:~/SRv6_dCloud_Lab/lab_1$ docker ps
+    CONTAINER ID   IMAGE                             COMMAND            CREATED         STATUS         PORTS     NAMES
+    f61b80607b75   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   2 minutes ago   Up 2 minutes             clab-cleu25-XR02
+    d1a2b3af4162   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   2 minutes ago   Up 2 minutes             clab-cleu25-XR01
+    9b23f213cc68   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   2 minutes ago   Up 2 minutes             clab-cleu25-XR04
+    8d8a2fdd7716   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   2 minutes ago   Up 2 minutes             clab-cleu25-XR07
+    2e6b88c8176f   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   2 minutes ago   Up 2 minutes             clab-cleu25-XR05
+    a3cbe1b58021   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   2 minutes ago   Up 2 minutes             clab-cleu25-XR06
+    3c5243db8903   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   2 minutes ago   Up 2 minutes             clab-cleu25-XR03
     ```
-7. Confirm the docker networks were created 
-   #### check if this step is still needed with clab macvtaps
+    
+7. Confirm that containerlabs created network name spaces for each XRd container 
     ```
-    docker network ls
+    sudo ip netns ls
     ```
     ```
-    cisco@clab-cleu25-XR:~/SRv6_dCloud_Lab/lab_1$ docker network ls
-    NETWORK ID     NAME                  DRIVER    SCOPE
- 
+    cisco@xrd:~/SRv6_dCloud_Lab/lab_1$ sudo ip netns ls
+    clab-cleu25-XR02 (id: 6)
+    clab-cleu25-XR03 (id: 4)
+    clab-cleu25-XR06 (id: 5)
+    clab-cleu25-XR07 (id: 2)
+    clab-cleu25-XR04 (id: 3)
+    clab-cleu25-XR01 (id: 1)
+    clab-cleu25-XR05 (id: 0) 
+    ```
+> [!IMPORTANT]
+> INSERT NETWORK NAME SPACE INFO
+
+ - The scripts and files reside in the lab 'util' directory:
+```
+ls ~/SRv6_dCloud_Lab/util/
+```
+```
+cisco@xrd:~/SRv6_dCloud_Lab$ ls ~/SRv6_dCloud_Lab/util/
+nets.sh     xrd01-xrd02  xrd02-xrd03  xrd03-xrd04  xrd04-xrd07  xrd06-xrd07
+tcpdump.sh  xrd01-xrd05  xrd02-xrd06  xrd04-xrd05  xrd05-xrd06
 
     ```
 
