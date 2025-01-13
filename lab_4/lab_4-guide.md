@@ -25,7 +25,7 @@ Kubernetes and Cilium Enterprise are pre-installed on the Rome VM.
 
 1. SSH into the Rome VM and cd into the lab_4/cilium directory and check out the contents
 ```
-ssh cisco@198.18.128.101
+ssh cisco@198.18.128.103
 cd ~/SRv6_dCloud_lab/lab_4/cilium/
 ```
 
@@ -38,9 +38,9 @@ cd ~/SRv6_dCloud_lab/lab_4/cilium/
 
   The output should show 2 cilium daemonsets (ds) available, example:
   ```
-  cisco@rome:~/cilium-srv6/cilium$ kubectl get ds -n kube-system cilium
+  cisco@rome:~$   kubectl get ds -n kube-system cilium
   NAME     DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR            AGE
-  cilium   2         2         2       2            2           kubernetes.io/os=linux   62s
+  cilium   1         1         1       1            1           kubernetes.io/os=linux   94m
   ```
 
 
