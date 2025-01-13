@@ -2,7 +2,6 @@
 
 name: cleu25
 
-  
 mgmt:
   network: clab-management-network
   ipv4-subnet: 10.254.254.0/24
@@ -15,7 +14,6 @@ topology:
       startup-config: config/xrd01.cfg
       mgmt-ipv4: 10.254.254.101
       
-
     xrd02:
       kind: cisco_xrd
       image: ios-xr/xrd-control-plane:24.3.2
@@ -52,9 +50,6 @@ topology:
       startup-config: config/xrd07.cfg
       mgmt-ipv4: 10.254.254.107
 
-    # k8s-cp-node00:
-    #   kind: bridge
-
   links:
 
     # Link between XR Routers
@@ -73,6 +68,3 @@ topology:
     - endpoints: ["xrd01:Gi0-0-0-3", "macvlan:ens193"]
     - endpoints: ["xrd07:Gi0-0-0-0", "macvlan:ens256"]
     - endpoints: ["xrd07:Gi0-0-0-3", "macvlan:ens161"]
-
-    # Link between xrd03 and the Berlin VM
-    - endpoints: ["xrd03:Gi0-0-0-2", "macvlan:ens225"]
