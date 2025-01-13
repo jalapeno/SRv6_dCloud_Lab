@@ -14,10 +14,12 @@ topology for all subsequent lab exercises. Second, we will validate that the pre
     - [User Credentials](#user-credentials)
     - [Management Network Topology](#management-network-topology)
     - [Launch and Validate XRD Topology](#launch-and-validate-xrd-topology)
+      - [check if this step is still needed with clab macvtaps](#check-if-this-step-is-still-needed-with-clab-macvtaps)
     - [Validate Jalapeno VM](#validate-jalapeno-vm)
     - [Validate Client VMs](#validate-client-vms)
     - [Connect to Routers](#connect-to-routers)
   - [Validate ISIS Topology](#validate-isis-topology)
+      - [need to discuss if we want to keep this step, if so we can adapt util/nets.sh to do something like this:](#need-to-discuss-if-we-want-to-keep-this-step-if-so-we-can-adapt-utilnetssh-to-do-something-like-this)
   - [Validate BGP Topology](#validate-bgp-topology)
   - [End of Lab 1](#end-of-lab-1)
   
@@ -33,7 +35,7 @@ The student upon completion of Lab 1 should have achieved the following objectiv
 
 ## Validate Virtual Machine and XRd Access
 
-Device access for this lab is primarly through SSH. All of the VMs are accessible upon connecting through Cisco AnyConnect VPN to the dCloud environment. Please see the management topology network diagram below. The XRD VM acts as a jumpbox for our XRd routers once the topology is deployed. Thus accessing the routers will involve first SSH'ing into the XRD VM and then initiating a separate SSH session to the router. The XRD VM is configured for DNS resolution for each router name to save time.
+Device access for this lab is primarly through SSH. All of the VMs are accessible upon connecting through Cisco AnyConnect VPN to the dCloud environment. Please see the management topology network diagram below. The XRD VM acts as a jumpbox for our XRd routers once the topology is deployed. Thus accessing the routers will involve first SSH'ing into the *`XRD VM`* and then initiating a separate SSH session to the router. The XRD VM is configured for DNS resolution for each router name to save time.
 
 ### User Credentials
 All VMs, routers, etc. use the same user credentials:
@@ -60,7 +62,7 @@ For full size image see [LINK](/topo_drawings/management-network.png)
    ```
    Example output for pod01:
    ```
-   cisco@xrd:~$ ls
+   cisco@clab-cleu25-XR:~$ ls
    Downloads  images  pod01  SRv6_dCloud_Lab
    ```
 
@@ -75,10 +77,10 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     docker ps
     ```
     ```
-    cisco@xrd:~/SRv6_dCloud_Lab/lab_1$ docker ps
+    cisco@clab-cleu25-XR:~/SRv6_dCloud_Lab/lab_1$ docker ps
     CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
     
-    cisco@xrd:~/SRv6_dCloud_Lab/lab_1$ docker network ls
+    cisco@clab-cleu25-XR:~/SRv6_dCloud_Lab/lab_1$ docker network ls
     NETWORK ID     NAME      DRIVER    SCOPE
     cfd793a3a770   bridge    bridge    local
     b948b6ba5918   host      host      local
@@ -120,10 +122,6 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     │                  │ ios-xr/xrd-control-plane:24.3.2 │         │ N/A            │
     ╰──────────────────┴─────────────────────────────────┴─────────┴────────────────╯
     ```
-
-
-
-
 
 6. Check that the docker containers were created and running
     ```
@@ -167,8 +165,7 @@ cisco@xrd:~/SRv6_dCloud_Lab$ ls ~/SRv6_dCloud_Lab/util/
 nets.sh     xrd01-xrd02  xrd02-xrd03  xrd03-xrd04  xrd04-xrd07  xrd06-xrd07
 tcpdump.sh  xrd01-xrd05  xrd02-xrd06  xrd04-xrd05  xrd05-xrd06
 
-```
-Later we'll use "tcpdump.sh **xrd0x-xrd0y**" to capture packets along the path through the network. 
+    ```
 
 > [!IMPORTANT]
 > The XRd router instances should be available for SSH access about 2 minutes after spin up.
@@ -181,12 +178,12 @@ Jalapeno will collect BGP Monitoring Protocol (BMP) and streaming telemetry data
 1. Validate router reachability to Jalapeno VM (no need to check all routers, but will be good to validate **xrd05** and **xrd06**):
 
 ```
-ssh cisco@xrd05
+ssh cisco@clab-cleu25-XR05
 ping 198.18.128.101
 ```
 
 ```
-cisco@xrd:~$ ssh cisco@xrd05
+cisco@clab-cleu25-XR:~$ ssh cisco@clab-cleu25-XR05
 Warning: Permanently added 'xrd05,10.254.254.105' (ECDSA) to the list of known hosts.
 Password: 
 Last login: Sun Jan 29 22:44:15 2023 from 10.254.254.1
@@ -295,7 +292,7 @@ PING 198.18.128.101 (198.18.128.101) 56(84) bytes of data.
 ### Connect to Routers
 1. Starting from the XRD VM ssh into each router instance 1-7 per the management topology diagram above. Example:
 ```
-ssh cisco@xrd01
+ssh cisco@clab-cleu25-XR01
 ```
 
 2. Confirm that the configured interfaces are in an `UP | UP` state
@@ -387,12 +384,23 @@ For full size image see [LINK](/topo_drawings/isis-topology-large.png)
 ping 10.0.0.7 source lo0
 ping fc00:0000:7777::1 source lo0
 ```
+
+#### need to discuss if we want to keep this step, if so we can adapt util/nets.sh to do something like this:
+```
+sudo ip netns exec clab-cleu25-XR01 tc qdisc add dev Gi0-0-0-1 root netem delay 30000
+```
 > [!NOTE]
 > Normally pinging xrd-to-xrd in this dockerized environment would result in ping times of ~1-3ms. However, the util/nets.sh script, which was triggered at setup, added synthetic latency to the underlying Linux links using the [netem](https://wiki.linuxfoundation.org/networking/netem) 'tc' command line tool. So you'll see a ping RTT of anywhere from ~60ms to ~150ms. This synthetic latency will allow us to really see the effect of later traffic steering execises.
 
-    Run this command on the XRD VM to see the added synthetic latency:
+    Run one or more of these commands on the XRD VM to see the added synthetic latency:
     ```
-    sudo tc qdisc list | grep delay
+    sudo ip netns exec clab-cleu25-XR01 tc qdisc list | grep delay
+    sudo ip netns exec clab-cleu25-XR02 tc qdisc list | grep delay
+    sudo ip netns exec clab-cleu25-XR03 tc qdisc list | grep delay
+    sudo ip netns exec clab-cleu25-XR04 tc qdisc list | grep delay
+    sudo ip netns exec clab-cleu25-XR05 tc qdisc list | grep delay
+    sudo ip netns exec clab-cleu25-XR06 tc qdisc list | grep delay
+    sudo ip netns exec clab-cleu25-XR07 tc qdisc list | grep delay
     ```
 
 ## Validate BGP Topology

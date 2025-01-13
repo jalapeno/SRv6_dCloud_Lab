@@ -1,23 +1,25 @@
-## Lab 5: Exploring Jalapeno, Kafka, and ArangoDB [30 Min]
+## Lab 5: Exploring Project Jalapeno [30 Min]
 
 ### Description
-In Lab 5 we will explore elements of the Jalapeno system. We will log into the Kafka container and monitor topics for data coming in from Jalapeno's data collectors. Data which is subsequently picked up by Jalapeno's data processors and written to the Arango graphDB. We will spend some time getting familiar with ArangoDB and the Jalapeno data collections.
+In Lab 5 we will explore the open-source Jalapeno data infrastructure platform. Jalapeno is designed to run on Kubernetes (K8s), which allows for easy integration into existing environments and supports deployment on bare metal, VMs, or in a public cloud. Kubernetes experience is not required for this lab as K8s has been preinstalled on the Jalapeno VM and we have included the required *kubectl* validation commands. We've also included a brief guide to installing Kubernetes on your own host or VM: [K8s Install Instructions](lab_5/k8s-install-instructions.md).
 
-At the end of this lab we will explore the power of coupling the meta-data gathered into Jalapeno coupled with SRv6. We will demonstrate three service use cases which are not possible with classic MPLS networks.
+Prior to exploring Jalapeno we will configure BGP Monitoring Protocol (BMP) on our route reflectors. 
+
+At the end of this lab we will explore the power of combining topology modeling in Jalapeno and SRv6 as a platform for network service innovation. We will demonstrate three service use cases which are not possible with classic MPLS networks.
 
 ## Contents
-- [Lab 5: Exploring Jalapeno, Kafka, and ArangoDB \[30 Min\]](#lab-5-exploring-jalapeno-kafka-and-arangodb-30-min)
+- [Lab 5: Exploring Project Jalapeno \[30 Min\]](#lab-5-exploring-project-jalapeno-30-min)
   - [Description](#description)
 - [Contents](#contents)
 - [Lab Objectives](#lab-objectives)
-- [Jalapeno Software Stack](#jalapeno-software-stack)
-- [Kafka](#kafka)
-  - [Kafka Intro](#kafka-intro)
-  - [Kafka Topics](#kafka-topics)
-  - [Monitoring a Kafka topic](#monitoring-a-kafka-topic)
-    - [ISIS Link State](#isis-link-state)
-    - [SRv6 Locator SID](#srv6-locator-sid)
-  - [Arango GraphDB](#arango-graphdb)
+- [Jalapeno Overview](#jalapeno-overview)
+  - [Jalapeno Architecture and Data Flow](#jalapeno-architecture-and-data-flow)
+- [Validate Jalapeno](#validate-jalapeno)
+- [BGP Monitoring Protocol (BMP)](#bgp-monitoring-protocol-bmp)
+  - [Optional: Explore Kafka Topics](#optional-explore-kafka-topics)
+  - [Jalapeno Arango Graph Database](#jalapeno-arango-graph-database)
+  - [Jalapeno REST API](#jalapeno-rest-api)
+  - [BGP SRv6 locator](#bgp-srv6-locator)
   - [Populating the DB with external data](#populating-the-db-with-external-data)
   - [Use Case 1: Lowest Latency Path](#use-case-1-lowest-latency-path)
     - [SRv6-TE for XR Global Routing Table](#srv6-te-for-xr-global-routing-table)
@@ -28,270 +30,279 @@ At the end of this lab we will explore the power of coupling the meta-data gathe
 ## Lab Objectives
 The student upon completion of Lab 5 should have achieved the following objectives:
 
+* Understanding and configuration of BMP
 * A tour of the Jalapeno platform and high level understanding of how it collects and processes data
-* Familiarity with Kafka and Kafka's command line utilities
 * Familiarity with the ArangoDB UI and the BMP/BGP data collections the system has created
 * Familiarity with Arango Query Language (AQL) syntax
-* Familiarity with more complex Arango shortest-path and graph traversal queries
+* Familiarity with the Jalapeno API and UI
 
-## Jalapeno Software Stack
- <img src="/topo_drawings/jalapeno-software-stack.png" width="700">
+## Jalapeno Overview
+Project Jalapeno combines existing open source tools with some new stuff we've developed into a data collection and warehousing infrastructure intended to enable development of network service applications. Think of it as applying microservices architecture and concepts to SDN: give developers the ability to quickly and easily build microservice control planes on top of a common data infrastructure. More information on Jalapeno can be found at the Jalapeno Git repository: [LINK](https://github.com/cisco-open/jalapeno/blob/main/README.md)
 
-## Kafka
-### Kafka Intro
-From the Kafka [homepage](https://kafka.apache.org/): Apache Kafka is an open-source distributed event streaming platform used by thousands of companies for high-performance data pipelines, streaming analytics, data integration, and mission-critical applications.
+### Jalapeno Architecture and Data Flow
+![jalapeno_architecture](https://github.com/cisco-open/jalapeno/blob/main/docs/img/jalapeno_architecture.png)
 
-Jalapeno uses Kafka as a message bus between its data collectors and data processors. Jalapeno's data collectors create Kafka topics then publish their datasets to those topics. The data processors subscribe to the relevant Kafka topics, gather the published data, and write it to either the Arango graphDB or Influx Time-Series DB. This `Collector -> Kafka -> Processor -> DB` pipeline allows for architectural flexibility and extensibility such that other applications could subscribe to the Jalapeno Kafka topics and use the BMP or telemetry data for their own purposes.
+Jalapeno breaks the data collection and warehousing problem down into a series of components and services:
+- **Data Collector** services such as GoBMP and Telegraf collect network topology and statistics and publish to Kafka
+- **Data Processor** services such as "Topology", and the "Graph" services we'll deploy in this lab, subscribe to Kafka topics and write the data they receive to databases
+- **Kafka** is used as a message bus between Collectors and Processors
+- **Arango GraphDB** is used for modeling topology data
+- **InfluxDB** is used for warehousing statistical time-series data
+- **Grafana**: is used for visualizing the Influx time-series data and supports user creation of custom dashboards (not currentlyused in this lab)
+- **REST API**: is used as a communication layer between the Jalapeno UI and external applications or clients, and the Jalapeno GraphDB
+- **Jalapeno UI**: is a web application that allows users to interact with the Jalapeno topology model and path calculation tools. Note: the UI is still a work in progress, so not all functionality is available yet.
 
-Kafka has a number of built in command line utilities to do things like listing topics or outputting of topic data to the screen, which we'll do in the next section of the lab. 
+One of the primary goals of the Jalapeno project is to be flexible and extensible. In the future we expect Jalapeno could support any number of data collectors and processors. For example there could be a collector/processor pair that creates an LLDP Topology model in the graphDB. Netflow data could be incorporated via a future integration with a tool like [pmacct](http://www.pmacct.net/). Or an operator might already have a telemetry stack and could choose to selectively integrate Jalapeno's GoBMP/Topology/GraphDB modules into an existing environment running Kafka. We also envision future integrations with other API-driven data warehouses such as Cisco ThousandEyes: https://www.thousandeyes.com/
 
-For additional help on Kafka see this external CLI cheat sheet [HERE](https://medium.com/@TimvanBaarsen/apache-kafka-cli-commands-cheat-sheet-a6f06eac01b)
+## Validate Jalapeno 
 
+The Jalapeno package is preinstalled and running on the **Jalapeno** VM (198.18.128.101).
 
-### Kafka Topics 
-
-1. In a separate terminal session ssh to the Jalapeno VM 
-    ```
-    cisco@198.18.128.101
-    pw = cisco123
-    ```
-
-2. Login to the Kafka container and cd into the bin directory. 
-    ```
-    kubectl exec -it kafka-0 -n jalapeno -- /bin/bash
-
-    cd bin
-    ls -la
-    ```
-
-3. The Jalapeno deployment of Kakfa includes enablement of JMX (Java Management Extensions), which allows for monitoring of Kafka elements such as brokers, topics, Zookeeper, etc. To operate the CLI utilies we'll need to unset the JMX_PORT:  
-    ```
-    unset JMX_PORT
-    ```
-
-4. Run the CLI utility to get a listing of all Kafka topics in our cluster:
-    ```
-    ./kafka-topics.sh --list  --bootstrap-server localhost:9092
-    ```
-    - A few seconds after running the *--list* command you should see the following list of topics toward the bottom on the command output. See truncated output below.
+1. SSH to the Jalapeno VM and verify k8s pods are running. Note, some pods may initially be in a *CrashLoopBackOff* state. These should resolve after 2-3 minutes). For those students new to Kubernetes you can reference this cheat sheet [HERE](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)  
 
     ```
-    gobmp.parsed.evpn
-    gobmp.parsed.evpn_events
-    gobmp.parsed.l3vpn
-    gobmp.parsed.l3vpn_events
-    gobmp.parsed.l3vpn_v4
-    gobmp.parsed.l3vpn_v4_events
-    gobmp.parsed.l3vpn_v6
-    gobmp.parsed.l3vpn_v6_events
-    gobmp.parsed.ls_link
-    gobmp.parsed.ls_link_events
-    gobmp.parsed.ls_node
-    gobmp.parsed.ls_node_events
-    gobmp.parsed.ls_prefix
-    gobmp.parsed.ls_prefix_events
-    gobmp.parsed.ls_srv6_sid
-    gobmp.parsed.ls_srv6_sid_events
-    gobmp.parsed.peer
-    gobmp.parsed.peer_events
-    gobmp.parsed.unicast_prefix
-    gobmp.parsed.unicast_prefix_events
-    gobmp.parsed.unicast_prefix_v4
-    gobmp.parsed.unicast_prefix_v4_events
-    gobmp.parsed.unicast_prefix_v6
-    gobmp.parsed.unicast_prefix_v6_events
-    jalapeno.ipv4_topology_events
-    jalapeno.ipv6_topology_events
-    jalapeno.linkstate_edge_v4_events
-    jalapeno.linkstate_edge_v6_events
-    jalapeno.ls_node_edge_events
-    jalapeno.srv6
-    jalapeno.telemetry
+    ssh cisco@198.18.128.101
+    ```
+    - verify k8s pods
+    ```
+    kubectl get pods -A
+    ```
+    The output should look something like:  
+
+    ```
+    cisco@jalapeno:~/jalapeno/install$ kubectl get pods -A
+    NAMESPACE     NAME                                           READY   STATUS    RESTARTS         AGE
+    jalapeno      arangodb-0                                     1/1     Running   0                86s
+    jalapeno      gobmp-5db68bd644-dgg7w                         1/1     Running   1 (44s ago)      78s
+    jalapeno      grafana-deployment-565756bd74-d26pj            1/1     Running   0                86s
+    jalapeno      influxdb-0                                     1/1     Running   0                86s
+    jalapeno      jalapeno-api-5d8469557-gpz8j                   1/1     Running   0                85s
+    jalapeno      jalapeno-ui-54f8f95c5d-pn79v                   1/1     Running   0                84s
+    jalapeno      kafka-0                                        1/1     Running   0                87s
+    jalapeno      lslinknode-edge-b954577f9-w46gf                1/1     Running   3 (53s ago)      72s
+    jalapeno      telegraf-egress-deployment-5795ffdd9c-7xjj4    1/1     Running   0                73s
+    jalapeno      telegraf-ingress-deployment-5b456574dc-vlnvq   1/1     Running   0                79s
+    jalapeno      topology-678ddb8bb4-klzmt                      1/1     Running   1 (41s ago)      73s
+    jalapeno      zookeeper-0                                    1/1     Running   0                87s
+    kube-system   cilium-k8fht                                   1/1     Running   3 (4h41m ago)    363d
+    kube-system   cilium-operator-6f5db4f885-nmpwb               1/1     Running   3 (4h41m ago)    363d
+    kube-system   coredns-565d847f94-nmt4n                       1/1     Running   0                4h40m
+    kube-system   coredns-565d847f94-sg8fl                       1/1     Running   3 (4h41m ago)    363d
+    kube-system   etcd-jalapeno                                  1/1     Running   19 (4h41m ago)   363d
+    kube-system   kube-apiserver-jalapeno                        1/1     Running   3 (4h41m ago)    363d
+    kube-system   kube-controller-manager-jalapeno               1/1     Running   3 (4h41m ago)    363d
+    kube-system   kube-proxy-g8nbn                               1/1     Running   3 (4h41m ago)    363d
+    kube-system   kube-scheduler-jalapeno                        1/1     Running   3 (4h41m ago)    363d
     ```
 
-### Monitoring a Kafka topic
+2. Display only the pods in the jalapeno namespace:
+    ```
+    kubectl get pods -n jalapeno
+    ```
+    Output will look something like:
+    ```
+    cisco@jalapeno:~$ kubectl get pods -n jalapeno
+    NAME                                          READY   STATUS    RESTARTS      AGE
+    arangodb-0                                    1/1     Running   0             39m  <-------- Arango GraphDB
+    gobmp-5db68bd644-p8r24                        1/1     Running   1 (90s ago)   38m  <-------- GoBMP Collector
+    grafana-deployment-565756bd74-nmp6g           1/1     Running   0             39m  <-------- Grafana
+    influxdb-0                                    1/1     Running   0             39m  <-------- Influx Time-Series DB
+    jalapeno-api-5d8469557-w4dcm                  1/1     Running   0             39m  <-------- Jalapeno REST API
+    jalapeno-ui-54f8f95c5d-9vns7                  1/1     Running   0             39m  <-------- Jalapeno UI
+    kafka-0                                       1/1     Running   0             39m  <-------- Kafka
+    lslinknode-edge-b954577f9-jmkn4               1/1     Running   3 (38m ago)   39m  <-------- LS Link & Node Processor
+    telegraf-egress-deployment-5795ffdd9c-8lpd4   1/1     Running   0             39m  <-------- Telegraf Egress Processor
+    telegraf-ingress-deployment-5b456574dc-cxt9v  1/1     Running   0             38m  <-------- Telegraf Ingress Collector
+    topology-678ddb8bb4-4kmq8                     1/1     Running   1 (38m ago)   39m  <-------- BMP Topology Processor
+    zookeeper-0                                   1/1     Running   0             39m  <-------- Zookeeper
+    ```
 
-The *`kafka-console-consumer.sh`* utility allows one to manually monitor a given topic and see messages as they are published by the GoBMP collector. This gives us a nice troubleshooting tool for scenarios where a router may be sending data to the collector, but the data is not seen in the DB.
+3. Optional: here are some additional k8s commands to try. Note the different outputs when specifying a particular namespace (-n option) vs. all namespaces (-A option):
+    ```
+    kubectl get pods -n jalapeno                      <-------- display all pods/containers in the Jalapeno namespace
+    kubectl get pods -n jalapeno-collectors           <-------- display all pods/containers in the Jalapeno-Collectors namespace
+    kubectl get services -A                           <-------- display all externally reachable services (BMP, Arango, etc.)
+    kubectl get all -A                                <-------- display a summary of all cluster info
+    kubectl get nodes                                 <-------- display cluster node info
+    kubectl describe pod -n <namespace> <pod name>    <-------- display detailed info about a pod
 
-In the next set of steps we'll run the CLI to monitor a Kafka topic and watch for data from GoBMP. GoBMP's topics are fairly quiet unless BGP updates are happening, so once we have our monitoring session up we'll clear BGP-LS on the RR, which should result in a flood of data onto the topic.
+    example: kubectl describe pod -n jalapeno topology-678ddb8bb4-rt9jg
+    ```
 
-In this exercise we are going to stitch together several elements that we have worked on throughout this lab. The routers in our lab have a number of topology-relevant configurations, including several that we've added over the course of labs 1 - 4. We will use the tools to examine how that data is communicated through the network and ultimately collected and populated into Jalapeno's DB.
+## BGP Monitoring Protocol (BMP)
 
-#### ISIS Link State
-   1. Monitor the BGP-LS *`ls_node`* Kafka topic for incoming BMP messages describing ISIS nodes in the network:
+Most transport SDN systems use BGP-LS to gather and model the underlying IGP topology. Jalapeno is intended to be a more generalized data platform to support development of all sorts of use cases such as VPNs or service chains. Because of this, Jalapeno's primary method of capturing topology data is via BMP. BMP provides all BGP AFI/SAFI info including BGP-LS, thus Jalapeno is able to model many different kinds of topologies, including the topology of the Internet (at least from the perspective of our peering routers).
 
-        ```
-        ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_node
-        ```
+We'll first establish a BMP session between our route-reflectors and the open-source GoBMP collector, which comes pre-packaged with the Jalapeno install. We'll then enable BMP monitoring of the RRs' BGP peering sessions with our PE routers **xrd01** and **xrd07**. Once established, the RRs' will stream all BGP NLRI info they receive from the PE routers to the GoBMP collector, and the BGP data will flow up the Jalapeno stack into the graph database. 
 
-        Optional - enable terminal monitoring and debugging the of BGP-LS address family on one of the route reflectors such as **xrd05**:
-        ```
-        terminal monitor
-        debug bgp update afi link-state link-state in
-        ```
-        - Fair warning: this will output quite a bit of data when the AFI is cleared
-        
-   2. Connect to **xrd01** and clear the BGP-LS address family
-        ```
-        clear bgp link-state link-state * soft
-        ```
+Reference: the GoBMP Git Repository can be found [HERE](https://github.com/sbezverk/gobmp)
 
-        On the Kafka console we expect to see 14 json objects representing BMP messages when we perform a soft reset of the BGP session in **xrd01**. This will cause router **xrd01** to repopulate it's ISIS node data which is then mirrored to the BGP route reflectors. Below is one of the records received through BMP by Jalapeno and sent through the Kafka bus for **xrd01** own ISIS link state node record.
+1. BMP configuration on **xrd05** and **xrd06**:
+    ```
+    conf t
+    bmp server 1
+      host 198.18.128.101 port 30511
+      description jalapeno GoBMP  
+      update-source MgmtEth0/RP0/CPU0/0
+      flapping-delay 60
+      initial-delay 5
+      stats-reporting-period 60
+      initial-refresh delay 25 spread 2
+    
+    router bgp 65000
+      neighbor 10.0.0.1
+        bmp-activate server 1
+    
+      neighbor fc00:0000:1111::1
+        bmp-activate server 1
 
-        ```json
-        {
-            "action": "add",
-            "router_hash": "0669df0f031fb83e345267a9679bbc6a",
-            "domain_id": 0,
-            "router_ip": "10.0.0.5",       <---- Reporting router xrd05
-            "peer_hash": "ef9f1cc86e4617df24d4675e2b55bbe2",
-            "peer_ip": "10.0.0.1",         <---- Source router xrd01
-            "peer_asn": 65000,
-            "timestamp": "2023-01-13T20:20:51.000164765Z",
-            "igp_router_id": "0000.0000.0001",  <-------- Link State Node ID
-            "router_id": "10.0.0.1",         <---- Source router xrd01
-            "asn": 65000,
-            "mt_id_tlv": [
-                {
-                    "o_flag": false,
-                    "a_flag": false,
-                    "mt_id": 0
-                },
-                {
-                    "o_flag": false,
-                    "a_flag": false,
-                    "mt_id": 2
-                }
-            ],
-            "area_id": "49.0901",                <---- Area ID
-            "protocol": "IS-IS Level 2",         <---- ISIS Level 2
-            "protocol_id": 2,
-            "name": "xrd01",
-            "ls_sr_capabilities": {              <---- From here down SR xrd01 local attributes meta data
-                "flags": {
-                    "i_flag": true,
-                    "v_flag": false
-                },
-                "sr_capability_subtlv": [
-                    {
-                        "range": 64000,
-                        "sid": 100000
-                    }
-                ]
-            },
-            "sr_algorithm": [
-                0,
-                1
-            ],
-            "sr_local_block": {
-                "flags": 0,
-                "subranges": [
-                    {
-                        "range_size": 1000,
-                        "label": 15000
-                    }
-                ]
-            },
-            "srv6_capabilities_tlv": {
-                "o_flag": false
-            },
-            "node_msd": [
-                {
-                    "msd_type": 1,
-                    "msd_value": 10
-                }
-            ],
-            "is_prepolicy": false,
-            "is_adj_rib_in": false
-        }
-        ```
-#### SRv6 Locator SID    
-   1. Now lets examine the SRv6 locator configuration on **xrd01** with the command: show run segment-routing srv6 locators 
-        ```  
-        show run segment-routing srv6 locators
-        ```
-        ```
-        segment-routing
-        srv6
-        locators
-            locator MyLocator
-            micro-segment behavior unode psp-usd
-            prefix fc00:0:1111::/48     <----- xrd01 SRv6 locator defined
-        ```
+      neighbor 10.0.0.7
+        bmp-activate server 1
+    
+      neighbor fc00:0000:7777::1
+        bmp-activate server 1
+    commit
+    ```
 
-   4. With **xrd01** SID locator identified lets see how that is communicated through the BMP from the route reflectors.
-      Monitor the BGP-LS *`ls_srv6_sid`* topic for incoming BMP messages describing SRv6 SIDs in the network:  
+2. Validate BMP session establishment and client monitoring (the session may take a couple minutes to become active/established):
+    ```
+    show bgp bmp summary
+    ```
 
-      Use ctrl-z to kill the previous kafka console monitor then:
-       ```
-       ./kafka-console-consumer.sh --bootstrap-server localhost:9092  --topic gobmp.parsed.ls_srv6_sid
-       ```
+    Expected output:  
+    ```
+    RP/0/RP0/CPU0:xrd06#show bgp bmp sum
+    Sat Dec 16 03:19:26.045 UTC
+    ID   Host                 Port     State   Time        NBRs
+    1   198.18.128.101       30511    ESTAB   00:00:07    4   
+    RP/0/RP0/CPU0:xrd06#
 
-       Optional - enable terminal monitoring and debugging the of BGP-LS address family on one of the route reflectors such as **xrd05**:  
+    ```
+  
+### Optional: Explore Kafka Topics 
+We've included a brief guide to exploring the Jalapeno Kafka setup including listing and monitoring topics: [Kafka](lab_5/lab_5-kafka.md). This element of the lab is completely optional, however, because this lab guide is published on Github, you can come back to it in the future to explore Kafka on your own.
 
-       ```
-       terminal monitor
-       debug bgp update afi vpnv6 unicast in
-       ```
-       *Fair warning: this will output quite a bit of data when the bgp is cleared*
+### Jalapeno Arango Graph Database
+At the heart of Jalapeno is the Arango Graph Database, which is used to model network topology and provide a graph-based data store for the network data collected via BMP or other sources. 
 
-   5. Again on **xrd01** clear the BGP-LS address family
-       ```
-       clear bgp link-state link-state * soft
-       ```
+1. Validate Jalapeno has populated the Arango graphDB with BMP data. Open the Arango web UI at:
 
-       One the Kafka console we expect to see 14 json objects representing BMP messages coming from our 2 route reflectors and describing our 7 different ISIS nodes. Example messages:
-       ```json
-       {
-           "action": "add",
-           "router_hash": "0669df0f031fb83e345267a9679bbc6a",
-           "router_ip": "10.0.0.5",   <---- Reporting router
-           "domain_id": 0,
-           "peer_hash": "ef9f1cc86e4617df24d4675e2b55bbe2",
-           "peer_ip": "10.0.0.1",     <---- Source router
-           "peer_asn": 65000,
-           "timestamp": "2023-01-13T19:49:01.000764233Z",
-           "igp_router_id": "0000.0000.0001",
-           "local_node_asn": 65000,
-           "protocol_id": 2,
-           "protocol": "IS-IS Level 2",
-           "nexthop": "10.0.0.1",
-           "local_node_hash": "89cd5823cd2cb0cfc304a61117c89a45",
-           "mt_id_tlv": {
-               "o_flag": false,
-               "a_flag": false,
-               "mt_id": 2
-           },
-           "igp_flags": 0,
-           "is_prepolicy": false,
-           "is_adj_rib_in": false,
-           "srv6_sid": "fc00:0:1111::",   <---- xrd01 loactor SID
-           "srv6_endpoint_behavior": {
-               "endpoint_behavior": 48,
-               "flag": 0,
-               "algo": 0
-           },
-           "srv6_sid_structure": {
-               "locator_block_length": 32,
-               "locator_node_length": 16,
-               "function_length": 0,
-               "argument_length": 80
-           }
-       }
-       ```
-
-### Arango GraphDB
-
-1. Switch to a web browser and connect to Jalapeno's Arango GraphDB
     ```
     http://198.18.128.101:30852/
     ```
+    - Login and select the "jalapeno" DB from the dropdown:
     ```
     user: root
     password: jalapeno
     DB: jalapeno
     ```
-2. Spend some time exploring the data collections in the DB
+    Once logged the UI should then show you its 'collections' view, which should look something like:
+
+  <img src="images/arango-collections.png" width="1000">
+
+4. Feel free to spot check the various data collections in Arango. Several will be empty as they are for future use. With successful BMP processing we would expect to see data in all the following collections:
+
+    - l3vpn_v4_prefix
+    - l3vpn_v6_prefix
+    - ls_link
+    - ls_node
+    - ls_node_edge
+    - ls_prefix
+    - ls_srv6_sid
+    - peer
+    - unicast_prefix_v4
+    - unicast_prefix_v6
+
+5. Install Jalapeno Graph Processors - Jalapeno's base installation includes the Topology and Link-State data processors. We have since written some addtitinoal processors which mine the existing data collections and create enriched topology models or graphs. We'll add these additional processors to our Jalapeno K8s cluster via a simple shell script.
+   
+   - ssh to Jalapeno VM and run the following commands:
+    ```
+    ssh cisco@198.18.128.101
+
+    cd xtra-processors
+    ./deploy.sh
+    ```
+
+The new processors will have created the following new collections in the ArangoDB graphDB, feel free to explore them in the ArangoDB UI, or move on to the next section.
+
+- igpv4_graph: a model of the ipv4 IGP topology including SRv6 SID data
+- igpv6_graph: a model of the ipv6 IGP topology including SRv6 SID data
+- ipv4_graph: a model of the entire ipv4 topology (IGP and BGP)
+- ipv6_graph: a model of the entire ipv6 topology (IGP and BGP)
+- sr_local_sids: a collection of SRv6 SIDs that are not automatically available via BMP
+
+### Jalapeno REST API
+The Jalapeno REST API is used to run queries against the Arango graphDB and retrieve graph topology data or execute shortest path calculations. 
+
+1. Test the Jalapeno REST API:
+
+   - From the ssh session on the Jalapeno VM or the XRD VM validate the Jalapeno REST API is running:
+    ```
+    curl http://198.18.128.101:30800/api/v1/collections
+    curl http://198.18.128.101:30800/api/v1/collections/ls_node
+    ```
+    - We installed the jq tool to help with nicer JSON parsing:
+    ```
+    curl http://198.18.128.101:30800/api/v1/graphs/igpv4_graph/vertices/keys | jq .
+    curl http://198.18.128.101:30800/api/v1/graphs/igpv4_graph/edges | jq .
+    ```
+
+   - The API also has auto-generated documentation at: http://198.18.128.101:30800/docs/
+
+We'll test the Jalapeno UI a bit later in the lab.
+
+### BGP SRv6 locator
+In lab 1 we configured an SRv6 locator for the BGP global/default table. When we get to lab 6 we'll use these locators as we'll be sending SRv6 encapsulated traffic directly to/from the Amsterdam and Rome VMs. With our endpoints performing SRv6 encapsulation our BGP SRv6 locator will provide the end.DT4/6 function at the egress nodes **xrd01** and **xrd07** to be able to pop the SRv6 encap and perform a global table lookup on the underlying payload.
+
+1. Optional: ssh to **xrd01** and re-validate end.DT4/6 SIDs belonging to BGP default table:
+    ```
+    ssh cisco@clab-cleu25-XR01
+    show segment-routing srv6 sid
+    ```
+
+    Expected output on **xrd01** should look something like the below table with both a uDT4 and uDT6 SID in the 'default' context:  
+    ```
+    RP/0/RP0/CPU0:xrd01#show segment-routing srv6 sid
+    Sat Dec 16 03:25:40.943 UTC
+
+    *** Locator: 'MyLocator' *** 
+
+    SID                         Behavior          Context                           Owner               State  RW
+    --------------------------  ----------------  --------------------------------  ------------------  -----  --
+    fc00:0:1111::               uN (PSP/USD)      'default':4369                    sidmgr              InUse  Y 
+    fc00:0:1111:e000::          uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0:P       isis-100            InUse  Y 
+    fc00:0:1111:e001::          uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0         isis-100            InUse  Y 
+    fc00:0:1111:e002::          uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0:P       isis-100            InUse  Y 
+    fc00:0:1111:e003::          uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0         isis-100            InUse  Y 
+    fc00:0:1111:e004::          uDT4              'default'                         bgp-65000           InUse  Y 
+    fc00:0:1111:e006::          uDT6              'default'                         bgp-65000           InUse  Y
+    fc00:0:1111:e005::          uDT4              'carrots'                         bgp-65000           InUse  Y 
+    fc00:0:1111:e007::          uDT6              'carrots'                         bgp-65000           InUse  Y 
+    fc00:0:1111:e008::          uB6 (Insert.Red)  'srte_c_50_ep_fc00:0:7777::1' (50, fc00:0:7777::1)  xtc_srv6            InUse  Y 
+    fc00:0:1111:e009::          uB6 (Insert.Red)  'srte_c_40_ep_fc00:0:7777::1' (40, fc00:0:7777::1)  xtc_srv6            InUse  Y 
+    RP/0/RP0/CPU0:xrd01#
+    ``` 
+
+  - As we saw earlier in the lab, the *`kubectl get pods -n jalapeno`* command will show you all the k8s containers that make up the Jalapeno application, including the *`srv6-localsids`* processor. This processor harvests SRv6 SID data from a Kafka streaming telemetry topic and populates it in the *`sr_local_sids`* collection. This data is not available via BMP and is needed to construct full End.DT SIDs that we'll use in lab 6. 
+  
+    Example:
+
+    ```
+    SID                         Behavior          Context                    Owner              
+    ----------------------  --------------  -----------------------------  ------------
+    fc00:0:1111::           uN (PSP/USD)    'default':4369                 sidmgr     <-------- Collected via BMP
+    fc00:0:1111:e000::      uA (PSP/USD)    [Gi0/0/0/1, Link-Local]:0:P    isis-100    <---|   
+    fc00:0:1111:e001::      uA (PSP/USD)    [Gi0/0/0/1, Link-Local]:0      isis-100    <---|  These are not available via BMP
+    fc00:0:1111:e002::      uA (PSP/USD)    [Gi0/0/0/2, Link-Local]:0:P    isis-100    <---|  We collect and process
+    fc00:0:1111:e003::      uA (PSP/USD)    [Gi0/0/0/2, Link-Local]:0      isis-100    <---|  these SIDs via streaming
+    fc00:0:1111:e004::      uDT4            'carrots'                      bgp-65000   <---|  telemetry and the 
+    fc00:0:1111:e005::      uDT6            'carrots'                      bgp-65000   <---|  "srv6-localsids" processor
+
+    ```
+  > [!NOTE]
+  > The SRv6 SID streaming telemetry configuration for capturing *`xrd07's`* srv6 sid data can be seen here: [SRv6 SID mdt path](https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_1/config/xrd07.cfg#L23)
+
+1. Spend some time exploring the data collections in the DB
 
     #### Basic queries to explore data collections 
     The ArangoDB Query Language (AQL) can be used to retrieve and modify data that are stored in ArangoDB.
@@ -318,9 +329,9 @@ In this exercise we are going to stitch together several elements that we have w
 
     <img src="images/arango-query.png" width="600">
 
-    Next lets get the AQL to return only the *`key:value`* field we are interested in. We will query the name of all nodes in the *`ls_node_extended`* collection with the below query. To reference a specific key field we use use the format **x.key** syntax.
+    Next lets get the AQL to return only the *`key:value`* field we are interested in. We will query the name of all nodes in the *`igp_node`* collection with the below query. To reference a specific key field we use use the format **x.key** syntax.
     ```
-    for x in ls_node_extended return x.name
+    for x in igp_node return x.name
     ```
     Expected output from Arango query:
     ```   
@@ -334,7 +345,7 @@ In this exercise we are going to stitch together several elements that we have w
     ```
     If we wish to return multiple keys in our query we will switch to using curly braces to ask for a data set in the return. In this case we are quering the name to return the record only for **xrd01**
     ```
-    for x in ls_node_extended 
+    for x in igp_node 
         filter x.name == "xrd04"
     return {Name: x.name, SID: x.sids}
     ```
@@ -364,7 +375,7 @@ In this exercise we are going to stitch together several elements that we have w
 
     Now if you want to filter on multiple conditions we can through a boolean value in to return the **xrd01** and **xrd07** records.
     ```
-    for x in ls_node_extended 
+    for x in igp_node 
         filter x.name == "xrd01" or x.name=="xrd07"
     return {Name: x.name, SID: x.sids}
     ```
@@ -396,7 +407,7 @@ The *`add_meta_data.py`* python script will connect to the ArangoDB and populate
 
 2. Validate meta data with an ArangoDB query:
    ```
-   for x in ipv4_topology return { key: x._key, from: x._from, to: x._to, latency: x.latency, 
+   for x in ipv4_graph return { key: x._key, from: x._from, to: x._to, latency: x.latency, 
     utilization: x.percent_util_out, country_codes: x.country_codes }
    ```
 
@@ -424,7 +435,7 @@ In this use case we want to idenitfy the lowest latency path for traffic origina
    1. Return to the ArangoDB browser UI and run a shortest path query from *10.101.1.0/24* to *20.0.0.0/24* , and have it return SRv6 SID data.
       ```
       for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' 
-          TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology OPTIONS {weightAttribute: 'latency' } 
+          TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_graph OPTIONS {weightAttribute: 'latency' } 
           return  { prefix: v.prefix, name: v.name, srv6sid: v.sids[*].srv6_sid, latency: e.latency }
       ```
    
@@ -495,7 +506,7 @@ In this use case we want to idenitfy the lowest utilized path for traffic origin
    1. Return to the ArangoDB browser UI and run a shortest path query from 10.101.1.0/24 to 20.0.0.0/24, and have it return SRv6 SID data.
       ```
       for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' 
-          TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology options { weightAttribute: 'percent_util_out' } filter e.mt_id != 2
+          TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_graph options { weightAttribute: 'percent_util_out' } filter e.mt_id != 2
       return { node: v._key, name: v.name, sid: v.sids[*].srv6_sid, util: e.percent_util_out }
       ```
    
@@ -552,7 +563,7 @@ In this use case we want to idenitfy a path originating from the *10.101.1.0/24*
    1. Return to the ArangoDB browser UI and run a shortest path query from *10.101.1.0/24* to *20.0.0.0/24* , and have it return SRv6 SID data.
       ```
       for p in outbound k_shortest_paths  'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' 
-          TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology 
+          TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_graph 
             options {uniqueVertices: "path", bfs: true} 
             filter p.edges[*].country_codes !like "FRA" limit 1 
                 return { path: p.vertices[*].name, sid: p.vertices[*].sids[*].srv6_sid, 

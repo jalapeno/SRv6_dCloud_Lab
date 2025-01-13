@@ -114,8 +114,8 @@ For additional help on Kafka see this external CLI cheat sheet [HERE](https://me
     gobmp.parsed.unicast_prefix_v4_events
     gobmp.parsed.unicast_prefix_v6
     gobmp.parsed.unicast_prefix_v6_events
-    jalapeno.ipv4_topology_events
-    jalapeno.ipv6_topology_events
+    jalapeno.ipv4_graph_events
+    jalapeno.ipv6_graph_events
     jalapeno.linkstate_edge_v4_events
     jalapeno.linkstate_edge_v6_events
     jalapeno.ls_node_edge_events
@@ -332,9 +332,9 @@ In this exercise we are going to stitch together several elements that we have w
 
     <img src="images/arango-query.png" width="600">
 
-    Next lets get the AQL to return only the *`key:value`* field we are interested in. We will query the name of all nodes in the *`ls_node_extended`* collection with the below query. To reference a specific key field we use use the format **x.key** syntax.
+    Next lets get the AQL to return only the *`key:value`* field we are interested in. We will query the name of all nodes in the *`igp_node`* collection with the below query. To reference a specific key field we use use the format **x.key** syntax.
     ```
-    for x in ls_node_extended return x.name
+    for x in igp_node return x.name
     ```
     Expected output from Arango query:
     ```   
@@ -348,7 +348,7 @@ In this exercise we are going to stitch together several elements that we have w
     ```
     If we wish to return multiple keys in our query we will switch to using curly braces to ask for a data set in the return. In this case we are quering the name to return the record only for **xrd01**
     ```
-    for x in ls_node_extended 
+    for x in igp_node 
         filter x.name == "xrd04"
     return {Name: x.name, SID: x.sids}
     ```
@@ -378,7 +378,7 @@ In this exercise we are going to stitch together several elements that we have w
 
     Now if you want to filter on multiple conditions we can through a boolean value in to return the **xrd01** and **xrd07** records.
     ```
-    for x in ls_node_extended 
+    for x in igp_node 
         filter x.name == "xrd01" or x.name=="xrd07"
     return {Name: x.name, SID: x.sids}
     ```
@@ -408,7 +408,7 @@ The *`add_meta_data.py`* python script will connect to the ArangoDB and populate
 
 2. Validate meta data with an ArangoDB query:
    ```
-   for x in ipv4_topology return { key: x._key, from: x._from, to: x._to, latency: x.latency, 
+   for x in ipv4_graph return { key: x._key, from: x._from, to: x._to, latency: x.latency, 
     utilization: x.percent_util_out, country_codes: x.country_codes }
    ```
 > [!NOTE]
@@ -433,27 +433,27 @@ Reference this document on the shortest path algorithim in AQL [HERE](https://ww
 
    1. Return to the ArangoDB browser UI and run a shortest path query from **xrd01** to **xrd07**, and have it return SRv6 SID data.
    ```
-   for v, e in outbound shortest_path 'ls_node_extended/2_0_0_0000.0000.0001' 
-        TO 'ls_node_extended/2_0_0_0000.0000.0007' ipv4_topology 
+   for v, e in outbound shortest_path 'igp_node/2_0_0_0000.0000.0001' 
+        TO 'igp_node/2_0_0_0000.0000.0007' ipv4_graph 
         return  { node: v.name, location: v.location_id, address: v.address, srv6sid: v.sids[*].srv6_sid }
    ```
    - Note: In the graphDB the **xrd01** and **xrd07** nodes are represented as:
   
-     - 'ls_node_extended/2_0_0_0000.0000.0001'
-     - 'ls_node_extended/2_0_0_0000.0000.0007'
+     - 'igp_node/2_0_0_0000.0000.0001'
+     - 'igp_node/2_0_0_0000.0000.0007'
 
    #### For all the remaining queries in this lab you can run the query against the return path by simply reversing the startVertex and targetVertex. Example where xrd07 and xrd01 are reversed:
 
    ```
-   for v, e in outbound shortest_path 'ls_node_extended/2_0_0_0000.0000.0007' 
-        TO 'ls_node_extended/2_0_0_0000.0000.0001' ipv4_topology 
+   for v, e in outbound shortest_path 'igp_node/2_0_0_0000.0000.0007' 
+        TO 'igp_node/2_0_0_0000.0000.0001' ipv4_graph 
         return  { node: v.name, location: v.location_id, address: v.address, srv6sid: v.sids[*].srv6_sid }
    ```
 
    1. Next we can expand the diameter of our query. In this case its no longer just ingress router to egress router, its a shortest path query from source prefix (Amsterdam VM) to destination prefix (Rome VM). This example query also includes hop by hop latency:
    ```
    for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' 
-        TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology 
+        TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_graph 
         return  { node: v.name, location: v.location_id, address: v.address, 
         srv6sid: v.sids[*].srv6_sid, latency: e.latency }
    ```
@@ -465,7 +465,7 @@ Reference this document on the shortest path algorithim in AQL [HERE](https://ww
 #### Query for the lowest latency path between Amsterdam and Rome:
    ```
    for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' 
-        TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology OPTIONS {weightAttribute: 'latency' } 
+        TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_graph OPTIONS {weightAttribute: 'latency' } 
         return  { prefix: v.prefix, name: v.name, srv6sid: v.sids[*].srv6_sid, latency: e.latency }
    ```
 
@@ -482,14 +482,14 @@ Backups, data replication, other bulk transfers can oftentimes take a non-best p
    1. First a query for full path data. We expect to see the Arango UI render a topology that includes all seven routers and our two prefix endpoints:
 
    ```
-   FOR v, e, p in 1..6 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' ipv4_topology 
+   FOR v, e, p in 1..6 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' ipv4_graph 
        options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
        return distinct p
    ```
    
    2. Optional: try the same query, but limit results to 5 hops or fewer:
    ```
-   FOR v, e, p in 1..5 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' ipv4_topology 
+   FOR v, e, p in 1..5 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' ipv4_graph 
        options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
        return distinct p
    ```
@@ -499,7 +499,7 @@ Backups, data replication, other bulk transfers can oftentimes take a non-best p
 
    3. Run the same query but with filtered output. 
    ```
-   for v, e, p in 1..6 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' ipv4_topology 
+   for v, e, p in 1..6 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' ipv4_graph 
        options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
        return distinct { path: p.vertices[*].name, sid: p.vertices[*].sids[*].srv6_sid, countries_traversed: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)} 
    ```
@@ -510,7 +510,7 @@ Backups, data replication, other bulk transfers can oftentimes take a non-best p
    The previous queries provided paths up to 5 or 6-hops in length. We can increase or decrease the number of hops a graph traversal may use. For example we could increase the length of the traversal such that paths of up to 8 hops will be considered:
    
    ```
-    for v, e, p in 1..8 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' ipv4_topology 
+    for v, e, p in 1..8 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' ipv4_graph 
         options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' 
         return distinct { path: p.vertices[*].name, sid: p.vertices[*].sids[*].srv6_sid, 
         country_list: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency), 
@@ -531,7 +531,7 @@ ArangoDB reference [LINK](https://www.arangodb.com/docs/stable/aql/graphs-kshort
  - First a query for full path data:
     ```
     for p in outbound k_shortest_paths  'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' to 
-        'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology options {uniqueVertices: "path"} 
+        'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_graph options {uniqueVertices: "path"} 
         filter p.edges[*].country_codes !like "%FRA%" return distinct p
     ```
   The resulting graph shows our two paths that avoid going through France *(xrd06 in Paris)*
@@ -539,7 +539,7 @@ ArangoDB reference [LINK](https://www.arangodb.com/docs/stable/aql/graphs-kshort
 
  - We can run the same query but with filtered output:
     ```
-    for p in outbound k_shortest_paths 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' to 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_topology filter p.edges[*].country_codes !like "%FRA%" return distinct { path: p.vertices[*].name, 
+    for p in outbound k_shortest_paths 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' to 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_graph filter p.edges[*].country_codes !like "%FRA%" return distinct { path: p.vertices[*].name, 
             sid: p.vertices[*].sids[*].srv6_sid, countries_traversed: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
     ```
 

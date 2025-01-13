@@ -1,0 +1,30 @@
+network:
+  ethernets:
+    ens160:
+      addresses:
+      - 198.18.128.104/18
+        #gateway4: 198.18.128.1
+      routes: 
+        - to: 10.0.0.0/8
+          via: 198.18.128.1
+      #nameservers:
+      #  addresses:
+      #  - 198.18.128.1
+      #  - 8.8.8.8
+      #  search:
+      #  - demo.dcloud.cisco.com
+    ens192:
+      addresses:
+        - 198.18.4.103/24
+        - fc00:0:103:1::1/64
+      gateway4: 198.18.4.1
+      routes:
+        - to: 10.0.0.0/24
+          via: 198.18.4.2
+        - to: fc00:0::/32
+          via: fc00:0:103:1::2
+      nameservers:
+        addresses:
+        - 198.18.4.1
+        - 8.8.8.8
+  version: 2
