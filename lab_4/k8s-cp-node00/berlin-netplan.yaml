@@ -15,14 +15,14 @@ network:
       #  - demo.dcloud.cisco.com
     ens192:
       addresses:
-        - 198.18.4.104/24
-        - fc00:0:A004:1::104/64
+        - 198.18.4.103/24
+        - fc00:0:103:1::103/64
       gateway4: 198.18.4.1
       routes:
         - to: 10.0.0.0/24
           via: 198.18.4.2
         - to: fc00:0::/32
-          via: fc00:0:A004:1::2
+          via: fc00:0:103:1::1
       nameservers:
         addresses:
         - 198.18.4.1
