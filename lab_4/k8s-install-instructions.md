@@ -1,6 +1,6 @@
 ### reference: https://thenewstack.io/how-to-deploy-kubernetes-with-kubeadm-and-containerd/
 
-These instructions have been verified on Ubuntu 20.04 and 22.04
+This document is for reference only and will not be used during the Cisco Live lab. Please feel free to refer to these instructions later if you are building your own K8s lab or cluster. These instructions have been verified on Ubuntu 20.04 and 22.04
 
 1. turn off swap and set data/time:
 ```
@@ -9,12 +9,12 @@ sudo swapoff -a
 sudo rm /swap.img
 ```
 
-2. Edit /etc/fstab, comment out swap
+1. Edit /etc/fstab, comment out swap
 ```
 sudo nano /etc/fstab
 ```
 
-3. apt update/upgrade
+1. apt update/upgrade
 ```
 sudo apt update 
 sudo apt upgrade -y
@@ -82,7 +82,7 @@ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 ```
 
-10. Install Cilium CNI
+10. Install Cilium CLI
 ```
 CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
 CLI_ARCH=amd64
@@ -93,7 +93,7 @@ sudo tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
 rm cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
 ```
 
-11. 
+11. Install Cilium open source CNI
 ```
 cilium install
 ```
