@@ -155,6 +155,8 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     clab-cleu25-XR01 (id: 1)
     clab-cleu25-XR05 (id: 0) 
     ```
+> [!IMPORTANT]
+> INSERT NETWORK NAME SPACE INFO
 
  - The scripts and files reside in the lab 'util' directory:
 ```
