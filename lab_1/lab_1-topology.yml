@@ -9,44 +9,43 @@ mgmt:
   
 topology:
   nodes:
-    XR01:
+    xrd01:
       kind: cisco_xrd
       image: ios-xr/xrd-control-plane:24.3.2
       startup-config: config/xrd01.cfg
       mgmt-ipv4: 10.254.254.101
       
-
-    XR02:
+    xrd02:
       kind: cisco_xrd
       image: ios-xr/xrd-control-plane:24.3.2
       startup-config: config/xrd02.cfg
       mgmt-ipv4: 10.254.254.102
 
-    XR03:
+    xrd03:
       kind: cisco_xrd
       image: ios-xr/xrd-control-plane:24.3.2
       startup-config: config/xrd03.cfg
       mgmt-ipv4: 10.254.254.103
 
-    XR04:
+    xrd04:
       kind: cisco_xrd
       image: ios-xr/xrd-control-plane:24.3.2
       startup-config: config/xrd04.cfg
       mgmt-ipv4: 10.254.254.104
 
-    XR05:
+    xrd05:
       kind: cisco_xrd
       image: ios-xr/xrd-control-plane:24.3.2
       startup-config: config/xrd05.cfg
       mgmt-ipv4: 10.254.254.105
 
-    XR06:
+    xrd06:
       kind: cisco_xrd
       image: ios-xr/xrd-control-plane:24.3.2
       startup-config: config/xrd06.cfg
       mgmt-ipv4: 10.254.254.106
 
-    XR07:
+    xrd07:
       kind: cisco_xrd
       image: ios-xr/xrd-control-plane:24.3.2
       startup-config: config/xrd07.cfg
@@ -56,21 +55,21 @@ topology:
   links:
 
     # Link between XR Routers
-    - endpoints: ["XR01:Gi0-0-0-1", "XR02:Gi0-0-0-0"]      
-    - endpoints: ["XR01:Gi0-0-0-2", "XR05:Gi0-0-0-0"]
-    - endpoints: ["XR02:Gi0-0-0-1", "XR03:Gi0-0-0-0"]
-    - endpoints: ["XR02:Gi0-0-0-2", "XR06:Gi0-0-0-1"]
-    - endpoints: ["XR05:Gi0-0-0-1", "XR04:Gi0-0-0-2"]
-    - endpoints: ["XR05:Gi0-0-0-2", "XR06:Gi0-0-0-2"]
-    - endpoints: ["XR03:Gi0-0-0-1", "XR04:Gi0-0-0-0"]
-    - endpoints: ["XR04:Gi0-0-0-1", "XR07:Gi0-0-0-1"]
-    - endpoints: ["XR06:Gi0-0-0-0", "XR07:Gi0-0-0-2"]
+    - endpoints: ["xrd01:Gi0-0-0-1", "xrd02:Gi0-0-0-0"]      
+    - endpoints: ["xrd01:Gi0-0-0-2", "xrd05:Gi0-0-0-0"]
+    - endpoints: ["xrd02:Gi0-0-0-1", "xrd03:Gi0-0-0-0"]
+    - endpoints: ["xrd02:Gi0-0-0-2", "xrd06:Gi0-0-0-1"]
+    - endpoints: ["xrd05:Gi0-0-0-1", "xrd04:Gi0-0-0-2"]
+    - endpoints: ["xrd05:Gi0-0-0-2", "xrd06:Gi0-0-0-2"]
+    - endpoints: ["xrd03:Gi0-0-0-1", "xrd04:Gi0-0-0-0"]
+    - endpoints: ["xrd04:Gi0-0-0-1", "xrd07:Gi0-0-0-1"]
+    - endpoints: ["xrd06:Gi0-0-0-0", "xrd07:Gi0-0-0-2"]
 
-    # Link betwen XR01/XR07 and the Amsterdamn/Rome VM  
-    - endpoints: ["XR01:Gi0-0-0-0", "macvlan:ens224"]
-    - endpoints: ["XR01:Gi0-0-0-3", "macvlan:ens193"]
-    - endpoints: ["XR07:Gi0-0-0-0", "macvlan:ens256"]
-    - endpoints: ["XR07:Gi0-0-0-3", "macvlan:ens161"]
+    # Link betwen xrd01/xrd07 and the Amsterdamn/Rome VM  
+    - endpoints: ["xrd01:Gi0-0-0-0", "macvlan:ens224"]
+    - endpoints: ["xrd01:Gi0-0-0-3", "macvlan:ens193"]
+    - endpoints: ["xrd07:Gi0-0-0-0", "macvlan:ens256"]
+    - endpoints: ["xrd07:Gi0-0-0-3", "macvlan:ens161"]
 
-    # Link between XR03 and the Berlin VM
-    - endpoints: ["XR03:Gi0-0-0-2", "macvlan:ens225"]
+    # Link between xrd03 and the Berlin VM
+    - endpoints: ["xrd03:Gi0-0-0-2", "macvlan:ens225"]

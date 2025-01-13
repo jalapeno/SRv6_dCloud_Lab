@@ -14,12 +14,6 @@ topology for all subsequent lab exercises. Second, we will validate that the pre
     - [User Credentials](#user-credentials)
     - [Management Network Topology](#management-network-topology)
     - [Launch and Validate XRD Topology](#launch-and-validate-xrd-topology)
-      - [check if this step is still needed with clab macvtaps](#check-if-this-step-is-still-needed-with-clab-macvtaps)
-    - [Validate Jalapeno VM](#validate-jalapeno-vm)
-    - [Validate Client VMs](#validate-client-vms)
-    - [Connect to Routers](#connect-to-routers)
-  - [Validate ISIS Topology](#validate-isis-topology)
-      - [need to discuss if we want to keep this step, if so we can adapt util/nets.sh to do something like this:](#need-to-discuss-if-we-want-to-keep-this-step-if-so-we-can-adapt-utilnetssh-to-do-something-like-this)
   - [Validate BGP Topology](#validate-bgp-topology)
   - [End of Lab 1](#end-of-lab-1)
   
