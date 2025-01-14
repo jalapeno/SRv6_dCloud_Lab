@@ -1,0 +1,13 @@
+---
+apiVersion: isovalent.com/v1alpha1
+kind: IsovalentBGPAdvertisement
+metadata:
+  name: bgp-advertisements
+  labels:
+    advertise: bgp
+spec:
+  advertisements:
+    - advertisementType: "SRv6LocatorPool"
+      selector:             # <-- selects srv6 locator pool
+        matchExpressions:
+          - { key: export, operator: In, values: [ true ] }
