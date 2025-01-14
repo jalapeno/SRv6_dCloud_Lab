@@ -13,3 +13,8 @@ Uninstall
 ```
 helm uninstall cilium -n kube-system
 ```
+
+verify daemonset
+```
+kubectl get ds cilium -n kube-system
+```
