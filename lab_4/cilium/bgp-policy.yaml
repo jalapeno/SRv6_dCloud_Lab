@@ -14,16 +14,6 @@ spec:
       matchLabels:
         export: "true"
     neighbors:
-    # - peerAddress: "10.0.0.5/32"
-    #   peerASN: 65000
-    #   families:
-    #    - afi: ipv4
-    #      safi: unicast
-    # - peerAddress: "10.0.0.6/32"
-    #   peerASN: 65000
-    #   families:
-    #    - afi: ipv4
-    #      safi: unicast
     - peerAddress: "fc00:0:5555::1/128"
       peerASN: 65000
       families:

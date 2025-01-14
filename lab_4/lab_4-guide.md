@@ -101,23 +101,19 @@ cd SRv6_dCloud_Lab/lab_4/cilium/
 kubectl apply -f bgp-policy.yaml
 ```
 
-### configure xrd05 and xrd06, and make sure xrd07 has the vpnv4 pass prefixes knob set
-
 1. On Rome verify Cilium BGP peering with the following cilium CLI:
-```
-cilium bgp peers
-```
+  ```
+  cilium bgp peers
+  ```
 
-  We expect to see v4 and v6 sessions active and advertisement and receipt of a number of BGP NLRIs for ipv4, ipv6, and ipv4/mpls_vpn (aka, SRv6 L3VPN). Example:
+  We expect to a pair of IPv6 sessions established and with advertisement and receipt of BGP NLRIs for ipv6 and ipv4/mpls_vpn (aka, SRv6 L3VPN). Example:
   ```
   cisco@rome:~/SRv6_dCloud_Lab/lab_4/cilium$ cilium bgp peers
-  Node  Local AS  Peer AS   Peer Address     Session State   Uptime   Family          Received   Advertised
-  rome  65000     65000     10.0.0.5         established     8m4s     ipv4/unicast    7          1    
-        65000      65000    10.0.0.6         established     8m48s    ipv4/unicast    7          1    
-        65000      65000    fc00:0:5555::1   active          0s       ipv6/unicast    0          1    
-                                                                      ipv4/mpls_vpn   0          0    
-        65000      65000    fc00:0:6666::1   active          0s       ipv6/unicast    0          1    
-                                                                      ipv4/mpls_vpn   0          0   
+  Node   Local AS   Peer AS   Peer Address     Session State   Uptime   Family          Received   Advertised
+  rome   65000      65000     fc00:0:5555::1   established     2m58s    ipv6/unicast    5          1    
+                                                                        ipv4/mpls_vpn   4          0    
+        65000      65000     fc00:0:6666::1   established     53s       ipv6/unicast    5          1    
+                                                                        ipv4/mpls_vpn   4          0   
   ```
 
 ## Cilium SRv6 Sidmanager and Locators
@@ -155,15 +151,15 @@ kubectl get sidmanager -o custom-columns="NAME:.metadata.name,ALLOCATIONS:.spec.
     kind: IsovalentSRv6SIDManager
     metadata:
       creationTimestamp: "2025-01-13T22:55:05Z"
-      generation: 2
+      generation: 5
       name: rome
-      resourceVersion: "13826"
+      resourceVersion: "48034"
       uid: dd82d5d0-6d84-4cc8-ac31-ed2f3ce857f7
     spec:
       locatorAllocations:
       - locators:
         - behaviorType: uSID
-          prefix: fc00:0:a09f::/48  <----- Rome's dynamically allocated uSID prefix
+          prefix: fc00:0:a061::/48    <------ Rome's dynamically allocated uSID prefix
           structure:
             argumentLenBits: 0
             functionLenBits: 16
