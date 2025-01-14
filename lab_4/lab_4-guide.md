@@ -353,10 +353,9 @@ exit
       vrfID: 1000107
   ```
 
-## Redistribute Cilium Locators into XRd ISIS
-*`Figure 3 - reminder of full network topology`*
 
-![labnet](diagrams/labnet.png)
+## Plan B: Redistribute Cilium Locators into XRd ISIS
+If BGP v2 CRDs don't work
 
 Note: Per the full network diagram above, this lab is setup where XRd nodes 10-15 are an ISIS domain within BGP ASN 65010. The K8s/Cilium nodes in this design are eBGP peers with xrd14 and xrd15 respectively. The eBGP relationship means the K8s/Cilium nodes' locators are advertised via eBGP, but ISIS midpoint nodes (xrd12 and xrd13) won't know about those routes as they're not running BGP. So for the purposes of this lab we'll redistribute the Cilium locators into ISIS. A future version of this lab will involve connecting K8s/Cilium nodes to a small RFC7938 style eBGP-only DC fabric and explore the different protocol interactions.
 
@@ -372,7 +371,7 @@ ssh cisco@clab-cilium-srv6-xrd14
 ssh cisco@clab-cilium-srv6-xrd15
 ```
 
-2. show the routers' prefix-set running config
+1. show the routers' prefix-set running config
 ```
 show running-config prefix-set cilium-locs
 ```
@@ -386,7 +385,7 @@ prefix-set cilium-locs
 end-set
 ```
 
-3. update the prefix-set to use Cilium's current locators
+1. update the prefix-set to use Cilium's current locators
 ```
 conf t
 ```
@@ -398,7 +397,7 @@ end-set
 commit
 ```
 
-4. Exit xrd14 and xrd15 then ssh into upstream *`xrd12`* and verify the cilium locator prefixes appear in its ISIS routing table.
+1. Exit xrd14 and xrd15 then ssh into upstream *`xrd12`* and verify the cilium locator prefixes appear in its ISIS routing table.
 ```
 ssh cisco@clab-cilium-srv6-xrd12
 show route ipv6
@@ -478,9 +477,12 @@ ping 10.12.0.1 -i .3 -c 4
   / # 
   ```
 
-### You have completed the Cilium-SRv6 lab, huzzah!
+Note: In a future version of this lab we hope to program SRv6 routes/policies using a K8s CNI dataplane such as eBPF (example: [Cilium support for SRv6](https://cilium.io/industries/telcos-datacenters/)). 
 
-## Appendix 1: other Useful Commands
+### End of lab 4
+Please proceed to [Lab 5](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_5/lab_5-guide.md)
+
+## Cilium Lab Appendix 1: other Useful Commands
 The following commands can all be run from the rome:
 
 1. Self explanatory Cilium BGP commands:
@@ -512,31 +514,45 @@ cilium bgp routes available ipv6 unicast
   ```
   cisco@rome:~$ kubectl get pods -n kube-system
   NAME                                    READY   STATUS    RESTARTS      AGE
-  cilium-97pz8                            1/1     Running   0             20m
-  cilium-kxdcd                            1/1     Running   0             20m
+  cilium-zczvb                       1/1     Running   0          7h57m
   ```
 
-  Then run cilium-dbg ebpf commands:
+  Then run cilium-dbg ebpf commands (Note: the cilium agent pod name is dynamic so you'll need to replace cilium-zczvb with the pod name from your Rome node):
   The first command outputs the nodes' local SID table
   The second command outputs the nodes' local VRF table
   The third command outputs a summary of the nodes' srv6 l3vpn routing table
   ```
-  kubectl exec -n kube-system cilium-97pz8 -- cilium-dbg bpf srv6 sid
-  kubectl exec -n kube-system cilium-97pz8 -- cilium-dbg bpf srv6 vrf
-  kubectl exec -n kube-system cilium-97pz8 -- cilium-dbg bpf srv6 policy
+  kubectl exec -n kube-system cilium-zczvb -- cilium-dbg bpf srv6 sid
+  kubectl exec -n kube-system cilium-zczvb -- cilium-dbg bpf srv6 vrf
+  kubectl exec -n kube-system cilium-zczvb -- cilium-dbg bpf srv6 policy
   ```
 
   Example output:
   ```
-  cisco@rome:~$ kubectl exec -n kube-system cilium-97pz8 -- cilium-dbg bpf srv6 sid
+  cisco@rome:~/SRv6_dCloud_Lab/lab_4/cilium$   kubectl exec -n kube-system cilium-zczvb -- cilium-dbg bpf srv6 sid
   Defaulted container "cilium-agent" out of: cilium-agent, config (init), mount-cgroup (init), apply-sysctl-overwrites (init), mount-bpf-fs (init), wait-for-node-init (init), clean-cilium-state (init), install-cni-binaries (init)
-  SID                VRF ID
-  fc00:0:12d:2f3::   1000012
-  cisco@rome:~$ kubectl exec -n kube-system cilium-kxdcd -- cilium-dbg bpf srv6 sid
+  SID                  VRF ID
+  fc00:0:a061:e95c::   1000107
+  fc00:0:a061:8edf::   1000010
+  cisco@rome:~/SRv6_dCloud_Lab/lab_4/cilium$   kubectl exec -n kube-system cilium-zczvb -- cilium-dbg bpf srv6 vrf
   Defaulted container "cilium-agent" out of: cilium-agent, config (init), mount-cgroup (init), apply-sysctl-overwrites (init), mount-bpf-fs (init), wait-for-node-init (init), clean-cilium-state (init), install-cni-binaries (init)
-  SID                 VRF ID
-  fc00:0:12c:8d1d::   1000012
-  cisco@rome:~$ 
+  Source IP            Destination CIDR   VRF ID
+  10.200.0.134         0.0.0.0/0          1000107
+  10.200.0.175         0.0.0.0/0          1000107
+  10.200.0.199         0.0.0.0/0          1000010
+  2001:db8:200::17fb   0.0.0.0/0          1000107
+  2001:db8:200::3a09   0.0.0.0/0          1000010
+  2001:db8:200::3bdc   0.0.0.0/0          1000107
+  cisco@rome:~/SRv6_dCloud_Lab/lab_4/cilium$   kubectl exec -n kube-system cilium-zczvb -- cilium-dbg bpf srv6 policy
+  Defaulted container "cilium-agent" out of: cilium-agent, config (init), mount-cgroup (init), apply-sysctl-overwrites (init), mount-bpf-fs (init), wait-for-node-init (init), clean-cilium-state (init), install-cni-binaries (init)
+  VRF ID    Destination CIDR   SID
+  1000010   10.200.0.0/24      fc00:0:a061:8edf::
+  1000107   10.9.9.1/32        fc00:0:1111:e005::
+  1000107   10.101.3.0/24      fc00:0:1111:e005::
+  1000107   10.107.2.0/24      fc00:0:7777:e005::
+  1000107   10.200.0.0/24      fc00:0:a061:e95c::
+  1000107   40.0.0.0/24        fc00:0:7777:e005::
+  1000107   50.0.0.0/24        fc00:0:7777:e005::
   ```
 
   Get Cilium global config:
@@ -544,101 +560,3 @@ cilium bgp routes available ipv6 unicast
   kubectl get configmap -n kube-system cilium-config -o yaml
   ```
 
-## Appendix 2: Notes, Other
-
-1.  helm uninstall
-```
-helm uninstall cilium -n kube-system
-```
-
-2.  helm list
-```
-cisco@rome:~/cilium$ helm list -n kube-system
-NAME  	NAMESPACE  	REVISION	UPDATED                              	STATUS  	CHART        	APP VERSION
-cilium	kube-system	1       	2024-08-13 21:30:50.1523314 -0700 PDT	deployed	cilium-1.15.6	1.15.6    
-```
-
-#### Changing the locator pool
-May cause Cilium's eBPF SRv6 programming to fail (the features are currently beta)
-
-```
-cisco@rome:~/cilium$ kubectl apply -f loc-pool-test.yaml 
-isovalentsrv6locatorpool.isovalent.com/pool0 created
-cisco@rome:~/cilium$ kubectl get IsovalentSRv6EgressPolicy -o yaml
-apiVersion: v1
-items: []
-kind: List
-metadata:
-  resourceVersion: ""
-```
-The workaround appears to be uninstall then reinstall Cilium
-
-### eBGP host-to-ToR
-If locatorLenBits: 48 then
-1. On ToR create static route to host locator /48, redistribute into ISIS
-
-If locatorLenBits: 64 then:
-
-2. set functionLenBits to 32
-   
-3. on ToR create static route to host locator /64 and static route to locator /128, redistribute into ISIS
-Example:
-```
-router static
- address-family ipv6 unicast
-  fc00:0:4000::/128 2001:db8:18:44:5054:60ff:fe01:a008
-  fc00:0:4000:2b::/64 2001:db8:18:44:5054:60ff:fe01:a008
-```
-
-Note: if the ToR/DC domain has an eBGP relationship with other outside domains (WAN, etc.) BGP IPv6 unicast will advertise the /64 locator networks out, but the /128 won't appear in DC BGP without some other redistribution (static /128 into DC BGP?). 
-
-## Appendix 3: configure VRF carrots on xrd08
-Note: as of August 30, 2024 this section is under construction
-
-1. From *`topology-host`* ssh to *`xrd08`*
-```
-ssh cisco@clab-cilium-srv6-xrd08
-```
-
-2. Go into *`conf t`* mode and apply VRF config:
-  ```
-  conf t
-
-  vrf carrots
-  address-family ipv4 unicast
-    import route-target
-    12:12
-    !
-    export route-target
-    12:12
-    !
-  !
-  address-family ipv6 unicast
-    import route-target
-    12:12
-    !
-    export route-target
-    12:12
-    !
-  !
-  !
-  interface Loopback12
-  vrf carrots
-  ipv4 address 10.12.8.1 255.255.255.0
-  !
-  router bgp 65000
-  vrf carrots
-    rd auto
-    address-family ipv4 unicast
-    segment-routing srv6
-      alloc mode per-vrf
-    !
-    redistribute connected
-
-  commit
-  ```
-
-note: In a future version of this lab we hope to program SRv6 routes/policies using a K8s CNI dataplane such as eBPF (example: [Cilium support for SRv6](https://cilium.io/industries/telcos-datacenters/)). 
-
-### End of lab 4
-Please proceed to [Lab 5](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_5/lab_5-guide.md)
