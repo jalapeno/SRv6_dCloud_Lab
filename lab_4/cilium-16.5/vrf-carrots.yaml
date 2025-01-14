@@ -13,8 +13,8 @@ metadata:
   name: carrots
 spec:
   vrfID: 1000009
-  importRouteTarget: "9:9"
-  exportRouteTarget: "9:9"
+  # importRouteTarget: "9:9"
+  # exportRouteTarget: "9:9"
   locatorPoolRef: pool0
   rules:
   - selectors:
