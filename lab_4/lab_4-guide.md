@@ -21,7 +21,7 @@ The original lab was developed in partnership with Arkadiusz Kaliwoda, Cisco SE 
 
 ## Introduction
 
-Kubernetes and Cilium Enterprise are pre-installed on the Rome VM.
+Kubernetes and Cilium Enterprise are pre-installed on the Rome VM. All of the following steps are to be performed on the Rome VM unless otherwise specified.
 
 1. SSH into the Rome VM and cd into the lab_4/cilium directory and check out the contents
 ```
@@ -92,12 +92,13 @@ spec:
           
 ```
 
-You may review the entire Cilium iBGP policy yaml here: [Cilium BGP](cilium/ibgp-policy.yaml). 
+You may review the entire Cilium iBGP policy yaml here: [Cilium BGP](cilium/bgp-policy.yaml). 
+Note: we'll be enabling Cilium to peer over both ipv4 and ipv6 with exchange of vpnv4 prefixes over the IPv6 sessions. Also, xrd05 and xrd06's peering sessions with Cilium inherited the vpnv4 address family configuration in the previous lab exercies when we applied the address family to the neighbor-group. 
 
 1. Apply the Cilium iBGP policy - On the k8s control plane vm cd into the cilium directory and apply the Cilium BGP CRD
 ```
-cd ~/cilium-srv6/cilium/
-kubectl apply -f ibgp-policy.yaml
+cd SRv6_dCloud_Lab/lab_4/cilium/
+kubectl apply -f bgp-policy.yaml
 ```
 
 ### configure xrd05 and xrd06, and make sure xrd07 has the vpnv4 pass prefixes knob set
@@ -109,12 +110,14 @@ cilium bgp peers
 
   We expect to see v4 and v6 sessions active and advertisement and receipt of a number of BGP NLRIs for ipv4, ipv6, and ipv4/mpls_vpn (aka, SRv6 L3VPN). Example:
   ```
-  cisco@rome:~/cilium-srv6/cilium$ cilium bgp peers
-  Node             Local AS   Peer AS   Peer Address        Session State   Uptime   Family          Received   Advertised
-  rome    65014      65010     10.14.1.1           established     2m36s    ipv4/unicast    20         1    
-                  65014      65010     2001:db8:18:14::1   established     2m36s    ipv6/unicast    32         1    
-                                                                                    ipv4/mpls_vpn   6          0    
-  
+  cisco@rome:~/SRv6_dCloud_Lab/lab_4/cilium$ cilium bgp peers
+  Node  Local AS  Peer AS   Peer Address     Session State   Uptime   Family          Received   Advertised
+  rome  65000     65000     10.0.0.5         established     8m4s     ipv4/unicast    7          1    
+        65000      65000    10.0.0.6         established     8m48s    ipv4/unicast    7          1    
+        65000      65000    fc00:0:5555::1   active          0s       ipv6/unicast    0          1    
+                                                                      ipv4/mpls_vpn   0          0    
+        65000      65000    fc00:0:6666::1   active          0s       ipv6/unicast    0          1    
+                                                                      ipv4/mpls_vpn   0          0   
   ```
 
 ## Cilium SRv6 Sidmanager and Locators
@@ -123,7 +126,7 @@ Per Cilium Enterprise documentation:
 
 1. Define and apply a Cilium SRv6 locator pool, example: [srv6-locator-pool.yaml](cilium/srv6-locator-pool.yaml)
 
-  From the ~/cilium-srv6/cilium/ directory:
+  From the SRv6_dCloud_Lab/lab_4/cilium directory on the Rome VM:
   ```
   kubectl apply -f srv6-locator-pool.yaml
   ```
@@ -138,39 +141,40 @@ kubectl get sidmanager -o custom-columns="NAME:.metadata.name,ALLOCATIONS:.spec.
 ```
 
   The example output below shows Cilium having allocated locator prefixes as follows:
-  #### rome: fc00:0:15b::/48
+  #### rome: fc00:0:a09f::/48
 
 
   We'll want to keep track of the allocated locator prefixes as we'll need to redistribute them from BGP into ISIS later in the lab.
 
   Example output:
   ```
-  cisco@rome:~$ kubectl get sidmanager -o yaml
+  cisco@rome:~/SRv6_dCloud_Lab/lab_4/cilium$ kubectl get sidmanager -o yaml
   apiVersion: v1
   items:
   - apiVersion: isovalent.com/v1alpha1
     kind: IsovalentSRv6SIDManager
     metadata:
-      creationTimestamp: "2024-08-18T19:12:50Z"
-      generation: 1
+      creationTimestamp: "2025-01-13T22:55:05Z"
+      generation: 2
       name: rome
-      resourceVersion: "2593"
-      uid: 4220c57d-478d-4764-92c9-d050e4a53a9a
+      resourceVersion: "13826"
+      uid: dd82d5d0-6d84-4cc8-ac31-ed2f3ce857f7
     spec:
       locatorAllocations:
       - locators:
         - behaviorType: uSID
-          prefix: fc00:0:15b::/48        <---------- Locator for the control plane node
+          prefix: fc00:0:a09f::/48  <----- Rome's dynamically allocated uSID prefix
           structure:
             argumentLenBits: 0
             functionLenBits: 16
             locatorBlockLenBits: 32
             locatorNodeLenBits: 16
-        poolRef: pool0                   <---- locator pool name/id 
+        poolRef: pool0
     status:
-      sidAllocations: []  <---- no SIDs yet, we'll see SIDs allocated when we create VRFs in the next step
-
-
+      sidAllocations: []
+  kind: List
+  metadata:
+    resourceVersion: ""
   ```
 
 ## Establish Cilium VRFs
