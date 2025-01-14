@@ -11,7 +11,8 @@ spec:
       selector:
         matchLabels:
           # Matches locator pool which should be advertised.
-          export: "pool0"
+          # export: "pool0"
+          advertise: "pool0"
     - advertisementType: "PodCIDR"
       selector:
         matchLabels:
