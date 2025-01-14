@@ -15,7 +15,7 @@ enterprise:
     - EnterpriseBGPControlPlane
   srv6:
     enabled: true
-    encapMode: usid
+    encapMode: reduced
     locatorPoolEnabled: true
   bgpControlPlane:
     enabled: true

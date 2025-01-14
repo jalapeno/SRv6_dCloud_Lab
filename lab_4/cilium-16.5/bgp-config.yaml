@@ -1,0 +1,108 @@
+apiVersion: isovalent.com/v1alpha1
+kind: IsovalentBGPClusterConfig
+metadata:
+  name: cilium-bgp
+spec:
+  nodeSelector:
+    matchLabels:
+      kubernetes.io/hostname: rome
+  bgpInstances:
+  - name: "asn65000"
+    localASN: 65000
+    peers:
+    - name: "xrd05-rr"
+      peerASN: 65000
+      peerAddress: fc00:0:5555::1
+      peerConfigRef:
+        name: "xrd-peer"
+    - name: "xrd06-rr"
+      peerASN: 65000
+      peerAddress: fc00:0:6666::1
+      peerConfigRef:
+        name: "xrd-peer"
+    vrfs:
+    - vrfRef: "carrots"
+      rd: "9:9"
+      importRTs:
+        - "9:9"
+      exportRTs:
+        - "9:9"
+      configRef: carrots-config
+    - vrfRef: "radish"
+      rd: "10:10"
+      importRTs:
+        - "10:10"
+      exportRTs:
+        - "10:10"
+      configRef: radish-config
+
+---
+apiVersion: isovalent.com/v1alpha1
+kind: IsovalentBGPPeerConfig
+metadata:
+  name: xrd-peer
+spec:
+  families:
+    - afi: ipv6
+      safi: unicast
+      advertisements:
+        matchLabels:
+          # Matches SRv6 Locator pool advertisement
+          advertise: "underlay"
+    - afi: ipv4
+      safi: mpls_vpn
+
+
+---
+apiVersion: isovalent.com/v1alpha1
+kind: IsovalentBGPVRFConfig
+metadata:
+  name: carrots-config
+spec:
+  families:
+    - afi: ipv4
+      safi: mpls_vpn
+      advertisements:
+        matchLabels:
+          advertise: "bgp-carrots"
+
+---
+apiVersion: isovalent.com/v1alpha1
+kind: IsovalentBGPAdvertisement
+metadata:
+  name: carrots-adverts
+  labels:
+    advertise: bgp-carrots
+spec:
+  advertisements:
+    - advertisementType: "PodCIDR"
+
+    # - advertisementType: "SRv6LocatorPool"
+    #   selector:             # <-- selects srv6 locator pool
+    #     matchExpressions:
+    #       - { key: export, operator: In, values: [ true ] }
+
+---
+apiVersion: isovalent.com/v1alpha1
+kind: IsovalentBGPAdvertisement
+metadata:
+  name: underlay-adverts
+  labels:
+    advertise: underlay
+spec:
+  advertisements:
+    - advertisementType: "SRv6LocatorPool"
+      selector:
+        matchLabels:
+          # Matches locator pool which should be advertised.
+          export: "pool0"
+
+---
+apiVersion: isovalent.com/v1alpha1
+kind: IsovalentBGPNodeConfigOverride
+metadata:
+  name: cilium-bgp
+spec:
+  bgpInstances:
+    - name: "asn65000"
+      srv6Responder: true
