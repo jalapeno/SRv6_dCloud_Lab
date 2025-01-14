@@ -1,26 +1,26 @@
 kind: Namespace
 apiVersion: v1
 metadata:
-  name: red
+  name: radish
   labels:
-    name: red
+    name: radish
 
 ---
 
 apiVersion: isovalent.com/v1alpha1
 kind: IsovalentVRF
 metadata:
-  name: red
+  name: radish
 spec:
-  vrfID: 1000009
-  importRouteTarget: "9:9"
-  exportRouteTarget: "9:9"
+  vrfID: 1000010
+  importRouteTarget: "10:10"
+  exportRouteTarget: "10:10"
   locatorPoolRef: pool0
   rules:
   - selectors:
     - endpointSelector:
         matchLabels:
-          vrf: red
+          vrf: radish
     destinationCIDRs:
     - 0.0.0.0/0
 
@@ -29,34 +29,15 @@ spec:
 apiVersion: v1
 kind: Pod
 metadata:
-  namespace: red
+  namespace: radish
   labels:
     app: alpine-ping
-    vrf: red
-  name: redpod0
+    vrf: radish
+  name: radish0
 spec:
   containers:
   - image: alpine:latest
     name: redpod0
-    command:
-      - /bin/sh
-      - "-c"
-      - "sleep 60m"
-
----
-
-apiVersion: v1
-kind: Pod
-metadata:
-  namespace: red
-  labels:
-    app: alpine-ping
-    vrf: red
-  name: redpod1
-spec:
-  containers:
-  - image: alpine:latest
-    name: redpod1
     command:
       - /bin/sh
       - "-c"
