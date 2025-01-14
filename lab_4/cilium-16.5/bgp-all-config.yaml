@@ -14,12 +14,12 @@ spec:
       peerASN: 65000
       peerAddress: fc00:0:5555::1
       peerConfigRef:
-        name: "xrd-peer"
+        name: "cilium-peer"
     - name: "xrd06-rr"
       peerASN: 65000
       peerAddress: fc00:0:6666::1
       peerConfigRef:
-        name: "xrd-peer"
+        name: "cilium-peer"
     vrfs:
     - vrfRef: "carrots"
       rd: "9:9"
@@ -28,27 +28,19 @@ spec:
       exportRTs:
         - "9:9"
       configRef: carrots-config
-    - vrfRef: "radish"
-      rd: "10:10"
-      importRTs:
-        - "10:10"
-      exportRTs:
-        - "10:10"
-      configRef: radish-config
 
 ---
 apiVersion: isovalent.com/v1alpha1
 kind: IsovalentBGPPeerConfig
 metadata:
-  name: xrd-peer
+  name: cilium-peer
 spec:
   families:
     - afi: ipv6
       safi: unicast
       advertisements:
         matchLabels:
-          # Matches SRv6 Locator pool advertisement
-          advertise: "underlay"
+          advertise: "bgpv6"
     - afi: ipv4
       safi: mpls_vpn
 
@@ -81,9 +73,9 @@ spec:
 apiVersion: isovalent.com/v1alpha1
 kind: IsovalentBGPAdvertisement
 metadata:
-  name: underlay-adverts
+  name: bgp-ipv6-unicast
   labels:
-    advertise: underlay
+    advertise: bgpv6
 spec:
   advertisements:
     - advertisementType: "SRv6LocatorPool"
@@ -91,6 +83,10 @@ spec:
         matchLabels:
           # Matches locator pool which should be advertised.
           export: "pool0"
+    - advertisementType: "PodCIDR"
+      selector:
+        matchLabels:
+          advertise: bgp
 
 ---
 apiVersion: isovalent.com/v1alpha1
