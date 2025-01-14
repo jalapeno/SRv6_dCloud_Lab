@@ -11,22 +11,41 @@ helm install cilium isovalent/cilium --version 1.16.5  --namespace kube-system -
 3. Helm get values
 ```
 helm get values cilium -n kube-system
+```
+
 4. Untaint cp node
 ```
 kubectl taint nodes --all node-role.kubernetes.io/control-plane-
 ```
 
-1. verify daemonset
+5. verify daemonset
 ```
 kubectl get ds cilium -n kube-system
 ```
 
-1. Cilium config
+6. Cilium config
 ```
-kubectl apply -f bgp-cluster-config.yaml 
-kubectl apply -f bgp-peer-config.yaml 
+kubectl apply -f bgp-config.yaml 
 kubectl apply -f srv6-locator-pool.yaml 
-kubectl apply -f bgp-locator-advert.yaml 
+kubectl apply -f vrf-carrots.yaml 
+```
+
+7. verify peers
+```
+cilium bgp peers
+```
+
+8. verify routes
+Usage:
+  cilium bgp routes <available | advertised> <afi> <safi> [vrouter <asn>] [peer|neighbor <address>] [flags]
+```
+cilium bgp routes available ipv4 mpls_vpn
+cilium bgp routes advertised ipv4 mpls_vpn
+```
+
+1. verify sidmanager
+``` 
+kubectl get sidmanager -o custom-columns="NAME:.metadata.name,ALLOCATIONS:.spec.locatorAllocations"
 ```
 
 

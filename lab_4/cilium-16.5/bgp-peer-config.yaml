@@ -6,11 +6,11 @@ spec:
   families:
     - afi: ipv6
       safi: unicast
-      # advertisements:
-      #   matchLabels:
-      #     advertise: "bgp"
+      advertisements:
+        matchLabels:
+          advertise: "bgp"
     - afi: ipv4
       safi: mpls_vpn
-      # advertisements:
-      #   matchLabels:
-      #     advertise: "bgp"
+      advertisements:
+        matchLabels:
+          advertise: "bgp"

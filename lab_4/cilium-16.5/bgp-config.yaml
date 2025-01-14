@@ -77,11 +77,6 @@ spec:
   advertisements:
     - advertisementType: "PodCIDR"
 
-    # - advertisementType: "SRv6LocatorPool"
-    #   selector:             # <-- selects srv6 locator pool
-    #     matchExpressions:
-    #       - { key: export, operator: In, values: [ true ] }
-
 ---
 apiVersion: isovalent.com/v1alpha1
 kind: IsovalentBGPAdvertisement

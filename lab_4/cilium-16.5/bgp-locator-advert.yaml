@@ -7,12 +7,7 @@ metadata:
     advertise: bgp
 spec:
   advertisements:
-    # - advertisementType: "PodCIDR"
-    #   attributes:
-    #     communities:
-    #       standard: [ "65000:1" ]
-    #     localPreference: 99
     - advertisementType: "SRv6LocatorPool"
-      selector:             # <-- selects srv6 locator pool
-        matchExpressions:
-          - { key: export, operator: In, values: [ true ] }
+      selector:             
+        matchLabels:
+          export: "pool0"
