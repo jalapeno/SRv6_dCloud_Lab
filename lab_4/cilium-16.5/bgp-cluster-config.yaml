@@ -19,7 +19,7 @@ spec:
       peerASN: 65000
       peerAddress: fc00:0:6666::1
       peerConfigRef:
-        name: "xrd-peer"
+        name: "cilium-peer"
     vrfs:
     - vrfRef: "carrots"
       rd: "9:9"

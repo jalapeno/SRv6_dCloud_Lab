@@ -13,7 +13,7 @@ metadata:
   name: carrots
 spec:
   vrfID: 99
-  # locatorPoolRef: pool0
+  locatorPoolRef: pool0
   rules:
   - selectors:
     - endpointSelector:
