@@ -12,3 +12,7 @@ spec:
         matchLabels:
           # Matches locator pool which should be advertised.
           export: "pool0"
+    - advertisementType: "PodCIDR"
+      selector:
+        matchLabels:
+          advertise: "bgp"
