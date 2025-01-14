@@ -12,6 +12,7 @@ enterprise:
   featureGate:
     approved:
     - SRv6
+    - EnterpriseBGPControlPlane
   srv6:
     enabled: true
     encapMode: srh
@@ -22,6 +23,5 @@ k8s:
   requireIPv6PodCIDR: true
 ipam:
   mode: kubernetes
-tunnel: disabled
 # ipv4NativeRoutingCIDR: 10.0.0.0/8
 # ipv6NativeRoutingCIDR: c::/32
