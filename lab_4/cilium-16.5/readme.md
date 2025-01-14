@@ -8,17 +8,20 @@ kubeadm init --config kubeadm-init.yaml
 helm install cilium isovalent/cilium --version 1.16.5  --namespace kube-system -f cilium-enterprise.yaml
 ```
 
-3. Untaint cp node
+3. Helm get values
+```
+helm get values cilium -n kube-system
+4. Untaint cp node
 ```
 kubectl taint nodes --all node-role.kubernetes.io/control-plane-
 ```
 
-4. verify daemonset
+1. verify daemonset
 ```
 kubectl get ds cilium -n kube-system
 ```
 
-5. Cilium config
+1. Cilium config
 ```
 kubectl apply -f bgp-cluster-config.yaml 
 kubectl apply -f bgp-peer-config.yaml 
