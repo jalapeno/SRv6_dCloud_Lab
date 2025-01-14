@@ -15,7 +15,8 @@ enterprise:
     - EnterpriseBGPControlPlane
   srv6:
     enabled: true
-    encapMode: srh
+    encapMode: usid
+    locatorPoolEnabled: true
   bgpControlPlane:
     enabled: true
 k8s:

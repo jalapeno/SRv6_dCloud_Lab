@@ -35,3 +35,13 @@ spec:
       exportRTs:
         - "10:10"
       configRef: radish-config
+
+---
+apiVersion: isovalent.com/v1alpha1
+kind: IsovalentBGPNodeConfigOverride
+metadata:
+  name: cilium-bgp
+spec:
+  bgpInstances:
+    - name: "clab-65000"
+      srv6Responder: true
