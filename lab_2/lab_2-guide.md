@@ -130,7 +130,7 @@ SRv6 uSID locator and source address information for nodes in the lab:
     ```
 
 > [!NOTE]
-> Once you've configured xrd01 using the above, please proceed to configure the remainder of the routers using the configs found in the `*quick config doc*` [HERE](/lab_2/lab_2_quick_config.md) 
+> Once you've configured xrd01 using the above, please proceed to configure the remainder of the routers using the configs found in the *`quick config doc`* [HERE](/lab_2/lab_2_quick_config.md) 
 
 #### Validate SRv6 configuration and reachability
 
@@ -182,13 +182,16 @@ SRv6 uSID locator and source address information for nodes in the lab:
 ### Viewing Router to Router traffic in containerlab
 In this lab we will make extensive use of tcpdump to look at traffic on routed links. Containerlab makes this a fairly easy process as the underlying router links run in Linux network namespaces. There are two pieces of information we need to run a tcpdump command; the *network namespace* and *interface name*.
 
-For the  *network namespace* use the below command 
+For a list of *network namespaces* use the below command: 
 ```
 sudo ip netns ls
 ```
-For the list of *interface names* created in a *network namespace* use the following command
+
+For the list of *interface names* created in a *network namespace* use the following command(s):
 ```
 sudo ip netns clab-cleu25-xrd01 iplink show
+sudo ip netns clab-cleu25-xrd02 iplink show
+etc.
 ```
 ```diff
 cisco@xrd:~/SRv6_dCloud_Lab/lab_1$ sudo ip netns exec clab-cleu25-xrd01 ip link show
@@ -211,10 +214,22 @@ cisco@xrd:~/SRv6_dCloud_Lab/lab_1$ sudo ip netns exec clab-cleu25-xrd01 ip link 
     link/ether aa:c1:ab:f2:a2:fe brd ff:ff:ff:ff:ff:ff link-netnsid 0
 ```
 
-An example tcpdump command would look like this:
+Now that we have the network namespace and interface name we can run a tcpdump command. An example tcpdump command capturing traffic on xrd01 Gig0/0/0/1 would look like this:
 ```
-sudo ip netns exec clab-cleu25-XR01 tcpdump -ni Gi0-0-0-1
+sudo ip netns exec clab-cleu25-xrd01 tcpdump -ni Gi0-0-0-1
 ```
+
+Other examples:
+```
+sudo ip netns exec clab-cleu25-xrd01 tcpdump -ni Gi0-0-0-2
+
+sudo ip netns exec clab-cleu25-xrd02 tcpdump -ni Gi0-0-0-0
+
+sudo ip netns exec clab-cleu25-xrd06 tcpdump -ni Gi0-0-0-1
+
+etc.
+```
+
 #### do we keep this (requires re-creating the shell script), or do we just have users run the verbose tcpdump command? Or take the packet walk doc and merge it into here and call it good?
 
 In lab_1 When we ran the XRd topology setup script it called the 'nets.sh' subscript in the ~/SRv6_dCloud_Lab/util directory. The nets.sh resolved the underlying docker network IDs and wrote them to text files in the util directory. As an example link "A" in the topology has a mapped file called xrd01-xrd02 which contains the linux network id we need.
