@@ -59,7 +59,7 @@ CRDs come in YAML file format and in the next several sections of this lab we'll
 For the sake of simplicity in this lab we'll use iBGP peering between our Rome K8s node and our route reflectors xrd05 and xrd06. 
 
 Here is a partial Cilium iBGP CRD (aka iBGP configuration) with notes:
-```yaml
+   ```yaml
 apiVersion: "cilium.io/v2alpha1"
 kind: CiliumBGPPeeringPolicy
 metadata:
@@ -89,7 +89,7 @@ spec:
         - afi: ipv4                
           safi: mpls_vpn          <--- L3VPN AFI/SAFI
           
-```
+   ```
 
 You may review the entire Cilium iBGP policy yaml here: [Cilium BGP](cilium/bgp-policy.yaml). 
 Note: we'll be enabling Cilium to peer over both ipv4 and ipv6 with exchange of vpnv4 prefixes over the IPv6 sessions. Also, xrd05 and xrd06's peering sessions with Cilium inherited the vpnv4 address family configuration in the previous lab exercies when we applied the address family to the neighbor-group. 
