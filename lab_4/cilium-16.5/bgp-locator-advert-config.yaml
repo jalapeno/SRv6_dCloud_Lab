@@ -1,0 +1,18 @@
+---
+apiVersion: isovalent.com/v1alpha1
+kind: IsovalentBGPAdvertisement
+metadata:
+  name: underlay-adverts
+  labels:
+    advertise: underlay
+spec:
+  advertisements:
+    - advertisementType: "SRv6LocatorPool"
+      selector:
+        matchLabels:
+          # Matches locator pool which should be advertised.
+          export: "pool0"
+    - advertisementType: "PodCIDR"
+      selector:
+        matchLabels:
+          advertise: "bgp"
