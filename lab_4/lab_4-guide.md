@@ -29,7 +29,7 @@ Kubernetes and Cilium Enterprise are pre-installed on the Rome VM. All of the fo
 
 2. Run a couple commands to verify the Cilium Installation
 
-   Display Cilium daemonset status:
+   Display Cilium DaemonSet status:
    ```
    kubectl get ds -n kube-system cilium
    ```
