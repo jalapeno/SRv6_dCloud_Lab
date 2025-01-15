@@ -59,7 +59,7 @@ CRDs come in YAML file format and in the next several sections of this lab we'll
 For the sake of simplicity in this lab we'll use iBGP peering between our Rome K8s node and our route reflectors xrd05 and xrd06. 
 
 Here is a partial Cilium iBGP CRD (aka iBGP configuration) with notes:
-   ```yaml
+```yaml
 apiVersion: "cilium.io/v2alpha1"
 kind: CiliumBGPPeeringPolicy
 metadata:
@@ -88,24 +88,25 @@ spec:
           safi: unicast
         - afi: ipv4                
           safi: mpls_vpn          <--- L3VPN AFI/SAFI
-          
-   ```
+```
 
 You may review the entire Cilium iBGP policy yaml here: [Cilium BGP](cilium/bgp-policy.yaml). 
 Note: we'll be enabling Cilium to peer over both ipv4 and ipv6 with exchange of vpnv4 prefixes over the IPv6 sessions. Also, xrd05 and xrd06's peering sessions with Cilium inherited the vpnv4 address family configuration in the previous lab exercies when we applied the address family to the neighbor-group. 
 
 1. Apply the Cilium iBGP policy - On the k8s control plane vm cd into the cilium directory and apply the Cilium BGP CRD
-```
-cd SRv6_dCloud_Lab/lab_4/cilium/
-kubectl apply -f bgp-policy.yaml
-```
+   ```
+   cd SRv6_dCloud_Lab/lab_4/cilium/
+   kubectl apply -f bgp-policy.yaml
+   ```
 
-1. On Rome verify Cilium BGP peering with the following cilium CLI:
-  ```
-  cilium bgp peers
-  ```
+2. On Rome verify Cilium BGP peering with the following cilium CLI:
+   ```
+   cilium bgp peers
+   ```
 
-  We expect to a pair of IPv6 sessions established and with advertisement and receipt of BGP NLRIs for ipv6 and ipv4/mpls_vpn (aka, SRv6 L3VPN). Example:
+We expect to a pair of IPv6 sessions established and with advertisement and receipt of BGP NLRIs for ipv6 and ipv4/mpls_vpn (aka, SRv6 L3VPN). 
+
+Example:
   ```
   cisco@rome:~/SRv6_dCloud_Lab/lab_4/cilium$ cilium bgp peers
   Node   Local AS   Peer AS   Peer Address     Session State   Uptime   Family          Received   Advertised
