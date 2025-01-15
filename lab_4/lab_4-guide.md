@@ -119,7 +119,7 @@ You may review the entire Cilium iBGP policy yaml here: [Cilium BGP](cilium/bgp-
 > for the mpls_vpn we have not added in any ipv4 or ipv6 prefix advertisesments yet, hence a zero value in the output above.
 
 > [!NOTE]
-> You will be enabling Cilium to peer over both ipv4 and ipv6 with exchange of vpnv4 prefixes over the IPv6 sessions. Also, xrd05 and xrd06's peering sessions with Cilium inherited the vpnv4 address family configuration in the previous lab exercies when we applied the address family to the neighbor-group. 
+> You will be enabling Cilium to peer over both IPv4 and IPv6 with exchange of VPNv4 prefixes over the IPv6 sessions. Also, xrd05 and xrd06's peering sessions with Cilium inherited the vpnv4 address family configuration in the previous lab exercies when we applied the address family to the neighbor-group. 
 
 ## Cilium SRv6 SID Manager and Locators
 Per Cilium Enterprise documentation:
@@ -133,17 +133,16 @@ Per Cilium Enterprise documentation:
   ```
 
 2. Validate locator pool
-```
-kubectl get sidmanager -o yaml
-```
-or 
-```
-kubectl get sidmanager -o custom-columns="NAME:.metadata.name,ALLOCATIONS:.spec.locatorAllocations"
-```
+   ```
+   kubectl get sidmanager -o yaml
+   ```
+   or
+   ```
+   kubectl get sidmanager -o custom-columns="NAME:.metadata.name,ALLOCATIONS:.spec.locatorAllocations"
+   ```
 
   The example output below shows Cilium having allocated locator prefixes as follows:
   #### rome: fc00:0:a09f::/48
-
 
   We'll want to keep track of the allocated locator prefixes as we'll need to redistribute them from BGP into ISIS later in the lab.
 
@@ -163,7 +162,7 @@ kubectl get sidmanager -o custom-columns="NAME:.metadata.name,ALLOCATIONS:.spec.
     spec:
       locatorAllocations:
       - locators:
-        - behaviorType: uSID
+        - behaviorType: uSID       # test comment
           prefix: fc00:0:a061::/48    <------ Rome's dynamically allocated uSID prefix (Locator)
           structure:
             argumentLenBits: 0
