@@ -60,7 +60,7 @@ CRDs come in YAML file format and in the next several sections of this lab we'll
 For the sake of simplicity in this lab we'll use iBGP peering between our Rome K8s node and our route reflectors xrd05 and xrd06. 
 
 Here is a partial Cilium iBGP CRD (aka iBGP configuration) with notes:
-```json
+```yaml
 apiVersion: "cilium.io/v2alpha1"
 kind: CiliumBGPPeeringPolicy
 metadata:
@@ -143,7 +143,7 @@ kubectl get sidmanager -o custom-columns="NAME:.metadata.name,ALLOCATIONS:.spec.
   We'll want to keep track of the allocated locator prefixes as we'll need to redistribute them from BGP into ISIS later in the lab.
 
   Example output:
-  ```
+  ```yaml
   cisco@rome:~/SRv6_dCloud_Lab/lab_4/cilium$ kubectl get sidmanager -o yaml
   apiVersion: v1
   items:
@@ -191,7 +191,7 @@ kubectl get sidmanager rome -o yaml
 ```
 
   Example output from sidmanager:
-  ```
+  ```yaml
   cisco@rome:~/SRv6_dCloud_Lab/lab_4/cilium$ kubectl get sidmanager rome -o yaml
   apiVersion: isovalent.com/v1alpha1
   kind: IsovalentSRv6SIDManager
@@ -306,7 +306,7 @@ exit
   ```
 
   Example of partial output:
-  ```
+  ```yaml
   cisco@rome:~/SRv6_dCloud_Lab/lab_4/cilium$ kubectl get IsovalentSRv6EgressPolicy -o yaml
 
   apiVersion: v1
