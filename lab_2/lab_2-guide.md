@@ -16,7 +16,8 @@ In Lab 2 the student will perform the basic ISIS and BGP SRv6 configuration on t
       - [Configure SRv6 on xrd01](#configure-srv6-on-xrd01)
       - [Validate SRv6 configuration and reachability](#validate-srv6-configuration-and-reachability)
   - [End-to-End Connectivity](#end-to-end-connectivity)
-      - [need to discuss if we want to keep this and re-work tcpdump using](#need-to-discuss-if-we-want-to-keep-this-and-re-work-tcpdump-using)
+    - [Viewing Router to Router traffic in containerlabs](#viewing-router-to-router-traffic-in-containerlabs)
+      - [do we keep this (requires re-creating the shell script), or do we just have users run the verbose tcpdump command?](#do-we-keep-this-requires-re-creating-the-shell-script-or-do-we-just-have-users-run-the-verbose-tcpdump-command)
   - [SRv6 Packet Walk](#srv6-packet-walk)
   - [End of Lab 2](#end-of-lab-2)
   
@@ -42,18 +43,18 @@ Segment Routing over IPv6 (SRv6) extends Segment Routing support via the IPv6 da
 
 SRv6 introduces the Network Programming framework that enables a network operator or an application to specify a packet processing program by encoding a sequence of instructions in the IPv6 packet header. Each instruction is implemented on one or several nodes in the network and identified by an SRv6 Segment Identifier (SID) in the packet. 
 
-In SRv6, the IPv6 destination address represents an instruction. SRv6 uses a new type of IPv6 Routing Extension Header, called the Segment Routing Header (SRH), in order to encode an ordered list of instructions. The active segment is indicated by the destination address of the packet, and the next segment is indicated by a pointer in the SRH.
+In SRv6, the IPv6 destination address represents a set of one or more instructions. SRv6 uses a new type of IPv6 Routing Extension Header, called the Segment Routing Header (SRH), in order to encode an ordered list of instructions. The active segment is indicated by the destination address of the packet, and the next segment is indicated by a pointer in the SRH.
 
-In our lab we will use SRv6 "micro segment" (SRv6 uSID or just "uSID" for short) instead of the full SRH. SRv6 uSID is a straightforward extension of the SRv6 Network Programming model:
+In our lab we will use SRv6 "micro segment" (SRv6 uSID or just "uSID" for short) instead of the full SRH. SRv6 uSID is a straightforward extension of the SRv6 Network Programming model.
 
 With SRv6 uSID:
 
- - The outer IPv6 destination address becomes the uSID carrier with the first 32-bits representing the uSID block, and the 6 remaining 16-bit chunks of the address become uSIDs
+ - The outer IPv6 destination address becomes the uSID carrier with the first 32-bits representing the uSID block, and the 6 remaining 16-bit chunks of the address become uSIDs or instructions
  - The existing ISIS and BGP Control Plane is leveraged without any change
  - The SRH can be used if our uSID instruction set extends beyond the 6 available in the outer IPv6 destination address
  - SRv6 uSID is based on the Compressed SRv6 Segment List Encoding in SRH [I-D.ietf-spring-srv6-srh-compression] framework
 
-The most recent IOS-XR Configuration guide for SR/SRv6 and ISIS can be found here: [LINK](https://www.cisco.com/c/en/us/td/docs/iosxr/cisco8000/segment-routing/711x/configuration/guide/b-segment-routing-cg-cisco8000-711x.html)
+For reference one of the most recent IOS-XR Configuration guides for SR/SRv6 and ISIS can be found here: [LINK](https://www.cisco.com/c/en/us/td/docs/iosxr/cisco8000/segment-routing/24xx/configuration/guide/b-segment-routing-cg-cisco8000-24xx/configuring-segment-routing-over-ipv6-srv6-micro-sids.html)
 
 SRv6 uSID locator and source address information for nodes in the lab:
 
@@ -69,15 +70,21 @@ SRv6 uSID locator and source address information for nodes in the lab:
 
     
 ### SRv6 Configuration Steps 
-#### Configure SRv6 on xrd01
-1. Enable SRv6 globally and define SRv6 locator and source address for outbound encapsulation 
+
    - reference the above table
    - the source address should match the router's loopback0 ipv6 address
    - locator should match the first 48-bits of the router's loopback0
    - to keep things simple we're using the same locator name, 'MyLocator', on all nodes in the network.
-  
-   - xrd01 configs:
+
+#### Configure SRv6 on xrd01
+1. SSH to xrd01 and enable SRv6 globally and define SRv6 locator and source address for outbound encapsulation 
+
     ```
+    ssh cisco@clab-cleu25-xrd01
+    ```
+    ```
+    conf t
+
     segment-routing
       srv6
         encapsulation
@@ -113,12 +120,10 @@ SRv6 uSID locator and source address information for nodes in the lab:
     !
     neighbor-group xrd-ipv4-peer
       address-family ipv4 unicast
-      encapsulation-type srv6
       !
     ! 
     neighbor-group xrd-ipv6-peer
       address-family ipv6 unicast
-      encapsulation-type srv6
       !
     !
     commit
@@ -175,7 +180,7 @@ SRv6 uSID locator and source address information for nodes in the lab:
 ## End-to-End Connectivity
 
 ### Viewing Router to Router traffic in containerlabs
-In this lab we will make extensive use of tcpdump to look at traffic on routed links. Containerlabs makes this a fairly easy process as the router networks run in a Linux namespace. There are two pieces of information we need to run a tcpdump command; the *network namespace* and *interface name*.
+In this lab we will make extensive use of tcpdump to look at traffic on routed links. Containerlab makes this a fairly easy process as the underlying router links run in Linux network namespaces. There are two pieces of information we need to run a tcpdump command; the *network namespace* and *interface name*.
 
 For the  *network namespace* use the below command 
 ```
@@ -206,10 +211,12 @@ cisco@xrd:~/SRv6_dCloud_Lab/lab_1$ sudo ip netns exec clab-cleu25-xrd01 ip link 
     link/ether aa:c1:ab:f2:a2:fe brd ff:ff:ff:ff:ff:ff link-netnsid 0
 ```
 
-
+An example tcpdump command would look like this:
 ```
 sudo ip netns exec clab-cleu25-XR01 tcpdump -ni Gi0-0-0-1
 ```
+#### do we keep this (requires re-creating the shell script), or do we just have users run the verbose tcpdump command?
+
 In lab_1 When we ran the XRd topology setup script it called the 'nets.sh' subscript in the ~/SRv6_dCloud_Lab/util directory. The nets.sh resolved the underlying docker network IDs and wrote them to text files in the util directory. As an example link "A" in the topology has a mapped file called xrd01-xrd02 which contains the linux network id we need.
 
 We'll use 'tcpdump.sh' shell script in the util directory to monitor traffic as it traverses the XRd network. Running "./tcpdump.sh xrd0x-xrd0y" will execute Linux TCPdump on the specified Linux bridge instance that links a pair of XRd routers. Note traffic through the network may travel via one or more ECMP paths, so we may need to try tcpdump.sh on different links before we see anything meaningful in the output
