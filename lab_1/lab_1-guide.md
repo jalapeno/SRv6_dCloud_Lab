@@ -10,10 +10,15 @@ topology for all subsequent lab exercises. Second, we will validate that the pre
     - [Description:](#description)
   - [Contents](#contents)
   - [Lab Objectives](#lab-objectives)
-  - [Validate Virtual Machine and XRd Access](#validate-virtual-machine-and-xrd-access)
+  - [Virtual Machine and XRd Access](#virtual-machine-and-xrd-access)
     - [User Credentials](#user-credentials)
     - [Management Network Topology](#management-network-topology)
-    - [Launch and Validate XRD Topology](#launch-and-validate-xrd-topology)
+  - [Launch and Validate XRD Topology](#launch-and-validate-xrd-topology)
+    - [Validate Jalapeno VM](#validate-jalapeno-vm)
+    - [Validate Client VMs](#validate-client-vms)
+    - [Connect to Routers](#connect-to-routers)
+  - [Validate ISIS Topology](#validate-isis-topology)
+      - [need to discuss if we want to keep this step, if so we can adapt util/nets.sh to do something like this:](#need-to-discuss-if-we-want-to-keep-this-step-if-so-we-can-adapt-utilnetssh-to-do-something-like-this)
   - [Validate BGP Topology](#validate-bgp-topology)
   - [End of Lab 1](#end-of-lab-1)
   
@@ -27,7 +32,7 @@ The student upon completion of Lab 1 should have achieved the following objectiv
 * Confirm IPv4 and IPv6 connectivity   
 
 
-## Validate Virtual Machine and XRd Access
+## Virtual Machine and XRd Access
 
 Device access for this lab is primarly through SSH. All of the VMs are accessible upon connecting through Cisco AnyConnect VPN to the dCloud environment. Please see the management topology network diagram below. The XRD VM acts as a jumpbox for our XRd routers once the topology is deployed. Thus accessing the routers will involve first SSH'ing into the *`XRD VM`* and then initiating a separate SSH session to the router. The XRD VM is configured for DNS resolution for each router name to save time.
 
@@ -43,7 +48,7 @@ User: cisco, Password: cisco123
 
 For full size image see [LINK](/topo_drawings/management-network.png)
 
-### Launch and Validate XRD Topology
+## Launch and Validate XRD Topology
 1. SSH to the Ubuntu VM **XRD** where we will launch the XRd routers
     ```
     ssh cisco@198.18.128.100
