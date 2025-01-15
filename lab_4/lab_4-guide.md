@@ -67,27 +67,27 @@ metadata:
 spec:
   nodeSelector:
     matchLabels:
-      kubernetes.io/hostname: rome    <--- node to which this portion of config belongs
+      kubernetes.io/hostname: rome      # node to which this portion of config belongs
   virtualRouters:
-  - localASN: 65000                 <--- Rome's BGP ASN
-    exportPodCIDR: true             <--- advertise local PodCIDR prefix
-    mapSRv6VRFs: true               <--- SRv6 L3VPN
+  - localASN: 65000                     # Rome's BGP ASN
+    exportPodCIDR: true                 # advertise local PodCIDR prefix
+    mapSRv6VRFs: true                   # SRv6 L3VPN
     srv6LocatorPoolSelector:        
       matchLabels:
-        export: "true"              <--- advertise Locator prefix into BGP IPv6 underlay
+        export: "true"                  # advertise Locator prefix into BGP IPv6 underlay
     neighbors:
-    - peerAddress: "10.0.0.5/32"   <--- ipv4 peer address for xrd05
+    - peerAddress: "10.0.0.5/32"        #ipv4 peer address for xrd05
       peerASN: 65000
-      families:                     <--- address families for this BGP session
+      families:                         # address families for this BGP session
        - afi: ipv4
          safi: unicast
-    - peerAddress: "fc00:0:5555::1/128"   <--- ipv6 peer address for xrd05
+    - peerAddress: "fc00:0:5555::1/128" # ipv6 peer address for xrd05
       peerASN: 65000
       families:
-        - afi: ipv6               <--- address families for this BGP session
+        - afi: ipv6                     # address families for this BGP session
           safi: unicast
         - afi: ipv4                
-          safi: mpls_vpn          <--- L3VPN AFI/SAFI
+          safi: mpls_vpn                # L3VPN AFI/SAFI
 ```
 
 You may review the entire Cilium iBGP policy yaml here: [Cilium BGP](cilium/bgp-policy.yaml). 
