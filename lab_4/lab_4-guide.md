@@ -126,11 +126,11 @@ Per Cilium Enterprise documentation:
 *The SID Manager manages a cluster-wide pool of SRv6 locator prefixes. You can define a prefix pool using the IsovalentSRv6LocatorPool resource. The Cilium Operator assigns a locator for each node from this prefix. In this example we'll allocate /48 bit uSID based locators.*
 
 1. Define and apply a Cilium SRv6 locator pool, example: [srv6-locator-pool.yaml](cilium/srv6-locator-pool.yaml)
-
-  From the SRv6_dCloud_Lab/lab_4/cilium directory on the Rome VM:
-  ```
-  kubectl apply -f srv6-locator-pool.yaml
-  ```
+  
+   From the SRv6_dCloud_Lab/lab_4/cilium directory on the Rome VM:
+   ```
+   kubectl apply -f srv6-locator-pool.yaml
+   ```
 
 2. Validate locator pool
    ```
