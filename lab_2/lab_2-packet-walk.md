@@ -98,7 +98,7 @@ In the above xrd01 recieves IPv4 packets from Amsterdam destined to Rome. We wil
           T:1(Sid information), Sid:fc00:0:7777:e005::, Behavior:63, SS-TLV Count:1    <---- SRv6 SID encapsulation
           SubSubTLV:
             T:1(Sid structure):
-    ```
+  ```
 
 2. Lookup of fc00:0:7777:e005::/48 the in the global IPv6 routing table.
   ```
