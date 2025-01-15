@@ -11,7 +11,7 @@ The original lab was developed in partnership with Arkadiusz Kaliwoda, Cisco SE 
 
 ### Contents
 * Description [LINK](#description)
-* Validate Cilium Run State [LINK](#validate-cilium-rum-state)
+* Validate Cilium Run State [LINK](#validate-cilium-run-state)
 * Setup Cilium BGP Peering [LINK](#setup-cilium-bgp-peering)
 * Cilium SRv6 SIDmanager and Locators [LINK](#cilium-srv6-sidmanager-and-locators)
 * Establish Cilium VRFs [LINK](#establish-cilium-vrfs)
