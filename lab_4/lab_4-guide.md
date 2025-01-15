@@ -141,17 +141,16 @@ Per Cilium Enterprise documentation:
    kubectl get sidmanager -o custom-columns="NAME:.metadata.name,ALLOCATIONS:.spec.locatorAllocations"
    ```
 
-  The example output below shows Cilium having allocated locator prefixes as follows:
-  #### rome: fc00:0:a09f::/48
+   The example output below shows Cilium having allocated locator prefixes as follows:
+   **rome: fc00:0:a09f::/48**
 
-  We'll want to keep track of the allocated locator prefixes as we'll need to redistribute them from BGP into ISIS later in the lab.
+   Example output:
 
-  Example output:
-  ```yaml
-  cisco@rome:~/SRv6_dCloud_Lab/lab_4/cilium$ kubectl get sidmanager -o yaml
-  apiVersion: v1
-  items:
-  - apiVersion: isovalent.com/v1alpha1
+   ```yaml
+   cisco@rome:~/SRv6_dCloud_Lab/lab_4/cilium$ kubectl get sidmanager -o yaml
+   apiVersion: v1
+   items:
+   - apiVersion: isovalent.com/v1alpha1
     kind: IsovalentSRv6SIDManager
     metadata:
       creationTimestamp: "2025-01-13T22:55:05Z"
@@ -162,7 +161,7 @@ Per Cilium Enterprise documentation:
     spec:
       locatorAllocations:
       - locators:
-        - behaviorType: uSID      
+        - behaviorType: uSID
           prefix: fc00:0:a061::/48               # Rome's dynamically allocated uSID prefix (Locator)
           structure:
             argumentLenBits: 0
@@ -170,12 +169,12 @@ Per Cilium Enterprise documentation:
             locatorBlockLenBits: 32
             locatorNodeLenBits: 16
         poolRef: pool0
-    status:
-      sidAllocations: []
-  kind: List
-  metadata:
+     status:
+       sidAllocations: []
+   kind: List
+   metadata:
     resourceVersion: ""
-  ```
+   ```
 
 ## Establish Cilium VRFs
 1. Add vrf(s) - this example also adds a couple alpine linux container pods to vrf carrots:
