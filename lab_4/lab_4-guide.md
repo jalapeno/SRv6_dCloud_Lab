@@ -193,44 +193,44 @@ Per Cilium Enterprise documentation:
    kubectl get sidmanager rome -o yaml
    ```
 
-  Example output from sidmanager:
-  ```yaml
-  cisco@rome:~/SRv6_dCloud_Lab/lab_4/cilium$ kubectl get sidmanager rome -o yaml
-  apiVersion: isovalent.com/v1alpha1
-  kind: IsovalentSRv6SIDManager
-  metadata:
-    creationTimestamp: "2025-01-13T22:55:05Z"
-    generation: 5
-    name: rome
-    resourceVersion: "48158"
-    uid: dd82d5d0-6d84-4cc8-ac31-ed2f3ce857f7
-  spec:
-    locatorAllocations:
-    - locators:
-      - behaviorType: uSID
-        prefix: fc00:0:a061::/48      # Rome SRv6 Locator
-        structure:
-          argumentLenBits: 0
-          functionLenBits: 16
-          locatorBlockLenBits: 32
-          locatorNodeLenBits: 16
-      poolRef: pool0
-  status:
-    sidAllocations:
-    - poolRef: pool0
-      sids:
-      - behavior: uDT4                # uDT4 with looking in VRF carrots
-        behaviorType: uSID
-        metadata: carrots
-        owner: srv6-manager
-        sid:
-          addr: 'fc00:0:a061:e95c::'  # VRF carrots uSID Locator + Function
+    Example output from sidmanager:
+    ```yaml
+    cisco@rome:~/SRv6_dCloud_Lab/lab_4/cilium$ kubectl get sidmanager rome -o yaml
+    apiVersion: isovalent.com/v1alpha1
+    kind: IsovalentSRv6SIDManager
+    metadata:
+      creationTimestamp: "2025-01-13T22:55:05Z"
+      generation: 5
+      name: rome
+      resourceVersion: "48158"
+      uid: dd82d5d0-6d84-4cc8-ac31-ed2f3ce857f7
+    spec:
+      locatorAllocations:
+      - locators:
+        - behaviorType: uSID
+          prefix: fc00:0:a061::/48      # Rome SRv6 Locator
           structure:
             argumentLenBits: 0
             functionLenBits: 16
             locatorBlockLenBits: 32
             locatorNodeLenBits: 16
-  ```
+        poolRef: pool0
+    status:
+      sidAllocations:
+      - poolRef: pool0
+        sids:
+        - behavior: uDT4                # uDT4 with looking in VRF carrots
+          behaviorType: uSID
+          metadata: carrots
+          owner: srv6-manager
+          sid:
+            addr: 'fc00:0:a061:e95c::'  # VRF carrots uSID Locator + Function
+            structure:
+              argumentLenBits: 0
+              functionLenBits: 16
+              locatorBlockLenBits: 32
+              locatorNodeLenBits: 16
+    ```
 
 ### Verify Cilium advertised L3vpn prefixes are reaching remote xrd nodes
 
