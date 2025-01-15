@@ -95,6 +95,10 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     ``` 
     sudo containerlab deploy -t lab_1-topology.yaml
     ```
+
+    > [!NOTE]
+    > All `containerlab` commands can be abbreviated to `clab`. Example: `sudo clab deploy -t lab_1-topology.yaml`
+
     - Look for the below output from the end of the script confirming XRd instances 1-7 were created
     ```
     ╭──────────────────┬─────────────────────────────────┬─────────┬────────────────╮
