@@ -245,12 +245,12 @@ Validation command output examples can be found at this [LINK](https://github.co
      Path #1: Received by speaker 0
      Not advertised to any peer
      Local
-       fc00:0:7777::1 (metric 3) from fc00:0:5555::1 (10.0.0.7)   <--------- SOURCE XRD07
+       fc00:0:7777::1 (metric 3) from fc00:0:5555::1 (10.0.0.7)   <--------- SOURCE xrd07
          Received Label 0xe0040
          Origin incomplete, metric 0, localpref 100, valid, internal, best, group-best, import-candidate, not-in-vrf
          Received Path ID 0, Local Path ID 1, version 5
          Extended community: RT:9:9 
-         Originator: 10.0.0.7, Cluster list: 10.0.0.5             <------- FROM RR XRD05
+         Originator: 10.0.0.7, Cluster list: 10.0.0.5             <------- FROM RR xrd05
          PSID-Type:L3, SubTLV Count:1
          SubTLV:
            T:1(Sid information), Sid:fc00:0:7777::, Behavior:63, SS-TLV Count:1
@@ -264,7 +264,7 @@ Validation command output examples can be found at this [LINK](https://github.co
          Origin incomplete, metric 0, localpref 100, valid, internal, import-candidate, not-in-vrf
          Received Path ID 0, Local Path ID 0, version 0
          Extended community: RT:9:9 
-         Originator: 10.0.0.7, Cluster list: 10.0.0.6             <------- FROM RR XRD06
+         Originator: 10.0.0.7, Cluster list: 10.0.0.6             <------- FROM RR xrd06
          PSID-Type:L3, SubTLV Count:1
          SubTLV:
            T:1(Sid information), Sid:fc00:0:7777::, Behavior:63, SS-TLV Count:1

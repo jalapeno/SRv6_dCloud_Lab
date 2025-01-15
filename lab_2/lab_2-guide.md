@@ -17,7 +17,7 @@ In Lab 2 the student will perform the basic ISIS and BGP SRv6 configuration on t
       - [Validate SRv6 configuration and reachability](#validate-srv6-configuration-and-reachability)
   - [End-to-End Connectivity](#end-to-end-connectivity)
     - [Viewing Router to Router traffic in containerlabs](#viewing-router-to-router-traffic-in-containerlabs)
-      - [do we keep this (requires re-creating the shell script), or do we just have users run the verbose tcpdump command?](#do-we-keep-this-requires-re-creating-the-shell-script-or-do-we-just-have-users-run-the-verbose-tcpdump-command)
+      - [do we keep this (requires re-creating the shell script), or do we just have users run the verbose tcpdump command? Or take the packet walk doc and merge it into here and call it good?](#do-we-keep-this-requires-re-creating-the-shell-script-or-do-we-just-have-users-run-the-verbose-tcpdump-command-or-take-the-packet-walk-doc-and-merge-it-into-here-and-call-it-good)
   - [SRv6 Packet Walk](#srv6-packet-walk)
   - [End of Lab 2](#end-of-lab-2)
   
@@ -215,7 +215,7 @@ An example tcpdump command would look like this:
 ```
 sudo ip netns exec clab-cleu25-XR01 tcpdump -ni Gi0-0-0-1
 ```
-#### do we keep this (requires re-creating the shell script), or do we just have users run the verbose tcpdump command?
+#### do we keep this (requires re-creating the shell script), or do we just have users run the verbose tcpdump command? Or take the packet walk doc and merge it into here and call it good?
 
 In lab_1 When we ran the XRd topology setup script it called the 'nets.sh' subscript in the ~/SRv6_dCloud_Lab/util directory. The nets.sh resolved the underlying docker network IDs and wrote them to text files in the util directory. As an example link "A" in the topology has a mapped file called xrd01-xrd02 which contains the linux network id we need.
 
