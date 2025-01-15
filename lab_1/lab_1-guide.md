@@ -381,16 +381,18 @@ ping fc00:0000:7777::1 source lo0
     ```
     ~/SRv6_dCloud_Lab/util/add-latency.sh
     ```
-2. Run one or more of these commands on the XRD VM to see the added synthetic latency:
-    ```
-    sudo ip netns exec clab-cleu25-xrd01 tc qdisc list | grep delay
-    sudo ip netns exec clab-cleu25-xrd02 tc qdisc list | grep delay
-    sudo ip netns exec clab-cleu25-xrd03 tc qdisc list | grep delay
-    sudo ip netns exec clab-cleu25-xrd04 tc qdisc list | grep delay
-    sudo ip netns exec clab-cleu25-xrd05 tc qdisc list | grep delay
-    sudo ip netns exec clab-cleu25-xrd06 tc qdisc list | grep delay
-    sudo ip netns exec clab-cleu25-xrd07 tc qdisc list | grep delay
-    ```
+The script output should look something like this:
+
+```
+Latency added to the links
+xrd01 link latency: 
+xrd02 link latency: 
+xrd03 link latency: 
+xrd04 link latency: 
+xrd05 link latency: 
+xrd06 link latency: 
+xrd07 link latency: 
+```
 
 ## Validate BGP Topology
 

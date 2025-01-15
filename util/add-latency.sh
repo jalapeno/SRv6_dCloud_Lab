@@ -17,18 +17,18 @@ sudo ip netns exec clab-cleu25-xrd06 tc qdisc add dev Gi0-0-0-0 root netem delay
 
 echo "Latency added to the links"
 
-echo "xrd01: "
+echo "xrd01 link latency: "
 sudo ip netns exec clab-cleu25-xrd01 tc qdisc list | grep delay
-echo "xrd02: "
+echo "xrd02 link latency: "
 sudo ip netns exec clab-cleu25-xrd02 tc qdisc list | grep delay
-echo "xrd03: "
+echo "xrd03 link latency: "
 sudo ip netns exec clab-cleu25-xrd03 tc qdisc list | grep delay
-echo "xrd04: "
+echo "xrd04 link latency: "
 sudo ip netns exec clab-cleu25-xrd04 tc qdisc list | grep delay
-echo "xrd05: "
+echo "xrd05 link latency: "
 sudo ip netns exec clab-cleu25-xrd05 tc qdisc list | grep delay
-echo "xrd06: "
+echo "xrd06 link latency: "
 sudo ip netns exec clab-cleu25-xrd06 tc qdisc list | grep delay
-echo "xrd07: "
+echo "xrd07 link latency: "
 sudo ip netns exec clab-cleu25-xrd07 tc qdisc list | grep delay
 
