@@ -60,7 +60,7 @@ CRDs come in YAML file format and in the next several sections of this lab we'll
 For the sake of simplicity in this lab we'll use iBGP peering between our Rome K8s node and our route reflectors xrd05 and xrd06. 
 
 Here is a partial Cilium iBGP CRD (aka iBGP configuration) with notes:
-```yaml
+```json
 apiVersion: "cilium.io/v2alpha1"
 kind: CiliumBGPPeeringPolicy
 metadata:
