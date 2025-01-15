@@ -91,6 +91,7 @@ spec:
 ```
 
 You may review the entire Cilium iBGP policy yaml here: [Cilium BGP](cilium/bgp-policy.yaml). 
+
 Note: we'll be enabling Cilium to peer over both ipv4 and ipv6 with exchange of vpnv4 prefixes over the IPv6 sessions. Also, xrd05 and xrd06's peering sessions with Cilium inherited the vpnv4 address family configuration in the previous lab exercies when we applied the address family to the neighbor-group. 
 
 1. Apply the Cilium iBGP policy - On the k8s control plane vm cd into the cilium directory and apply the Cilium BGP CRD
@@ -104,7 +105,7 @@ Note: we'll be enabling Cilium to peer over both ipv4 and ipv6 with exchange of 
    cilium bgp peers
    ```
 
-We expect to a pair of IPv6 sessions established and with advertisement and receipt of BGP NLRIs for ipv6 and ipv4/mpls_vpn (aka, SRv6 L3VPN). 
+We expect to have two IPv6 BGP peering sessions established and with advertisement and receipt of BGP NLRIs for IPv6 and IPv4/mpls_vpn (aka, SRv6 L3VPN). 
 
 Example:
   ```
@@ -112,9 +113,12 @@ Example:
   Node   Local AS   Peer AS   Peer Address     Session State   Uptime   Family          Received   Advertised
   rome   65000      65000     fc00:0:5555::1   established     2m58s    ipv6/unicast    5          1    
                                                                         ipv4/mpls_vpn   4          0    
-        65000      65000     fc00:0:6666::1   established     53s       ipv6/unicast    5          1    
+         65000      65000     fc00:0:6666::1   established     53s      ipv6/unicast    5          1    
                                                                         ipv4/mpls_vpn   4          0   
   ```
+
+> [!NOTE]
+> for the mpls_vpn we have not added in any ipv4 or ipv6 prefix advertisesments yet, hence a zero value in the output above.
 
 ## Cilium SRv6 SID Manager and Locators
 Per Cilium Enterprise documentation:
