@@ -116,7 +116,7 @@ kubectl apply -f bgp-policy.yaml
                                                                         ipv4/mpls_vpn   4          0   
   ```
 
-## Cilium SRv6 SID manager and Locators
+## Cilium SRv6 SID Manager and Locators
 Per Cilium Enterprise documentation:
 *The SID Manager manages a cluster-wide pool of SRv6 locator prefixes. You can define a prefix pool using the IsovalentSRv6LocatorPool resource. The Cilium Operator assigns a locator for each node from this prefix. In this example we'll allocate /48 bit uSID based locators.*
 
