@@ -16,7 +16,7 @@ In Lab 2 the student will perform the basic ISIS and BGP SRv6 configuration on t
       - [Configure SRv6 on xrd01](#configure-srv6-on-xrd01)
       - [Validate SRv6 configuration and reachability](#validate-srv6-configuration-and-reachability)
   - [End-to-End Connectivity](#end-to-end-connectivity)
-    - [Viewing Router to Router traffic in containerlabs](#viewing-router-to-router-traffic-in-containerlabs)
+    - [Viewing Router to Router traffic in containerlab](#viewing-router-to-router-traffic-in-containerlab)
       - [do we keep this (requires re-creating the shell script), or do we just have users run the verbose tcpdump command? Or take the packet walk doc and merge it into here and call it good?](#do-we-keep-this-requires-re-creating-the-shell-script-or-do-we-just-have-users-run-the-verbose-tcpdump-command-or-take-the-packet-walk-doc-and-merge-it-into-here-and-call-it-good)
   - [SRv6 Packet Walk](#srv6-packet-walk)
   - [End of Lab 2](#end-of-lab-2)
@@ -130,7 +130,7 @@ SRv6 uSID locator and source address information for nodes in the lab:
     ```
 
 > [!NOTE]
-> Once you've configured xrd01 using the above, please proceed to configure the remainder of the routers using the configs found in the 'quick config doc' [HERE](/lab_2/lab_2_quick_config.md) 
+> Once you've configured xrd01 using the above, please proceed to configure the remainder of the routers using the configs found in the `*quick config doc*` [HERE](/lab_2/lab_2_quick_config.md) 
 
 #### Validate SRv6 configuration and reachability
 
@@ -179,7 +179,7 @@ SRv6 uSID locator and source address information for nodes in the lab:
 
 ## End-to-End Connectivity
 
-### Viewing Router to Router traffic in containerlabs
+### Viewing Router to Router traffic in containerlab
 In this lab we will make extensive use of tcpdump to look at traffic on routed links. Containerlab makes this a fairly easy process as the underlying router links run in Linux network namespaces. There are two pieces of information we need to run a tcpdump command; the *network namespace* and *interface name*.
 
 For the  *network namespace* use the below command 
