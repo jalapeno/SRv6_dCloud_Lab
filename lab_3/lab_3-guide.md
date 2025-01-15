@@ -1,7 +1,7 @@
 # Lab 3: Configure SRv6 L3VPN and SRv6-TE [30 Min]
 
 ### Description
-In Lab 3 we will establish a Layer-3 VPN named "carrots" which will use SRv6 transport and will have endpoints on **xrd01** and **xrd07**. In order to extend L3VPN "carrots" to the Amsterdam and Rome VM we will be adding the VRF "carrot" to interfaces on **xrd01** and **xrd07** that connect to seconrday NICs on the Amsterdam and Rome. Once the L3VPN is established and you run test traffic between Amsterdam and Rome we will then setup SRv6-TE traffic steering from Amsterdam to specific Rome prefixes.
+In Lab 3 we will establish a Layer-3 VPN named "carrots" which will use SRv6 transport and will have endpoints on **xrd01** and **xrd07**. In order to extend L3VPN "carrots" to the Amsterdam and Rome VM we will be adding VRF "carrots" to interfaces on **xrd01** and **xrd07** that connect to seconrday NICs on the Amsterdam and Rome. Once the L3VPN is established and you run test traffic between Amsterdam and Rome we will then setup SRv6-TE traffic steering from Amsterdam to specific Rome prefixes.
 
 ## Contents
 - [Lab 3: Configure SRv6 L3VPN and SRv6-TE \[30 Min\]](#lab-3-configure-srv6-l3vpn-and-srv6-te-30-min)
@@ -49,9 +49,11 @@ BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4/6 L3VPN Network
 
 
   ### Configure VRF
-  This lab will use the VRF *carrots* for IPv4 and IPv6 VPN. The *carrots* VRF is configured only on the two edge routers in our SP network: **xrd01** and **xrd07**. Intermediate routers do not need to be VRF aware and are instead forwarding on the SRv6 data plane.
+  Time to configure VRF *carrots* for IPv4 and IPv6 VPN. The *carrots* VRF will be setup on the two edge routers in our SP network: **xrd01** and **xrd07**. Intermediate routers do not need to be VRF aware and are instead forwarding on the SRv6 data plane. (technically the intermediate routers don't need to be SRv6 aware and could simply perform IPv6 forwarding based on the outer IPv6 header)
 
   Configure the VRF on **xrd01** and **xrd07**:
+
+> Note: the below commands are also available in the *`quick config doc`* [HERE](/lab_3/lab_3_quick_config.md)  
 
   ```
   conf t

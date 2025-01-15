@@ -257,4 +257,4 @@ commit
 
 ```
  ## Back to Lab 3 Guide
-[Lab 3 Guide](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_3/lab_3-guide.md)
+[Lab 3 Guide](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_3/lab_3-guide.md#validate-srv6-l3vpn)
