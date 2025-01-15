@@ -16,32 +16,29 @@ The original lab was developed in partnership with Arkadiusz Kaliwoda, Cisco SE 
 * Cilium SRv6 Sidmanager and Locators [LINK](#cilium-srv6-sidmanager-and-locators)
 * Establish Cilium VRFs [LINK](#establish-cilium-vrfs)
 * Setup Cilium SRv6 Responder [LINK](#setup-cilium-srv6-responder)
-* Appendix 1: Other Useful Commands [LINK](#appendix-1-other-useful-commands)
-* Appendix 2: Notes, Other [LINK](#appendix-2-notes-other)
 
 ## Introduction
 
 Kubernetes and Cilium Enterprise are pre-installed on the Rome VM. All of the following steps are to be performed on the Rome VM unless otherwise specified.
 
 1. SSH into the Rome VM and cd into the lab_4/cilium directory and check out the contents
-```
-ssh cisco@198.18.128.103
-cd ~/SRv6_dCloud_lab/lab_4/cilium/
-```
+   ```
+   ssh cisco@198.18.128.103
+   cd ~/SRv6_dCloud_lab/lab_4/cilium/
+   ```
 
 2. Run a couple commands to verify the Cilium Installation
 
-  Display Cilium daemonset status:
-  ```
-  kubectl get ds -n kube-system cilium
-  ```
-
-  The output should show 2 cilium daemonsets (ds) available, example:
-  ```
-  cisco@rome:~$   kubectl get ds -n kube-system cilium
-  NAME     DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR            AGE
-  cilium   1         1         1       1            1           kubernetes.io/os=linux   94m
-  ```
+   Display Cilium daemonset status:
+   ```
+   kubectl get ds -n kube-system cilium
+   ```
+   The output should show 2 cilium daemonsets (ds) available, example:
+   ```
+   cisco@rome:~$   kubectl get ds -n kube-system cilium
+   NAME     DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR            AGE
+   cilium   1         1         1       1            1           kubernetes.io/os=linux   94m
+   ```
 
 
 ##  Setup Cilium BGP Peering
