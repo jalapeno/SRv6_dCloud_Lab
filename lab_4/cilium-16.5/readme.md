@@ -41,6 +41,8 @@ Usage:
 ```
 cilium bgp routes available ipv4 mpls_vpn
 cilium bgp routes advertised ipv4 mpls_vpn
+cilium bgp routes available ipv6 unicast
+cilium bgp routes advertised ipv6 unicast
 ```
 
 1. verify sidmanager
@@ -48,6 +50,10 @@ cilium bgp routes advertised ipv4 mpls_vpn
 kubectl get sidmanager -o custom-columns="NAME:.metadata.name,ALLOCATIONS:.spec.locatorAllocations"
 ```
 
+pod ip address
+```
+kubectl get pod -n carrots carrots0 -o jsonpath="{.status.podIPs}"
+```
 
 
 
