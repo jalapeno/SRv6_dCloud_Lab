@@ -387,16 +387,24 @@ ping fc00:0000:7777::1 source lo0
     ```
 The script output should look something like this:
 
-```
-Latency added to the links
-xrd01 link latency: 
-xrd02 link latency: 
-xrd03 link latency: 
-xrd04 link latency: 
-xrd05 link latency: 
-xrd06 link latency: 
-xrd07 link latency: 
-```
+    ```
+    Latencies added. The following output applies in both directions, Ex: xrd01 -> xrd02 and xrd02 -> xrd01
+    xrd01 link latency: 
+    qdisc netem 800a: dev Gi0-0-0-1 root refcnt 13 limit 1000 delay 10.0ms
+    qdisc netem 800b: dev Gi0-0-0-2 root refcnt 13 limit 1000 delay 5.0ms
+    xrd02 link latency: 
+    qdisc netem 800c: dev Gi0-0-0-1 root refcnt 13 limit 1000 delay 30.0ms
+    qdisc netem 800d: dev Gi0-0-0-2 root refcnt 13 limit 1000 delay 20.0ms
+    xrd03 link latency: 
+    qdisc netem 800e: dev Gi0-0-0-1 root refcnt 13 limit 1000 delay 40.0ms
+    xrd04 link latency: 
+    qdisc netem 8010: dev Gi0-0-0-2 root refcnt 13 limit 1000 delay 30.0ms
+    qdisc netem 800f: dev Gi0-0-0-1 root refcnt 13 limit 1000 delay 30.0ms
+    xrd05 link latency: 
+    qdisc netem 8011: dev Gi0-0-0-2 root refcnt 13 limit 1000 delay 5.0ms
+    xrd06 link latency: 
+    qdisc netem 8012: dev Gi0-0-0-0 root refcnt 13 limit 1000 delay 30.0ms
+    ```
 
 ## Validate BGP Topology
 
