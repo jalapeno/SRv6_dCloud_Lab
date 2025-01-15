@@ -73,15 +73,15 @@ Each lab instance consists of four virtual machines. The first VM, where we'll d
 
 * Use the XRD VM as an SSH jumpbox to access the XRd routers as follows:
 
-| Device Name    | Device Type | Access Type |   IP Address  or  Hostname        |                                           
-|:---------------|:------------|:------------|:---------------------------------:|                          
-| xrd01          | router      | SSH         | 10.254.254.101  clab-cleu25-xrd01 |
-| xrd02          | router      | SSH         | 10.254.254.102  clab-cleu25-xrd02 |
-| xrd03          | router      | SSH         | 10.254.254.103  clab-cleu25-xrd03 |
-| xrd04          | router      | SSH         | 10.254.254.104  clab-cleu25-xrd04 |
-| xrd05          | router      | SSH         | 10.254.254.105  clab-cleu25-xrd05 |
-| xrd06          | router      | SSH         | 10.254.254.106  clab-cleu25-xrd06 |
-| xrd07          | router      | SSH         | 10.254.254.107  clab-cleu25-xrd07 |
+| Device Name    | Device Type | Access Type |   IP Address  or  Hostname         |                                           
+|:---------------|:------------|:------------|:----------------------------------:|                          
+| xrd01          | router      | SSH         | 10.254.254.101 / clab-cleu25-xrd01 |
+| xrd02          | router      | SSH         | 10.254.254.102 / clab-cleu25-xrd02 |
+| xrd03          | router      | SSH         | 10.254.254.103 / clab-cleu25-xrd03 |
+| xrd04          | router      | SSH         | 10.254.254.104 / clab-cleu25-xrd04 |
+| xrd05          | router      | SSH         | 10.254.254.105 / clab-cleu25-xrd05 |
+| xrd06          | router      | SSH         | 10.254.254.106 / clab-cleu25-xrd06 |
+| xrd07          | router      | SSH         | 10.254.254.107 / clab-cleu25-xrd07 |
 
 ## Jalapeno
 
