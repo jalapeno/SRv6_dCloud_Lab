@@ -1,4 +1,4 @@
-## Cilium Lab Appendix 1: other Useful Commands
+## Cilium Lab Appendix 1: Other Useful Commands
 The following commands can all be run from the rome:
 
 1. Self explanatory Cilium BGP commands:
