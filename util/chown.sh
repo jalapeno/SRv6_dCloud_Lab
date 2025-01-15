@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 
 sudo chown cisco .git/objects/*
 sudo chgrp cisco .git/objects/*

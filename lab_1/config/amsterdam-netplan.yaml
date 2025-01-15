@@ -1,0 +1,51 @@
+network:
+  ethernets:
+    ens160:
+      addresses:
+      - 198.18.128.102/18
+      gateway4: 198.18.128.1
+      nameservers:
+        addresses:
+        - 198.18.128.1
+        - 8.8.8.8
+        search:
+        - demo.dcloud.cisco.com
+      routes:
+        - to: 0.0.0.0/0
+          via: 198.18.128.1
+          metric: 100
+
+# Lab 3 SRv6 L3VPN         
+    ens224:
+      addresses:
+      - 10.101.3.1/24
+      - fc00:0:101:3::1/64
+      routes:
+        - to: 10.107.2.0/24
+          via: 10.101.3.2       
+        - to: 40.0.0.0/24
+          via: 10.101.3.2
+        - to: 50.0.0.0/24
+          via: 10.101.3.2
+        - to: fc00:0:40::/64
+          via: fc00:0:101:3::2
+        - to: fc00:0:50::/64
+          via: fc00:0:101:3::2
+
+# Host-based SRv6
+    ams-out:
+      addresses:
+      - 10.101.2.1/24
+      routes:
+        - to: 10.0.0.0/24
+          via: 10.101.2.2
+        - to: 10.107.0.0/20
+          via: 10.101.2.2
+        - to: 10.101.1.0/24
+          via: 10.101.2.2
+        - to: 20.0.0.0/24
+          via: 10.101.2.2
+        - to: 30.0.0.0/24
+          via: 10.101.2.2
+
+  version: 2

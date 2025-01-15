@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 
 line=$(head -n 1 xrd01-xrd02)
 echo "

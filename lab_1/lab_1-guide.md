@@ -18,7 +18,7 @@ topology for all subsequent lab exercises. Second, we will validate that the pre
     - [Validate Client VMs](#validate-client-vms)
     - [Connect to Routers](#connect-to-routers)
   - [Validate ISIS Topology](#validate-isis-topology)
-      - [need to discuss if we want to keep this step, if so we can adapt util/nets.sh to do something like this:](#need-to-discuss-if-we-want-to-keep-this-step-if-so-we-can-adapt-utilnetssh-to-do-something-like-this)
+    - [Add Synthetic Latency to the Links](#add-synthetic-latency-to-the-links)
   - [Validate BGP Topology](#validate-bgp-topology)
   - [End of Lab 1](#end-of-lab-1)
   
@@ -85,7 +85,8 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     b948b6ba5918   host      host      local
     bdf431ee7377   none      null      local
     ```
-5.  Run the *lab_1* setup script. This script should clean up any existing XRd containers and docker networks, then launch the topology into the "beginning of lab 1" configuration state 
+5.  Run the *`containerlab deploy`* command to launch the topology. Running the deploy command from this directory will launch the network into the "beginning of lab 1" configuration state 
+   
     - first change to the lab_1 directory
     ```
     cd lab_1
@@ -138,7 +139,7 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     3c5243db8903   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   2 minutes ago   Up 2 minutes             clab-cleu25-xrd03
     ```
     
-7. Confirm that containerlabs created network name spaces for each XRd container 
+7. Confirm that containerlab created network name spaces for each XRd container 
     ```
     sudo ip netns ls
     ```
@@ -153,19 +154,13 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     clab-cleu25-xrd05 (id: 0) 
     ```
 
-
- - The scripts and files reside in the lab 'util' directory.
-```
-ls ~/SRv6_dCloud_Lab/util/
-```
-
 > [!IMPORTANT]
 > The XRd router instances should be available for SSH access about 2 minutes after spin up.
 
 ### Validate Jalapeno VM
-The Ubuntu VM *Jalapeno* has Kubernetes pre-installed and running. Later in lab exercise 5 we will install the open-source Jalapeno application.
+The Ubuntu VM *Jalapeno* has Kubernetes pre-installed and running. Later in lab exercise 5 we will explore the open-source Jalapeno application.
 
-Jalapeno will collect BGP Monitoring Protocol (BMP) and streaming telemetry data from the routers, and will serve as a data repository for the SDN clients we'll have running on the Amsterdam and Rome VMs (Lab 6).
+Jalapeno will collect BGP Monitoring Protocol (BMP) and streaming telemetry data from the routers, and will serve as a data repository for the SDN clients we'll have running on the Amsterdam and Rome VMs (Lab 5/6).
 
 1. Validate router reachability to Jalapeno VM (no need to check all routers, but will be good to validate **xrd05** and **xrd06**):
 
@@ -193,7 +188,7 @@ Success rate is 100 percent (5/5), round-trip min/avg/max = 1/8/39 ms
 
 __Rome__
 
-In our lab the Rome VM represents a standard linux host or endpoint, and is essentially a customer/user of our network.
+In our lab the Rome VM is an Ubuntu Kubernetes node, and is essentially a customer/user of our network. 
 
 1. SSH to Rome Client VM from your laptop. 
 
@@ -232,7 +227,7 @@ PING 198.18.128.101 (198.18.128.101) 56(84) bytes of data.
 
 __Amsterdam__
 
-The Amsterdam VM represents a server belonging to a cloud, CDN, or gaming company that serves content to end users (such as the Rome VM) or customer applications over our network. The Amsterdam VM comes with VPP pre-installed. VPP (also known as https://fd.io/) is a very flexible and high performance open source software dataplane. 
+The Amsterdam VM represents a server belonging to a cloud, CDN, or gaming company that serves content to end users, machines (such as the Rome VM), or customer applications over our network. The Amsterdam VM comes with VPP pre-installed. VPP (also known as https://fd.io/) is a very flexible and high performance open source software dataplane. 
 
 ![VPP Topology](/topo_drawings/vpp-diagram-ams.png)
 
@@ -333,7 +328,7 @@ Our topology is running ISIS as its underlying IGP with basic settings pre-confi
 
 For full size image see [LINK](/topo_drawings/isis-topology-large.png)
 
-1. SSH into each router and verify that ISIS is up and running on interfaces as identified in the ISIS topology diagram.
+1. SSH into each router (or at least two or three routers) and verify that ISIS is up and running on interfaces as identified in the ISIS topology diagram.
     ```
     show isis interface brief
     ```
@@ -377,14 +372,16 @@ ping 10.0.0.7 source lo0
 ping fc00:0000:7777::1 source lo0
 ```
 
-#### need to discuss if we want to keep this step, if so we can adapt util/nets.sh to do something like this:
-```
-sudo ip netns exec clab-cleu25-XR01 tc qdisc add dev Gi0-0-0-1 root netem delay 30000
-```
-> [!NOTE]
-> Normally pinging xrd-to-xrd in this dockerized environment would result in ping times of ~1-3ms. However, the util/nets.sh script, which was triggered at setup, added synthetic latency to the underlying Linux links using the [netem](https://wiki.linuxfoundation.org/networking/netem) 'tc' command line tool. So you'll see a ping RTT of anywhere from ~60ms to ~150ms. This synthetic latency will allow us to really see the effect of later traffic steering execises.
+### Add Synthetic Latency to the Links
 
-    Run one or more of these commands on the XRD VM to see the added synthetic latency:
+> [!NOTE]
+> Normally pinging xrd-to-xrd in this dockerized environment would result in ping times of ~1-3ms. However, we wanted to simulate something a little more real-world so we built a shell script to add synthetic latency to the underlying Linux links. The script uses the [netem](https://wiki.linuxfoundation.org/networking/netem) 'tc' command line tool and executes commands in the XRd networks' underlying network namespaces. After running the script you'll see a ping RTT of anywhere from ~60ms to ~150ms. This synthetic latency will allow us to really see the effect of later traffic steering execises.
+
+1. Run the `add-latency.sh` script:
+    ```
+    ~/SRv6_dCloud_Lab/util/add-latency.sh
+    ```
+2. Run one or more of these commands on the XRD VM to see the added synthetic latency:
     ```
     sudo ip netns exec clab-cleu25-xrd01 tc qdisc list | grep delay
     sudo ip netns exec clab-cleu25-xrd02 tc qdisc list | grep delay
