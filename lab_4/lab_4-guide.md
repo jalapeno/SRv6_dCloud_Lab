@@ -11,13 +11,13 @@ The original lab was developed in partnership with Arkadiusz Kaliwoda, Cisco SE 
 
 ### Contents
 * Description [LINK](#description)
-* Cloud-Native SRv6 with Cilium [LINK](#cloud-native-srv6-with-cilium)
+* Validate Cilium Run State [LINK](#validate-cilium-rum-state)
 * Setup Cilium BGP Peering [LINK](#setup-cilium-bgp-peering)
-* Cilium SRv6 Sidmanager and Locators [LINK](#cilium-srv6-sidmanager-and-locators)
+* Cilium SRv6 SIDmanager and Locators [LINK](#cilium-srv6-sidmanager-and-locators)
 * Establish Cilium VRFs [LINK](#establish-cilium-vrfs)
 * Setup Cilium SRv6 Responder [LINK](#setup-cilium-srv6-responder)
 
-## Introduction
+### Validate Cilium Run State
 
 Kubernetes and Cilium Enterprise are pre-installed on the Rome VM. All of the following steps are to be performed on the Rome VM unless otherwise specified.
 
