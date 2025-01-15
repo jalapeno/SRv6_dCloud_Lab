@@ -1,7 +1,7 @@
 # Lab 4: SRv6 for Kubernetes with Cilium [25 Min]
 
 ### Description
-Note: This portion of the lab makes use of Cilium Enterprise, which is a licensed set of features. The Cilium SRv6 feature set is not available in the open source version. If you are interested in SRv6 on Cilium or other Enterprise features, please contact the relevant Isovalent sales team.  
+Note: This portion of the lab makes use of Cilium Enterprise, which is a licensed set of features. The Cilium SRv6 feature set is not available in the open source version. If you are interested in SRv6 on Cilium or other Enterprise features, please contact the relevant Cisco Isovalent sales team.  
 
 Isovalent has also published a number of labs covering a wide range of Cilium, Hubble, and Tetragon features here:
 
