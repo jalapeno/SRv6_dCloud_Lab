@@ -76,7 +76,7 @@ spec:
       matchLabels:
         export: "true"                  # advertise Locator prefix into BGP IPv6 underlay
     neighbors:
-    - peerAddress: "10.0.0.5/32"        #ipv4 peer address for xrd05
+    - peerAddress: "10.0.0.5/32"        # ipv4 peer address for xrd05
       peerASN: 65000
       families:                         # address families for this BGP session
        - afi: ipv4
@@ -162,8 +162,8 @@ Per Cilium Enterprise documentation:
     spec:
       locatorAllocations:
       - locators:
-        - behaviorType: uSID       # test comment
-          prefix: fc00:0:a061::/48    <------ Rome's dynamically allocated uSID prefix (Locator)
+        - behaviorType: uSID      
+          prefix: fc00:0:a061::/48               # Rome's dynamically allocated uSID prefix (Locator)
           structure:
             argumentLenBits: 0
             functionLenBits: 16
@@ -180,19 +180,19 @@ Per Cilium Enterprise documentation:
 ## Establish Cilium VRFs
 1. Add vrf(s) - this example also adds a couple alpine linux container pods to vrf carrots:
    [vrf-carrots.yaml](cilium/vrf-carrots.yaml)
-```
-kubectl apply -f vrf-carrots.yaml
-```
+   ```
+   kubectl apply -f vrf-carrots.yaml
+   ```
 
 2. Verify the VRF carrots pods are running:
-```
-kubectl get pods -n carrots
-```
+   ```
+   kubectl get pods -n carrots
+   ```
 
 3. Verify Cilium has allocated a uDT4 SRv6 L3VPN SID on Rome:
-```
-kubectl get sidmanager rome -o yaml
-```
+   ```
+   kubectl get sidmanager rome -o yaml
+   ```
 
   Example output from sidmanager:
   ```yaml
@@ -209,7 +209,7 @@ kubectl get sidmanager rome -o yaml
     locatorAllocations:
     - locators:
       - behaviorType: uSID
-        prefix: fc00:0:a061::/48    <----- Rome SRv6 Locator
+        prefix: fc00:0:a061::/48      # Rome SRv6 Locator
         structure:
           argumentLenBits: 0
           functionLenBits: 16
@@ -220,12 +220,12 @@ kubectl get sidmanager rome -o yaml
     sidAllocations:
     - poolRef: pool0
       sids:
-      - behavior: uDT4        <------ uDT4 with looking in VRF carrots
+      - behavior: uDT4                # uDT4 with looking in VRF carrots
         behaviorType: uSID
         metadata: carrots
         owner: srv6-manager
         sid:
-          addr: 'fc00:0:a061:e95c::'  <------ VRF carrots uSID Locator + Function
+          addr: 'fc00:0:a061:e95c::'  # VRF carrots uSID Locator + Function
           structure:
             argumentLenBits: 0
             functionLenBits: 16
