@@ -1,0 +1,45 @@
+apiVersion: "cilium.io/v2alpha1"
+kind: CiliumBGPPeeringPolicy
+metadata:
+  name: rome-bgp-policy
+spec:
+  nodeSelector:
+    matchLabels:
+      kubernetes.io/hostname: rome
+  virtualRouters:
+  - localASN: 65000
+    exportPodCIDR: true
+    mapSRv6VRFs: true
+    srv6LocatorPoolSelector:
+      matchLabels:
+        export: "true"
+    neighbors:
+    - peerAddress: "fc00:0:5555::1/128"
+      peerASN: 65000
+      families:
+        - afi: ipv6
+          safi: unicast
+        - afi: ipv4
+          safi: mpls_vpn
+    - peerAddress: "fc00:0:6666::1/128"
+      peerASN: 65000
+      families:
+        - afi: ipv6
+          safi: unicast
+        - afi: ipv4
+          safi: mpls_vpn
+# ---
+# apiVersion: "cilium.io/v2alpha1"
+# kind: CiliumBGPAdvertisement
+# metadata:
+#   name: bgp-advertisements
+#   labels:
+#     advertise: bgp
+# spec:
+#   advertisements:
+#     - advertisementType: "Service"
+#       service:
+#         addresses:
+#           - ClusterIP
+#           - ExternalIP
+#           - LoadBalancerIP

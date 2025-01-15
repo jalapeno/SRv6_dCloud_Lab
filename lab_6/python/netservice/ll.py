@@ -9,7 +9,7 @@ def ll_calc(src_id, dst_id, dst, user, pw, dbname, intf, dataplane, encap):
     client = ArangoClient(hosts='http://198.18.128.101:30852')
     db = client.db(dbname, username=user, password=pw)
     cursor = db.aql.execute("""for v, e in outbound shortest_path """ + '"%s"' % src_id + """ \
-        to """ + '"%s"' % dst_id + """ ipv4_topology \
+        to """ + '"%s"' % dst_id + """ ipv4_graph \
             options { weightAttribute: 'latency' } \
                 return { node: v._key, name: v.name, sid: v.sids[*].srv6_sid, latency: e.latency } """)
     path = [doc for doc in cursor]

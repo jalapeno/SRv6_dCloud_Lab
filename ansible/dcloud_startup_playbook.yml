@@ -12,6 +12,8 @@
 - name: Disable swap on k8s nodes
   hosts: localhost
   become: true
+  become_method: sudo
+  become_pass: cisco123
   tasks:
 
     - name: disable swap on k8s nodes

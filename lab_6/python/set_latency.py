@@ -101,7 +101,7 @@ client = ArangoClient(hosts='http://198.18.128.101:30852')
 db = client.db(dbname, username=user, password=password)
 
 # Set the document in Arango
-srt = db.collection('ipv4_topology')
+srt = db.collection('ipv4_graph')
 
 # Set West to East Link Latency
 record = srt.get(link_WtoE[args.l])
