@@ -28,8 +28,8 @@ Each of the labs is designed to be completed in the order presented. Lab 1 will 
 
 | File Name      | Description                                                         |
 |:---------------|:--------------------------------------------------------------------|
-| ansible        | Ansible scripts for configuration reside                            |
-| topo_drawings  | Lab diagrams location                                               |
+| ansible        | Ansible scripts to update the lab at bootup                         |
+| topo_drawings  | Lab diagrams folder                                                 |
 | util           | Utility scripts                                                     |
 | lab_1 -> lab_5 | Individual lab folders                                              |
 
@@ -40,11 +40,9 @@ Within each lab directory you should see several files of importance:
 
 | File Name                | Description                                                  |
 |:-------------------------|:-------------------------------------------------------------|
-| cleanup-lab_X.sh         | Cleans up the docker environemnt                             |
-| docker-compose-lab_X.yml | YAML input file used by docker compose to build the topology |
-| lab_X-topology.yml       | YAML input file for XRD to create docker compose file        |
+| cleanup-lab_X.sh         | Cleans up the containerlab topology and files                |
+| lab_X-topology.yml       | YAML input file for containerlab to create the topology      |
 | lab_X-guide.md           | User guide for this lab                                      |
-| setup-lab_X.sh           | Calls cleanup script, launches the topology, creates utils   | 
 
 
 We've recently launched a whole series of SRv6 labs on github, many of which are built on XRd:
@@ -67,23 +65,23 @@ Each lab instance consists of four virtual machines. The first VM, where we'll d
 ### Virtual Machine Access Table
 | VM Name        | Description              | Device Type | Access Type |   IP Address    |
 |:---------------|:-------------------------|:-----------:|:-----------:|:---------------:|
-| XRD            | Docker + XRd routers     | VM          | SSH         | 198.18.128.100  |
-| Jalapeno       | Kubernettes + Jalapeno   | VM          | SSH         | 198.18.128.101  |
+| XRD            | Hosts XRd routers        | VM          | SSH         | 198.18.128.100  |
+| Jalapeno       | Kubernetes + Jalapeno    | VM          | SSH         | 198.18.128.101  |
 | Amsterdam      | Ubuntu client            | VM          | SSH         | 198.18.128.102  |
 | Rome           | Ubuntu client            | VM          | SSH         | 198.18.128.103  |
 
 
 * Use the XRD VM as an SSH jumpbox to access the XRd routers as follows:
 
-| Device Name    | Device Type | Access Type |   IP Address    |                                           
-|:---------------|:------------|:------------|:---------------:|                          
-| xrd01          | router      | SSH         | 10.254.254.101  |
-| xrd02          | router      | SSH         | 10.254.254.102  |
-| xrd03          | router      | SSH         | 10.254.254.103  |
-| xrd04          | router      | SSH         | 10.254.254.104  |
-| xrd05          | router      | SSH         | 10.254.254.105  |
-| xrd06          | router      | SSH         | 10.254.254.106  |
-| xrd07          | router      | SSH         | 10.254.254.107  |
+| Device Name    | Device Type | Access Type |   IP Address  or  Hostname        |                                           
+|:---------------|:------------|:------------|:---------------------------------:|                          
+| xrd01          | router      | SSH         | 10.254.254.101  clab-cleu25-xrd01 |
+| xrd02          | router      | SSH         | 10.254.254.102  clab-cleu25-xrd02 |
+| xrd03          | router      | SSH         | 10.254.254.103  clab-cleu25-xrd03 |
+| xrd04          | router      | SSH         | 10.254.254.104  clab-cleu25-xrd04 |
+| xrd05          | router      | SSH         | 10.254.254.105  clab-cleu25-xrd05 |
+| xrd06          | router      | SSH         | 10.254.254.106  clab-cleu25-xrd06 |
+| xrd07          | router      | SSH         | 10.254.254.107  clab-cleu25-xrd07 |
 
 ## Jalapeno
 
