@@ -33,13 +33,12 @@ Kubernetes and Cilium Enterprise are pre-installed on the Rome VM. All of the fo
    ```
    kubectl get ds -n kube-system cilium
    ```
-   The output should show 2 cilium daemonsets (ds) available, example:
+   The output should show a single cilium daemonsets (ds) available, example:
    ```
    cisco@rome:~$   kubectl get ds -n kube-system cilium
    NAME     DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR            AGE
    cilium   1         1         1       1            1           kubernetes.io/os=linux   94m
    ```
-
 
 ##  Setup Cilium BGP Peering
 First a brief explanation of *`Kubernetes Custom Resource Definitions (CRDs)`*. 
