@@ -18,7 +18,7 @@ helm install cilium isovalent/cilium --version 1.16.5  --namespace kube-system -
 ### or install dev branch:
 ```
 helm template -n kube-system oci://quay.io/isovalent-charts-dev/cilium --version 1.18.0-dev-dev.2882-47b3f47eaa
-helm install cilium -n kube-system oci://quay.io/isovalent-charts-dev/cilium --version 1.18.0-dev-dev.2882-47b3f47eaa
+helm install cilium -n kube-system oci://quay.io/isovalent-charts-dev/cilium --version 1.18.0-dev-dev.2882-47b3f47eaa -f cilium-enterprise.yaml
 ```
 
 1. Helm get values
