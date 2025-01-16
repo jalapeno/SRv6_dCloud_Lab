@@ -17,7 +17,7 @@ In Lab 3 we will establish a Layer-3 VPN named "carrots" which will use SRv6 tra
     - [Create SRv6-TE steering policy](#create-srv6-te-steering-policy)
     - [Validate SRv6-TE steering of L3VPN traffic](#validate-srv6-te-steering-of-l3vpn-traffic)
       - [Validate bulk traffic takes the non-shortest path: xrd01 -\> 02 -\> 03 -\> 04 -\> 07](#validate-bulk-traffic-takes-the-non-shortest-path-xrd01---02---03---04---07)
-      - [replace with netns tcpdump:](#replace-with-netns-tcpdump)
+      - [same Q as lab 2, do we keep this (requires re-creating the shell script), or do we just have users run the verbose tcpdump command? Or take the packet walk doc and merge it into here and call it good?](#same-q-as-lab-2-do-we-keep-this-requires-re-creating-the-shell-script-or-do-we-just-have-users-run-the-verbose-tcpdump-command-or-take-the-packet-walk-doc-and-merge-it-into-here-and-call-it-good)
       - [Validate low latency traffic takes the path: xrd01 -\> 05 -\> 06 -\> 07](#validate-low-latency-traffic-takes-the-path-xrd01---05---06---07)
     - [End of Lab 3](#end-of-lab-3)
 
@@ -517,10 +517,41 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
 ### Validate SRv6-TE steering of L3VPN traffic
 #### Validate bulk traffic takes the non-shortest path: xrd01 -> 02 -> 03 -> 04 -> 07 
 
-#### replace with netns tcpdump:
+1. Start a new SSH session to the XRD VM and run a tcpdump in the xrd01 namespace on the Gi0-0-0-1 interface. 
 ```
-sudo ip netns exec clab-cleu25-XR01 tcpdump -ni Gi0-0-0-1
+sudo ip netns exec clab-cleu25-xrd01 tcpdump -ni Gi0-0-0-1
 ```
+
+2. From an SSH session to the Amsterdam VM ping the bulk transport destination IPv4 and IPv6 addresses.
+```
+ping 40.0.0.1 -i .4
+```
+```
+ping fc00:0:40::1 -i .4
+```
+
+In the example output below notice the outbound traffic is encapsulated with the correct SRv6 uSIDs. Also the reply traffic was not seen, so we ran a tcpdump on xrd01's other ISIS interface and saw it there:
+
+```yaml
+cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd01 tcpdump -ni Gi0-0-0-1      # tcpdump on xrd01's Gi0-0-0-1 interface
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on Gi0-0-0-1, link-type EN10MB (Ethernet), capture size 262144 bytes
+^C23:30:36.415073 IP6 fc00:0:1111::1 > fc00:0:2222:3333:7777:e006::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 1, seq 47, length 64
+23:30:36.815397 IP6 fc00:0:1111::1 > fc00:0:2222:3333:7777:e006::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 1, seq 48, length 64
+23:30:37.216952 IP6 fc00:0:1111::1 > fc00:0:2222:3333:7777:e006::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 1, seq 49, length 64
+
+3 packets captured
+3 packets received by filter
+0 packets dropped by kernel
+cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd01 tcpdump -ni Gi0-0-0-2      # tcpdump on xrd01's other ISIS interface
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on Gi0-0-0-2, link-type EN10MB (Ethernet), capture size 262144 bytes
+^C23:30:54.063927 IP6 fc00:0:7777::1 > fc00:0:1111:e009::: IP 40.0.0.1 > 10.101.3.1: ICMP echo reply, id 1, seq 91, length 64
+23:30:54.463372 IP6 fc00:0:7777::1 > fc00:0:1111:e009::: IP 40.0.0.1 > 10.101.3.1: ICMP echo reply, id 1, seq 92, length 64
+```
+
+
+#### same Q as lab 2, do we keep this (requires re-creating the shell script), or do we just have users run the verbose tcpdump command? Or take the packet walk doc and merge it into here and call it good?
 
 1. Run the tcpdump.sh script in the XRD VM's util directory on the following links in the network. These can either be run sequentially while executing the ping in step 2, or you can open individual ssh sessions and run the tcpdumps simultaneously.
    As you run the tcpdumps you should see SRv6 Micro-SID 'shift-and-forward' behavior in action. Feel free to run all, or just one or two tcpdumps. Alternatively you can run **./tcpdump-xrd01-02-03-04-07.sh** which will tcpdump for a few seconds along each link in the path.
@@ -534,49 +565,9 @@ sudo ip netns exec clab-cleu25-XR01 tcpdump -ni Gi0-0-0-1
    ```
     ./tcpdump.sh xrd02-xrd03
    ```
-   ```
-    ./tcpdump.sh xrd03-xrd04
-   ```
-   ```
-    ./tcpdump.sh xrd04-xrd07
-   ```
 
-3. Ping from Amsterdam to Rome's bulk transport destination IPv4 and IPv6 addresses:
 
-    ```
-    ping 40.0.0.1 -i .4
-    ```
-    ```
-    ping fc00:0:40::1 -i .4
-    ```
 
-    Example: tcpdump.sh output should look something like below on the **xrd02-xrd03** link with both outer SRv6 uSID header and inner IPv4/6 headers. In this case the outbound traffic is taking a non-shortest path.  We don't have a specific policy for return traffic so it will take one of the ECMP shortest paths; thus we do not see replies in the tcpdump output:
-    ```
-    IPv4 payload:
-
-    18:43:55.837052 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e004::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 2, seq 1, length 64
-    18:43:56.238255 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e004::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 2, seq 2, length 64
-
-    IPv6 payload:
-
-    18:44:13.268208 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e005::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:40::1: ICMP6, echo request, seq 1, length 64
-    18:44:13.668766 IP6 fc00:0:1111::1 > fc00:0:3333:4444:7777:e005::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:40::1: ICMP6, echo request, seq 2, length 64
-    ```
-
-    On **xrd01**
-    ```
-    ping vrf carrots fc00:0:101:3::1 
-    ```
-    Output:
-    ```
-    RP/0/RP0/CPU0:xrd01#ping vrf carrots fc00:0:101:3::1 
-    Thu Feb  2 16:33:42.984 UTC
-    Type escape sequence to abort.
-    Sending 5, 100-byte ICMP Echos to fc00:0:101:3::1, timeout is 2 seconds:
-    !!!!!
-    Success rate is 100 percent (5/5), round-trip min/avg/max = 3/4/4 ms
-    RP/0/RP0/CPU0:xrd01#
-    ```
 
 > [!IMPORTANT]
 > We have found an occasional issue where IPv6 neighbor discovery fails between **Amsterdam** Linux and the XRd MACVLAN attachment on **xrd01**. So if your IPv6 ping from *`Amsterdam`* doesn't work try pinging from **xrd01** to **Amsterdam** over the VRF carrots interface. A successful ping should 'wake up' the IPv6 neighborship.
