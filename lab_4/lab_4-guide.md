@@ -114,7 +114,7 @@ spec:
           safi: mpls_vpn                # L3VPN AFI/SAFI
 ```
 
-You may review the entire Cilium iBGP policy yaml here: [Cilium BGP](cilium/bgp-policy.yaml). 
+One of the great things about CRDs is you can combine all the configuration elements into a single file [Cilium BGP All Config](cilium/bgp-all-config.yaml), or you can break it up into multiple files by configuration element (e.g., [Cilium BGP Cluster Config](cilium/bgp-cluster-config.yaml), [Cilium BGP Peering Policy](cilium/bgp-peer.yaml)). 
 
 1. Apply the Cilium iBGP policy - On the k8s control plane vm cd into the cilium directory and apply the Cilium BGP CRD
    ```
