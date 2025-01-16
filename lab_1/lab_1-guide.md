@@ -54,7 +54,7 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     ssh cisco@198.18.128.100
     ```
 
-2. The XRD VM should have a blank file in user *cisco's* home directory. The filename indicates the name of the pod you're connected to. Use the `ls` command to make sure you're connected to the correct dCloud instance: 
+2. The XRD VM should have a blank file in user *cisco's* home directory. The filename indicates the name of the pod you're connected to. Use the *ls* command to make sure you're connected to the correct dCloud instance: 
 
    ```
    ls
@@ -270,7 +270,7 @@ The Amsterdam VM represents a server belonging to a cloud, CDN, or gaming compan
    ssh cisco@198.18.128.102
    ```
 
-3. Use VPP's *vppctl* CLI to validate that the VPP interface facing Ubuntu (host-vpp-in) and the interface facing router xrd01 (GigabitEthernetb/0/0) are `UP` and have their assigned IP addresses. GigabitEthernetb/0/0: `10.101.1.1/24`, and host-vpp-in: `10.101.2.2/24` 
+2. Use VPP's *vppctl* CLI to validate that the VPP interface facing Ubuntu (host-vpp-in) and the interface facing router xrd01 (GigabitEthernetb/0/0) are `UP` and have their assigned IP addresses. GigabitEthernetb/0/0: `10.101.1.1/24`, and host-vpp-in: `10.101.2.2/24` 
     
     ```
     sudo vppctl show interface address
