@@ -201,17 +201,15 @@ In our lab the Berlin VM is an Ubuntu Kubernetes node running Cilium.
 
 2. Check that the interface to router xrd07 is `UP` and has the assigned IP `10.107.1.1/24`
     ```
-    cisco@rome:~$ ip address show ens192
-    3: ens192: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
-        link/ether 00:50:56:aa:ab:cf brd ff:ff:ff:ff:ff:ff
-        inet <strong>10.107.1.1/24</strong> brd 10.107.1.255 scope global ens192  <------- Here
-        valid_lft forever preferred_lft forever
-        inet6 fc00:0:107:1:250:56ff:feaa:abcf/64 scope global dynamic mngtmpaddr noprefixroute 
-        valid_lft 2591929sec preferred_lft 604729sec
-        inet6 fc00:0:107:1::1/64 scope global 
-        valid_lft forever preferred_lft forever
-        inet6 fe80::250:56ff:feaa:abcf/64 scope link 
-        valid_lft forever preferred_lft forever
+    cisco@rome:~$ ip address show ens160
+    ens160: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 198.18.128.104  netmask 255.255.192.0  broadcast 198.18.191.255
+        inet6 fe80::250:56ff:fe97:557a  prefixlen 64  scopeid 0x20<link>
+        ether 00:50:56:97:55:7a  txqueuelen 1000  (Ethernet)
+        RX packets 79120  bytes 36675166 (36.6 MB)
+        RX errors 0  dropped 51  overruns 0  frame 0
+        TX packets 59778  bytes 3407373 (3.4 MB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0 
     ```
 3. Check connectivity from Berlin to xrd07
     ```
