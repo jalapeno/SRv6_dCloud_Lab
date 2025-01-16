@@ -194,11 +194,10 @@ Success rate is 100 percent (5/5), round-trip min/avg/max = 1/8/39 ms
 
 In our lab the Berlin VM is an Ubuntu Kubernetes node running Cilium. 
 
-1. SSH to Berlin Client VM from your laptop. 
-
-```
-ssh cisco@198.18.128.104
-```
+1. SSH to Berlin Client VM from your laptop.
+   ```
+   ssh cisco@198.18.128.104
+   ```
 
 2. Check that the interface to router xrd07 is `UP` and has the assigned IP `10.107.1.1/24`
     ```
