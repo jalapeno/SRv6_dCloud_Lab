@@ -116,13 +116,15 @@ spec:
 
 One of the great things about CRDs is you can combine all the configuration elements into a single file [Cilium BGP All Config](cilium/bgp-all-config.yaml), or you can break it up into multiple files by configuration element (e.g., [Cilium BGP Cluster Config](cilium/bgp-cluster-config.yaml), [Cilium BGP Peering Policy](cilium/bgp-peer.yaml)). 
 
-1. Apply the Cilium iBGP policy - On the k8s control plane vm cd into the cilium directory and apply the Cilium BGP CRD
+In the next few steps we'll walk through apply the configuration one element at a time. For reference we've also provided the entire [Cilium BGP config Config](cilium/bgp-all-config.yaml) which can be applied all at once.
+
+1. Establish the Cilium BGP global configuration - On the Berlin VM cd into the cilium directory and apply the Cilium BGP Cluster Config CRD
    ```
-   cd SRv6_dCloud_Lab/lab_4/cilium/
-   kubectl apply -f bgp-policy.yaml
+   cd ~/SRv6_dCloud_Lab/lab_4/cilium/
+   kubectl apply -f 01-bgp-cluster.yaml
    ```
 
-2. On Berlin verify Cilium BGP peering with the following cilium CLI:
+2. Verify Cilium BGP peering with the following cilium CLI:
    ```
    cilium bgp peers
    ```

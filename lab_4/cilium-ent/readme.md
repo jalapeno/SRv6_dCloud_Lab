@@ -1,3 +1,5 @@
+# Cilium Enterprise
+
 1. Kubeadm init:
 ```
 kubeadm init --config kubeadm-init.yaml
@@ -13,34 +15,40 @@ helm repo add isovalent https://helm.isovalent.com
 helm install cilium isovalent/cilium --version 1.16.5  --namespace kube-system -f cilium-enterprise.yaml
 ```
 
+### or install dev branch:
+```
+helm template -n kube-system oci://quay.io/isovalent-charts-dev/cilium --version 1.18.0-dev-dev.2882-47b3f47eaa
+helm install cilium -n kube-system oci://quay.io/isovalent-charts-dev/cilium --version 1.18.0-dev-dev.2882-47b3f47eaa
+```
+
 1. Helm get values
 ```
 helm get values cilium -n kube-system
 ```
 
-1. Untaint cp node
+2. Untaint cp node
 ```
 kubectl taint nodes --all node-role.kubernetes.io/control-plane-
 ```
 
-1. verify daemonset
+3. verify daemonset
 ```
 kubectl get ds cilium -n kube-system
 ```
 
-1. Cilium config
+4. Cilium config
 ```
 kubectl apply -f bgp-config.yaml 
 kubectl apply -f srv6-locator-pool.yaml 
 kubectl apply -f vrf-carrots.yaml 
 ```
 
-1. verify peers
+5. verify peers
 ```
 cilium bgp peers
 ```
 
-1. verify routes
+6. verify routes
 Usage:
   cilium bgp routes <available | advertised> <afi> <safi> [vrouter <asn>] [peer|neighbor <address>] [flags]
 ```
