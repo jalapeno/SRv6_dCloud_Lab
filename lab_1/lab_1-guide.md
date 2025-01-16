@@ -190,7 +190,37 @@ Success rate is 100 percent (5/5), round-trip min/avg/max = 1/8/39 ms
 
 ### Validate Client VMs
 
-__Rome__
+**Berlin**
+
+In our lab the Berlin VM is an Ubuntu Kubernetes node running Cilium. 
+
+1. SSH to Berlin Client VM from your laptop.
+   ```
+   ssh cisco@198.18.128.104
+   ```
+
+2. Check that the interface to router xrd07 is `UP` and has the assigned IP `10.107.1.1/24`
+    ```
+    cisco@berlin:~$ ip address show ens160
+    ens160: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 198.18.128.104  netmask 255.255.192.0  broadcast 198.18.191.255
+        inet6 fe80::250:56ff:fe97:557a  prefixlen 64  scopeid 0x20<link>
+        ether 00:50:56:97:55:7a  txqueuelen 1000  (Ethernet)
+        RX packets 79120  bytes 36675166 (36.6 MB)
+        RX errors 0  dropped 51  overruns 0  frame 0
+        TX packets 59778  bytes 3407373 (3.4 MB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0 
+    ```
+3. Check connectivity from Berlin to xrd07
+    ```
+    cisco@berlin:~$ ping -c 3 10.107.1.2
+    PING 10.107.1.2 (10.107.1.2) 56(84) bytes of data.
+    64 bytes from 10.107.1.2: icmp_seq=1 ttl=255 time=2.70 ms
+    64 bytes from 10.107.1.2: icmp_seq=2 ttl=255 time=1.38 ms
+    64 bytes from 10.107.1.2: icmp_seq=3 ttl=255 time=1.30 ms
+    ```
+
+**Rome**
 
 In our lab the Rome VM is an Ubuntu Kubernetes node, and is essentially a customer/user of our network. 
 
@@ -229,7 +259,7 @@ PING 198.18.128.101 (198.18.128.101) 56(84) bytes of data.
 64 bytes from 198.18.128.101: icmp_seq=1 ttl=64 time=0.428 ms
 ```
 
-__Amsterdam__
+**Amsterdam**
 
 The Amsterdam VM represents a server belonging to a cloud, CDN, or gaming company that serves content to end users, machines (such as the Rome VM), or customer applications over our network. The Amsterdam VM comes with VPP pre-installed. VPP (also known as https://fd.io/) is a very flexible and high performance open source software dataplane. 
 
