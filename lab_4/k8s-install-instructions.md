@@ -80,7 +80,7 @@ sudo kubeadm init
 
 Or in the case of our lab:
 ```
-kubeadm init --config kubeadm-init.yaml
+sudo kubeadm init --config kubeadm-init.yaml
 ```
 
 10. Copy admin.conf to user home directory:
