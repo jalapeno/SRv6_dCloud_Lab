@@ -17,7 +17,6 @@ In Lab 3 we will establish a Layer-3 VPN named "carrots" which will use SRv6 tra
     - [Create SRv6-TE steering policy](#create-srv6-te-steering-policy)
     - [Validate SRv6-TE steering of L3VPN traffic](#validate-srv6-te-steering-of-l3vpn-traffic)
       - [Validate bulk traffic takes the non-shortest path: xrd01 -\> 02 -\> 03 -\> 04 -\> 07](#validate-bulk-traffic-takes-the-non-shortest-path-xrd01---02---03---04---07)
-      - [same Q as lab 2, do we keep this (requires re-creating the shell script), or do we just have users run the verbose tcpdump command? Or take the packet walk doc and merge it into here and call it good?](#same-q-as-lab-2-do-we-keep-this-requires-re-creating-the-shell-script-or-do-we-just-have-users-run-the-verbose-tcpdump-command-or-take-the-packet-walk-doc-and-merge-it-into-here-and-call-it-good)
       - [Validate low latency traffic takes the path: xrd01 -\> 05 -\> 06 -\> 07](#validate-low-latency-traffic-takes-the-path-xrd01---05---06---07)
     - [End of Lab 3](#end-of-lab-3)
 
@@ -55,7 +54,7 @@ BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4/6 L3VPN Network
 
 > Note: the below commands are also available in the *`quick config doc`* [HERE](/lab_3/lab_3_quick_config.md)  
 
-  ```
+  ```yaml
   conf t
   vrf carrots
     address-family ipv4 unicast
@@ -81,7 +80,7 @@ BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4/6 L3VPN Network
  1. Add VRF to interfaces
 
     **xrd01**
-    ```
+    ```yaml
     interface GigabitEthernet0/0/0/3
       vrf carrots
       ipv4 address 10.101.3.2 255.255.255.0
@@ -91,7 +90,7 @@ BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4/6 L3VPN Network
     ```
 
     **xrd07**  
-    ```
+    ```yaml
     interface GigabitEthernet0/0/0/3
       vrf carrots
       ipv4 address 10.107.2.2 255.255.255.0
@@ -105,7 +104,7 @@ BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4/6 L3VPN Network
      In addition to configuring *GigabitEthernet0/0/0/3* to be a member of VRF carrots, **xrd07** will need a pair of static routes for reachability to **Rome's** "40" and "50" network prefixes. Later we'll create SRv6-TE steering policies for traffic to the "40" and "50" prefixes:  
 
     **xrd07**
-    ```
+    ```yaml
     router static
       vrf carrots
         address-family ipv4 unicast
@@ -140,7 +139,7 @@ BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4/6 L3VPN Network
    The next step is to add the L3VPN configuration into BGP. The *carrots* L3VPN is dual-stack so we will be adding both vpnv4 and vpnv6 address-families to the BGP neighbor-group for ipv6 peers. For example you will enable L3VPN in the neighbor-group template by issuing the *address-family vpnv4/6 unicast* command.
 
     **xrd01** and **xrd07**
-    ```
+    ```yaml
     conf t
     router bgp 65000
       neighbor-group xrd-ipv6-peer
@@ -160,7 +159,7 @@ BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4/6 L3VPN Network
    On **xrd07** we will need to redistribute both the connected and static routes to provide reachability to Rome and its additional prefixes. For **xrd07** we will add both *`redistribute connected`* and *`redistribute static`* command.
 
     **xrd01**  
-    ```
+    ```yaml
     conf t
     router bgp 65000
       vrf carrots
@@ -180,7 +179,7 @@ BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4/6 L3VPN Network
     ```
 
     **xrd07**  
-    ```
+    ```yaml
     conf t
     router bgp 65000
       vrf carrots
@@ -204,7 +203,7 @@ BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4/6 L3VPN Network
 3. The BGP route reflectors will also need to have L3VPN capability added to their peering group.
 
    BGP Route Reflectors **xrd05**, **xrd06**  
-    ```
+    ```yaml
     conf t
     router bgp 65000
     neighbor-group xrd-ipv6-peer
@@ -234,7 +233,7 @@ Validation command output examples can be found at this [LINK](https://github.co
    ```
 
    Example validation for vpnv4 route
-   ```
+   ```yaml
    RP/0/RP0/CPU0:xrd01#show bgp vpnv4 unicast rd 10.0.0.7:0 40.0.0.0/24   
    Tue Jan 31 23:36:41.390 UTC
    BGP routing table entry for 40.0.0.0/24, Route Distinguisher: 10.0.0.7:0   <--- WE HAVE A ROUTE. YAH
@@ -294,7 +293,7 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
 
 1. On **xrd07** advertise Rome's "40" and "50" prefixes with their respective color extended communities:
    **xrd07**
-   ```
+   ```yaml
    conf t
    extcommunity-set opaque bulk-transfer
      40
@@ -344,7 +343,7 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
    ```
 
    Examples:
-   ```
+   ```yaml
    RP/0/RP0/CPU0:xrd01#show bgp vpnv4 uni vrf carrots 40.0.0.0/24
    Sat Jan  7 21:27:26.645 UTC
    BGP routing table entry for 40.0.0.0/24, Route Distinguisher: 10.0.0.1:0
@@ -401,7 +400,7 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
     - Segment list *xrd567* will execute the explicit path: xrd01 -> 05 -> 06 -> 07
 
    **xrd01**
-   ```
+   ```yaml
    conf t
    segment-routing
     traffic-eng
@@ -425,7 +424,7 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
 4. On **xrd01** configure our bulk transport and low latency SRv6 steering policies. Low latency traffic will be forced over the *xrd01-05-06-07* path, and bulk transport traffic will take the longer *xrd01-02-03-04-07* path:
   
    **xrd01**
-   ```
+   ```yaml
    conf t
    segment-routing
    traffic-eng
@@ -455,7 +454,7 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
    show segment-routing traffic-eng policy 
    ```
    Example output, note the additional uDT VRF carrots and SRv6-TE **uB6 Insert.Red** SIDs added to the list:
-   ```
+   ```yaml
    RP/0/RP0/CPU0:xrd01#  show segment-routing srv6 sid
    Sat Dec 16 02:45:31.772 UTC
  
@@ -475,7 +474,7 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
    fc00:0:1111:e008::          uDT4              'carrots'                         bgp-65000           InUse  Y 
    fc00:0:1111:e009::          uDT6              'carrots'                         bgp-65000           InUse  Y 
    ```
-   ```
+   ```yaml
    RP/0/RP0/CPU0:xrd01#show segment-routing traffic-eng policy 
    Sat Jan 28 00:06:23.479 UTC
    SR-TE policy database
@@ -517,63 +516,71 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
 ### Validate SRv6-TE steering of L3VPN traffic
 #### Validate bulk traffic takes the non-shortest path: xrd01 -> 02 -> 03 -> 04 -> 07 
 
-1. Start a new SSH session to the XRD VM and run a tcpdump in the xrd01 namespace on the Gi0-0-0-1 interface. 
-```
-sudo ip netns exec clab-cleu25-xrd01 tcpdump -ni Gi0-0-0-1
-```
-
-2. From an SSH session to the Amsterdam VM ping the bulk transport destination IPv4 and IPv6 addresses.
-```
-ping 40.0.0.1 -i .4
-```
-```
-ping fc00:0:40::1 -i .4
-```
-
-In the example output below notice the outbound traffic is encapsulated with the correct SRv6 uSIDs. Also the reply traffic was not seen, so we ran a tcpdump on xrd01's other ISIS interface and saw it there:
-
-```yaml
-cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd01 tcpdump -ni Gi0-0-0-1      # tcpdump on xrd01's Gi0-0-0-1 interface
-tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
-listening on Gi0-0-0-1, link-type EN10MB (Ethernet), capture size 262144 bytes
-^C23:30:36.415073 IP6 fc00:0:1111::1 > fc00:0:2222:3333:7777:e006::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 1, seq 47, length 64
-23:30:36.815397 IP6 fc00:0:1111::1 > fc00:0:2222:3333:7777:e006::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 1, seq 48, length 64
-23:30:37.216952 IP6 fc00:0:1111::1 > fc00:0:2222:3333:7777:e006::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 1, seq 49, length 64
-
-3 packets captured
-3 packets received by filter
-0 packets dropped by kernel
-cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd01 tcpdump -ni Gi0-0-0-2      # tcpdump on xrd01's other ISIS interface
-tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
-listening on Gi0-0-0-2, link-type EN10MB (Ethernet), capture size 262144 bytes
-^C23:30:54.063927 IP6 fc00:0:7777::1 > fc00:0:1111:e009::: IP 40.0.0.1 > 10.101.3.1: ICMP echo reply, id 1, seq 91, length 64
-23:30:54.463372 IP6 fc00:0:7777::1 > fc00:0:1111:e009::: IP 40.0.0.1 > 10.101.3.1: ICMP echo reply, id 1, seq 92, length 64
-```
-
-
-#### same Q as lab 2, do we keep this (requires re-creating the shell script), or do we just have users run the verbose tcpdump command? Or take the packet walk doc and merge it into here and call it good?
-
-1. Run the tcpdump.sh script in the XRD VM's util directory on the following links in the network. These can either be run sequentially while executing the ping in step 2, or you can open individual ssh sessions and run the tcpdumps simultaneously.
-   As you run the tcpdumps you should see SRv6 Micro-SID 'shift-and-forward' behavior in action. Feel free to run all, or just one or two tcpdumps. Alternatively you can run **./tcpdump-xrd01-02-03-04-07.sh** which will tcpdump for a few seconds along each link in the path.
-
-   ```
-   cd SRv6_dCloud_Lab/util/
-   ```
-   ```
-   ./tcpdump.sh xrd01-xrd02
-   ```
-   ```
-    ./tcpdump.sh xrd02-xrd03
-   ```
-
-
-
-
 > [!IMPORTANT]
 > We have found an occasional issue where IPv6 neighbor discovery fails between **Amsterdam** Linux and the XRd MACVLAN attachment on **xrd01**. So if your IPv6 ping from *`Amsterdam`* doesn't work try pinging from **xrd01** to **Amsterdam** over the VRF carrots interface. A successful ping should 'wake up' the IPv6 neighborship.
 
+1. Start a new SSH session to the XRD VM and run a tcpdump in the xrd01 namespace on the Gi0-0-0-1 interface. 
+    ```
+    sudo ip netns exec clab-cleu25-xrd01 tcpdump -ni Gi0-0-0-1
+    ```
+
+    2. From an SSH session to the Amsterdam VM ping the bulk transport destination IPv4 and IPv6 addresses.
+    ```
+    ping 40.0.0.1 -i .4
+    ```
+    ```
+    ping fc00:0:40::1 -i .4
+    ```
+
+In the example output below notice the outbound traffic is encapsulated with the correct SRv6 uSIDs. Also the reply traffic was not seen, so we ran a tcpdump on xrd01's other ISIS interface and saw it there:
+
+    ```yaml
+    cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd01 tcpdump -ni Gi0-0-0-1      # tcpdump on xrd01's Gi0-0-0-1 interface
+    tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+    listening on Gi0-0-0-1, link-type EN10MB (Ethernet), capture size 262144 bytes
+    23:30:36.415073 IP6 fc00:0:1111::1 > fc00:0:2222:3333:7777:e006::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 1, seq 47, length 64
+    23:30:36.815397 IP6 fc00:0:1111::1 > fc00:0:2222:3333:7777:e006::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 1, seq 48, length 64
+    23:30:37.216952 IP6 fc00:0:1111::1 > fc00:0:2222:3333:7777:e006::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 1, seq 49, length 64
+
+    3 packets captured
+    3 packets received by filter
+    0 packets dropped by kernel
+    cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd01 tcpdump -ni Gi0-0-0-2      # tcpdump on xrd01's other ISIS interface
+    tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+    listening on Gi0-0-0-2, link-type EN10MB (Ethernet), capture size 262144 bytes
+    23:30:54.063927 IP6 fc00:0:7777::1 > fc00:0:1111:e009::: IP 40.0.0.1 > 10.101.3.1: ICMP echo reply, id 1, seq 91, length 64
+    23:30:54.463372 IP6 fc00:0:7777::1 > fc00:0:1111:e009::: IP 40.0.0.1 > 10.101.3.1: ICMP echo reply, id 1, seq 92, length 64
+    ```
+
+3. Optional, run tcpdump on the outbound interfaces of xrd02, xrd03, and xrd04 to see SRv6 uSID shift-and-forward behavior:
+    ```
+    sudo ip netns exec clab-cleu25-xrd02 tcpdump -ni Gi0-0-0-1
+    ```
+    ```
+    sudo ip netns exec clab-cleu25-xrd03 tcpdump -ni Gi0-0-0-1
+    ```
+    ```
+    sudo ip netns exec clab-cleu25-xrd04 tcpdump -ni Gi0-0-0-1
+    ```
+
+    Example output from tcpdump on xrd02:
+    ```yaml
+    cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd02 tcpdump -ni Gi0-0-0-1
+    tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+    listening on Gi0-0-0-1, link-type EN10MB (Ethernet), capture size 262144 bytes
+
+    23:35:34.304332 IP6 fc00:0:1111::1 > fc00:0:3333:7777:e006::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 1, seq 790, length 64
+    23:35:34.705547 IP6 fc00:0:1111::1 > fc00:0:3333:7777:e006::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 1, seq 791, length 64
+
+    ```
+
 #### Validate low latency traffic takes the path: xrd01 -> 05 -> 06 -> 07 
-1.  Ping from **Amsterdam** to **Rome's** low latency destination IPv4 and IPv6 addresses while running the tcpdump script:
+1.  Start a new tcpdump session on xrd01's outbound interface to xrd05 (Gi0-0-0-2):
+    ```
+    sudo ip netns exec clab-cleu25-xrd01 tcpdump -ni Gi0-0-0-2
+    ```
+
+2.  Ping from **Amsterdam** to **Rome's** low latency destination IPv4 and IPv6 addresses:
 
     ```
     ping 50.0.0.1 -i .4
@@ -582,38 +589,23 @@ listening on Gi0-0-0-2, link-type EN10MB (Ethernet), capture size 262144 bytes
     ping fc00:0:50::1 -i .4
     ```
 
-    Tcpdump along the low latency path (feel free to run one or more of the below, or run **./tcpdump-xrd01-05-06-07.sh** which will tcpdump for a few seconds along each link in the path.
-    ```
-    ./tcpdump.sh xrd01-xrd05
-    ```
-    ```
-    ./tcpdump.sh xrd05-xrd06
-    ```
-    ```
-    ./tcpdump.sh xrd06-xrd07
-    ```
-
-    Example: tcpdump.sh output should look something like below on the **xrd05-xrd06** link. In this case **xrd05 -> 06 -> 07** is one of the IGP shortest paths. In this test run the IPv4 ping replies are taking the same return path, however the IPv6 ping replies have been hashed onto one of the other ECMP paths. Your results may vary depending on how the XRd nodes have hashed their flows:
-    
-    ```
-    18:47:20.342018 IP6 fc00:0:1111::1 > fc00:0:6666:7777:e004::: IP 10.101.3.1 > 50.0.0.1: ICMP echo request, id 4, seq 1, length 64
-    18:47:20.742775 IP6 fc00:0:1111::1 > fc00:0:6666:7777:e004::: IP 10.101.3.1 > 50.0.0.1: ICMP echo request, id 4, seq 2, length 64
-
-    18:48:18.593766 IP6 fc00:0:1111::1 > fc00:0:6666:7777:e005::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:50::1: ICMP6, echo request, seq 1, length 64
-    18:48:18.995022 IP6 fc00:0:1111::1 > fc00:0:6666:7777:e005::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:50::1: ICMP6, echo request, seq 2, length 64
-
-    ```
-    If you don't see return traffic on the same path you can run tcpdump.sh on other interfaces in the network. Here we found the return traffic for the IPv6 ping:
-    ```
-    ./tcpdump.sh xrd04-xrd05
-    ```
-    ```
-    cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd04-xrd05
-    sudo tcpdump -ni br-9c9433e006cf
+    Example output from tcpdump on xrd01. Notice how the even though our explicit policy configuration included 5555 and 6666, XR's SRv6 programming logic sees that there is only one best path to xrd07, so it saves uSID space by not including 6666 in the destination address:
+    ```yaml
+    cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd01 tcpdump -ni Gi0-0-0-2
     tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
-    listening on br-9c9433e006cf, link-type EN10MB (Ethernet), capture size 262144 bytes
-    18:48:55.216409 IP6 fc00:0:7777::1 > fc00:0:1111:e004::: IP6 fc00:0:50::1 > fc00:0:101:3:250:56ff:fe97:22cc: ICMP6, echo reply, seq 1, length 64
-    18:48:55.625467 IP6 fc00:0:7777::1 > fc00:0:1111:e004::: IP6 fc00:0:50::1 > fc00:0:101:3:250:56ff:fe97:22cc: ICMP6, echo reply, seq 2, length 64
+    listening on Gi0-0-0-2, link-type EN10MB (Ethernet), capture size 262144 bytes
+    ^C23:45:51.894299 IP6 fc00:0:1111::1 > fc00:0:5555:7777:e006::: IP 10.101.3.1 > 50.0.0.1: ICMP echo request, id 6, seq 629, length 64
+    23:45:51.898852 IP6 fc00:0:7777::1 > fc00:0:1111:e009::: IP 50.0.0.1 > 10.101.3.1: ICMP echo reply, id 6, seq 629, length 64
+    23:45:52.295091 IP6 fc00:0:1111::1 > fc00:0:5555:7777:e006::: IP 10.101.3.1 > 50.0.0.1: ICMP echo request, id 6, seq 630, length 64
+    23:45:52.298848 IP6 fc00:0:7777::1 > fc00:0:1111:e009::: IP 50.0.0.1 > 10.101.3.1: ICMP echo reply, id 6, seq 630, length 64
+    23:45:52.695944 IP6 fc00:0:1111::1 > fc00:0:5555:7777:e006::: IP 10.101.3.1 > 50.0.0.1: ICMP echo request, id 6, seq 631, length 64
+    ```
+3.  Optional, run tcpdump on the outbound interfaces of xrd05 and xrd06 to see SRv6 uSID shift-and-forward behavior:
+    ```
+    sudo ip netns exec clab-cleu25-xrd05 tcpdump -ni Gi0-0-0-1
+    ```
+    ```
+    sudo ip netns exec clab-cleu25-xrd06 tcpdump -ni Gi0-0-0-1
     ```
 
 ### End of Lab 3
