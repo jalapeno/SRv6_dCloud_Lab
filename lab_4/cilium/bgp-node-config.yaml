@@ -1,4 +1,4 @@
-apiVersion: isovalent.com/v1alpha1
+apiVersion: isovalent.com/v2alpha1
 kind: IsovalentBGPNodeConfig
 metadata:
   name: cilium-bgp
@@ -24,7 +24,7 @@ spec:
         name: "cilium-peer"
 
 ---
-apiVersion: isovalent.com/v1alpha1
+apiVersion: isovalent.com/v2alpha1
 kind: IsovalentBGPNodeConfigOverride
 metadata:
   name: cilium-bgp
