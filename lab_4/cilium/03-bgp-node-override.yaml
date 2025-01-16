@@ -9,6 +9,6 @@ spec:
       srv6Responder: true
       peers:
         - name: "xrd05-rr"
-          localAddress: fc00:0:102:1::1
+          localAddress: fc00:0:8888::1
         - name: "xrd06-rr"
-          localAddress: fc00:0:102:1::1
+          localAddress: fc00:0:8888::1

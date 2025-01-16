@@ -13,4 +13,4 @@ localAPIEndpoint:
 nodeRegistration:
   kubeletExtraArgs:
   - name: "node-ip"
-    value: "198.18.4.104,fc00:0:102:1::1"
+    value: "198.18.4.104,fc00:0:8888::1"
