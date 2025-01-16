@@ -6,15 +6,8 @@ spec:
   families:
     - afi: ipv6
       safi: unicast
-      # advertisements:
-      #   matchLabels:
-      #     advertise: "bgp"
       advertisements:
         matchLabels:
-          # Matches SRv6 Locator pool advertisement
-          advertise: "underlay"
+          advertise: "bgpv6unicast"
     - afi: ipv4
       safi: mpls_vpn
-      # advertisements:
-      #   matchLabels:
-      #     advertise: "bgp"

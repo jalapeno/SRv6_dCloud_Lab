@@ -5,7 +5,7 @@ metadata:
 spec:
   nodeSelector:
     matchLabels:
-      kubernetes.io/hostname: rome
+      kubernetes.io/hostname: berlin
   bgpInstances:
   - name: "asn65000"
     localASN: 65000

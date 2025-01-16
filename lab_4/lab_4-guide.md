@@ -1,6 +1,8 @@
 # Lab 4: SRv6 for Kubernetes with Cilium [25 Min]
 
 ### Description
+Now that we've established SRv6 L3VPNs across our network, we're going to transition from router-based services to host-based services. And our first step will be to enable SRv6 L3VPN for Kubernetes. The Berlin VM has had Kubernetes pre-installed and running the Cilium CNI (Container Network Interface). In this lab we'll review some basic Kubernetes commands (kubectl) and then we'll setup Cilium BGP peering with our XRd route reflectors. After that we'll configure Cilium SRv6 SID manager and locators, and add a couple containers to our cluster and join them to the carrots VRF.
+
 Note: This portion of the lab makes use of Cilium Enterprise, which is a licensed set of features. The Cilium SRv6 feature set is not available in the open source version. If you are interested in SRv6 on Cilium or other Enterprise features, please contact the relevant Cisco Isovalent sales team.  
 
 Isovalent has also published a number of labs covering a wide range of Cilium, Hubble, and Tetragon features here:
@@ -19,28 +21,50 @@ The original lab was developed in partnership with Arkadiusz Kaliwoda, Cisco SE 
 
 ### Validate Cilium Run State
 
-Kubernetes and Cilium Enterprise are pre-installed on the Rome VM. All of the following steps are to be performed on the Rome VM unless otherwise specified.
+Kubernetes and Cilium Enterprise are pre-installed on the Berlin VM. All of the following steps are to be performed on the Berlin VM unless otherwise specified.
 
-1. SSH into the Rome VM and cd into the lab_4/cilium directory and check out the contents
+1. SSH into the Berlin VM and cd into the lab_4/cilium directory and check out the contents
    ```
-   ssh cisco@198.18.128.103
-   cd ~/SRv6_dCloud_lab/lab_4/cilium/
+   ssh cisco@198.18.4.104
+   cd ~/SRv6_dCloud_Lab/lab_4/cilium/
    ```
 
 2. Run a couple commands to verify the Cilium Installation
+
+   Display Cilium pods:
+   ```
+   kubectl get pods -n kube-system
+   ```
+   The output should look someething like this:
+   ```yaml
+   cisco@berlin:~/SRv6_dCloud_Lab/lab_4/cilium$    kubectl get pods -n kube-system
+   NAME                               READY   STATUS    RESTARTS   AGE
+   cilium-envoy-qgszq                 1/1     Running   0          62m
+   cilium-node-init-4rrgd             1/1     Running   0          62m
+   cilium-operator-8695667799-dcgpm   1/1     Running   0          62m
+   cilium-operator-8695667799-f88h5   0/1     Pending   0          62m
+   cilium-qtmzl                       1/1     Running   0          62m
+   ```
+
+  Notes on the pods:
+  * `Cilium-envoy`: used as a host proxy for enforcing HTTP and other L7 policies as specified in network policies for the cluster. For further reading see: https://docs.cilium.io/en/latest/security/network/proxy/envoy/
+  * `Cilium-node-init`: used to initialize the node and install the Cilium agent.
+  * `Cilium-operator`: used to manage the Cilium agent on the node. The second operator pod is pending as its waiting for another node to join the cluster.
+  * `Cilium-qtmzl`: is the Cilium agent on the node, and the element that will perform BGP peering and programming of eBPF SRv6 forwarding policies.
+
 
    Display Cilium DaemonSet status:
    ```
    kubectl get ds -n kube-system cilium
    ```
-   The output should show a single Cilium DaemonSets (ds) available, example:
+   The output should show a single Cilium DaemonSet (ds) available, example:
    ```
-   cisco@rome:~$   kubectl get ds -n kube-system cilium
+   cisco@berlin:~$   kubectl get ds -n kube-system cilium
    NAME     DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR            AGE
    cilium   1         1         1       1            1           kubernetes.io/os=linux   94m
    ```
 > [!NOTE]
-> A Kubernetes DaemonSet is a feature that ensures a pod runs on all or some nodes in a Kubernetes cluster. DaemonSets are used to deploy background services, such as monitoring agents, log collectors, and storage volumes.
+> A Kubernetes DaemonSet is a feature that ensures a pod runs on all or some nodes in a Kubernetes cluster. DaemonSets are used to deploy background services, such as monitoring agents, network agents (such as Cilium/eBPF), log collectors, and storage volumes.
 
 
 ##  Setup Cilium BGP Peering
@@ -56,20 +80,20 @@ A CRD applied to a single element in the K8s cluster would be analogous configur
 
 CRDs come in YAML file format and in the next several sections of this lab we'll apply CRDs to the K8s cluster to setup Cilium BGP peering, establish Cilium SRv6 locator ranges, create VRFs, etc.
 
-For the sake of simplicity in this lab we'll use iBGP peering between our Rome K8s node and our route reflectors xrd05 and xrd06. 
+For the sake of simplicity in this lab we'll use iBGP peering between our Berlin K8s node and our route reflectors xrd05 and xrd06. 
 
 Here is a partial Cilium iBGP CRD (aka iBGP configuration) with notes:
 ```yaml
 apiVersion: "cilium.io/v2alpha1"
 kind: CiliumBGPPeeringPolicy
 metadata:
-  name: rome
+  name: berlin
 spec:
   nodeSelector:
     matchLabels:
-      kubernetes.io/hostname: rome      # node to which this portion of config belongs
+      kubernetes.io/hostname: berlin      # node to which this portion of config belongs
   virtualRouters:
-  - localASN: 65000                     # Rome's BGP ASN
+  - localASN: 65000                     # Berlin's BGP ASN
     exportPodCIDR: true                 # advertise local PodCIDR prefix
     mapSRv6VRFs: true                   # SRv6 L3VPN
     srv6LocatorPoolSelector:        
@@ -98,7 +122,7 @@ You may review the entire Cilium iBGP policy yaml here: [Cilium BGP](cilium/bgp-
    kubectl apply -f bgp-policy.yaml
    ```
 
-2. On Rome verify Cilium BGP peering with the following cilium CLI:
+2. On Berlin verify Cilium BGP peering with the following cilium CLI:
    ```
    cilium bgp peers
    ```
@@ -107,9 +131,9 @@ You may review the entire Cilium iBGP policy yaml here: [Cilium BGP](cilium/bgp-
 
    Example:
    ```
-   cisco@rome:~/SRv6_dCloud_Lab/lab_4/cilium$ cilium bgp peers
+   cisco@berlin:~/SRv6_dCloud_Lab/lab_4/cilium$ cilium bgp peers
    Node   Local AS   Peer AS   Peer Address     Session State   Uptime   Family          Received   Advertised
-   rome   65000      65000     fc00:0:5555::1   established     2m58s    ipv6/unicast    5          1
+   berlin   65000      65000     fc00:0:5555::1   established     2m58s    ipv6/unicast    5          1
                                                                          ipv4/mpls_vpn   4          0
           65000      65000     fc00:0:6666::1   established     53s      ipv6/unicast    5          1
                                                                          ipv4/mpls_vpn   4          0
@@ -127,7 +151,7 @@ Per Cilium Enterprise documentation:
 
 1. Define and apply a Cilium SRv6 locator pool, example: [srv6-locator-pool.yaml](cilium/srv6-locator-pool.yaml)
   
-   From the SRv6_dCloud_Lab/lab_4/cilium directory on the Rome VM:
+   From the SRv6_dCloud_Lab/lab_4/cilium directory on the Berlin VM:
    ```
    kubectl apply -f srv6-locator-pool.yaml
    ```
@@ -142,12 +166,12 @@ Per Cilium Enterprise documentation:
    ```
 
    The example output below shows Cilium having allocated locator prefixes as follows:
-   **rome: fc00:0:a09f::/48**
+   **berlin: fc00:0:a09f::/48**
 
    Example output:
 
    ```yaml
-   cisco@rome:~/SRv6_dCloud_Lab/lab_4/cilium$ kubectl get sidmanager -o yaml
+   cisco@berlin:~/SRv6_dCloud_Lab/lab_4/cilium$ kubectl get sidmanager -o yaml
    apiVersion: v1
    items:
    - apiVersion: isovalent.com/v1alpha1
@@ -155,14 +179,14 @@ Per Cilium Enterprise documentation:
     metadata:
       creationTimestamp: "2025-01-13T22:55:05Z"
       generation: 5
-      name: rome
+      name: berlin
       resourceVersion: "48034"
       uid: dd82d5d0-6d84-4cc8-ac31-ed2f3ce857f7
     spec:
       locatorAllocations:
       - locators:
         - behaviorType: uSID
-          prefix: fc00:0:a061::/48               # Rome's dynamically allocated uSID prefix (Locator)
+          prefix: fc00:0:a061::/48               # Berlin's dynamically allocated uSID prefix (Locator)
           structure:
             argumentLenBits: 0
             functionLenBits: 16
@@ -188,27 +212,27 @@ Per Cilium Enterprise documentation:
    kubectl get pods -n carrots
    ```
 
-3. Verify Cilium has allocated a uDT4 SRv6 L3VPN SID on Rome:
+3. Verify Cilium has allocated a uDT4 SRv6 L3VPN SID on Berlin:
    ```
-   kubectl get sidmanager rome -o yaml
+   kubectl get sidmanager berlin -o yaml
    ```
 
     Example output from sidmanager:
     ```yaml
-    cisco@rome:~/SRv6_dCloud_Lab/lab_4/cilium$ kubectl get sidmanager rome -o yaml
+    cisco@berlin:~/SRv6_dCloud_Lab/lab_4/cilium$ kubectl get sidmanager berlin -o yaml
     apiVersion: isovalent.com/v1alpha1
     kind: IsovalentSRv6SIDManager
     metadata:
       creationTimestamp: "2025-01-13T22:55:05Z"
       generation: 5
-      name: rome
+      name: berlin
       resourceVersion: "48158"
       uid: dd82d5d0-6d84-4cc8-ac31-ed2f3ce857f7
     spec:
       locatorAllocations:
       - locators:
         - behaviorType: uSID
-          prefix: fc00:0:a061::/48      # Rome SRv6 Locator
+          prefix: fc00:0:a061::/48      # Berlin SRv6 Locator
           structure:
             argumentLenBits: 0
             functionLenBits: 16
@@ -234,14 +258,14 @@ Per Cilium Enterprise documentation:
 
 ### Verify Cilium advertised L3vpn prefixes are reaching remote xrd nodes
 
-1. On the xrd VM ssh to xrd01 and run some BGP verification commands. Note, we expect to see vpnv4 prefixes advertise from Rome, but ping will not work yet. In a few more steps we'll setup the SRv6 responder on Rome and ping will work.
+1. On the xrd VM ssh to xrd01 and run some BGP verification commands. Note, we expect to see vpnv4 prefixes advertise from Berlin, but ping will not work yet. In a few more steps we'll setup the SRv6 responder on Berlin and ping will work.
   ```
   ssh cisco@clab-cleu25-xrd01
   show bgp vpnv4 unicast
   show bgp vpnv4 unicast rd 9:9 10.200.0.0/24
   ```
 
-### More SRv6 L3VPN on Rome
+### More SRv6 L3VPN on Berlin
 
 1. optional: create vrf-radish:
   ```
@@ -276,7 +300,7 @@ Per Cilium Enterprise documentation:
 
   Output should look something like:
   ```
-  cisco@rome:~/SRv6_dCloud_Lab/lab_4/cilium$ kubectl exec -it -n carrots carrots0 -- sh
+  cisco@berlin:~/SRv6_dCloud_Lab/lab_4/cilium$ kubectl exec -it -n carrots carrots0 -- sh
   / # ip route
   default via 10.200.0.60 dev eth0 
   10.200.0.60 dev eth0 scope link 
@@ -298,9 +322,9 @@ exit
 
 ## Setup Cilium SRv6 Responder
 
-1. Per the previous set of steps, once allocated SIDs appear, we need to annotate the node. This will tell Cilium to program eBPF egress policies on Rome: 
+1. Per the previous set of steps, once allocated SIDs appear, we need to annotate the node. This will tell Cilium to program eBPF egress policies on Berlin: 
   ```
-  kubectl annotate --overwrite nodes rome cilium.io/bgp-virtual-router.65000="router-id=10.107.1.1,srv6-responder=true"
+  kubectl annotate --overwrite nodes berlin cilium.io/bgp-virtual-router.65000="router-id=10.107.1.1,srv6-responder=true"
   ```
 
 2. Verify SRv6 Egress Policies:
@@ -310,7 +334,7 @@ exit
 
   Example of partial output:
   ```yaml
-  cisco@rome:~/SRv6_dCloud_Lab/lab_4/cilium$ kubectl get IsovalentSRv6EgressPolicy -o yaml
+  cisco@berlin:~/SRv6_dCloud_Lab/lab_4/cilium$ kubectl get IsovalentSRv6EgressPolicy -o yaml
 
   apiVersion: v1
   items:
