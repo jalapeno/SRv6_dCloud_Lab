@@ -398,10 +398,10 @@ For full size image see [LINK](/topo_drawings/isis-topology-large.png)
     xrd07              2         xrd04              Gi0/0/0/1       *PtoP* 
     ```
 3. On **xrd01** validate end-to-end ISIS reachability:
-```
-ping 10.0.0.7 source lo0
-ping fc00:0000:7777::1 source lo0
-```
+   ```
+   ping 10.0.0.7 source lo0
+   ping fc00:0000:7777::1 source lo0
+   ```
 
 ### Add Synthetic Latency to the Links
 
@@ -409,12 +409,12 @@ ping fc00:0000:7777::1 source lo0
 > Normally pinging xrd-to-xrd in this dockerized environment would result in ping times of ~1-3ms. However, we wanted to simulate something a little more real-world so we built a shell script to add synthetic latency to the underlying Linux links. The script uses the [netem](https://wiki.linuxfoundation.org/networking/netem) 'tc' command line tool and executes commands in the XRds' underlying network namespaces. After running the script you'll see a ping RTT of anywhere from ~10ms to ~150ms. This synthetic latency will allow us to really see the effect of later traffic steering execises.
 
 1. Run the `add-latency.sh` script:
-    ```
-    ~/SRv6_dCloud_Lab/util/add-latency.sh
-    ```
-The script output should look something like this:
+   ```
+   ~/SRv6_dCloud_Lab/util/add-latency.sh
+   ```
 
-    ```
+   The script output should look something like this:
+   ```
     Latencies added. The following output applies in both directions, Ex: xrd01 -> xrd02 and xrd02 -> xrd01
     xrd01 link latency: 
     qdisc netem 800a: dev Gi0-0-0-1 root refcnt 13 limit 1000 delay 10.0ms
@@ -431,7 +431,7 @@ The script output should look something like this:
     qdisc netem 8011: dev Gi0-0-0-2 root refcnt 13 limit 1000 delay 5.0ms
     xrd06 link latency: 
     qdisc netem 8012: dev Gi0-0-0-0 root refcnt 13 limit 1000 delay 30.0ms
-    ```
+   ```
 
 ## Validate BGP Topology
 
