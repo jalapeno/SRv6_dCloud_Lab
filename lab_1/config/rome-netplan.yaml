@@ -3,7 +3,7 @@ network:
     ens160:
       addresses:
       - 198.18.128.103/18
-      #gateway4: 198.18.128.1
+      gateway4: 198.18.128.1
       routes: 
         - to: 10.0.0.0/8
           via: 198.18.128.1
@@ -17,8 +17,6 @@ network:
       addresses:
         - 10.107.1.1/24
         - fc00:0:107:1::1/64
-      accept-ra: false
-      gateway4: 10.107.1.2
       routes:
         - to: 10.0.0.0/24
           via: 10.107.1.2

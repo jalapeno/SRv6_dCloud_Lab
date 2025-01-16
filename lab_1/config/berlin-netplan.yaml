@@ -12,13 +12,13 @@ network:
     ens192:
       addresses:
       - 198.18.4.104/24
-      - fc00:0:102:1::1/64
+      - fc00:0:8888::1/64
       routes:
         - to: 0.0.0.0/0
           via: 198.18.4.1
           metric: 100
         - to: fc00:0::/32
-          via: fc00:0:102:1::2
+          via: fc00:0:8888::2
       nameservers:
         addresses:
         - 198.18.128.1
@@ -26,4 +26,3 @@ network:
         search:
         - demo.dcloud.cisco.com
   version: 2
-
