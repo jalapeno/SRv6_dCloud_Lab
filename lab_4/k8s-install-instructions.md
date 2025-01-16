@@ -6,22 +6,22 @@ This document is for reference only and will not be used during the Cisco Live l
 
 1. turn off swap and set data/time:
 ```
-sudo timedatectl set-timezone America/Los_Angeles
+sudo timedatectl set-timezone America/New_York
 sudo swapoff -a
 sudo rm /swap.img
 ```
 
-1. Edit /etc/fstab, comment out swap
+2. Edit /etc/fstab, comment out swap
 ```
 sudo nano /etc/fstab
 ```
 
-1. apt update/upgrade
+3. apt update/upgrade
 ```
 sudo apt update && sudo apt upgrade -y
 ```
 
-1. add curl/https packages, keys, etc.
+4. add curl/https packages, keys, etc.
 ```
 sudo apt install curl apt-transport-https -y
 sudo mkdir -p -m 755 /etc/apt/keyrings
@@ -32,19 +32,19 @@ sudo chmod 644 /etc/apt/sources.list.d/kubernetes.list
 sudo apt update
 ```
 
-1. apt install kubernetes:
+5. apt install kubernetes packages:
 ``` 
 sudo apt -y install kubelet kubeadm kubectl
 sudo apt-mark hold kubelet kubeadm kubectl
 ```
 
-1. enable kubelet, modprobes:
+6. enable kubelet, modprobes:
 ```
 sudo systemctl enable --now kubelet
 sudo modprobe overlay
 sudo modprobe br_netfilter
 ```
-1. edit sysctl.conf
+7. edit sysctl.conf
 ```
 net.bridge.bridge-nf-call-ip6tables = 1
 net.bridge.bridge-nf-call-iptables = 1
@@ -55,7 +55,7 @@ net.ipv6.conf.all.forwarding=1
 sudo sysctl -p
 ```
 
-1. install containerd and runc
+8. install containerd and runc
 ```
 wget https://github.com/containerd/containerd/releases/download/v2.0.0/containerd-2.0.0-linux-amd64.tar.gz 
 wget https://raw.githubusercontent.com/containerd/containerd/main/containerd.service
@@ -77,6 +77,13 @@ sudo  install -m 755 runc.amd64 /usr/local/sbin/runc
 ```
 sudo kubeadm init
 ```
+
+Or in the case of our lab:
+```
+kubeadm init --config kubeadm-init.yaml
+```
+
+10. Copy admin.conf to user home directory:
 ```
 mkdir -p $HOME/.kube
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
@@ -94,7 +101,7 @@ sudo tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
 rm cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
 ```
 
-11. Install Cilium open source CNI
+11. Install Cilium open source CNI (container Isovalent team to access Cilium Enterprise CNI)
 ```
 cilium install
 ```
@@ -104,4 +111,3 @@ cilium install
 kubectl taint nodes --all node-role.kubernetes.io/control-plane-
 ```
 
-13. 

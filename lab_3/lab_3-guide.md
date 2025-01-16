@@ -524,7 +524,7 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
     sudo ip netns exec clab-cleu25-xrd01 tcpdump -ni Gi0-0-0-1
     ```
 
-    2. From an SSH session to the Amsterdam VM ping the bulk transport destination IPv4 and IPv6 addresses.
+2. From an SSH session to the Amsterdam VM ping the bulk transport destination IPv4 and IPv6 addresses.
     ```
     ping 40.0.0.1 -i .4
     ```
