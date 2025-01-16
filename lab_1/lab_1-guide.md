@@ -34,7 +34,7 @@ The student upon completion of Lab 1 should have achieved the following objectiv
 
 ## Virtual Machine and XRd Access
 
-Device access for this lab is primarly through SSH. All of the VMs are accessible upon connecting through Cisco AnyConnect VPN to the dCloud environment. Please see the management topology network diagram below. The XRD VM acts as a jumpbox for our XRd routers once the topology is deployed. Thus accessing the routers will involve first SSH'ing into the **XRD VM** and then initiating a separate SSH session to the router. The XRD VM is configured for DNS resolution for each router name to save time.
+Device access for this lab is primarly through SSH. All of the VMs are accessible upon connecting through Cisco AnyConnect VPN to the dCloud environment. Please see the management topology network diagram below. The XRD VM acts as a jumpbox for our XRd routers once the topology is deployed. Thus accessing the routers will involve first SSH'ing into the **XRD VM** and then initiating a separate SSH session to the router. The **XRD VM** is configured for DNS resolution for each router name to save time.
 
 ### User Credentials
 All VMs, routers, etc. use the same user credentials:
