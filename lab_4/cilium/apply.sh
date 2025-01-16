@@ -1,7 +1,7 @@
 #! /bin/bash
 
 kubectl apply -f 01-bgp-cluster.yaml 
-kubectl apply -f 02-bgp-peer-config.yaml 
+kubectl apply -f 02-bgp-peer.yaml 
 kubectl apply -f 03-bgp-node-override.yaml 
 kubectl apply -f 04-bgp-advert.yaml 
 kubectl apply -f 05-bgp-vrf.yaml 

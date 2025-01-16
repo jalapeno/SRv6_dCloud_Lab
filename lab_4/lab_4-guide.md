@@ -3,13 +3,14 @@
 ### Description
 Now that we've established SRv6 L3VPNs across our network, we're going to transition from router-based services to host-based services. And our first step will be to enable SRv6 L3VPN for Kubernetes. The Berlin VM has had Kubernetes pre-installed and running the Cilium CNI (Container Network Interface). In this lab we'll review some basic Kubernetes commands (kubectl) and then we'll setup Cilium BGP peering with our XRd route reflectors. After that we'll configure Cilium SRv6 SID manager and locators, and add a couple containers to our cluster and join them to the carrots VRF.
 
-Note: This portion of the lab makes use of Cilium Enterprise, which is a licensed set of features. The Cilium SRv6 feature set is not available in the open source version. If you are interested in SRv6 on Cilium or other Enterprise features, please contact the relevant Cisco Isovalent sales team.  
+> [!NOTE]
+> This portion of the lab makes use of Cilium Enterprise, which is a licensed set of features. The Cilium SRv6 feature set is in Beta is not available in the open source version. If you are interested in SRv6 on Cilium or other Enterprise features, please contact the relevant Cisco Isovalent sales team.  
 
 Isovalent has also published a number of labs covering a wide range of Cilium, Hubble, and Tetragon features here:
 
 https://cilium.io/labs/
 
-The original lab was developed in partnership with Arkadiusz Kaliwoda, Cisco SE in EMEA SP
+The original version of this lab was developed in partnership with Arkadiusz Kaliwoda, Cisco SE in EMEA SP
 
 ### Contents
 * Description [LINK](#description)
@@ -39,18 +40,18 @@ Kubernetes and Cilium Enterprise are pre-installed on the Berlin VM. All of the 
    ```yaml
    cisco@berlin:~/SRv6_dCloud_Lab/lab_4/cilium$    kubectl get pods -n kube-system
    NAME                               READY   STATUS    RESTARTS   AGE
-   cilium-envoy-qgszq                 1/1     Running   0          62m
-   cilium-node-init-4rrgd             1/1     Running   0          62m
-   cilium-operator-8695667799-dcgpm   1/1     Running   0          62m
-   cilium-operator-8695667799-f88h5   0/1     Pending   0          62m
-   cilium-qtmzl                       1/1     Running   0          62m
+   cilium-envoy-p6pgd               1/1     Running   0          2m36s
+   cilium-jbnmh                     1/1     Running   0          2m36s
+   cilium-node-init-2m6j8           1/1     Running   0          2m36s
+   cilium-operator-d6fc9cf7-7v2gt   1/1     Running   0          2m36s
+   cilium-operator-d6fc9cf7-ns6mc   0/1     Pending   0          2m36s
    ```
 
   Notes on the pods:
   * `Cilium-envoy`: used as a host proxy for enforcing HTTP and other L7 policies as specified in network policies for the cluster. For further reading see: https://docs.cilium.io/en/latest/security/network/proxy/envoy/
   * `Cilium-node-init`: used to initialize the node and install the Cilium agent.
   * `Cilium-operator`: used to manage the Cilium agent on the node. The second operator pod is pending as its waiting for another node to join the cluster.
-  * `Cilium-qtmzl`: is the Cilium agent on the node, and the element that will perform BGP peering and programming of eBPF SRv6 forwarding policies.
+  * `Cilium-jbnmh`: is the Cilium agent on the node, and the element that will perform BGP peering and programming of eBPF SRv6 forwarding policies.
 
 
    Display Cilium DaemonSet status:
@@ -112,15 +113,36 @@ One of the great things about CRDs is you can combine all the configuration elem
 
 In the next few steps we'll walk through applying the configuration one element at a time. For reference the [Entire BGP Config](cilium/99-bgp-all.yaml) yaml file would apply all the elements at once.
 
-### Step 1: Establish the Cilium BGP global configuration
+### Establish the Cilium BGP global and peer configurations
 
-1. Establish the Cilium BGP global configuration - On the Berlin VM cd into the Lab 4 cilium directory and apply the Cilium BGP Cluster Config CRD
+1. On the Berlin VM cd into the Lab 4 cilium directory and apply the Cilium BGP Cluster Config CRD. BGP Cluster config establishes our Cilium Node's BGP ASN and base BGP peering with the route reflectors xrd05 and xrd06.
    ```
    cd ~/SRv6_dCloud_Lab/lab_4/cilium/
    kubectl apply -f 01-bgp-cluster.yaml
    ```
 
-2. Verify Cilium BGP peering with the following cilium CLI:
+2. Apply the Cilium BGP Peer Config CRD. This CRD is where we control address families and other BGP peering or route policies.
+   ```
+   kubectl apply -f 02-bgp-peer.yaml
+   ```
+
+   Expected output for #1 and #2:
+   ```
+   isovalentbgpclusterconfig.isovalent.com/cilium-bgp created
+   isovalentbgppeeringpolicy.isovalent.com/cilium-peer created
+   ```
+
+3. At this point our peer sessions are not yet established. Next we'll apply the 'localAddress' parameter which tells Cilium which source address to use for its BGP peering sessions. This knob is comparable to IOS-XR's 'update-source' parameter.
+   ```
+   kubectl apply -f 03-bgp-node-override.yaml
+   ```
+
+   Expected output:
+   ```
+   isovalentbgpnodeconfigoverride.isovalent.com/berlin created
+   ```
+
+4. Verify Cilium BGP peering with the following cilium CLI:
    ```
    cilium bgp peers
    ```
