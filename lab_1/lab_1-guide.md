@@ -190,7 +190,40 @@ Success rate is 100 percent (5/5), round-trip min/avg/max = 1/8/39 ms
 
 ### Validate Client VMs
 
-__Rome__
+**Berlin**
+
+In our lab the Berlin VM is an Ubuntu Kubernetes node running Cilium. 
+
+1. SSH to Berlin Client VM from your laptop. 
+
+```
+ssh cisco@198.18.128.104
+```
+
+2. Check that the interface to router xrd07 is `UP` and has the assigned IP `10.107.1.1/24`
+    ```
+    cisco@rome:~$ ip address show ens192
+    3: ens192: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+        link/ether 00:50:56:aa:ab:cf brd ff:ff:ff:ff:ff:ff
+        inet <strong>10.107.1.1/24</strong> brd 10.107.1.255 scope global ens192  <------- Here
+        valid_lft forever preferred_lft forever
+        inet6 fc00:0:107:1:250:56ff:feaa:abcf/64 scope global dynamic mngtmpaddr noprefixroute 
+        valid_lft 2591929sec preferred_lft 604729sec
+        inet6 fc00:0:107:1::1/64 scope global 
+        valid_lft forever preferred_lft forever
+        inet6 fe80::250:56ff:feaa:abcf/64 scope link 
+        valid_lft forever preferred_lft forever
+    ```
+3. Check connectivity from Berlin to xrd07
+    ```
+    cisco@berlin:~$ ping -c 3 10.107.1.2
+    PING 10.107.1.2 (10.107.1.2) 56(84) bytes of data.
+    64 bytes from 10.107.1.2: icmp_seq=1 ttl=255 time=2.70 ms
+    64 bytes from 10.107.1.2: icmp_seq=2 ttl=255 time=1.38 ms
+    64 bytes from 10.107.1.2: icmp_seq=3 ttl=255 time=1.30 ms
+    ```
+
+**Rome**
 
 In our lab the Rome VM is an Ubuntu Kubernetes node, and is essentially a customer/user of our network. 
 
@@ -229,7 +262,7 @@ PING 198.18.128.101 (198.18.128.101) 56(84) bytes of data.
 64 bytes from 198.18.128.101: icmp_seq=1 ttl=64 time=0.428 ms
 ```
 
-__Amsterdam__
+**Amsterdam**
 
 The Amsterdam VM represents a server belonging to a cloud, CDN, or gaming company that serves content to end users, machines (such as the Rome VM), or customer applications over our network. The Amsterdam VM comes with VPP pre-installed. VPP (also known as https://fd.io/) is a very flexible and high performance open source software dataplane. 
 
