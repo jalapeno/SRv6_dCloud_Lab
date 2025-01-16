@@ -63,8 +63,13 @@ topology:
     - endpoints: ["xrd04:Gi0-0-0-1", "xrd07:Gi0-0-0-1"]
     - endpoints: ["xrd06:Gi0-0-0-0", "xrd07:Gi0-0-0-2"]
 
-    # Link betwen xrd01/xrd07 and the Amsterdamn/Rome VM  
-    - endpoints: ["xrd01:Gi0-0-0-0", "macvlan:ens224"]
+    # Link betwen xrd01 and the Amsterdam VM
+    - endpoints: ["xrd01:Gi0-0-0-0", "macvlan:ens224"] # xrd01 Gi0-0-0-0
     - endpoints: ["xrd01:Gi0-0-0-3", "macvlan:ens193"]
-    - endpoints: ["xrd07:Gi0-0-0-0", "macvlan:ens256"]
-    - endpoints: ["xrd07:Gi0-0-0-3", "macvlan:ens161"]
+
+    # Link betwen xrd07 and the Rome VM
+    - endpoints: ["xrd07:Gi0-0-0-0", "macvlan:ens256"] # xrd07 Gi0-0-0-0
+    - endpoints: ["xrd07:Gi0-0-0-3", "macvlan:ens161"] # xrd07 Gi0-0-0-3
+    
+    # Link betwen xrd02 and the Berlin VM
+    - endpoints: ["xrd02:Gi0-0-0-3", "macvlan:ens225"] # xrd02 Gi0-0-0-3
