@@ -5,7 +5,7 @@ metadata:
 spec:
   nodeSelector:
     matchLabels:
-      kubernetes.io/hostname: rome
+      kubernetes.io/hostname: berlin
   bgpInstances:
   - name: "asn65000"
     localASN: 65000
@@ -48,6 +48,21 @@ spec:
 
 ---
 apiVersion: isovalent.com/v1alpha1
+kind: IsovalentBGPNodeConfigOverride
+metadata:
+  name: berlin
+spec:
+  bgpInstances:
+    - name: "asn65000"
+      srv6Responder: true
+      peers:
+        - name: "xrd05-rr"
+          localAddress: fc00:0:102:1::1
+        - name: "xrd06-rr"
+          localAddress: fc00:0:102:1::1
+
+---
+apiVersion: isovalent.com/v1alpha1
 kind: IsovalentBGPAdvertisement
 metadata:
   name: bgp-ipv6-unicast
@@ -75,7 +90,7 @@ spec:
       safi: mpls_vpn
       advertisements:
         matchLabels:
-          advertise: "bgp-carrots"
+          advertise: "bgp-carrots"  
 
 ---
 apiVersion: isovalent.com/v1alpha1
@@ -87,19 +102,3 @@ metadata:
 spec:
   advertisements:
     - advertisementType: "PodCIDR"
-
----
-apiVersion: isovalent.com/v1alpha1
-kind: IsovalentBGPNodeConfigOverride
-metadata:
-  name: cilium-bgp
-spec:
-  bgpInstances:
-    - name: "asn65000"
-      srv6Responder: true
-      peers:
-        - name: "xrd05-rr"
-          localAddress: fc00:0:102:1::1
-        - name: "xrd06-rr"
-          localAddress: fc00:0:102:1::1
-  
