@@ -1,0 +1,34 @@
+apiVersion: isovalent.com/v1alpha1
+kind: IsovalentBGPNodeConfig
+metadata:
+  name: cilium-bgp
+spec:
+  nodeSelector:
+    matchLabels:
+      kubernetes.io/hostname: berlin
+  bgpInstances:
+  - name: "asn65000"
+    localASN: 65000
+    peers:
+    - name: "xrd05-rr"
+      peerASN: 65000
+      localAddress: fc00:0:102:1::1
+      peerAddress: fc00:0:5555::1
+      peerConfigRef:
+        name: "cilium-peer"
+    - name: "xrd06-rr"
+      peerASN: 65000
+      localAddress: fc00:0:102:1::1
+      peerAddress: fc00:0:6666::1
+      peerConfigRef:
+        name: "cilium-peer"
+
+---
+apiVersion: isovalent.com/v1alpha1
+kind: IsovalentBGPNodeConfigOverride
+metadata:
+  name: cilium-bgp
+spec:
+  bgpInstances:
+    - name: "asn65000"
+      srv6Responder: true

@@ -100,7 +100,6 @@ spec:
       peers:
         - name: "xrd05-rr"
           localAddress: fc00:0:102:1::1
-
         - name: "xrd06-rr"
           localAddress: fc00:0:102:1::1
   
