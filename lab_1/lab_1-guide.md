@@ -201,7 +201,7 @@ In our lab the Berlin VM is an Ubuntu Kubernetes node running Cilium.
 
 2. Check that the interface to router xrd07 is `UP` and has the assigned IP `10.107.1.1/24`
     ```
-    cisco@rome:~$ ip address show ens160
+    cisco@berlin:~$ ip address show ens160
     ens160: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
         inet 198.18.128.104  netmask 255.255.192.0  broadcast 198.18.191.255
         inet6 fe80::250:56ff:fe97:557a  prefixlen 64  scopeid 0x20<link>
