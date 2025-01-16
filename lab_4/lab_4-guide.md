@@ -25,7 +25,7 @@ Kubernetes and Cilium Enterprise are pre-installed on the Berlin VM. All of the 
 
 1. SSH into the Berlin VM and cd into the lab_4/cilium directory and check out the contents
    ```
-   ssh cisco@198.18.4.104
+   ssh cisco@198.18.128.104
    cd ~/SRv6_dCloud_Lab/lab_4/cilium/
    ```
 
@@ -35,7 +35,7 @@ Kubernetes and Cilium Enterprise are pre-installed on the Berlin VM. All of the 
    ```
    kubectl get pods -n kube-system
    ```
-   The output should look someething like this:
+   The Cilium portion of the output should look someething like this:
    ```yaml
    cisco@berlin:~/SRv6_dCloud_Lab/lab_4/cilium$    kubectl get pods -n kube-system
    NAME                               READY   STATUS    RESTARTS   AGE
@@ -82,43 +82,39 @@ CRDs come in YAML file format and in the next several sections of this lab we'll
 
 For the sake of simplicity in this lab we'll use iBGP peering between our Berlin K8s node and our route reflectors xrd05 and xrd06. 
 
-Here is a partial Cilium iBGP CRD (aka iBGP configuration) with notes:
+Here is a portion of our Cilium BGP configuration in CRD form and with notes:
 ```yaml
-apiVersion: "cilium.io/v2alpha1"
-kind: CiliumBGPPeeringPolicy
+apiVersion: isovalent.com/v1alpha1
+kind: IsovalentBGPClusterConfig
 metadata:
-  name: berlin
+  name: cilium-bgp 
 spec:
   nodeSelector:
     matchLabels:
-      kubernetes.io/hostname: berlin      # node to which this portion of config belongs
-  virtualRouters:
-  - localASN: 65000                     # Berlin's BGP ASN
-    exportPodCIDR: true                 # advertise local PodCIDR prefix
-    mapSRv6VRFs: true                   # SRv6 L3VPN
-    srv6LocatorPoolSelector:        
-      matchLabels:
-        export: "true"                  # advertise Locator prefix into BGP IPv6 underlay
-    neighbors:
-    - peerAddress: "10.0.0.5/32"        # ipv4 peer address for xrd05
+      kubernetes.io/hostname: berlin    # node to which this portion of config belongs
+  bgpInstances:                         # the k8s cluster could have multiple BGP instances
+  - name: "asn65000"                    # for simplicity we're using a single ASN end-to-end
+    localASN: 65000
+    peers:
+    - name: "xrd05-rr"
       peerASN: 65000
-      families:                         # address families for this BGP session
-       - afi: ipv4
-         safi: unicast
-    - peerAddress: "fc00:0:5555::1/128" # ipv6 peer address for xrd05
+      peerAddress: fc00:0:5555::1
+      peerConfigRef:
+        name: "cilium-peer"             # reference to additional peer config in another CRD
+    - name: "xrd06-rr"
       peerASN: 65000
-      families:
-        - afi: ipv6                     # address families for this BGP session
-          safi: unicast
-        - afi: ipv4                
-          safi: mpls_vpn                # L3VPN AFI/SAFI
+      peerAddress: fc00:0:6666::1
+      peerConfigRef:
+        name: "cilium-peer"
 ```
 
-One of the great things about CRDs is you can combine all the configuration elements into a single file [Cilium BGP All Config](cilium/bgp-all-config.yaml), or you can break it up into multiple files by configuration element (e.g., [Cilium BGP Cluster Config](cilium/bgp-cluster-config.yaml), [Cilium BGP Peering Policy](cilium/bgp-peer.yaml)). 
+One of the great things about CRDs is you can combine all the configuration elements into a single file [Entire BGP Config](cilium/99-bgp-all.yaml), or you can break it up into multiple files by configuration element (e.g., [Cilium BGP Cluster Config](cilium/01-bgp-cluster.yaml), [Cilium BGP Peering Policy](cilium/02-bgp-peer.yaml), etc.). 
 
-In the next few steps we'll walk through apply the configuration one element at a time. For reference we've also provided the entire [Cilium BGP config Config](cilium/bgp-all-config.yaml) which can be applied all at once.
+In the next few steps we'll walk through applying the configuration one element at a time. For reference the [Entire BGP Config](cilium/99-bgp-all.yaml) yaml file would apply all the elements at once.
 
-1. Establish the Cilium BGP global configuration - On the Berlin VM cd into the cilium directory and apply the Cilium BGP Cluster Config CRD
+### Step 1: Establish the Cilium BGP global configuration
+
+1. Establish the Cilium BGP global configuration - On the Berlin VM cd into the Lab 4 cilium directory and apply the Cilium BGP Cluster Config CRD
    ```
    cd ~/SRv6_dCloud_Lab/lab_4/cilium/
    kubectl apply -f 01-bgp-cluster.yaml
