@@ -1,5 +1,6 @@
-apiVersion: isovalent.com/v2alpha1
-kind: IsovalentBGPNodeConfig
+---
+apiVersion: isovalent.com/v1alpha1
+kind: IsovalentBGPClusterConfig
 metadata:
   name: cilium-bgp
 spec:
@@ -12,23 +13,19 @@ spec:
     peers:
     - name: "xrd05-rr"
       peerASN: 65000
-      localAddress: fc00:0:102:1::1
       peerAddress: fc00:0:5555::1
       peerConfigRef:
         name: "cilium-peer"
     - name: "xrd06-rr"
       peerASN: 65000
-      localAddress: fc00:0:102:1::1
       peerAddress: fc00:0:6666::1
       peerConfigRef:
         name: "cilium-peer"
-
----
-apiVersion: isovalent.com/v2alpha1
-kind: IsovalentBGPNodeConfigOverride
-metadata:
-  name: cilium-bgp
-spec:
-  bgpInstances:
-    - name: "asn65000"
-      srv6Responder: true
+    vrfs:
+    - vrfRef: "carrots"
+      rd: "9:9"
+      importRTs:
+        - "9:9"
+      exportRTs:
+        - "9:9"
+      configRef: carrots-config

@@ -1,8 +1,9 @@
 #! /bin/bash
 
-kubectl apply -f bgp-cluster-config.yaml 
-kubectl apply -f bgp-peer-config.yaml 
-kubectl apply -f bgp-vrf-config.yaml 
-kubectl apply -f bgp-locator-advert-config.yaml 
-kubectl apply -f srv6-locator-pool.yaml 
-kubectl apply -f vrf-carrots.yaml 
+kubectl apply -f 01-bgp-cluster.yaml 
+kubectl apply -f 02-bgp-peer-config.yaml 
+kubectl apply -f 03-bgp-node-override.yaml 
+kubectl apply -f 04-bgp-advert.yaml 
+kubectl apply -f 05-bgp-vrf.yaml 
+kubectl apply -f 06-srv6-locator-pool.yaml 
+kubectl apply -f 07-vrf-carrots.yaml 

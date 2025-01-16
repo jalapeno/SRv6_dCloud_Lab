@@ -1,8 +1,9 @@
 #! /bin/bash
 
-kubectl delete -f bgp-cluster-config.yaml 
-kubectl delete -f bgp-peer-config.yaml 
-kubectl delete -f bgp-vrf-config.yaml 
-kubectl delete -f bgp-locator-advert-config.yaml 
-kubectl delete -f srv6-locator-pool.yaml 
-kubectl delete -f vrf-carrots.yaml 
+kubectl delete -f 01-bgp-cluster.yaml 
+kubectl delete -f 02-bgp-peer-config.yaml 
+kubectl delete -f 03-bgp-node-override.yaml 
+kubectl delete -f 04-bgp-advert.yaml 
+kubectl delete -f 05-bgp-vrf.yaml 
+kubectl delete -f 06-srv6-locator-pool.yaml 
+kubectl delete -f 07-vrf-carrots.yaml 
