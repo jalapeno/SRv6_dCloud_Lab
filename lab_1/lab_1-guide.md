@@ -166,26 +166,24 @@ The Ubuntu VM *Jalapeno* has Kubernetes pre-installed and running. Later in lab 
 Jalapeno will collect BGP Monitoring Protocol (BMP) and streaming telemetry data from the routers, and will serve as a data repository for the SDN clients we'll have running on the Amsterdam and Rome VMs (Lab 5/6).
 
 1. Validate router reachability to Jalapeno VM (no need to check all routers, but will be good to validate **xrd05** and **xrd06**):
+   ```
+   ssh cisco@clab-cleu25-XR05
+   ping 198.18.128.101
+   ```
+   
+   ```
+   cisco@clab-cleu25-XR:~$ ssh cisco@clab-cleu25-XR05
+   Warning: Permanently added 'xrd05,10.254.254.105' (ECDSA) to the list of known hosts.
+   Password:
+   Last login: Sun Jan 29 22:44:15 2023 from 10.254.254.1
 
-```
-ssh cisco@clab-cleu25-XR05
-ping 198.18.128.101
-```
-
-```
-cisco@clab-cleu25-XR:~$ ssh cisco@clab-cleu25-XR05
-Warning: Permanently added 'xrd05,10.254.254.105' (ECDSA) to the list of known hosts.
-Password: 
-Last login: Sun Jan 29 22:44:15 2023 from 10.254.254.1
-
-RP/0/RP0/CPU0:xrd05#ping 198.18.128.101
-Mon Jan 30 23:22:17.371 UTC
-Type escape sequence to abort.
-Sending 5, 100-byte ICMP Echos to 198.18.128.101 timeout is 2 seconds:
-!!!!!
-Success rate is 100 percent (5/5), round-trip min/avg/max = 1/8/39 ms
-
-```
+   RP/0/RP0/CPU0:xrd05#ping 198.18.128.101
+   Mon Jan 30 23:22:17.371 UTC
+   Type escape sequence to abort.
+   Sending 5, 100-byte ICMP Echos to 198.18.128.101 timeout is 2 seconds:
+   !!!!!
+   Success rate is 100 percent (5/5), round-trip min/avg/max = 1/8/39 ms
+   ```
 
 ### Validate Client VMs
 
