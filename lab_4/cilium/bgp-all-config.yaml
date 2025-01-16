@@ -99,16 +99,8 @@ spec:
       srv6Responder: true
       peers:
         - name: "xrd05-rr"
-          peerASN: 65000
-          peerAddress: fc00:0:5555::1
           localAddress: fc00:0:102:1::1
-          peerConfigRef:
-            name: "cilium-peer"
 
         - name: "xrd06-rr"
-          peerASN: 65000
-          peerAddress: fc00:0:6666::1
           localAddress: fc00:0:102:1::1
-          peerConfigRef:
-            name: "cilium-peer"
   
