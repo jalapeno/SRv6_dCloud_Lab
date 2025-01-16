@@ -221,11 +221,10 @@ In our lab the Berlin VM is an Ubuntu Kubernetes node running Cilium.
 
 In our lab the Rome VM is an Ubuntu Kubernetes node, and is essentially a customer/user of our network. 
 
-1. SSH to Rome Client VM from your laptop. 
-
-```
-ssh cisco@198.18.128.103
-```
+1. SSH to Rome Client VM from your laptop.
+   ```
+   ssh cisco@198.18.128.103
+   ```
 
 2. Check that the interface to router xrd07 is `UP` and has the assigned IP `10.107.1.1/24`
     ```
@@ -250,11 +249,11 @@ ssh cisco@198.18.128.103
     64 bytes from 10.107.1.2: icmp_seq=3 ttl=255 time=1.30 ms
     ```
 4. Optional - Check connectivity from Rome to Jalapeno VM
-```
-cisco@rome:~$ ping -c 1 198.18.128.101
-PING 198.18.128.101 (198.18.128.101) 56(84) bytes of data.
-64 bytes from 198.18.128.101: icmp_seq=1 ttl=64 time=0.428 ms
-```
+   ```
+   cisco@rome:~$ ping -c 1 198.18.128.101
+   PING 198.18.128.101 (198.18.128.101) 56(84) bytes of data.
+   64 bytes from 198.18.128.101: icmp_seq=1 ttl=64 time=0.428 ms
+   ```
 
 **Amsterdam**
 
@@ -265,13 +264,13 @@ The Amsterdam VM represents a server belonging to a cloud, CDN, or gaming compan
 > [!NOTE]
 > Link *M* between Amsterdam and xrd01 will be provisioned in Lab 3.
 
-1. SSH to Amsterdam Client VM from your laptop. 
+1. SSH to Amsterdam Client VM from your laptop.
+   Example
+   ```
+   ssh cisco@198.18.128.102
+   ```
 
-```
-ssh cisco@198.18.128.102
-```
-
-2. Use VPP's *vppctl* CLI to validate that the VPP interface facing Ubuntu (host-vpp-in) and the interface facing router xrd01 (GigabitEthernetb/0/0) are `UP` and have their assigned IP addresses. GigabitEthernetb/0/0: `10.101.1.1/24`, and host-vpp-in: `10.101.2.2/24` 
+3. Use VPP's *vppctl* CLI to validate that the VPP interface facing Ubuntu (host-vpp-in) and the interface facing router xrd01 (GigabitEthernetb/0/0) are `UP` and have their assigned IP addresses. GigabitEthernetb/0/0: `10.101.1.1/24`, and host-vpp-in: `10.101.2.2/24` 
     
     ```
     sudo vppctl show interface address
@@ -284,7 +283,7 @@ ssh cisco@198.18.128.102
     host-vpp-in (up):
     L3 10.101.2.2/24        <-------HERE
     ```
-3. Check connectivity from Amsterdam to xrd01 - we'll issue a ping from VPP itself:
+4. Check connectivity from Amsterdam to xrd01 - we'll issue a ping from VPP itself:
     ```
     sudo vppctl ping 10.101.1.2
     ```
@@ -300,18 +299,19 @@ ssh cisco@198.18.128.102
     Statistics: 5 sent, 5 received, 0% packet loss
     cisco@amsterdam:~$ 
     ```
-4. Optional - Check connectivity from Amsterdam to Jalapeno VM
-```
-cisco@amsterdam:~$ ping -c 1 198.18.128.101
-PING 198.18.128.101 (198.18.128.101) 56(84) bytes of data.
-64 bytes from 198.18.128.101: icmp_seq=1 ttl=64 time=0.619 ms
-```
+5. Optional - Check connectivity from Amsterdam to Jalapeno VM
+   ```
+   cisco@amsterdam:~$ ping -c 1 198.18.128.101
+   PING 198.18.128.101 (198.18.128.101) 56(84) bytes of data.
+   64 bytes from 198.18.128.101: icmp_seq=1 ttl=64 time=0.619 ms
+   ```
 
 ### Connect to Routers
-1. Starting from the XRD VM ssh into each router instance 1-7 per the management topology diagram above. Example:
-```
-ssh cisco@clab-cleu25-xrd01
-```
+1. Starting from the XRD VM ssh into each router instance 1-7 per the management topology diagram above.
+   Example:
+   ```
+   ssh cisco@clab-cleu25-xrd01
+   ```
 
 2. Confirm that the configured interfaces are in an `UP | UP` state
     ```
@@ -325,15 +325,15 @@ ssh cisco@clab-cleu25-xrd01
     GigabitEthernet0/0/0/2         10.1.1.8        Up              Up       default 
     GigabitEthernet0/0/0/3         unassigned      Shutdown        Down     default
     ```
-3. Validate IPv6 connectivity from **xrd01** to **Amsterdam**VM: 
-```
-ping fc00:0:101:1::1
-```
+3. Validate IPv6 connectivity from **xrd01** to **Amsterdam**VM:
+   ```
+   ping fc00:0:101:1::1
+   ```
 
-4. SSH to **xrd07** and validate IPv6 connectivity to the **Rome** VM: 
-```
-ping fc00:0:107:1::1
-```
+4. SSH to **xrd07** and validate IPv6 connectivity to the **Rome** VM:
+   ```
+   ping fc00:0:107:1::1
+   ```
 
 5. Validate adjacencies and traffic passing on each router. Use the topology diagram to determine neighbors. The client devices **Amsterdam** and **Rome** are not running CDP.
     ```
