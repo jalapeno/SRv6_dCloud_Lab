@@ -85,7 +85,7 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     b948b6ba5918   host      host      local
     bdf431ee7377   none      null      local
     ```
-5.  Run the *`containerlab deploy`* command to launch the topology. Running the deploy command from this directory will launch the network into the "beginning of lab 1" configuration state 
+5.  Run the *containerlab deploy* command to launch the topology. Running the deploy command from this directory will launch the network into the "beginning of lab 1" configuration state 
    
     - first change to the lab_1 directory
     ```
@@ -96,7 +96,7 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     sudo containerlab deploy -t lab_1-topology.yaml
     ```
 > [!NOTE]
-> All `containerlab` commands can be abbreviated to `clab`. Example: `sudo clab deploy -t lab_1-topology.yaml`
+> All *containerlab* commands can be abbreviated to *clab*. Example: *sudo clab deploy -t lab_1-topology.yaml*
 
     - Look for the below output from the end of the script confirming XRd instances 1-7 were created
     ```
