@@ -228,8 +228,6 @@ Validation command output examples can be found at this [LINK](https://github.co
    show bgp vpnv6 unicast rd 10.0.0.7:0 fc00:0:40::/64 
    ping vrf carrots 40.0.0.1
    ping vrf carrots 50.0.0.1
-   ping vrf carrots fc00:0:40::1
-   ping vrf carrots fc00:0:50::1
    ```
 
    Example validation for vpnv4 route

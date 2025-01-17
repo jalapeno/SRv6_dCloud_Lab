@@ -1,7 +1,7 @@
 # Lab 4: SRv6 for Kubernetes with Cilium [25 Min]
 
 ### Description
-Now that we've established SRv6 L3VPNs across our network, we're going to transition from router-based services to host-based services. And our first step will be to enable SRv6 L3VPN for Kubernetes. The Berlin VM has had Kubernetes pre-installed and running the Cilium CNI (Container Network Interface). In this lab we'll review some basic Kubernetes commands (kubectl) and then we'll setup Cilium BGP peering with our XRd route reflectors. After that we'll configure Cilium SRv6 SID manager and locators, and add a couple containers to our cluster and join them to the carrots VRF.
+Now that we've established SRv6 L3VPNs across our network, we're going to transition from router-based services to host-based services. And our first step will be to enable SRv6 L3VPN for Kubernetes. The Berlin VM has had Kubernetes pre-installed and running the Cilium CNI (Container Network Interface). In this lab we'll review some basic Kubernetes commands (kubectl) and then we'll setup Cilium BGP peering with our XRd route reflectors. After that we'll configure Cilium SRv6 SID manager and Locator pool. We'll then add a couple containers to our K8s cluster and join them to the carrots VRF.
 
 > [!NOTE]
 > This portion of the lab makes use of Cilium Enterprise, which is a licensed set of features. The Cilium SRv6 feature set is in Beta is not available in the open source version. If you are interested in SRv6 on Cilium or other Enterprise features, please contact the relevant Cisco Isovalent sales team.  
@@ -97,9 +97,9 @@ spec:
   - name: "asn65000"                    # for simplicity we're using a single ASN end-to-end
     localASN: 65000
     peers:
-    - name: "xrd05-rr"
-      peerASN: 65000
-      peerAddress: fc00:0:5555::1
+    - name: "xrd05-rr"                  # base peering config
+      peerASN: 65000                   
+      peerAddress: fc00:0:5555::1       
       peerConfigRef:
         name: "cilium-peer"             # reference to additional peer config in another CRD
     - name: "xrd06-rr"
@@ -132,7 +132,7 @@ In the next few steps we'll walk through applying the configuration one element 
    isovalentbgppeeringpolicy.isovalent.com/cilium-peer created
    ```
 
-3. At this point our peer sessions are not yet established. Next we'll apply the 'localAddress' parameter which tells Cilium which source address to use for its BGP peering sessions. This knob is comparable to IOS-XR's 'update-source' parameter.
+3. At this point our peer sessions are not yet established. Next we'll apply the *`localAddress`* parameter which tells Cilium which source address to use for its BGP peering sessions. This knob is comparable to IOS-XR's 'update-source' parameter.
    ```
    kubectl apply -f 03-bgp-node-override.yaml
    ```
@@ -142,28 +142,33 @@ In the next few steps we'll walk through applying the configuration one element 
    isovalentbgpnodeconfigoverride.isovalent.com/berlin created
    ```
 
-4. Verify Cilium BGP peering with the following cilium CLI:
+4. Verify Cilium BGP peering with the following cilium CLI. Note, it may take a few seconds for the peering sessions to establish.
    ```
    cilium bgp peers
    ```
+
+> [!NOTE]
+> Similar to the previous lab, the peering sessions may not be coming up bcause the Berlin VM may not be responding on the ipv6 address we've configured, and may need to have it 'woken up'. 
 
    We expect to have two IPv6 BGP peering sessions established and with advertisement and receipt of BGP NLRIs for IPv6 and IPv4/mpls_vpn (aka, SRv6 L3VPN).
 
    Example:
    ```
    cisco@berlin:~/SRv6_dCloud_Lab/lab_4/cilium$ cilium bgp peers
-   Node   Local AS   Peer AS   Peer Address     Session State   Uptime   Family          Received   Advertised
-   berlin   65000      65000     fc00:0:5555::1   established     2m58s    ipv6/unicast    5          1
-                                                                         ipv4/mpls_vpn   4          0
-          65000      65000     fc00:0:6666::1   established     53s      ipv6/unicast    5          1
-                                                                         ipv4/mpls_vpn   4          0
+   Node     Local AS   Peer AS   Peer Address     Session State   Uptime   Family          Received   Advertised
+   berlin   65000      65000     fc00:0:5555::1   established     9s       ipv6/unicast    5          0    
+                                                                           ipv4/mpls_vpn   5          0    
+            65000      65000     fc00:0:6666::1   established     24s      ipv6/unicast    5          0    
+                                                                           ipv4/mpls_vpn   5          0  
+   ```
+
+5. Apply the BGP prefix advertisement CRD:
+   ```
+   kubectl apply -f 04-bgp-advert.yaml
    ```
 
 > [!NOTE]
-> for the mpls_vpn we have not added in any ipv4 or ipv6 prefix advertisesments yet, hence a zero value in the output above.
-
-> [!NOTE]
-> You will be enabling Cilium to peer over both IPv4 and IPv6 with exchange of VPNv4 prefixes over the IPv6 sessions. Also, xrd05 and xrd06's peering sessions with Cilium inherited the vpnv4 address family configuration in the previous lab exercies when we applied the address family to the neighbor-group. 
+> We have not added ipv6 prefix advertisesments yet, hence a zero value in the Advertised output above. Also, xrd05 and xrd06's peering sessions with Cilium inherited the vpnv4 address family configuration in the previous lab exercies when we applied the address family to the neighbor-group. 
 
 ## Cilium SRv6 SID Manager and Locators
 Per Cilium Enterprise documentation:

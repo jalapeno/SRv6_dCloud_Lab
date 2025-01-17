@@ -161,6 +161,10 @@ Reference: the GoBMP Git Repository can be found [HERE](https://github.com/sbezv
     
       neighbor fc00:0000:7777::1
         bmp-activate server 1
+
+      neighbor fc00:0000:8888::1
+        bmp-activate server 1
+        
     commit
     ```
 
