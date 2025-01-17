@@ -1,14 +1,18 @@
-## Lab 5: Exploring Project Jalapeno [30 Min]
+## Lab 5: Project Jalapeno and Host-Based SRv6 [30 Min]
 
 ### Description
-In Lab 5 we will explore the open-source Jalapeno data infrastructure platform. Jalapeno is designed to run on Kubernetes (K8s), which allows for easy integration into existing environments and supports deployment on bare metal, VMs, or in a public cloud. Kubernetes experience is not required for this lab as K8s has been preinstalled on the Jalapeno VM and we have included the required *kubectl* validation commands. We've also included a brief guide to installing Kubernetes on your own host or VM: [K8s Install Instructions](lab_5/k8s-install-instructions.md).
+In Lab 5 we will explore the open-source Jalapeno platform and the power of SRv6 as a truly end-to-end technology through host-based SRv6. Jalapeno is designed to run on Kubernetes (K8s), which allows for easy integration into existing environments and supports deployment on bare metal, VMs, or in a public cloud. Kubernetes experience is not required for this lab as K8s has been preinstalled on the Jalapeno VM and we have included the required *kubectl* validation commands. We've also included a brief guide to installing Kubernetes on your own host or VM: [K8s Install Instructions](lab_5/k8s-install-instructions.md).
 
 Prior to exploring Jalapeno we will configure BGP Monitoring Protocol (BMP) on our route reflectors. 
+
+This lab is divided into two main sections:
+* Exploring the Jalapeno platform and a "databases and APIs" apprach to SDN topology modeling
+* Giving applications or workloads the ability to control their own SRv6 paths through the use of host-based SRv6
 
 At the end of this lab we will explore the power of combining topology modeling in Jalapeno and SRv6 as a platform for network service innovation. We will demonstrate three service use cases which are not possible with classic MPLS networks.
 
 ## Contents
-- [Lab 5: Exploring Project Jalapeno \[30 Min\]](#lab-5-exploring-project-jalapeno-30-min)
+- [Lab 5: Project Jalapeno and Host-Based SRv6 \[30 Min\]](#lab-5-project-jalapeno-and-host-based-srv6-30-min)
   - [Description](#description)
 - [Contents](#contents)
 - [Lab Objectives](#lab-objectives)
