@@ -68,7 +68,7 @@ Kubernetes and Cilium Enterprise are pre-installed on the Berlin VM. All of the 
 > A Kubernetes DaemonSet is a feature that ensures a pod runs on all or some nodes in a Kubernetes cluster. DaemonSets are used to deploy background services, such as monitoring agents, network agents (such as Cilium/eBPF), log collectors, and storage volumes.
 
 Now we're ready!
-![Cilium SRv6 L3VPN](images/cilium-srv6-l3vpn.png)
+![Cilium SRv6 L3VPN](images/cilium-srv6-l3vpn.png =200x200)
 
 ##  Setup Cilium BGP Peering
 First a brief explanation of *`Kubernetes Custom Resource Definitions (CRDs)`*. 
