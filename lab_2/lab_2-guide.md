@@ -180,7 +180,11 @@ SRv6 uSID locator and source address information for nodes in the lab:
 ## End-to-End Connectivity
 
 ### Viewing Router to Router traffic in containerlab
-In this lab we will make extensive use of tcpdump to look at traffic on routed links. Containerlab makes this a fairly easy process as the underlying router links run in Linux network namespaces. There are two pieces of information we need to run a tcpdump command; the *network namespace* and *interface name*.
+In this lab we will make extensive use of tcpdump to look at traffic on routed links. Containerlab makes this a fairly easy process as the underlying router links run in Linux network namespaces. 
+
+The command we will use for tcpdump is *sudo ip netns exec <network namespace> tcpdump -ni <interface name>*
+
+There are two pieces of information we need to run a tcpdump command; the *network namespace* and *interface name*.
 
 For a list of *network namespaces* use the below command: 
 ```
@@ -205,13 +209,13 @@ sudo ip netns exec clab-cleu25-xrd01 ip link show
 ```
 
 Example:
-```
+```diff
 cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd01 ip link show
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
 20: eth0@if21: <BROADCAST,MULTICAST,PROMISC,UP,LOWER_UP> mtu 9000 qdisc noqueue state UP mode DEFAULT group default 
     link/ether 02:42:0a:fe:fe:65 brd ff:ff:ff:ff:ff:ff link-netnsid 0
-27: Gi0-0-0-1@if26: <BROADCAST,MULTICAST,PROMISC,UP,LOWER_UP> mtu 9000 qdisc noqueue state UP mode DEFAULT group default 
++27: Gi0-0-0-1@if26: <BROADCAST,MULTICAST,PROMISC,UP,LOWER_UP> mtu 9000 qdisc noqueue state UP mode DEFAULT group default 
     link/ether aa:c1:ab:03:1f:f2 brd ff:ff:ff:ff:ff:ff link-netns clab-cleu25-xrd02
 33: Gi0-0-0-2@if32: <BROADCAST,MULTICAST,PROMISC,UP,LOWER_UP> mtu 9000 qdisc noqueue state UP mode DEFAULT group default 
     link/ether aa:c1:ab:eb:38:c7 brd ff:ff:ff:ff:ff:ff link-netns clab-cleu25-xrd05
@@ -221,42 +225,18 @@ cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd01 ip link show
     link/ether aa:c1:ab:a7:f8:f3 brd ff:ff:ff:ff:ff:ff link-netnsid 0
 ```
 
-
-```diff
-cisco@xrd:~/SRv6_dCloud_Lab/lab_1$ sudo ip netns exec clab-cleu25-xrd01 ip link show
-1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-
-169: eth0@if170: <BROADCAST,MULTICAST,PROMISC,UP,LOWER_UP> mtu 9000 qdisc noqueue state UP mode DEFAULT group default 
-    link/ether 02:42:0a:fe:fe:65 brd ff:ff:ff:ff:ff:ff link-netnsid 0
-
-177: Gi0-0-0-2@if178: <BROADCAST,MULTICAST,PROMISC,UP,LOWER_UP> mtu 9000 qdisc noqueue state UP mode DEFAULT group default 
-    link/ether aa:c1:ab:a2:6d:3f brd ff:ff:ff:ff:ff:ff link-netns clab-cleu25-xrd05
-
-+183: Gi0-0-0-1@if184: <BROADCAST,MULTICAST,PROMISC,UP,LOWER_UP> mtu 9000 qdisc noqueue state UP mode DEFAULT group default 
-+    link/ether aa:c1:ab:94:44:ec brd ff:ff:ff:ff:ff:ff link-netns clab-cleu25-xrd02
-
-196: <!--- Gi0-0-0-0 ---> @if6: <BROADCAST,MULTICAST,PROMISC,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
-    link/ether aa:c1:ab:d2:30:a0 brd ff:ff:ff:ff:ff:ff link-netnsid 0
-
-199: **Gi0-0-0-3** @if5: <BROADCAST,MULTICAST,PROMISC,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
-    link/ether aa:c1:ab:f2:a2:fe brd ff:ff:ff:ff:ff:ff link-netnsid 0
-```
-
 Now that we have the network namespace and interface name we can run a tcpdump command. An example tcpdump command capturing traffic on xrd01 Gig0/0/0/1 would look like this:
 ```
 sudo ip netns exec clab-cleu25-xrd01 tcpdump -ni Gi0-0-0-1
 ```
 
-Other examples:
+Examples:
 ```
-sudo ip netns exec clab-cleu25-xrd01 tcpdump -ni Gi0-0-0-2
-
-sudo ip netns exec clab-cleu25-xrd02 tcpdump -ni Gi0-0-0-0
-
-sudo ip netns exec clab-cleu25-xrd06 tcpdump -ni Gi0-0-0-1
-
-etc.
+cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd01 tcpdump -ni Gi0-0-0-1
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on Gi0-0-0-1, link-type EN10MB (Ethernet), capture size 262144 bytes
+16:52:42.426927 IP6 fc00:0:6666::1.59565 > fc00:0:1111::1.179: Flags [P.], seq 3163804341:3163804360, ack 1727025708, win 31875, length 19: BGP
+16:52:42.628050 IP6 fc00:0:1111::1.179 > fc00:0:6666::1.59565: Flags [.], ack 19, win 31846, length 0
 ```
 
 #### do we keep this (requires re-creating the shell script), or do we just have users run the verbose tcpdump command? Or take the packet walk doc and merge it into here and call it good?
