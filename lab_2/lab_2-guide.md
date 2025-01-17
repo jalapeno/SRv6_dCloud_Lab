@@ -239,47 +239,6 @@ listening on Gi0-0-0-1, link-type EN10MB (Ethernet), capture size 262144 bytes
 16:52:42.628050 IP6 fc00:0:1111::1.179 > fc00:0:6666::1.59565: Flags [.], ack 19, win 31846, length 0
 ```
 
-#### do we keep this (requires re-creating the shell script), or do we just have users run the verbose tcpdump command? Or take the packet walk doc and merge it into here and call it good?
-
-In lab_1 When we ran the XRd topology setup script it called the 'nets.sh' subscript in the ~/SRv6_dCloud_Lab/util directory. The nets.sh resolved the underlying docker network IDs and wrote them to text files in the util directory. As an example link "A" in the topology has a mapped file called xrd01-xrd02 which contains the linux network id we need.
-
-We'll use 'tcpdump.sh' shell script in the util directory to monitor traffic as it traverses the XRd network. Running "./tcpdump.sh xrd0x-xrd0y" will execute Linux TCPdump on the specified Linux bridge instance that links a pair of XRd routers. Note traffic through the network may travel via one or more ECMP paths, so we may need to try tcpdump.sh on different links before we see anything meaningful in the output
-
-1. On the **XRD** VM cd into the lab's util directory:
-  ```
-  cd ~/SRv6_dCloud_Lab/util/
-  ```
-2. Start the tcpdump.sh script to monitor traffic on a link:
-  ```
-  ./tcpdump.sh xrd05-xrd06
-  ```
-3. Start an SSH session to the Amsterdam VM and ping the Rome VM
-  ```
-  ssh cisco@198.18.128.102
-
-  ping 10.107.1.1 -i .3 -c 4
-  ```
-
-  Example tcpdump.sh output:
-  ```
-  cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd05-xrd06
-  sudo tcpdump -ni br-343a0d248d8e
-  tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
-  listening on br-343a0d248d8e, link-type EN10MB (Ethernet), capture size 262144 bytes
-  17:44:54.447013 IP6 fc00:0:1111::1 > fc00:0:7777:e004::: IP 10.101.2.1 > 10.107.1.1: ICMP echo request, id 12, seq 13, length 64
-  17:44:55.454992 IP6 fc00:0:1111::1 > fc00:0:7777:e004::: IP 10.101.2.1 > 10.107.1.1: ICMP echo request, id 12, seq 14, length 64
-  17:44:56.455127 IP6 fc00:0:1111::1 > fc00:0:7777:e004::: IP 10.101.2.1 > 10.107.1.1: ICMP echo request, id 12, seq 15, length 64
-  ```
-
-In the example above the outbound ICMP echo requests are captured and you can see the outer IPv6/SRv6 encapsulation. The echo replies are not shown as the network has hashed the replies over a different path. In your case if nothing shows up on the tcpdump output you can try tcpdumping on the *`xrd02-xrd06`* OR *`xrd04-xrd05`* link and run the Amsterdam ping again:
-
-Note: the ./tcpdump.sh break sequence is *ctrl-z*
-  ```
-  sudo ./tcpdump.sh xrd02-xrd06
-  ```
-  ```
-  sudo ./tcpdump.sh xrd04-xrd05
-  ```
 Eventually pings should show up as tcpdump output. 
 
 ## SRv6 Packet Walk
