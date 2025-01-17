@@ -254,7 +254,7 @@ Per Cilium Enterprise documentation:
     resourceVersion: ""
    ```
 
-## Establish Cilium VRFs
+## Establish Cilium VRFs and Create Pods
 1. Add vrf(s) - this example also adds a couple alpine linux container pods to vrf carrots:
    [07-vrf-carrots.yaml](cilium/07-vrf-carrots.yaml)
    ```
@@ -421,10 +421,10 @@ Per Cilium Enterprise documentation:
   ```
 
 > [!NOTE]
-> In a future version of this lab we hope to program SRv6 routes/policies using a K8s CNI dataplane such as eBPF (example: [Cilium support for SRv6](https://cilium.io/industries/telcos-datacenters/)). 
+> In a future version of this lab we hope to add support for Cilium SRv6-TE. 
 
 ### Lab 4 Appendix
-We have provided some additional cilium and kubernetes commands in an appendix for you. [Lab 4 Appendix](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_4/lab_4-appendix.md)
+We have provided some additional cilium and kubernetes commands in an appendix: [Lab 4 Appendix](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_4/lab_4-appendix.md)
 
 ### End of lab 4
 Please proceed to [Lab 5](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_5/lab_5-guide.md)

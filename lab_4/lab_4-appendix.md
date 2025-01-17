@@ -55,3 +55,10 @@ cilium bgp routes available ipv4 mpls_vpn
   99       50.0.0.0/24        fc00:0:7777:e007::
   ```
 
+Cilium BGP v2 reference:
+https://docs.cilium.io/en/stable/network/bgp-control-plane/bgp-control-plane-v2/
+
+Cilium debug reference:
+https://docs.cilium.io/en/stable/cmdref/cilium-dbg/
+
+
