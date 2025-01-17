@@ -142,13 +142,13 @@ In the next few steps we'll walk through applying the configuration one element 
    isovalentbgpnodeconfigoverride.isovalent.com/berlin created
    ```
 
+> [!NOTE]
+> Similar to the previous lab, the peering sessions may not be coming up bcause the Berlin VM may not be responding on the ipv6 address we've configured, and may need to have it 'woken up'. 
+
 4. Verify Cilium BGP peering with the following cilium CLI. Note, it may take a few seconds for the peering sessions to establish.
    ```
    cilium bgp peers
    ```
-
-> [!NOTE]
-> Similar to the previous lab, the peering sessions may not be coming up bcause the Berlin VM may not be responding on the ipv6 address we've configured, and may need to have it 'woken up'. 
 
    We expect to have two IPv6 BGP peering sessions established and with advertisement and receipt of BGP NLRIs for IPv6 and IPv4/mpls_vpn (aka, SRv6 L3VPN).
 
@@ -162,30 +162,59 @@ In the next few steps we'll walk through applying the configuration one element 
                                                                            ipv4/mpls_vpn   5          0  
    ```
 
-5. Apply the BGP prefix advertisement CRD:
+We have not added ipv6 prefix advertisesments yet, hence a zero value in the Advertised output above. Also, xrd05 and xrd06's peering sessions with Cilium inherited the vpnv4 address family configuration in the previous lab exercies when we applied the address family to the neighbor-group. 
+
+5. Apply the BGP ipv6 unicast (global table/default VRF) prefix advertisement CRD:
    ```
    kubectl apply -f 04-bgp-advert.yaml
    ```
 
-> [!NOTE]
-> We have not added ipv6 prefix advertisesments yet, hence a zero value in the Advertised output above. Also, xrd05 and xrd06's peering sessions with Cilium inherited the vpnv4 address family configuration in the previous lab exercies when we applied the address family to the neighbor-group. 
+6. Verify the prefix advertisement:
+   ```
+   cilium bgp peers
+   ```
+
+7. Let's get a little more detail on advertised prefixes with the `cilium bgp routes` command. Let's first add a -h flag to see our options
+   ```
+   cilium bgp routes -h
+   ```
+
+   Example output:
+   ```
+   cisco@berlin:~/SRv6_dCloud_Lab/lab_4/cilium$ cilium bgp routes -h
+   Lists BGP routes from all nodes in the cluster - requires cilium >= v1.14.6
+
+   Usage:
+     cilium bgp routes <available | advertised> <afi> <safi> [vrouter <asn>] [peer|neighbor <address>] [flags]
+   ```
+
+8. Let's get the advertised prefixes:
+   ```
+   cilium bgp routes advertised ipv6 unicast
+   ```
+
+9. Create the carrots BGP VRF:
+   ```
+   kubectl apply -f 05-bgp-vrf.yaml
+   ```
 
 ## Cilium SRv6 SID Manager and Locators
 Per Cilium Enterprise documentation:
 *The SID Manager manages a cluster-wide pool of SRv6 locator prefixes. You can define a prefix pool using the IsovalentSRv6LocatorPool resource. The Cilium Operator assigns a locator for each node from this prefix. In this example we'll allocate /48 bit uSID based locators.*
 
-1. Define and apply a Cilium SRv6 locator pool, example: [srv6-locator-pool.yaml](cilium/srv6-locator-pool.yaml)
+1. Define and apply a Cilium SRv6 locator pool, example: [06-srv6-locator-pool.yaml](cilium/06-srv6-locator-pool.yaml)
   
    From the SRv6_dCloud_Lab/lab_4/cilium directory on the Berlin VM:
    ```
-   kubectl apply -f srv6-locator-pool.yaml
+   kubectl apply -f 06-srv6-locator-pool.yaml
    ```
 
 2. Validate locator pool
    ```
    kubectl get sidmanager -o yaml
    ```
-   or
+   
+   Or for a more concise output:
    ```
    kubectl get sidmanager -o custom-columns="NAME:.metadata.name,ALLOCATIONS:.spec.locatorAllocations"
    ```
@@ -211,7 +240,7 @@ Per Cilium Enterprise documentation:
       locatorAllocations:
       - locators:
         - behaviorType: uSID
-          prefix: fc00:0:a061::/48               # Berlin's dynamically allocated uSID prefix (Locator)
+          prefix: fc00:0:a0ba::/48               # Berlin's dynamically allocated uSID prefix (Locator)
           structure:
             argumentLenBits: 0
             functionLenBits: 16
@@ -227,9 +256,9 @@ Per Cilium Enterprise documentation:
 
 ## Establish Cilium VRFs
 1. Add vrf(s) - this example also adds a couple alpine linux container pods to vrf carrots:
-   [vrf-carrots.yaml](cilium/vrf-carrots.yaml)
+   [07-vrf-carrots.yaml](cilium/07-vrf-carrots.yaml)
    ```
-   kubectl apply -f vrf-carrots.yaml
+   kubectl apply -f 07-vrf-carrots.yaml
    ```
 
 2. Verify the VRF carrots pods are running:
@@ -237,27 +266,45 @@ Per Cilium Enterprise documentation:
    kubectl get pods -n carrots
    ```
 
-3. Verify Cilium has allocated a uDT4 SRv6 L3VPN SID on Berlin:
+   Expected output:
+   ```
+   NAME      READY   STATUS    RESTARTS   AGE
+   carrots0   1/1     Running   0          10s
+   carrots1   1/1     Running   0          10s
+   ``` 
+
+3. Let's get the pods' IP addresses as we'll need them in a few more steps:
+   ```
+   kubectl get pod -n carrots carrots0 -o jsonpath="{.status.podIPs}" && echo
+   kubectl get pod -n carrots carrots1 -o jsonpath="{.status.podIPs}" && echo
+   ```
+
+   Expected output should look something like:
+   ```
+   [{"ip":"10.200.0.242"},{"ip":"2001:db8:42::2131"}]
+   [{"ip":"10.200.0.3"},{"ip":"2001:db8:42::dad9"}]
+   ```
+
+4. Next we'll verify Cilium has allocated the carrots VRF a uDT4 SRv6 L3VPN SID on Berlin:
    ```
    kubectl get sidmanager berlin -o yaml
    ```
 
     Example output from sidmanager:
     ```yaml
-    cisco@berlin:~/SRv6_dCloud_Lab/lab_4/cilium$ kubectl get sidmanager berlin -o yaml
     apiVersion: isovalent.com/v1alpha1
     kind: IsovalentSRv6SIDManager
     metadata:
-      creationTimestamp: "2025-01-13T22:55:05Z"
-      generation: 5
+      creationTimestamp: "2025-01-16T22:16:38Z"
+      generation: 3
       name: berlin
-      resourceVersion: "48158"
-      uid: dd82d5d0-6d84-4cc8-ac31-ed2f3ce857f7
+      resourceVersion: "49944"
+      uid: d0f2730f-ffe9-4282-b457-01ed94b16307
     spec:
       locatorAllocations:
       - locators:
         - behaviorType: uSID
-          prefix: fc00:0:a061::/48      # Berlin SRv6 Locator
+          prefix: fc00:0:a0ba::/48     # Berlin's dynamically allocated uSID prefix (Locator)
           structure:
             argumentLenBits: 0
             functionLenBits: 16
@@ -268,12 +315,12 @@ Per Cilium Enterprise documentation:
       sidAllocations:
       - poolRef: pool0
         sids:
-        - behavior: uDT4                # uDT4 with looking in VRF carrots
+        - behavior: uDT4                # uDT4 is uSID End with IPv4 table lookup behavior
           behaviorType: uSID
-          metadata: carrots
+          metadata: carrots             # table to perform the lookup in
           owner: srv6-manager
           sid:
-            addr: 'fc00:0:a061:e95c::'  # VRF carrots uSID Locator + Function
+            addr: 'fc00:0:a0ba:ec7::'   # Berlin VRF carrots SRv6 Locator + Function
             structure:
               argumentLenBits: 0
               functionLenBits: 16
@@ -283,132 +330,98 @@ Per Cilium Enterprise documentation:
 
 ### Verify Cilium advertised L3vpn prefixes are reaching remote xrd nodes
 
-1. On the xrd VM ssh to xrd01 and run some BGP verification commands. Note, we expect to see vpnv4 prefixes advertise from Berlin, but ping will not work yet. In a few more steps we'll setup the SRv6 responder on Berlin and ping will work.
+1. On the xrd VM ssh to xrd01 and run some BGP verification commands. Note, we expect to see vpnv4 prefixes advertised from Berlin, but ping will not work yet. In a few more steps we'll setup the SRv6 responder on Berlin and ping will work.
   ```
   ssh cisco@clab-cleu25-xrd01
   show bgp vpnv4 unicast
   show bgp vpnv4 unicast rd 9:9 10.200.0.0/24
   ```
 
-### More SRv6 L3VPN on Berlin
-
-1. optional: create vrf-radish:
+  In the output of the first command we expect to see Cilium advertise L3VPN prefix:
   ```
-  kubectl apply -f vrf-radish.yaml
+  *>i10.200.0.0/24      fc00:0:8888::1                100      0 ?
   ```
 
-2.  Run some kubectl commands to verify pod status, etc.
-  ```
-  kubectl get pods -A
+  In the output of the second command we expect to see detailed information. Here is truncated output:
+  ```yaml
+  Path #1: Received by speaker 0
+  Not advertised to any peer
+  Local
+    fc00:0:8888::1 (metric 2) from fc00:0:5555::1 (198.18.4.104)
+      Received Label 0xec70      # uDT4 function bits match the SRv6 SID manager output from Cilium
+      Origin incomplete, localpref 100, valid, internal, best, group-best, import-candidate, not-in-vrf
+      Received Path ID 0, Local Path ID 1, version 20
+      Extended community: RT:9:9 
+      Originator: 198.18.4.104, Cluster list: 10.0.0.5
+      PSID-Type:L3, SubTLV Count:1
+       SubTLV:
+        T:1(Sid information), Sid:fc00:0:a0ba::(Transposed), Behavior:63, SS-TLV Count:1  # Sid value matches Berlin's SRv6 Locator
+         SubSubTLV:
+          T:1(Sid structure):
   ```
 
-  ```
-  kubectl describe pod -n carrots carrots0
-  ```
-  The kubectl get pods -A command should show a pair of carrots pods up and running.
+### Run a ping test!
 
-3. We can also run a kubectl command with a filter to simplify to output and get the pod's IP addresses:
-  ```
-  kubectl get pod -n carrots carrots0 -o=jsonpath="{.status.podIPs}"
-  ```
-  example output:
-  ```
-  [{"ip":"10.200.0.134"},{"ip":"2001:db8:200::17fb"}]
-  ```
 
-4. Exec into one of the carrotspod containers and ping the Cilium CNI gateway:
+1. On the Berlin VM exec into one of the carrotspod containers and ping Amsterdam's interface in the carrots VRF:
   ```
   kubectl exec -it -n carrots carrots0 -- sh
-  ip route
-  ping <the "default via" address in ip route output>
+  ```
+  ```
+  ping 10.101.3.1
   ```
 
-  Output should look something like:
-  ```
-  cisco@berlin:~/SRv6_dCloud_Lab/lab_4/cilium$ kubectl exec -it -n carrots carrots0 -- sh
-  / # ip route
-  default via 10.200.0.60 dev eth0 
-  10.200.0.60 dev eth0 scope link 
-  / # ping 10.200.0.60
-  PING 10.200.0.60 (10.200.0.60): 56 data bytes
-  64 bytes from 10.200.0.60: seq=0 ttl=63 time=0.175 ms
-  64 bytes from 10.200.0.60: seq=1 ttl=63 time=0.132 ms
-  ^C
-  --- 10.200.0.60 ping statistics ---
-  2 packets transmitted, 2 packets received, 0% packet loss
-  round-trip min/avg/max = 0.132/0.153/0.175 ms
-  / # 
-  ```
+2. Back on the XRd VM run a tcpdump to capture Cilium's SRv6 encapsulation:
 
-5. Exit the pod
-```
-exit
-```
+    ```
+    sudo ip netns exec clab-cleu25-xrd02 tcpdump -ni Gi0-0-0-3
+    ```
 
-## Setup Cilium SRv6 Responder
+    Example output:
+    ```
+    08:25.416 IP6 fc00:0:8888:0:250:56ff:fe3f:ffff > fc00:0:1111:e008::: IP 10.200.0.242 > 10.101.3.1: ICMP echo request, id 14, seq 0, length 64
+    08:25.419 IP6 fc00:0:1111::1 > fc00:0:a0ba:ec7::: IP 10.101.3.1 > 10.200.0.242: ICMP echo reply, id 14, seq 0, length 64
+    08:26.416 IP6 fc00:0:8888:0:250:56ff:fe3f:ffff > fc00:0:1111:e008::: IP 10.200.0.242 > 10.101.3.1: ICMP echo request, id 14, seq 1, length 64
+    08:26.419 IP6 fc00:0:1111::1 > fc00:0:a0ba:ec7::: IP 10.101.3.1 > 10.200.0.242: ICMP echo reply, id 14, seq 1, length 64
+    ```
 
-1. Per the previous set of steps, once allocated SIDs appear, we need to annotate the node. This will tell Cilium to program eBPF egress policies on Berlin: 
-  ```
-  kubectl annotate --overwrite nodes berlin cilium.io/bgp-virtual-router.65000="router-id=10.107.1.1,srv6-responder=true"
-  ```
-
-2. Verify SRv6 Egress Policies:
+3. Verify SRv6 Egress Policies. This command will give you a rough equivalent to the SRv6 L3VPN FIB table
   ```
   kubectl get IsovalentSRv6EgressPolicy -o yaml
   ```
 
   Example of partial output:
   ```yaml
-  cisco@berlin:~/SRv6_dCloud_Lab/lab_4/cilium$ kubectl get IsovalentSRv6EgressPolicy -o yaml
-
-  apiVersion: v1
-  items:
   - apiVersion: isovalent.com/v1alpha1
     kind: IsovalentSRv6EgressPolicy
     metadata:
-      creationTimestamp: "2025-01-14T04:31:12Z"
+      creationTimestamp: "2025-01-17T06:49:36Z"
       generation: 1
-      name: bgp-control-plane-5587f17711c26c64d70cc0459d9183e37edf0ffce52f7e256e83da51175007da
-      resourceVersion: "50187"
-      uid: 0ba02fab-8a2e-40cd-aba1-f6944608a8f6
+      name: bgp-control-plane-31cc5366b9918e658bada220b4232aa252f16e3f93572d69131a842239bbcce5
+      resourceVersion: "49954"
+      uid: e47b55f9-095d-4b45-a163-522b8f7d6f9a
     spec:
       destinationCIDRs:
-      - 40.0.0.0/24                          <---- destination prefix in VRF carrots (vrfID 1000107)
-      destinationSID: 'fc00:0:7777:e005::'   <---- prefix is reachable via xrd07. Cilium/eBPF will encapsulate traffic using this SID
-      vrfID: 1000107
-
+      - 40.0.0.0/24
+      destinationSID: 'fc00:0:7777:e007::'  # SRv6 SID for prefix 40.0.0.0/24 in vrfID 99 (carrots) on xrd07
+      vrfID: 99
   - apiVersion: isovalent.com/v1alpha1
     kind: IsovalentSRv6EgressPolicy
     metadata:
-      creationTimestamp: "2025-01-14T04:31:12Z"
+      creationTimestamp: "2025-01-17T06:49:36Z"
       generation: 1
-      name: bgp-control-plane-ae23b020354bc6b90c24ac9b0fe096c9245446b1c288a7898c3aec23beb6726e
-      resourceVersion: "50188"
-      uid: fc2bb8eb-1178-4d5c-843a-1c25b07a885e
+      name: bgp-control-plane-46ef5ca48abb5cee93f383fe8966f85194a398116bea35fdf49b17cd1d5fbe79
+      resourceVersion: "49948"
+      uid: d786342b-9edd-4610-8f78-b11354714c6a
     spec:
       destinationCIDRs:
-      - 10.101.3.0/24                         <---- destination prefix in VRF carrots (vrfID 100107)
-      destinationSID: 'fc00:0:1111:e005::'    <---- prefix is reachable via xrd01. Cilium/eBPF will encapsulate traffic using this SID
-      vrfID: 1000107
-  - apiVersion: isovalent.com/v1alpha1
-    kind: IsovalentSRv6EgressPolicy
-    metadata:
-      creationTimestamp: "2025-01-14T04:31:12Z"
-      generation: 1
-      name: bgp-control-plane-bf38e639ce6f64092a863f29f73d43ee1dd48179000b1a1598073f83c8c0ec31
-      resourceVersion: "50190"
-      uid: 46f84a6e-6732-4179-ad2d-ac449404efd8
-    spec:
-      destinationCIDRs:
-      - 10.200.0.0/24                         <---- local containers prefix in VRF carrots (vrfID 100107)
-      destinationSID: 'fc00:0:a061:e95c::'    <---- prefix is advertised with this LVPN SRv6 SID
-      vrfID: 1000107
+      - 10.200.0.0/24
+      destinationSID: 'fc00:0:a0ba:ec7::' # SRv6 SID for local prefix 10.200.0.0/24 in vrfID 99 (carrots)
+      vrfID: 99
   ```
-** ADD END TO END PING TEST **
 
-** ADD TCPDUMP OF SRV6 ENCAP **
-
-Note: In a future version of this lab we hope to program SRv6 routes/policies using a K8s CNI dataplane such as eBPF (example: [Cilium support for SRv6](https://cilium.io/industries/telcos-datacenters/)). 
+> [!NOTE]
+> In a future version of this lab we hope to program SRv6 routes/policies using a K8s CNI dataplane such as eBPF (example: [Cilium support for SRv6](https://cilium.io/industries/telcos-datacenters/)). 
 
 ### Lab 4 Appendix
 We have provided some additional cilium and kubernetes commands in an appendix for you. [Lab 4 Appendix](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_4/lab_4-appendix.md)
