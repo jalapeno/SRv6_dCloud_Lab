@@ -54,24 +54,13 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     ssh cisco@198.18.128.100
     ```
 
-2. The XRD VM should have a blank file in user *cisco's* home directory. The filename indicates the name of the pod you're connected to. Use the *ls* command to make sure you're connected to the correct dCloud instance: 
-
-   ```
-   ls
-   ```
-   Example output for pod01:
-   ```
-   cisco@clab-cleu25-XR:~$ ls
-   Downloads  images  pod01  SRv6_dCloud_Lab
-   ```
-
-3. Change to the Git repository directory
+2. Change to the Git repository directory
     - The lab repository folder is found in the home directory *`~/SRv6_dCloud_Lab/`*
     ```
     cd ~/SRv6_dCloud_Lab/
     ```
 
-4. Validate there are no docker containers running or docker networks for the XRd topology
+3. Validate there are no docker containers running or docker networks for the XRd topology
     ```
     docker ps
     ```
@@ -85,7 +74,7 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     b948b6ba5918   host      host      local
     bdf431ee7377   none      null      local
     ```
-5.  Run the *containerlab deploy* command to launch the topology. Running the deploy command from this directory will launch the network into the "beginning of lab 1" configuration state 
+4.  Run the *containerlab deploy* command to launch the topology. Running the deploy command from this directory will launch the network into the "beginning of lab 1" configuration state 
    
     - first change to the lab_1 directory
     ```
