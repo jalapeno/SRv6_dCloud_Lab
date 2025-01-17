@@ -187,12 +187,41 @@ For a list of *network namespaces* use the below command:
 sudo ip netns ls
 ```
 
+Example:
+```
+cisco@xrd:~$ sudo ip netns ls 
+clab-cleu25-xrd05 (id: 5)
+clab-cleu25-xrd02 (id: 2)
+clab-cleu25-xrd06 (id: 4)
+clab-cleu25-xrd03 (id: 6)
+clab-cleu25-xrd04 (id: 1)
+clab-cleu25-xrd07 (id: 3)
+clab-cleu25-xrd01 (id: 0)
+```
+
 For the list of *interface names* created in a *network namespace* use the following command(s):
 ```
-sudo ip netns clab-cleu25-xrd01 iplink show
-sudo ip netns clab-cleu25-xrd02 iplink show
-etc.
+sudo ip netns exec clab-cleu25-xrd01 ip link show
 ```
+
+Example:
+```
+cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd01 ip link show
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+20: eth0@if21: <BROADCAST,MULTICAST,PROMISC,UP,LOWER_UP> mtu 9000 qdisc noqueue state UP mode DEFAULT group default 
+    link/ether 02:42:0a:fe:fe:65 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+27: Gi0-0-0-1@if26: <BROADCAST,MULTICAST,PROMISC,UP,LOWER_UP> mtu 9000 qdisc noqueue state UP mode DEFAULT group default 
+    link/ether aa:c1:ab:03:1f:f2 brd ff:ff:ff:ff:ff:ff link-netns clab-cleu25-xrd02
+33: Gi0-0-0-2@if32: <BROADCAST,MULTICAST,PROMISC,UP,LOWER_UP> mtu 9000 qdisc noqueue state UP mode DEFAULT group default 
+    link/ether aa:c1:ab:eb:38:c7 brd ff:ff:ff:ff:ff:ff link-netns clab-cleu25-xrd05
+44: Gi0-0-0-0@if6: <BROADCAST,MULTICAST,PROMISC,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
+    link/ether aa:c1:ab:8e:00:d8 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+46: Gi0-0-0-3@if5: <BROADCAST,MULTICAST,PROMISC,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
+    link/ether aa:c1:ab:a7:f8:f3 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+```
+
+
 ```diff
 cisco@xrd:~/SRv6_dCloud_Lab/lab_1$ sudo ip netns exec clab-cleu25-xrd01 ip link show
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
