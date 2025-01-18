@@ -276,7 +276,7 @@ The Jalapeno REST API is used to run queries against the Arango graphDB and retr
     curl http://198.18.128.101:30800/api/v1/graphs/igpv4_graph/edges | jq .
     ```
 
-   - The API also has auto-generated documentation at: [http://198.18.128.101:30800/docs/](http://198.18.128.101:30800/docs/){:target="_blank"} 
+   - The API also has auto-generated documentation at: <a href="http://198.18.128.101:30800/docs/" target="_blank">http://198.18.128.101:30800/docs/</a> 
 
 We'll test the Jalapeno UI a bit later in the lab.
 
