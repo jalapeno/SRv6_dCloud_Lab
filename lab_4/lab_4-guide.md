@@ -111,13 +111,22 @@ spec:
         name: "cilium-peer"
 ```
 
-One of the great things about CRDs is you can combine all the configuration elements into a single file [Entire BGP Config](cilium/99-bgp-all.yaml), or you can break it up into multiple files by configuration element (e.g., [Cilium BGP Cluster Config](cilium/01-bgp-cluster.yaml), [Cilium BGP Peering Policy](cilium/02-bgp-peer.yaml), etc.). 
+One of the great things about CRDs is you can combine all the configuration elements into a single file, or you can break it up into multiple files by configuration element: 
 
-In the next few steps we'll walk through applying the configuration one element at a time. For reference the [Entire BGP Config](cilium/99-bgp-all.yaml) yaml file would apply all the elements at once.
+* [01-bgp-cluster.yaml](cilium/01-bgp-cluster.yaml) - Cilium BGP global configuration
+* [02-bgp-peer.yaml](cilium/02-bgp-peer.yaml) - Cilium BGP peer address families and route policies
+* [03-bgp-node-override.yaml](cilium/03-bgp-node-override.yaml) - Cilium BGP node override; we use this to specify the BGP source address
+* [04-bgp-advert.yaml](cilium/04-bgp-advert.yaml) - Cilium BGP prefix advertisement(s), including SRv6 locator prefix(s)
+* [05-bgp-vrf.yaml](cilium/05-bgp-vrf.yaml) - Cilium BGP VRF configuration(s)
+* [06-srv6-locator-pool.yaml](cilium/06-srv6-locator-pool.yaml) - Cilium SRv6 SID manager and Locator pool configuration
+* [07-vrf-carrots.yaml](cilium/07-vrf-carrots.yaml) - Cilium VRF 'carrots' configuration and pods
+
+
+In the next few steps we'll walk through applying the configuration one element at a time. For reference the [99-cilium-all.yaml](cilium/99-cilium-all.yaml) yaml file, would apply all the elements at once.
 
 ### Establish the Cilium BGP global and peer configurations
 
-1. On the Berlin VM cd into the Lab 4 cilium directory and apply the Cilium BGP Cluster Config CRD. BGP Cluster config establishes our Cilium Node's BGP ASN and base BGP peering with the route reflectors xrd05 and xrd06.
+1. On the Berlin VM cd into the Lab 4 cilium directory and apply the Cilium BGP Cluster Config CRD. BGP Cluster config establishes our Cilium Node's BGP ASN and base BGP peering with the route reflectors *`xrd05`* and *`xrd06`*.
    ```
    cd ~/SRv6_dCloud_Lab/lab_4/cilium/
    kubectl apply -f 01-bgp-cluster.yaml
@@ -128,13 +137,13 @@ In the next few steps we'll walk through applying the configuration one element 
    kubectl apply -f 02-bgp-peer.yaml
    ```
 
-   Expected output for #1 and #2:
+   Expected output for steps #1 and #2:
    ```
    isovalentbgpclusterconfig.isovalent.com/cilium-bgp created
    isovalentbgppeeringpolicy.isovalent.com/cilium-peer created
    ```
 
-3. At this point our peer sessions are not yet established. Next we'll apply the *`localAddress`* parameter which tells Cilium which source address to use for its BGP peering sessions. This knob is comparable to IOS-XR's 'update-source' parameter.
+3. At this point our peer sessions are not yet established. Next we'll apply the *`localAddress`* parameter which tells Cilium which source address to use for its BGP peering sessions. This knob is comparable to IOS-XR's `update-source` parameter.
    ```
    kubectl apply -f 03-bgp-node-override.yaml
    ```
@@ -144,15 +153,13 @@ In the next few steps we'll walk through applying the configuration one element 
    isovalentbgpnodeconfigoverride.isovalent.com/berlin created
    ```
 
-> [!NOTE]
-> Similar to the previous lab, the peering sessions may not be coming up bcause the Berlin VM may not be responding on the ipv6 address we've configured, and may need to have it 'woken up'. 
 
 4. Verify Cilium BGP peering with the following cilium CLI. Note, it may take a few seconds for the peering sessions to establish.
    ```
    cilium bgp peers
    ```
 
-   We expect to have two IPv6 BGP peering sessions established and with advertisement and receipt of BGP NLRIs for IPv6 and IPv4/mpls_vpn (aka, SRv6 L3VPN).
+   We expect to have two IPv6 BGP peering sessions established and receiving BGP NLRIs for IPv6 and IPv4/mpls_vpn (aka, SRv6 L3VPN).
 
    Example:
    ```
@@ -164,7 +171,7 @@ In the next few steps we'll walk through applying the configuration one element 
                                                                            ipv4/mpls_vpn   5          0  
    ```
 
-We have not added ipv6 prefix advertisesments yet, hence a zero value in the Advertised output above. Also, xrd05 and xrd06's peering sessions with Cilium inherited the vpnv4 address family configuration in the previous lab exercies when we applied the address family to the neighbor-group. 
+We have not added ipv6 prefix advertisesments yet, hence a zero value in the Advertised output above. Also, *`xrd05`* and *`xrd06`*'s peering sessions with Cilium inherited the vpnv4 address family configuration during Lab 3 so we don't need to update their configs. 
 
 5. Apply the BGP ipv6 unicast (global table/default VRF) prefix advertisement CRD:
    ```
@@ -176,7 +183,7 @@ We have not added ipv6 prefix advertisesments yet, hence a zero value in the Adv
    cilium bgp peers
    ```
 
-7. Let's get a little more detail on advertised prefixes with the `cilium bgp routes` command. Let's first add a -h flag to see our options
+5. Let's get a little more detail on advertised prefixes with the `cilium bgp routes` command. Let's first add a -h flag to see our options
    ```
    cilium bgp routes -h
    ```
@@ -190,15 +197,25 @@ We have not added ipv6 prefix advertisesments yet, hence a zero value in the Adv
      cilium bgp routes <available | advertised> <afi> <safi> [vrouter <asn>] [peer|neighbor <address>] [flags]
    ```
 
-8. Let's get the advertised prefixes:
+6. Let's get the advertised prefixes:
    ```
    cilium bgp routes advertised ipv6 unicast
    ```
 
-9. Create the carrots BGP VRF:
+   Example output, currently we're only advertising the global table pod CIDR:
+   ```
+   cisco@berlin:~/SRv6_dCloud_Lab/lab_4/cilium$ cilium bgp routes advertised ipv6 unicast
+   Node     VRouter   Peer             Prefix             NextHop          Age   Attrs
+  berlin   65000     fc00:0:5555::1   2001:db8:42::/64   fc00:0:8888::1   18s   [{Origin: i} {AsPath: } {LocalPref: 100} {MpReach(ipv6-unicast): {Nexthop: fc00:0:8888::1, NLRIs: [2001:db8:42::/64]}}]   
+         65000     fc00:0:6666::1   2001:db8:42::/64   fc00:0:8888::1   18s   [{Origin: i} {AsPath: } {LocalPref: 100} {MpReach(ipv6-unicast): {Nexthop: fc00:0:8888::1, NLRIs: [2001:db8:42::/64]}}] 
+   ```
+
+7. Create the carrots BGP VRF:
    ```
    kubectl apply -f 05-bgp-vrf.yaml
    ```
+
+Our Cilium BGP configuration is now complete. Next we'll setup the Cilium SRv6 SID manager and locators.
 
 ## Cilium SRv6 SID Manager and Locators
 Per Cilium Enterprise documentation:
@@ -211,7 +228,33 @@ Per Cilium Enterprise documentation:
    kubectl apply -f 06-srv6-locator-pool.yaml
    ```
 
-2. Validate locator pool
+The BGP prefix advertisement CRD included a spec for advertising the SRv6 locator pool as well:
+   ```yaml
+     advertisements:
+       - advertisementType: "SRv6LocatorPool"
+         selector:
+           matchLabels:
+             export: "pool0"
+   ```
+
+2. Now that we have a local pool to advertise, let's check our BGP advertised prefixes again:
+   ```
+   cilium bgp routes advertised ipv6 unicast
+   ```
+
+   Example output:
+   ```diff
+   cisco@berlin:~/SRv6_dCloud_Lab/lab_4/cilium$ cilium bgp routes advertised ipv6 unicast
+   Node     VRouter   Peer             Prefix             NextHop          Age     Attrs
+   berlin   65000     fc00:0:5555::1   2001:db8:42::/64   fc00:0:8888::1   2m52s   [{Origin: i} {AsPath: } {LocalPref: 100} {MpReach(ipv6-unicast): {Nexthop: fc00:0:8888::1, NLRIs: [2001:db8:42::/64]}}]   
+            65000     fc00:0:6666::1   2001:db8:42::/64   fc00:0:8888::1   2m52s   [{Origin: i} {AsPath: } {LocalPref: 100} {MpReach(ipv6-unicast): {Nexthop: fc00:0:8888::1, NLRIs: [2001:db8:42::/64]}}]   
+            +65000     fc00:0:6666::1   fc00:0:a01f::/48   fc00:0:8888::1   6s      [{Origin: i} {AsPath: } {LocalPref: 100} {MpReach(ipv6-unicast): {Nexthop: fc00:0:8888::1, NLRIs: [fc00:0:a01f::/48]}}] 
+   ```
+
+> [!NOTE]
+> The Cilium image we are currently using has a bug where the SRv6 locator pool is only advertised to one neighbor. A fix is being incorporated in the 1.18 release.
+
+3. Validate locator pool
    ```
    kubectl get sidmanager -o yaml
    ```
