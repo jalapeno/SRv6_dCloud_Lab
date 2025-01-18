@@ -111,3 +111,5 @@ cilium install
 kubectl taint nodes --all node-role.kubernetes.io/control-plane-
 ```
 
+ ## Back to Lab 4 Guide
+[Lab 4 Guide](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_4/lab_4-guide.md)
