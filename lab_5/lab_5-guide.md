@@ -74,7 +74,7 @@ The Jalapeno package is preinstalled and running on the **Jalapeno** VM (198.18.
     ```
     The output should look something like the following. Note that the Jalapeno VM is also using Cilium as its CNI, and that all of the Jalapeno pods/microservices are running in the **jalapeno** namespace.  Also, the Jalapeno K8s cluster is completely independent of the K8s cluster on the Berlin VM. In our simulation the Berlin VM is a consumer of services on our SRv6 network, which may include services that are accessed by interacting with Jalapeno.
 
-    ```
+    ```yaml
     cisco@jalapeno:~/jalapeno/install$ kubectl get pods -A
     NAMESPACE     NAME                                           READY   STATUS    RESTARTS         AGE
     jalapeno      arangodb-0                                     1/1     Running   0                86s
@@ -105,31 +105,31 @@ The Jalapeno package is preinstalled and running on the **Jalapeno** VM (198.18.
     kubectl get pods -n jalapeno
     ```
     Output will look something like:
-    ```
+    ```yaml
     cisco@jalapeno:~$ kubectl get pods -n jalapeno
     NAME                                          READY   STATUS    RESTARTS      AGE
-    arangodb-0                                    1/1     Running   0             39m  <-------- Arango GraphDB
-    gobmp-5db68bd644-p8r24                        1/1     Running   1 (90s ago)   38m  <-------- GoBMP Collector
-    grafana-deployment-565756bd74-nmp6g           1/1     Running   0             39m  <-------- Grafana
-    influxdb-0                                    1/1     Running   0             39m  <-------- Influx Time-Series DB
-    jalapeno-api-5d8469557-w4dcm                  1/1     Running   0             39m  <-------- Jalapeno REST API
-    jalapeno-ui-54f8f95c5d-9vns7                  1/1     Running   0             39m  <-------- Jalapeno UI
-    kafka-0                                       1/1     Running   0             39m  <-------- Kafka
-    lslinknode-edge-b954577f9-jmkn4               1/1     Running   3 (38m ago)   39m  <-------- LS Link & Node Processor
-    telegraf-egress-deployment-5795ffdd9c-8lpd4   1/1     Running   0             39m  <-------- Telegraf Egress Processor
-    telegraf-ingress-deployment-5b456574dc-cxt9v  1/1     Running   0             38m  <-------- Telegraf Ingress Collector
-    topology-678ddb8bb4-4kmq8                     1/1     Running   1 (38m ago)   39m  <-------- BMP Topology Processor
-    zookeeper-0                                   1/1     Running   0             39m  <-------- Zookeeper
+    arangodb-0                                    1/1     Running   0             39m  # Arango GraphDB
+    gobmp-5db68bd644-p8r24                        1/1     Running   1 (90s ago)   38m  # GoBMP Collector
+    grafana-deployment-565756bd74-nmp6g           1/1     Running   0             39m  # Grafana
+    influxdb-0                                    1/1     Running   0             39m  # Influx Time-Series DB
+    jalapeno-api-5d8469557-w4dcm                  1/1     Running   0             39m  # Jalapeno REST API
+    jalapeno-ui-54f8f95c5d-9vns7                  1/1     Running   0             39m  # Jalapeno UI
+    kafka-0                                       1/1     Running   0             39m  # Kafka
+    lslinknode-edge-b954577f9-jmkn4               1/1     Running   3 (38m ago)   39m  # LS Link & Node Processor
+    telegraf-egress-deployment-5795ffdd9c-8lpd4   1/1     Running   0             39m  # Telegraf Egress Processor
+    telegraf-ingress-deployment-5b456574dc-cxt9v  1/1     Running   0             38m  # Telegraf Ingress Collector
+    topology-678ddb8bb4-4kmq8                     1/1     Running   1 (38m ago)   39m  # BMP Topology Processor
+    zookeeper-0                                   1/1     Running   0             39m  # Zookeeper
     ```
 
 3. Optional: here are some additional k8s commands to try. Note the different outputs when specifying a particular namespace (-n option) vs. all namespaces (-A option):
-    ```
-    kubectl get pods -n jalapeno                      <-------- display all pods/containers in the Jalapeno namespace
-    kubectl get pods -n jalapeno-collectors           <-------- display all pods/containers in the Jalapeno-Collectors namespace
-    kubectl get services -A                           <-------- display all externally reachable services (BMP, Arango, etc.)
-    kubectl get all -A                                <-------- display a summary of all cluster info
-    kubectl get nodes                                 <-------- display cluster node info
-    kubectl describe pod -n <namespace> <pod name>    <-------- display detailed info about a pod
+    ```yaml
+    kubectl get pods -n jalapeno                      # display all pods/containers in the Jalapeno namespace
+    kubectl get pods -n jalapeno-collectors           # display all pods/containers in the Jalapeno-Collectors namespace
+    kubectl get services -A                           # display all externally reachable services (BMP, Arango, etc.)
+    kubectl get all -A                                # display a summary of all cluster info
+    kubectl get nodes                                 # display cluster node info
+    kubectl describe pod -n <namespace> <pod name>    # display detailed info about a pod
 
     example: kubectl describe pod -n jalapeno topology-678ddb8bb4-rt9jg
     ```
