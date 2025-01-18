@@ -39,15 +39,15 @@ r02['address'] = "Albrechtstraße 110, 12103 Berlin, Germany"
 lsn.update(r02)
 
 r03 = lsn.get('2_0_0_0000.0000.0003')
-r03['location_id'] = 'IEV001'
-r03['country_code'] = 'UKR'
-r03['address'] = "O.Gonchara str, Kyiv,Ukraine"
+r03['location_id'] = 'WAR001'
+r03['country_code'] = 'POL'
+r03['address'] = "Alejo Jerozolimskie 65/79, Warsaw, Poland"
 lsn.update(r03)
 
 r04 = lsn.get('2_0_0_0000.0000.0004')
-r04['location_id'] = 'IST001'
-r04['country_code'] = 'TUR'
-r04['address'] = "Büyükdere Cd No:121Şişli, Turkey, 34394"
+r04['location_id'] = 'BUC001'
+r04['country_code'] = 'ROM'
+r04['address'] = "Clădirea Feper, Bulevardul Dimitrie Pompeiu 8, Bucharest, Romania"
 lsn.update(r04)
 
 r05 = lsn.get('2_0_0_0000.0000.0005')
@@ -87,31 +87,31 @@ ipv4topo.update(ipv4topo0105)
 ipv4topo0203 = ipv4topo.get("2_0_0_0_0000.0000.0002_10.1.1.2_0000.0000.0003_10.1.1.3")
 ipv4topo0203['latency'] = 30
 ipv4topo0203['percent_util_out'] = 25
-ipv4topo0203['country_codes'] = ['DEU', 'POL', 'UKR']
+ipv4topo0203['country_codes'] = ['DEU', 'POL']
 ipv4topo.update(ipv4topo0203)
 
 ipv4topo0206 = ipv4topo.get("2_0_0_0_0000.0000.0002_10.1.1.10_0000.0000.0006_10.1.1.11")
 ipv4topo0206['latency'] = 20
 ipv4topo0206['percent_util_out'] = 40
-ipv4topo0206['country_codes'] = ['DEU', 'POL', 'UKR']
+ipv4topo0206['country_codes'] = ['DEU', 'FRA']
 ipv4topo.update(ipv4topo0206)
 
 ipv4topo0304 = ipv4topo.get("2_0_0_0_0000.0000.0003_10.1.1.4_0000.0000.0004_10.1.1.5")
 ipv4topo0304['latency'] = 40
 ipv4topo0304['percent_util_out'] = 20
-ipv4topo0304['country_codes'] = ['UKR', 'MDA', 'BGR', 'TUR']
+ipv4topo0304['country_codes'] = ['POL', 'UKR' 'ROM']
 ipv4topo.update(ipv4topo0304)
 
 ipv4topo0504 = ipv4topo.get("2_0_0_0_0000.0000.0005_10.1.1.12_0000.0000.0004_10.1.1.13")
 ipv4topo0504['latency'] = 60
 ipv4topo0504['percent_util_out'] = 25
-ipv4topo0504['country_codes'] = ['GBR', 'BEL', 'DEU', 'AUT', 'HUN', 'SRB', 'BGR', 'TUR']
+ipv4topo0504['country_codes'] = ['GBR', 'BEL', 'DEU', 'AUT', 'HUN', 'ROM']
 ipv4topo.update(ipv4topo0504)
 
 ipv4topo0407 = ipv4topo.get("2_0_0_0_0000.0000.0004_10.1.1.6_0000.0000.0007_10.1.1.7")
 ipv4topo0407['latency'] = 30
 ipv4topo0407['percent_util_out'] = 20
-ipv4topo0407['country_codes'] = ['TUR', 'GRC', 'ITA']
+ipv4topo0407['country_codes'] = ['ROM', 'SRB', 'BIH', 'HRV', 'ITA']
 ipv4topo.update(ipv4topo0407)
 
 ipv4topo0506 = ipv4topo.get("2_0_0_0_0000.0000.0005_10.1.1.14_0000.0000.0006_10.1.1.15")
@@ -143,31 +143,31 @@ ipv4topo.update(ipv4topo0501)
 ipv4topo0302 = ipv4topo.get("2_0_0_0_0000.0000.0003_10.1.1.3_0000.0000.0002_10.1.1.2")
 ipv4topo0302['latency'] = 30
 ipv4topo0302['percent_util_out'] = 25
-ipv4topo0302['country_codes'] = ['DEU', 'POL', 'UKR']
+ipv4topo0302['country_codes'] = ['DEU', 'POL']
 ipv4topo.update(ipv4topo0302)
 
 ipv4topo0602 = ipv4topo.get("2_0_0_0_0000.0000.0006_10.1.1.11_0000.0000.0002_10.1.1.10")
 ipv4topo0602['latency'] = 20
 ipv4topo0602['percent_util_out'] = 25
-ipv4topo0602['country_codes'] = ['DEU', 'POL', 'UKR']
+ipv4topo0602['country_codes'] = ['FRA', 'ITA']
 ipv4topo.update(ipv4topo0602)
 
 ipv4topo0403 = ipv4topo.get("2_0_0_0_0000.0000.0004_10.1.1.5_0000.0000.0003_10.1.1.4")
 ipv4topo0403['latency'] = 40
 ipv4topo0403['percent_util_out'] = 30
-ipv4topo0403['country_codes'] = ['UKR', 'MDA', 'BGR', 'TUR']
+ipv4topo0403['country_codes'] = ['POL', 'UKR', 'ROM']
 ipv4topo.update(ipv4topo0403)
 
 ipv4topo0405 = ipv4topo.get("2_0_0_0_0000.0000.0004_10.1.1.13_0000.0000.0005_10.1.1.12")
 ipv4topo0405['latency'] = 60
 ipv4topo0405['percent_util_out'] = 25
-ipv4topo0405['country_codes'] = ['GBR', 'BEL', 'DEU', 'AUT', 'HUN', 'SRB', 'BGR', 'TUR']
+ipv4topo0405['country_codes'] = ['GBR', 'BEL', 'DEU', 'AUT', 'HUN', 'ROM']
 ipv4topo.update(ipv4topo0405)
 
 ipv4topo0704 = ipv4topo.get("2_0_0_0_0000.0000.0007_10.1.1.7_0000.0000.0004_10.1.1.6")
 ipv4topo0704['latency'] = 30
 ipv4topo0704['percent_util_out'] = 30
-ipv4topo0704['country_codes'] = ['TUR', 'GRC', 'ITA']
+ipv4topo0704['country_codes'] = ['ROM', 'SRB', 'BIH', 'HRV', 'ITA']
 ipv4topo.update(ipv4topo0704)
 
 ipv4topo0605 = ipv4topo.get("2_0_0_0_0000.0000.0006_10.1.1.15_0000.0000.0005_10.1.1.14")

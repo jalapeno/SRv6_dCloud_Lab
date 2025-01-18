@@ -276,12 +276,12 @@ The Jalapeno REST API is used to run queries against the Arango graphDB and retr
     curl http://198.18.128.101:30800/api/v1/graphs/igpv4_graph/edges | jq .
     ```
 
-   - The API also has auto-generated documentation at: <a href="http://198.18.128.101:30800/docs/" target="_blank">http://198.18.128.101:30800/docs/</a> 
+   - The API also has auto-generated documentation at: [http://198.18.128.101:30800/docs/](http://198.18.128.101:30800/docs/) 
 
 We'll test the Jalapeno UI a bit later in the lab.
 
 ### BGP SRv6 locator
-In lab 1 we configured an SRv6 locator for the BGP global/default table. When we get to lab 6 we'll use these locators as we'll be sending SRv6 encapsulated traffic directly to/from the Amsterdam and Rome VMs. With our endpoints performing SRv6 encapsulation our BGP SRv6 locator will provide the end.DT4/6 function at the egress nodes **xrd01** and **xrd07** to be able to pop the SRv6 encap and perform a global table lookup on the underlying payload.
+In lab 1 we configured an SRv6 locator for the BGP global/default table. When we get to *`lab 5 Part 2`* we'll use these locators as we'll be sending SRv6 encapsulated traffic directly to/from the Amsterdam and Rome VMs. With our endpoints performing SRv6 encapsulation our BGP SRv6 locator will provide the end.DT4/6 function at the egress nodes **xrd01** and **xrd07** to be able to pop the SRv6 encap and perform a global table lookup on the underlying payload.
 
 2. Optional: ssh to **xrd01** and re-validate end.DT4/6 SIDs belonging to BGP default table:
     ```
@@ -289,27 +289,10 @@ In lab 1 we configured an SRv6 locator for the BGP global/default table. When we
     show segment-routing srv6 sid
     ```
 
-    Expected output on **xrd01** should look something like the below table with both a uDT4 and uDT6 SID in the 'default' context:  
+    Expected (truncated)output on **xrd01** should look something like the below table with both a uDT4 and uDT6 SID in the 'default' context:  
     ```
-    RP/0/RP0/CPU0:xrd01#show segment-routing srv6 sid
-    Sat Dec 16 03:25:40.943 UTC
-
-    *** Locator: 'MyLocator' *** 
-
-    SID                         Behavior          Context                           Owner               State  RW
-    --------------------------  ----------------  --------------------------------  ------------------  -----  --
-    fc00:0:1111::               uN (PSP/USD)      'default':4369                    sidmgr              InUse  Y 
-    fc00:0:1111:e000::          uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0:P       isis-100            InUse  Y 
-    fc00:0:1111:e001::          uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0         isis-100            InUse  Y 
-    fc00:0:1111:e002::          uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0:P       isis-100            InUse  Y 
-    fc00:0:1111:e003::          uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0         isis-100            InUse  Y 
     fc00:0:1111:e004::          uDT4              'default'                         bgp-65000           InUse  Y 
     fc00:0:1111:e006::          uDT6              'default'                         bgp-65000           InUse  Y
-    fc00:0:1111:e005::          uDT4              'carrots'                         bgp-65000           InUse  Y 
-    fc00:0:1111:e007::          uDT6              'carrots'                         bgp-65000           InUse  Y 
-    fc00:0:1111:e008::          uB6 (Insert.Red)  'srte_c_50_ep_fc00:0:7777::1' (50, fc00:0:7777::1)  xtc_srv6            InUse  Y 
-    fc00:0:1111:e009::          uB6 (Insert.Red)  'srte_c_40_ep_fc00:0:7777::1' (40, fc00:0:7777::1)  xtc_srv6            InUse  Y 
-    RP/0/RP0/CPU0:xrd01#
     ``` 
 
   - As we saw earlier in the lab, the *`kubectl get pods -n jalapeno`* command will show you all the k8s containers that make up the Jalapeno application, including the *`srv6-localsids`* processor. This processor harvests SRv6 SID data from a Kafka streaming telemetry topic and populates it in the *`sr_local_sids`* collection. This data is not available via BMP and is needed to construct full End.DT SIDs that we'll use in lab 6. 
@@ -333,14 +316,13 @@ In lab 1 we configured an SRv6 locator for the BGP global/default table. When we
 
 ### Explore the Jalapeno ArangoDB Graph Database
 
-    #### Basic queries to explore data collections 
-    The ArangoDB Query Language (AQL) can be used to retrieve and modify data that are stored in ArangoDB.
+The ArangoDB Query Language (AQL) can be used to retrieve and modify data that are stored in ArangoDB.
 
-    The general workflow when executing a query is as follows:
+The general workflow when executing a query is as follows:
 
-    - A client application ships an AQL query to the ArangoDB server. The query text contains everything ArangoDB needs to compile the result set
+- A client application ships an AQL query to the ArangoDB server. The query text contains everything ArangoDB needs to compile the result set
 
-    - ArangoDB will parse the query, execute it and compile the results. If the query is invalid or cannot be executed, the server will return an error that the client can process and react to. If the query can be executed successfully, the server will return the query results (if any) to the client. See ArangoDB documentation [HERE](https://www.arangodb.com/docs/stable/aql/index.html)
+- ArangoDB will parse the query, execute it and compile the results. If the query is invalid or cannot be executed, the server will return an error that the client can process and react to. If the query can be executed successfully, the server will return the query results (if any) to the client. See ArangoDB documentation [HERE](https://www.arangodb.com/docs/stable/aql/index.html)
 
 
 1. Run some DB Queries (one the left side of the Arango UI click on Queries):
@@ -372,42 +354,6 @@ In lab 1 we configured an SRv6 locator for the BGP global/default table. When we
     "xrd06",
     "xrd07"
     ```
-    If we wish to return multiple keys in our query we will switch to using curly braces to ask for a data set in the return. In this case we are quering the name to return the record only for **xrd01**
-    ```
-    for x in igp_node 
-        filter x.name == "xrd04"
-    return {Name: x.name, SID: x.sids}
-    ```
-
-    Truncated output:
-    ```
-    {
-        "Name": "xrd04",
-        "SID": [
-        {
-            "srv6_sid": "fc00:0:4444::",
-            "srv6_endpoint_behavior": {
-            "endpoint_behavior": 48,
-            "flag": 0,
-            "algo": 0
-            },
-            "srv6_sid_structure": {
-            "locator_block_length": 32,
-            "locator_node_length": 16,
-            "function_length": 0,
-            "argument_length": 80
-            }
-        }
-        ]
-    }
-    ```
-
-    Now if you want to filter on multiple conditions we can through a boolean value in to return the **xrd01** and **xrd07** records.
-    ```
-    for x in igp_node 
-        filter x.name == "xrd01" or x.name=="xrd07"
-    return {Name: x.name, SID: x.sids}
-    ```
 
 2. Optional or for reference: feel free to try a number of additional queries in the lab_5-queries.md doc [Here](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_5/lab_5-queries.md)
     
@@ -416,12 +362,12 @@ In lab 1 we configured an SRv6 locator for the BGP global/default table. When we
 
 In preparation for our service use cases we need to populate the DB with meta-data that we will use for upcoming path calculation API calls.
 
-The *`add_meta_data.py`* python script will connect to the ArangoDB and populate elements in our data collections with addresses and country codes. Also, due to the fact that we can't run realistic traffic through the XRd topology the script will populate the relevant graphDB elements with synthetic link latency and outbound link utilization data per this diagram:
+The [add_meta_data.py](python/add_meta_data.py) python script will connect to the ArangoDB and populate elements in our data collections with addresses and country codes. Also, due to the fact that we can't run realistic traffic through the XRd topology the script will populate the relevant graphDB elements with synthetic link latency and outbound link utilization data per this diagram:
 
 <img src="/topo_drawings/path-latency-topology.png" width="900">
 
 
-1. Return to the ssh session on the Jalapeno VM and add meta data to the DB. Note, if your Jalapeno VM session is still attached to Kakfa, type *`'ctrl-z'`* then type *`'exit'`*:
+1. Return to the ssh session on the Jalapeno VM and add meta data to the DB. 
    ```
    cd ~/SRv6_dCloud_Lab/lab_5/python/
    python3 add_meta_data.py

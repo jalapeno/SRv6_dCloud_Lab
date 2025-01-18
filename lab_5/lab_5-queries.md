@@ -1,5 +1,42 @@
 #### Sample Basic Queries
 
+Query filtering for a specific node name and return name and SID information 
+```
+for x in igp_node 
+    filter x.name == "xrd04"
+return {Name: x.name, SID: x.sids}
+```
+
+Truncated output:
+```
+{
+    "Name": "xrd04",
+    "SID": [
+    {
+        "srv6_sid": "fc00:0:4444::",
+        "srv6_endpoint_behavior": {
+        "endpoint_behavior": 48,
+        "flag": 0,
+        "algo": 0
+        },
+        "srv6_sid_structure": {
+        "locator_block_length": 32,
+        "locator_node_length": 16,
+        "function_length": 0,
+        "argument_length": 80
+        }
+    }
+    ]
+}
+```
+
+Filter on multiple conditions we can through a boolean value in to return the **xrd01** and **xrd07** records.
+```
+for x in igp_node 
+    filter x.name == "xrd01" or x.name=="xrd07"
+return {Name: x.name, SID: x.sids}
+```
+
 Query all IGP links in the DB:
 ```
 for x in ls_link return x
