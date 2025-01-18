@@ -243,12 +243,12 @@ The BGP prefix advertisement CRD included a spec for advertising the SRv6 locato
    ```
 
    Example output:
-   ```diff
+   ```yaml
    cisco@berlin:~/SRv6_dCloud_Lab/lab_4/cilium$ cilium bgp routes advertised ipv6 unicast
    Node     VRouter   Peer             Prefix             NextHop          Age     Attrs
    berlin   65000     fc00:0:5555::1   2001:db8:42::/64   fc00:0:8888::1   2m52s   [{Origin: i} {AsPath: } {LocalPref: 100} {MpReach(ipv6-unicast): {Nexthop: fc00:0:8888::1, NLRIs: [2001:db8:42::/64]}}]   
             65000     fc00:0:6666::1   2001:db8:42::/64   fc00:0:8888::1   2m52s   [{Origin: i} {AsPath: } {LocalPref: 100} {MpReach(ipv6-unicast): {Nexthop: fc00:0:8888::1, NLRIs: [2001:db8:42::/64]}}]   
-            +65000     fc00:0:6666::1   fc00:0:a01f::/48   fc00:0:8888::1   6s      [{Origin: i} {AsPath: } {LocalPref: 100} {MpReach(ipv6-unicast): {Nexthop: fc00:0:8888::1, NLRIs: [fc00:0:a01f::/48]}}] 
+            65000     fc00:0:6666::1   fc00:0:a01f::/48   fc00:0:8888::1   6s      [{Origin: i} {AsPath: } {LocalPref: 100} {MpReach(ipv6-unicast): {Nexthop: fc00:0:8888::1, NLRIs: [fc00:0:a01f::/48]}}] 
    ```
 
 > [!NOTE]
