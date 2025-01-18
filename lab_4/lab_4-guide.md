@@ -242,7 +242,7 @@ The BGP prefix advertisement CRD included a spec for advertising the SRv6 locato
    cilium bgp routes advertised ipv6 unicast
    ```
 
-   Example output:
+   Example output, we are now advertising the SRv6 locator pool...but only to one neighbor (see note below):
    ```yaml
    cisco@berlin:~/SRv6_dCloud_Lab/lab_4/cilium$ cilium bgp routes advertised ipv6 unicast
    Node     VRouter   Peer             Prefix             NextHop          Age     Attrs
@@ -254,7 +254,7 @@ The BGP prefix advertisement CRD included a spec for advertising the SRv6 locato
 > [!NOTE]
 > The Cilium image we are currently using has a bug where the SRv6 locator pool is only advertised to one neighbor. A fix is being incorporated in the 1.18 release.
 
-3. Validate locator pool
+3. Now that we've allocated a locator pool, let's validate it:
    ```
    kubectl get sidmanager -o yaml
    ```
