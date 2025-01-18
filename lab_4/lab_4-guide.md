@@ -131,7 +131,7 @@ One of the great things about CRDs is you can combine all the configuration elem
 * [07-vrf-carrots.yaml](cilium/07-vrf-carrots.yaml) - Cilium VRF 'carrots' configuration and pods
 
 
-In the next few steps we'll walk through applying the configuration one element at a time. For reference the [99-cilium-all.yaml](cilium/99-cilium-all.yaml) yaml file, would apply all the elements at once.
+In the next few steps we'll walk through applying the configuration one element at a time. For reference the [99-cilium-all.yaml](cilium/99-cilium-all.yaml) file, would apply all the elements at once.
 
 ### Establish the Cilium BGP global and peer configurations
 
@@ -152,9 +152,9 @@ Here is a portion of the BGP Peer Config CRD with notes:
           safi: unicast
           advertisements:
             matchLabels:
-              advertise: "bgpv6unicast"  # advertise ipv6 prefixes found in the bgpv6unicast advertisement CRD
+              advertise: "bgpv6unicast"        # advertise ipv6 prefixes found in the bgpv6unicast advertisement CRD
         - afi: ipv4
-          safi: mpls_vpn   # a bit of a misnomer, but we're advertising SRv6 L3VPN, or the equivalent of vpnv4 unicast in XR
+          safi: mpls_vpn     # a bit of a misnomer, but we're advertising SRv6 L3VPN, or the equivalent of vpnv4 unicast in XR
    ```
 
 2. Apply the Cilium BGP Peer Config CRD. 
@@ -179,8 +179,8 @@ Here is a portion of the node override CRD with notes:
         - name: "asn65000"        # required field, must match the name of the bgpInstance in the cluster config
           srv6Responder: true     # instructs BGP to advertise the node's SRv6 Locator
           peers:
-            - name: "xrd05-rr"               # must match the name of the peer in the cluster config
-              localAddress: fc00:0:8888::1   # the source address to use for the peering session
+            - name: "xrd05-rr"                 # must match the name of the peer in the cluster config
+              localAddress: fc00:0:8888::1     # the source address to use for the peering session
    ```
 
 3. Apply the node override CRD:
@@ -221,7 +221,7 @@ Here is a portion of the prefix advertisement CRD with notes:
     metadata:
       name: bgp-ipv6-unicast
       labels:
-        advertise: bgpv6unicast  # this label will be used by the peer config CRD for prefixes to advertise
+        advertise: bgpv6unicast     # this label will be used by the peer config CRD for prefixes to advertise
     spec:
       advertisements:                            # the list of elements to be advertised
         - advertisementType: "SRv6LocatorPool"   # advertise the SRv6 locator pool
@@ -315,7 +315,7 @@ Recall the BGP prefix advertisement CRD included a spec for advertising the SRv6
    ```
 
    Example output, Cilium is now advertising the node's Locator...but only to one neighbor (see note below):
-   ```json
+   ```yaml
    Node     VRouter   Peer             Prefix             NextHop          Age     Attrs
    berlin   65000     fc00:0:5555::1   2001:db8:42::/64   fc00:0:8888::1   2m52s   [{Origin: i} {AsPath: } {LocalPref: 100} {MpReach(ipv6-unicast): {Nexthop: fc00:0:8888::1, NLRIs: [2001:db8:42::/64]}}]   
             65000     fc00:0:6666::1   2001:db8:42::/64   fc00:0:8888::1   2m52s   [{Origin: i} {AsPath: } {LocalPref: 100} {MpReach(ipv6-unicast): {Nexthop: fc00:0:8888::1, NLRIs: [2001:db8:42::/64]}}]   

@@ -228,6 +228,8 @@ Validation command output examples can be found at this [LINK](https://github.co
    show bgp vpnv6 unicast rd 10.0.0.7:0 fc00:0:40::/64 
    ping vrf carrots 40.0.0.1
    ping vrf carrots 50.0.0.1
+   ping vrf carrots fc00:0:40::1
+   ping vrf carrots fc00:0:50::1
    ```
 
    Example validation for vpnv4 route
@@ -285,7 +287,7 @@ We will use the below diagram for reference:
 ### Create SRv6-TE steering policy
 For our SRv6-TE purposes we'll leverage the on-demand nexthop (ODN) feature set. Here is a nice example and explanation of ODN: [HERE](https://xrdocs.io/design/blogs/latest-converged-sdn-transport-ig)
 
-In our lab we will configure **xrd07** as the egress PE router with the ODN method. This will trigger **xrd07** to advertise its L3VPN routes with color extended communities. We'll do this by first defining the *extcomms*, then setting up route-policies to match on destination prefixes and set the *extcomm* values.
+In our lab we will configure **xrd07** as the egress PE router with the ODN method. This will trigger **xrd07** to advertise its L3VPN routes with color extended communities. We'll do this by first defining the *`extcomms`*, then setting up route-policies to match on destination prefixes and set the *`extcomm`* values.
 
 The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and SRv6 ODN steering policies that match routes with the respective color and apply the appropriate SID stack on outbound traffic.
 
@@ -514,8 +516,6 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
 ### Validate SRv6-TE steering of L3VPN traffic
 #### Validate bulk traffic takes the non-shortest path: xrd01 -> 02 -> 03 -> 04 -> 07 
 
-> [!IMPORTANT]
-> We have found an occasional issue where IPv6 neighbor discovery fails between **Amsterdam** Linux and the XRd MACVLAN attachment on **xrd01**. So if your IPv6 ping from *`Amsterdam`* doesn't work try pinging from **xrd01** to **Amsterdam** over the VRF carrots interface. A successful ping should 'wake up' the IPv6 neighborship.
 
 1. Start a new SSH session to the XRD VM and run a tcpdump in the xrd01 namespace on the Gi0-0-0-1 interface. 
     ```
