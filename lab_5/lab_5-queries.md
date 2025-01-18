@@ -84,3 +84,6 @@ for p in outbound k_shortest_paths  'unicast_prefix_v4/10.101.1.0_24_10.0.0.1'
                     countries_traversed: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency), 
                         percent_util_out: avg(p.edges[*].percent_util_out)}
 ```
+
+## Back to Lab 5 Guide
+[Lab 5 Guide](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_5/lab_5-guide.md)

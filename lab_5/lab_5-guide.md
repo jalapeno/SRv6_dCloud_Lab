@@ -4,8 +4,8 @@
 In Lab 5 we will explore the power of SRv6 as a truly end-to-end technology through host-based SRv6, and with the help of the open-source Jalapeno platform. Jalapeno is designed to run on Kubernetes (K8s), which allows for easy integration into existing environments and supports deployment on bare metal, VMs, or in a public cloud. Kubernetes experience is not required for this lab as K8s has been preinstalled on the Jalapeno VM and we have included the required *kubectl* validation commands. We've also included a brief guide to installing Kubernetes on your own host or VM: [K8s Install Instructions](lab_4/k8s-install-instructions.md).
 
 This lab is divided into two main sections:
-* Exploring the Jalapeno platform and a "databases and APIs" apprach to SDN topology modeling
-* Giving applications or workloads the ability to control their own SRv6 paths through the use of host-based SRv6
+* **Part 1:** Exploring the Jalapeno platform and a "databases and APIs" apprach to SDN topology modeling
+* **Part 2:** Giving applications or workloads the ability to control their own SRv6 paths through the use of host-based SRv6
 
 
 ## Contents
@@ -243,6 +243,19 @@ The new processors will have created the following new collections in the Arango
 - *`ipv6_graph`*: a model of the entire ipv6 topology (IGP and BGP)
 - *`sr_local_sids`*: a collection of SRv6 SIDs that are not automatically available via BMP. You may have noticed in the xrd routers' streaming telemetry configuration we have added the YANG path for XR to stream all SRv6 SIDs to Jalapeno's Telegraf telemetry collector.
   
+4. Verify the Graph Processors have deployed successfully:
+    ```
+    kubectl get pods -n jalapeno
+    ```
+
+    Expected (truncated) output::
+    ```
+    igp-graph-5f7fcd6f88-8xqxr                     1/1     Running   0              53s
+    ipv4-graph-7ccc46bc57-xzjnk                    1/1     Running   0              53s
+    ipv6-graph-56db757fc9-kgbbg                    1/1     Running   0              52s
+    srv6-localsids-78c644bc76-ccpwh                1/1     Running   0              52s
+    ```
+
 ### Jalapeno REST API
 The Jalapeno REST API is used to run queries against the Arango graphDB and retrieve graph topology data or execute shortest path calculations. 
 
@@ -251,11 +264,15 @@ The Jalapeno REST API is used to run queries against the Arango graphDB and retr
    - From the ssh session on the Jalapeno VM or the XRD VM (or the command line on your local machine) validate the Jalapeno REST API is running:
     ```
     curl http://198.18.128.101:30800/api/v1/collections
+    ```
+    ```
     curl http://198.18.128.101:30800/api/v1/collections/ls_node
     ```
     -  If you run your curl commands from the Jalapeno VM we installed the jq tool to help with nicer JSON parsing:
     ```
     curl http://198.18.128.101:30800/api/v1/graphs/igpv4_graph/vertices/keys | jq .
+    ```
+    ```
     curl http://198.18.128.101:30800/api/v1/graphs/igpv4_graph/edges | jq .
     ```
 

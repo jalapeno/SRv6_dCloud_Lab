@@ -237,3 +237,6 @@ In this exercise we are going to stitch together several elements that we have w
            }
        }
        ```
+
+## Back to Lab 5 Guide
+[Lab 5 Guide](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_5/lab_5-guide.md)
