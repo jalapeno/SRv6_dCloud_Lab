@@ -108,18 +108,18 @@ The Jalapeno package is preinstalled and running on the **Jalapeno** VM (198.18.
     ```yaml
     cisco@jalapeno:~$ kubectl get pods -n jalapeno
     NAME                                          READY   STATUS    RESTARTS      AGE
-    arangodb-0                                    1/1     Running   0             39m  # Arango GraphDB
-    gobmp-5db68bd644-p8r24                        1/1     Running   1 (90s ago)   38m  # GoBMP Collector
-    grafana-deployment-565756bd74-nmp6g           1/1     Running   0             39m  # Grafana
-    influxdb-0                                    1/1     Running   0             39m  # Influx Time-Series DB
-    jalapeno-api-5d8469557-w4dcm                  1/1     Running   0             39m  # Jalapeno REST API
-    jalapeno-ui-54f8f95c5d-9vns7                  1/1     Running   0             39m  # Jalapeno UI
-    kafka-0                                       1/1     Running   0             39m  # Kafka
-    lslinknode-edge-b954577f9-jmkn4               1/1     Running   3 (38m ago)   39m  # LS Link & Node Processor
-    telegraf-egress-deployment-5795ffdd9c-8lpd4   1/1     Running   0             39m  # Telegraf Egress Processor
-    telegraf-ingress-deployment-5b456574dc-cxt9v  1/1     Running   0             38m  # Telegraf Ingress Collector
-    topology-678ddb8bb4-4kmq8                     1/1     Running   1 (38m ago)   39m  # BMP Topology Processor
-    zookeeper-0                                   1/1     Running   0             39m  # Zookeeper
+    arangodb-0                                    1/1     Running   0             39m     # Arango GraphDB
+    gobmp-5db68bd644-p8r24                        1/1     Running   1 (90s ago)   38m     # GoBMP Collector
+    grafana-deployment-565756bd74-nmp6g           1/1     Running   0             39m     # Grafana
+    influxdb-0                                    1/1     Running   0             39m     # Influx Time-Series DB
+    jalapeno-api-5d8469557-w4dcm                  1/1     Running   0             39m     # Jalapeno REST API
+    jalapeno-ui-54f8f95c5d-9vns7                  1/1     Running   0             39m     # Jalapeno UI
+    kafka-0                                       1/1     Running   0             39m     # Kafka
+    lslinknode-edge-b954577f9-jmkn4               1/1     Running   3 (38m ago)   39m     # LS Link & Node Processor
+    telegraf-egress-deployment-5795ffdd9c-8lpd4   1/1     Running   0             39m     # Telegraf Egress Processor
+    telegraf-ingress-deployment-5b456574dc-cxt9v  1/1     Running   0             38m     # Telegraf Ingress Collector
+    topology-678ddb8bb4-4kmq8                     1/1     Running   1 (38m ago)   39m     # BMP Topology Processor
+    zookeeper-0                                   1/1     Running   0             39m     # Zookeeper
     ```
 
 3. Optional: here are some additional k8s commands to try. Note the different outputs when specifying a particular namespace (-n option) vs. all namespaces (-A option):

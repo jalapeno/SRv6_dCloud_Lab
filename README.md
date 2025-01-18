@@ -18,7 +18,7 @@ Cisco routers that run the IOS-XR operating system 7.X and newer support the SRv
 * Lab 2 - Config and Test Baseline SRv6 [LINK](/lab_2/lab_2-guide.md)
 * Lab 3 - Config SRv6 L3VPN with SRv6-TE [LINK](/lab_3/lab_3-guide.md)
 * Lab 4 - Kubernetes SRv6 with Cilium [LINK](/lab_4/lab_4-guide.md)
-* Lab 5 - Host based SRv6 [LINK](/lab_5/lab_5-guide.md)
+* Lab 5 - Project Jalapeno and Host based SRv6 [LINK](/lab_5/lab_5-guide.md)
 
 
 ## Github Repository Overview
@@ -55,7 +55,7 @@ Each lab instance is running on Cisco dCloud and is reachable via AnyConnect VPN
 
 ## Lab Topology
 
-Each lab instance consists of four virtual machines. The first VM, where we'll do most of our work, hosts seven dockerized IOS-XR routers in a simulated WAN design. Additionally there are a pair of client VMs named Amsterdam and Rome. Each client system is running the Ubuntu OS. The fourth VM is an Ubuntu node running Kubernetes and hosting the Jalapeno application.
+Each lab instance consists of five virtual machines. The first VM, where we'll do most of our work, hosts seven dockerized IOS-XR routers in a simulated WAN design. Additionally there are three "client" VMs named Amsterdam, Rome, and Berlin. These VMs represent customers or consumers of our network and are each running the Ubuntu OS. The fifth VM is an Ubuntu node running Kubernetes and hosting the Jalapeno application.
 
 ![Lab Topology](/topo_drawings/overview-topology-large.png)
 
