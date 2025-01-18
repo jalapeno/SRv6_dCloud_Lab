@@ -69,6 +69,7 @@ Each lab instance consists of five virtual machines. The first VM, where we'll d
 | Jalapeno       | Kubernetes + Jalapeno    | VM          | SSH         | 198.18.128.101  |
 | Amsterdam      | Ubuntu client            | VM          | SSH         | 198.18.128.102  |
 | Rome           | Ubuntu client            | VM          | SSH         | 198.18.128.103  |
+| Berlin         | Ubuntu client            | VM          | SSH         | 198.18.128.104  |
 
 
 * Use the XRD VM as an SSH jumpbox to access the XRd routers as follows:

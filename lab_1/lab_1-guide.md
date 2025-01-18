@@ -1,5 +1,11 @@
 # Lab 1 Guide: XRd Topology Setup and Validation [30 Min]
-The Cisco Live LTRSPG-2212 lab makes heavy use of containerlab to orchestrate our dockerized IOS-XR router known as XRd. If you wish to explore XRd and its uses beyond the scope of this lab the xrdocs team has posted a number of tutorials here: https://xrdocs.io/virtual-routing/tags/#xrd-tutorial-series
+The Cisco Live LTRSPG-2212 lab makes heavy use of containerlab to orchestrate our dockerized IOS-XR router known as XRd. If you wish to explore XRd and its uses beyond the scope of this lab the xrdocs team has posted a number of tutorials here: 
+
+https://xrdocs.io/virtual-routing/tags/#xrd-tutorial-series
+
+For more information on containerlab see:
+
+https://containerlab.dev/
 
 ### Description: 
 In Lab 1 we will user containerlab to launch the XRd topology and validate it is up and running. This will be the baseline 
@@ -54,10 +60,10 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     ssh cisco@198.18.128.100
     ```
 
-2. Change to the Git repository directory
-    - The lab repository folder is found in the home directory *`~/SRv6_dCloud_Lab/`*
+2. Change to the Git repository lab_1 directory
+    - The lab repository folder is found in the home directory *`~/SRv6_dCloud_Lab/lab_1`*
     ```
-    cd ~/SRv6_dCloud_Lab/
+    cd ~/SRv6_dCloud_Lab/lab_1
     ```
 
 3. Validate there are no docker containers running or docker networks for the XRd topology
@@ -65,10 +71,10 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     docker ps
     ```
     ```
-    cisco@clab-cleu25-XR:~/SRv6_dCloud_Lab/lab_1$ docker ps
+    cisco@xrd:~/SRv6_dCloud_Lab/lab_1$ docker ps
     CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
     
-    cisco@clab-cleu25-XR:~/SRv6_dCloud_Lab/lab_1$ docker network ls
+    cisco@xrd:~/SRv6_dCloud_Lab/lab_1$ docker network ls
     NETWORK ID     NAME      DRIVER    SCOPE
     cfd793a3a770   bridge    bridge    local
     b948b6ba5918   host      host      local
@@ -76,10 +82,6 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     ```
 4.  Run the *containerlab deploy* command to launch the topology. Running the deploy command from this directory will launch the network into the "beginning of lab 1" configuration state 
    
-    - first change to the lab_1 directory
-    ```
-    cd lab_1
-    ```
     - run the containerlab cli to deploy the XRd Lab-1 topology defined in the yaml file.
     ``` 
     sudo containerlab deploy -t lab_1-topology.yaml
@@ -115,7 +117,7 @@ For full size image see [LINK](/topo_drawings/management-network.png)
 > [!NOTE]
 > All *containerlab* commands can be abbreviated to *clab*. Example: *sudo clab deploy -t lab_1-topology.yaml*
 
-6. Check that the docker containers were created and running
+1. Check that the docker containers were created and running
     ```
     docker ps
     ```
@@ -131,7 +133,7 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     3c5243db8903   ios-xr/xrd-control-plane:24.3.2   "/usr/sbin/init"   2 minutes ago   Up 2 minutes             clab-cleu25-xrd03
     ```
     
-7. Confirm that containerlab created network name spaces for each XRd container 
+2. Confirm that containerlab created network name spaces for each XRd container 
     ```
     sudo ip netns ls
     ```
@@ -152,16 +154,16 @@ For full size image see [LINK](/topo_drawings/management-network.png)
 ### Validate Jalapeno VM
 The Ubuntu VM *Jalapeno* has Kubernetes pre-installed and running. Later in lab exercise 5 we will explore the open-source Jalapeno application.
 
-Jalapeno will collect BGP Monitoring Protocol (BMP) and streaming telemetry data from the routers, and will serve as a data repository for the SDN clients we'll have running on the Amsterdam and Rome VMs (Lab 5/6).
+Jalapeno will collect BGP Monitoring Protocol (BMP) and streaming telemetry data from the routers, and will serve as a data repository for the SDN clients we'll have running on the Amsterdam and Rome VMs (Lab 5 Part 2).
 
 1. Validate router reachability to Jalapeno VM (no need to check all routers, but will be good to validate **xrd05** and **xrd06**):
    ```
-   ssh cisco@clab-cleu25-XR05
+   ssh cisco@clab-cleu25-xrd05
    ping 198.18.128.101
    ```
    
    ```
-   cisco@clab-cleu25-XR:~$ ssh cisco@clab-cleu25-XR05
+   cisco@xrd:~$ ssh cisco@clab-cleu25-xrd05
    Warning: Permanently added 'xrd05,10.254.254.105' (ECDSA) to the list of known hosts.
    Password:
    Last login: Sun Jan 29 22:44:15 2023 from 10.254.254.1
@@ -178,32 +180,34 @@ Jalapeno will collect BGP Monitoring Protocol (BMP) and streaming telemetry data
 
 **Berlin**
 
-In our lab the Berlin VM is an Ubuntu Kubernetes node running Cilium. 
+In our lab the Berlin VM is an Ubuntu Kubernetes node running Cilium and connected to the xrd02 router. 
 
 1. SSH to Berlin Client VM from your laptop.
    ```
    ssh cisco@198.18.128.104
    ```
 
-2. Check that the interface to router xrd07 is `UP` and has the assigned IP `10.107.1.1/24`
+2. Check that the interface to router xrd02 is `UP` and has the assigned IP `198.18.4.104/24`
     ```
-    cisco@berlin:~$ ip address show ens160
-    ens160: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
-        inet 198.18.128.104  netmask 255.255.192.0  broadcast 198.18.191.255
-        inet6 fe80::250:56ff:fe97:557a  prefixlen 64  scopeid 0x20<link>
-        ether 00:50:56:97:55:7a  txqueuelen 1000  (Ethernet)
-        RX packets 79120  bytes 36675166 (36.6 MB)
-        RX errors 0  dropped 51  overruns 0  frame 0
-        TX packets 59778  bytes 3407373 (3.4 MB)
-        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0 
+    cisco@berlin:~$ ip address show ens192
+    3: ens192: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+        link/ether 00:50:56:3f:ff:ff brd ff:ff:ff:ff:ff:ff
+        altname enp11s0
+        inet 198.18.4.104/24 brd 198.18.4.255 scope global ens192
+        valid_lft forever preferred_lft forever
+        inet6 fc00:0:8888:0:250:56ff:fe3f:ffff/64 scope global dynamic mngtmpaddr noprefixroute 
+        valid_lft 2591990sec preferred_lft 604790sec
+        inet6 fc00:0:8888::1/64 scope global 
+        valid_lft forever preferred_lft forever
+        inet6 fe80::250:56ff:fe3f:ffff/64 scope link 
+        valid_lft forever preferred_lft forever 
     ```
-3. Check connectivity from Berlin to xrd07
+3. Check connectivity from Berlin to xrd02
     ```
-    cisco@berlin:~$ ping -c 3 10.107.1.2
-    PING 10.107.1.2 (10.107.1.2) 56(84) bytes of data.
-    64 bytes from 10.107.1.2: icmp_seq=1 ttl=255 time=2.70 ms
-    64 bytes from 10.107.1.2: icmp_seq=2 ttl=255 time=1.38 ms
-    64 bytes from 10.107.1.2: icmp_seq=3 ttl=255 time=1.30 ms
+    cisco@berlin:~$ ping 198.18.4.2
+    PING 198.18.4.2 (198.18.4.2) 56(84) bytes of data.
+    64 bytes from 198.18.4.2: icmp_seq=1 ttl=255 time=1.83 ms
+    64 bytes from 198.18.4.2: icmp_seq=2 ttl=255 time=1.44 ms
     ```
 
 **Rome**
@@ -264,7 +268,7 @@ The Amsterdam VM represents a server belonging to a cloud, CDN, or gaming compan
     ```
     sudo vppctl show interface address
     ```
-    ```
+    ```yaml
     cisco@amsterdam:~$ sudo vppctl show interface address
     GigabitEthernetb/0/0 (up):
     L3 10.101.1.1/24        <-------HERE
@@ -282,10 +286,8 @@ The Amsterdam VM represents a server belonging to a cloud, CDN, or gaming compan
     116 bytes from 10.101.1.2: icmp_seq=1 ttl=255 time=2.7229 ms
     116 bytes from 10.101.1.2: icmp_seq=2 ttl=255 time=1.1550 ms
     116 bytes from 10.101.1.2: icmp_seq=3 ttl=255 time=1.1341 ms
-    116 bytes from 10.101.1.2: icmp_seq=4 ttl=255 time=1.2277 ms
-    116 bytes from 10.101.1.2: icmp_seq=5 ttl=255 time=.8838 ms
 
-    Statistics: 5 sent, 5 received, 0% packet loss
+    Statistics: 3 sent, 3 received, 0% packet loss
     cisco@amsterdam:~$ 
     ```
 5. Optional - Check connectivity from Amsterdam to Jalapeno VM
@@ -324,7 +326,12 @@ The Amsterdam VM represents a server belonging to a cloud, CDN, or gaming compan
    ping fc00:0:107:1::1
    ```
 
-5. Validate adjacencies and traffic passing on each router. Use the topology diagram to determine neighbors. The client devices **Amsterdam** and **Rome** are not running CDP.
+5. SSH to **xrd02** and validate IPv6 connectivity to the **Berlin** VM:
+   ```
+   ping fc00:0:8888::1
+   ```
+
+6. Validate adjacencies and traffic passing on each router. Use the topology diagram to determine neighbors. The client devices **Amsterdam** and **Rome** are not running CDP.
     ```
     show cdp neighbors
     ```
@@ -386,7 +393,7 @@ For full size image see [LINK](/topo_drawings/isis-topology-large.png)
     xrd06              2         xrd02              Gi0/0/0/0       *PtoP*        
     xrd07              2         xrd04              Gi0/0/0/1       *PtoP* 
     ```
-3. On **xrd01** validate end-to-end ISIS reachability:
+3. On **xrd01** validate end-to-end ISIS reachability by pinging **xrd07**:
    ```
    ping 10.0.0.7 source lo0
    ping fc00:0000:7777::1 source lo0
