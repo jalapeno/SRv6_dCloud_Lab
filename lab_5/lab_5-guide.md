@@ -391,4 +391,4 @@ The [add_meta_data.py](python/add_meta_data.py) python script will connect to th
 > The *`add_meta_data.py`* script has also populated country codes for all the countries a given link traverses from one node to its adjacent peer. Example: **xrd01** is in Amsterdam, and **xrd02** is in Berlin. Thus the **xrd01** <--> **xrd02** link traverses *`[NLD, DEU]`*
 
 ### End of lab 5 Part 1
-Please proceed to [Lab 5 Part 2: Host-Based SRv6](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_5-guide2.md)
+Please proceed to [Lab 5 Part 2: Host-Based SRv6](lab_5-guide2.md)
