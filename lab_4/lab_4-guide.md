@@ -16,7 +16,7 @@ The original version of this lab was developed in partnership with Arkadiusz Kal
 - [Lab 4: SRv6 for Kubernetes with Cilium \[25 Min\]](#lab-4-srv6-for-kubernetes-with-cilium-25-min)
     - [Description](#description)
   - [Contents](#contents)
-    - [Validate Cilium Run State](#validate-cilium-run-state)
+  - [Verify pre-installed Cilium is running](#verify-pre-installed-cilium-is-running)
   - [Setup Cilium BGP Peering](#setup-cilium-bgp-peering)
     - [Establish the Cilium BGP global and peer configurations](#establish-the-cilium-bgp-global-and-peer-configurations)
     - [Verify Cilium BGP peering](#verify-cilium-bgp-peering)
@@ -29,7 +29,7 @@ The original version of this lab was developed in partnership with Arkadiusz Kal
   - [Lab 4 Appendix](#lab-4-appendix)
   - [End of lab 4](#end-of-lab-4)
 
-### Validate Cilium Run State
+## Verify pre-installed Cilium is running
 
 Kubernetes and Cilium Enterprise are pre-installed on the Berlin VM. All of the following steps are to be performed on the Berlin VM unless otherwise specified.
 

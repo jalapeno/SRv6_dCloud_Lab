@@ -1,15 +1,12 @@
 ## Lab 5: Project Jalapeno and Host-Based SRv6 [30 Min]
 
 ### Description
-In Lab 5 we will explore the open-source Jalapeno platform and the power of SRv6 as a truly end-to-end technology through host-based SRv6. Jalapeno is designed to run on Kubernetes (K8s), which allows for easy integration into existing environments and supports deployment on bare metal, VMs, or in a public cloud. Kubernetes experience is not required for this lab as K8s has been preinstalled on the Jalapeno VM and we have included the required *kubectl* validation commands. We've also included a brief guide to installing Kubernetes on your own host or VM: [K8s Install Instructions](lab_5/k8s-install-instructions.md).
-
-Prior to exploring Jalapeno we will configure BGP Monitoring Protocol (BMP) on our route reflectors. 
+In Lab 5 we will explore the power of SRv6 as a truly end-to-end technology through host-based SRv6, and with the help of the open-source Jalapeno platform. Jalapeno is designed to run on Kubernetes (K8s), which allows for easy integration into existing environments and supports deployment on bare metal, VMs, or in a public cloud. Kubernetes experience is not required for this lab as K8s has been preinstalled on the Jalapeno VM and we have included the required *kubectl* validation commands. We've also included a brief guide to installing Kubernetes on your own host or VM: [K8s Install Instructions](lab_4/k8s-install-instructions.md).
 
 This lab is divided into two main sections:
 * Exploring the Jalapeno platform and a "databases and APIs" apprach to SDN topology modeling
 * Giving applications or workloads the ability to control their own SRv6 paths through the use of host-based SRv6
 
-At the end of this lab we will explore the power of combining topology modeling in Jalapeno and SRv6 as a platform for network service innovation. We will demonstrate three service use cases which are not possible with classic MPLS networks.
 
 ## Contents
 - [Lab 5: Project Jalapeno and Host-Based SRv6 \[30 Min\]](#lab-5-project-jalapeno-and-host-based-srv6-30-min)
@@ -20,11 +17,14 @@ At the end of this lab we will explore the power of combining topology modeling 
   - [Jalapeno Architecture and Data Flow](#jalapeno-architecture-and-data-flow)
 - [Validate Jalapeno](#validate-jalapeno)
 - [BGP Monitoring Protocol (BMP)](#bgp-monitoring-protocol-bmp)
+- [Exploring Jalapeno](#exploring-jalapeno)
   - [Optional: Explore Kafka Topics](#optional-explore-kafka-topics)
   - [Jalapeno Arango Graph Database](#jalapeno-arango-graph-database)
   - [Jalapeno REST API](#jalapeno-rest-api)
   - [BGP SRv6 locator](#bgp-srv6-locator)
+  - [Explore the Jalapeno ArangoDB Graph Database](#explore-the-jalapeno-arangodb-graph-database)
   - [Populating the DB with external data](#populating-the-db-with-external-data)
+  - [Transition - explore Jalapeno UI, then execute the host-based SRv6 stuff...do we perform this work in a Lab 6? or just have users advance to lab 5.1?](#transition---explore-jalapeno-ui-then-execute-the-host-based-srv6-stuffdo-we-perform-this-work-in-a-lab-6-or-just-have-users-advance-to-lab-51)
   - [Use Case 1: Lowest Latency Path](#use-case-1-lowest-latency-path)
     - [SRv6-TE for XR Global Routing Table](#srv6-te-for-xr-global-routing-table)
   - [Use Case 2: Lowest Bandwidth Utilization Path](#use-case-2-lowest-bandwidth-utilization-path)
@@ -37,7 +37,7 @@ The student upon completion of Lab 5 should have achieved the following objectiv
 * Understanding and configuration of BMP
 * A tour of the Jalapeno platform and high level understanding of how it collects and processes data
 * Familiarity with the ArangoDB UI and the BMP/BGP data collections the system has created
-* Familiarity with Arango Query Language (AQL) syntax
+* Basic introduction to Arango Query Language (AQL) syntax
 * Familiarity with the Jalapeno API and UI
 
 ## Jalapeno Overview
@@ -62,16 +62,17 @@ One of the primary goals of the Jalapeno project is to be flexible and extensibl
 
 The Jalapeno package is preinstalled and running on the **Jalapeno** VM (198.18.128.101).
 
-1. SSH to the Jalapeno VM and verify k8s pods are running. Note, some pods may initially be in a *CrashLoopBackOff* state. These should resolve after 2-3 minutes). For those students new to Kubernetes you can reference this cheat sheet [HERE](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)  
+1. SSH to the Jalapeno VM and verify k8s pods are running. For those students new to Kubernetes you can reference this cheat sheet [HERE](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)  
 
     ```
     ssh cisco@198.18.128.101
     ```
+
     - verify k8s pods
     ```
     kubectl get pods -A
     ```
-    The output should look something like:  
+    The output should look something like the following. Note that the Jalapeno VM is also using Cilium as its CNI, and that all of the Jalapeno pods/microservices are running in the **jalapeno** namespace.  Also, the Jalapeno K8s cluster is completely independent of the K8s cluster on the Berlin VM. In our simulation the Berlin VM is a consumer of services on our SRv6 network, which may include services that are accessed by interacting with Jalapeno.
 
     ```
     cisco@jalapeno:~/jalapeno/install$ kubectl get pods -A
@@ -137,7 +138,7 @@ The Jalapeno package is preinstalled and running on the **Jalapeno** VM (198.18.
 
 Most transport SDN systems use BGP-LS to gather and model the underlying IGP topology. Jalapeno is intended to be a more generalized data platform to support development of all sorts of use cases such as VPNs or service chains. Because of this, Jalapeno's primary method of capturing topology data is via BMP. BMP provides all BGP AFI/SAFI info including BGP-LS, thus Jalapeno is able to model many different kinds of topologies, including the topology of the Internet (at least from the perspective of our peering routers).
 
-We'll first establish a BMP session between our route-reflectors and the open-source GoBMP collector, which comes pre-packaged with the Jalapeno install. We'll then enable BMP monitoring of the RRs' BGP peering sessions with our PE routers **xrd01** and **xrd07**. Once established, the RRs' will stream all BGP NLRI info they receive from the PE routers to the GoBMP collector, and the BGP data will flow up the Jalapeno stack into the graph database. 
+So we're going to take a brief step back and do some more router configuration. We'll first establish a BMP session between our route-reflectors and the open-source GoBMP collector, which comes pre-packaged with the Jalapeno install. We'll then enable BMP monitoring of the RRs' BGP peering sessions with our PE routers **xrd01** and **xrd07**. Once established, the RRs' will stream all BGP NLRI info they receive from the PE routers to the GoBMP collector, and the BGP data will flow up the Jalapeno stack into the graph database. 
 
 Reference: the GoBMP Git Repository can be found [HERE](https://github.com/sbezverk/gobmp)
 
@@ -186,9 +187,12 @@ Reference: the GoBMP Git Repository can be found [HERE](https://github.com/sbezv
     RP/0/RP0/CPU0:xrd06#
 
     ```
-  
+
+## Exploring Jalapeno
+
 ### Optional: Explore Kafka Topics 
-We've included a brief guide to exploring the Jalapeno Kafka setup including listing and monitoring topics: [Kafka](lab_5/lab_5-kafka.md). This element of the lab is completely optional, however, because this lab guide is published on Github, you can come back to it in the future to explore Kafka on your own.
+
+Jalapeno uses the very popular Kafka messaging bus to transport data received from the network to data processors which map it into the graph database. We've included a brief guide to exploring the Jalapeno Kafka setup including listing and monitoring topics: [Kafka](lab_5/lab_5-kafka.md). This element of the lab is completely optional, however, because this lab guide is published on Github, you can come back to it in the future to explore Kafka on your own.
 
 ### Jalapeno Arango Graph Database
 At the heart of Jalapeno is the Arango Graph Database, which is used to model network topology and provide a graph-based data store for the network data collected via BMP or other sources. 
@@ -208,7 +212,7 @@ At the heart of Jalapeno is the Arango Graph Database, which is used to model ne
 
   <img src="images/arango-collections.png" width="1000">
 
-4. Feel free to spot check the various data collections in Arango. Several will be empty as they are for future use. With successful BMP processing we would expect to see data in all the following collections:
+2. Feel free to spot check the various data collections in Arango. Several will be empty as they are for future use. With successful BMP processing we would expect to see data in all the following collections:
 
     - l3vpn_v4_prefix
     - l3vpn_v6_prefix
@@ -221,35 +225,35 @@ At the heart of Jalapeno is the Arango Graph Database, which is used to model ne
     - unicast_prefix_v4
     - unicast_prefix_v6
 
-5. Install Jalapeno Graph Processors - Jalapeno's base installation includes the Topology and Link-State data processors. We have since written some addtitinoal processors which mine the existing data collections and create enriched topology models or graphs. We'll add these additional processors to our Jalapeno K8s cluster via a simple shell script.
+3. Install Jalapeno Graph Processors - Jalapeno's base installation includes the Topology and Link-State data processors. We have since written some addtitinoal processors which mine the existing data collections and create enriched topology models or graphs. We'll add these additional processors to our Jalapeno K8s cluster via a simple shell script.
    
-   - ssh to Jalapeno VM and run the following commands:
+   - ssh to Jalapeno VM, cd to the lab_5/graph-processors directory, and run the deploy.sh script:
     ```
     ssh cisco@198.18.128.101
 
-    cd xtra-processors
+    cd ~/SRv6_dCloud_Lab/lab_5/graph-processors
     ./deploy.sh
     ```
 
 The new processors will have created the following new collections in the ArangoDB graphDB, feel free to explore them in the ArangoDB UI, or move on to the next section.
 
-- igpv4_graph: a model of the ipv4 IGP topology including SRv6 SID data
-- igpv6_graph: a model of the ipv6 IGP topology including SRv6 SID data
-- ipv4_graph: a model of the entire ipv4 topology (IGP and BGP)
-- ipv6_graph: a model of the entire ipv6 topology (IGP and BGP)
-- sr_local_sids: a collection of SRv6 SIDs that are not automatically available via BMP
-
+- *`igpv4_graph`*: a model of the ipv4 IGP topology including SRv6 SID data
+- *`igpv6_graph`*: a model of the ipv6 IGP topology including SRv6 SID data
+- *`ipv4_graph`*: a model of the entire ipv4 topology (IGP and BGP)
+- *`ipv6_graph`*: a model of the entire ipv6 topology (IGP and BGP)
+- *`sr_local_sids`*: a collection of SRv6 SIDs that are not automatically available via BMP. You may have noticed in the xrd routers' streaming telemetry configuration we have added the YANG path for XR to stream all SRv6 SIDs to Jalapeno's Telegraf telemetry collector.
+  
 ### Jalapeno REST API
 The Jalapeno REST API is used to run queries against the Arango graphDB and retrieve graph topology data or execute shortest path calculations. 
 
 1. Test the Jalapeno REST API:
 
-   - From the ssh session on the Jalapeno VM or the XRD VM validate the Jalapeno REST API is running:
+   - From the ssh session on the Jalapeno VM or the XRD VM (or the command line on your local machine) validate the Jalapeno REST API is running:
     ```
     curl http://198.18.128.101:30800/api/v1/collections
     curl http://198.18.128.101:30800/api/v1/collections/ls_node
     ```
-    - We installed the jq tool to help with nicer JSON parsing:
+    -  If you run your curl commands from the Jalapeno VM we installed the jq tool to help with nicer JSON parsing:
     ```
     curl http://198.18.128.101:30800/api/v1/graphs/igpv4_graph/vertices/keys | jq .
     curl http://198.18.128.101:30800/api/v1/graphs/igpv4_graph/edges | jq .
@@ -262,7 +266,7 @@ We'll test the Jalapeno UI a bit later in the lab.
 ### BGP SRv6 locator
 In lab 1 we configured an SRv6 locator for the BGP global/default table. When we get to lab 6 we'll use these locators as we'll be sending SRv6 encapsulated traffic directly to/from the Amsterdam and Rome VMs. With our endpoints performing SRv6 encapsulation our BGP SRv6 locator will provide the end.DT4/6 function at the egress nodes **xrd01** and **xrd07** to be able to pop the SRv6 encap and perform a global table lookup on the underlying payload.
 
-1. Optional: ssh to **xrd01** and re-validate end.DT4/6 SIDs belonging to BGP default table:
+2. Optional: ssh to **xrd01** and re-validate end.DT4/6 SIDs belonging to BGP default table:
     ```
     ssh cisco@clab-cleu25-XR01
     show segment-routing srv6 sid
@@ -310,7 +314,7 @@ In lab 1 we configured an SRv6 locator for the BGP global/default table. When we
   > [!NOTE]
   > The SRv6 SID streaming telemetry configuration for capturing *`xrd07's`* srv6 sid data can be seen here: [SRv6 SID mdt path](https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_1/config/xrd07.cfg#L23)
 
-1. Spend some time exploring the data collections in the DB
+### Explore the Jalapeno ArangoDB Graph Database
 
     #### Basic queries to explore data collections 
     The ArangoDB Query Language (AQL) can be used to retrieve and modify data that are stored in ArangoDB.
@@ -322,7 +326,7 @@ In lab 1 we configured an SRv6 locator for the BGP global/default table. When we
     - ArangoDB will parse the query, execute it and compile the results. If the query is invalid or cannot be executed, the server will return an error that the client can process and react to. If the query can be executed successfully, the server will return the query results (if any) to the client. See ArangoDB documentation [HERE](https://www.arangodb.com/docs/stable/aql/index.html)
 
 
-3. Run some DB Queries (one the left side of the Arango UI click on Queries):
+1. Run some DB Queries (one the left side of the Arango UI click on Queries):
     
     For the most basic query below *x* is a object variable with each key field in a record populated as a child object. So basic syntax can be thought of as:
 
@@ -388,12 +392,12 @@ In lab 1 we configured an SRv6 locator for the BGP global/default table. When we
     return {Name: x.name, SID: x.sids}
     ```
 
-4. Optional or for reference: feel free to try a number of additional queries in the lab_5-queries.md doc [Here](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_5/lab_5-queries.md)
+2. Optional or for reference: feel free to try a number of additional queries in the lab_5-queries.md doc [Here](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_5/lab_5-queries.md)
     
  
 ### Populating the DB with external data 
 
-In preparation for our service use cases we need to populate Jalapeno with meta-data that you will use to form complex queries.
+In preparation for our service use cases we need to populate the DB with meta-data that we will use for upcoming path calculation API calls.
 
 The *`add_meta_data.py`* python script will connect to the ArangoDB and populate elements in our data collections with addresses and country codes. Also, due to the fact that we can't run realistic traffic through the XRd topology the script will populate the relevant graphDB elements with synthetic link latency and outbound link utilization data per this diagram:
 
@@ -427,6 +431,10 @@ The *`add_meta_data.py`* python script will connect to the ArangoDB and populate
   
 > [!NOTE]
 > The *`add_meta_data.py`* script has also populated country codes for all the countries a given link traverses from one node to its adjacent peer. Example: **xrd01** is in Amsterdam, and **xrd02** is in Berlin. Thus the **xrd01** <--> **xrd02** link traverses *`[NLD, DEU]`*
+
+
+### Transition - explore Jalapeno UI, then execute the host-based SRv6 stuff...do we perform this work in a Lab 6? or just have users advance to lab 5.1?
+
 
 ### Use Case 1: Lowest Latency Path
 Our first use case is to make path selection through the network based on the cummulative link latency from A to Z. Using latency meta-data is not something traditional routing protocols can do. It may be possible to statically build routes through your network using weights to define a path. However, what these work arounds cannot do is provide path selection based on near real time data which is possible with an application like Jalapeno. This provides customers to have a flexible network policy that can react to changes in the WAN environment.
