@@ -25,7 +25,7 @@ The student upon completion of Lab 2 should have achieved the following objectiv
 
 ## Packet Walk Results for traffic from Amsterdam to Rome over SRv6
 
-The expected results of a packet capture on xrd01 is to see ICMP ipv4 traffic sourced from Amsterdam (10.101.2.1) to a loopback interface onRome (20.0.0.1) use SRv6 encapsulation across the network.
+The expected results of a packet capture on **xrd01** is to see ICMP ipv4 traffic sourced from **Amsterdam (10.101.2.1)** to a loopback interface on **Rome (20.0.0.1)** use SRv6 encapsulation across the network.
 
 See results below and notice both the ICMP echo and ICMP echo reply packets with SRv6 encapsulation. 
 > [!NOTE]
@@ -41,7 +41,7 @@ ssh cisco@198.18.128.102
 ping 20.0.0.1 -i .4
 ```
 
-2. Then on the XRD host VM run tcpdump to capture SRv6 encapsulated traffic egressing xrd01. We don't know which interface the traffic will be hashed through so we may need torun tcpdump on both interfaces. Note, the tcpdump output may not show until you stop it with crtl-z.
+2. Then on the XRD host VM run tcpdump to capture SRv6 encapsulated traffic egressing xrd01. We don't know which interface the traffic will be hashed through so we may need to run tcpdump on both interfaces. Note, the tcpdump output may not show until you stop it with crtl-z.
 ```
 sudo ip netns exec clab-cleu25-xrd01 tcpdump -ni Gi0-0-0-1
 sudo ip netns exec clab-cleu25-xrd01 tcpdump -ni Gi0-0-0-2
@@ -56,8 +56,6 @@ listening on Gi0-0-0-1, link-type EN10MB (Ethernet), capture size 262144 bytes
 01:54:41.421606 IP6 fc00:0:7777::1 > fc00:0:1111:e005::: IP 20.0.0.1 > 10.101.2.1: ICMP echo reply, id 4, seq 11, length 64
 01:54:41.818159 IP6 fc00:0:1111::1 > fc00:0:7777:e005::: IP 10.101.2.1 > 20.0.0.1: ICMP echo request, id 4, seq 12, length 64
 01:54:41.821777 IP6 fc00:0:7777::1 > fc00:0:1111:e005::: IP 20.0.0.1 > 10.101.2.1: ICMP echo reply, id 4, seq 12, length 64
-01:54:42.218309 IP6 fc00:0:1111::1 > fc00:0:7777:e005::: IP 10.101.2.1 > 20.0.0.1: ICMP echo request, id 4, seq 13, length 64
-01:54:42.221949 IP6 fc00:0:7777::1 > fc00:0:1111:e005::: IP 20.0.0.1 > 10.101.2.1: ICMP echo reply, id 4, seq 13, length 64
 ```
 3. To see the encapsulated traffic further in the network you can tcpdump links on xrd02, xrd05, etc. Examples:
 ```

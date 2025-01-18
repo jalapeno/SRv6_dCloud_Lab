@@ -238,11 +238,11 @@ listening on Gi0-0-0-1, link-type EN10MB (Ethernet), capture size 262144 bytes
 16:52:42.628050 IP6 fc00:0:1111::1.179 > fc00:0:6666::1.59565: Flags [.], ack 19, win 31846, length 0
 ```
 
-1. Optional: ssh to **xrd01** and run a ping to **xrd07** that will be captured by the tcpdump:
+1. Optional: ssh to **xrd01** and run a ping to **xrd02** that will be captured by the tcpdump:
     ```
-    ping fc00:0:7777::1
+    ping fc00:0:2222::1
     or 
-    ping 10.0.0.7
+    ping 10.0.0.2
     ```
 
 ## SRv6 Packet Walk

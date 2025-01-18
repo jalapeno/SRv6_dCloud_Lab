@@ -1,7 +1,7 @@
 # Lab 3: Configure SRv6 L3VPN and SRv6-TE [30 Min]
 
 ### Description
-In Lab 3 we will establish a Layer-3 VPN named "carrots" which will use SRv6 transport and will have endpoints on **xrd01** and **xrd07**. In order to extend L3VPN "carrots" to the Amsterdam and Rome VM we will be adding VRF "carrots" to interfaces on **xrd01** and **xrd07** that connect to seconrday NICs on the Amsterdam and Rome. Once the L3VPN is established and you run test traffic between Amsterdam and Rome we will then setup SRv6-TE traffic steering from Amsterdam to specific Rome prefixes.
+In Lab 3 we will establish a Layer-3 VPN named *`carrots`* which will use SRv6 transport and will have endpoints on **xrd01** and **xrd07**. In order to extend L3VPN *`carrots`* to the Amsterdam and Rome VM we will be adding VRF *`carrots`* to interfaces on **xrd01** and **xrd07** that connect to seconrday NICs on the Amsterdam and Rome. Once the L3VPN is established and you run test traffic between Amsterdam and Rome we will then setup SRv6-TE traffic steering from Amsterdam to specific Rome prefixes.
 
 ## Contents
 - [Lab 3: Configure SRv6 L3VPN and SRv6-TE \[30 Min\]](#lab-3-configure-srv6-l3vpn-and-srv6-te-30-min)
@@ -40,7 +40,7 @@ Example:
 
 SRv6 L3VPN functionality interconnects multiple sites to resemble a private network service over public or multi-tenant infrastructure. The basic SRv6 configuration was completed in [Lab 2](/lab_2/lab_2-guide.md).
 
-In this lab a BGP SID will be allocated in per-VRF mode and provides End.DT4 and End.DT6 functionality. End.DT4/6 represents the Endpoint with decapsulation and IPv4 or v6 lookup in a specific VRF table.
+In this lab a BGP SID will be allocated in per-VRF mode and provides End.DT4 or End.DT6 functionality. End.DT4/6 represents the Endpoint with decapsulation and IPv4 or v6 lookup in a specific VRF table.
 
 For more details on SRv6 network programming Endpoint Behavior functionality please see RFC 8986 [LINK](https://datatracker.ietf.org/doc/html/rfc8986#name-enddt6-decapsulation-and-sp)
 
@@ -128,7 +128,7 @@ BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4/6 L3VPN Network
     ```
 
 4. Verify **Amsterdam** VRF prefix reachability  
-    Ping check from **xrd01** gi 0/0/0/3 to **Amsterdam **VM via 2nd NIC:  
+    Ping check from **xrd01** gi 0/0/0/3 to **Amsterdam** VM via 2nd NIC:  
     ```
     ping vrf carrots 10.101.3.1
     ping vrf carrots fc00:0:101:3::1
@@ -136,7 +136,7 @@ BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4/6 L3VPN Network
 
 ### Configure BGP L3VPN Peering
 1. Enable BGP L3VPN
-   The next step is to add the L3VPN configuration into BGP. The *carrots* L3VPN is dual-stack so we will be adding both vpnv4 and vpnv6 address-families to the BGP neighbor-group for ipv6 peers. For example you will enable L3VPN in the neighbor-group template by issuing the *address-family vpnv4/6 unicast* command.
+    The next step is to add the L3VPN configuration into BGP. The *carrots* L3VPN is dual-stack so we will be adding both vpnv4 and vpnv6 address-families to the BGP neighbor-group for ipv6 peers. For example you will enable L3VPN in the neighbor-group template by issuing the *address-family vpnv4/6 unicast* command.
 
     **xrd01** and **xrd07**
     ```yaml
@@ -152,7 +152,7 @@ BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4/6 L3VPN Network
     ```
 
 2. Enable SRv6 for VRF carrots and redistribute connected/static
-   Next we add VRF *carrots* into BGP and enable SRv6 to the ipv4 and ipv6 address family with the command *`segment-routing srv6`*. In addition we will tie the VRF to the SRv6 locator *`MyLocator`* configured in an earlier lab.
+    Next we add VRF *carrots* into BGP and enable SRv6 to the ipv4 and ipv6 address family with the command *`segment-routing srv6`*. In addition we will tie the VRF to the SRv6 locator *`MyLocator`* configured in an earlier lab.
 
    Last on **xrd01** we will redistribute connected routes using the command *`redistribute connected`*. This will trigger the two interfaces ipv4 and ipv6 networks facing the Amsterdam VM to advertise in VRF *carrots*.
 
