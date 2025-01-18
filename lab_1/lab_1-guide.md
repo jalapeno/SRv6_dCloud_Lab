@@ -60,7 +60,7 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     ssh cisco@198.18.128.100
     ```
 
-2. Change to the Git repository lab_1 directory
+2. Change to the Git repository *`lab_1`* directory
     - The lab repository folder is found in the home directory *`~/SRv6_dCloud_Lab/lab_1`*
     ```
     cd ~/SRv6_dCloud_Lab/lab_1

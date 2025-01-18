@@ -17,7 +17,6 @@ In Lab 2 the student will perform the basic ISIS and BGP SRv6 configuration on t
       - [Validate SRv6 configuration and reachability](#validate-srv6-configuration-and-reachability)
   - [End-to-End Connectivity](#end-to-end-connectivity)
     - [Viewing Router to Router traffic in containerlab](#viewing-router-to-router-traffic-in-containerlab)
-      - [do we keep this (requires re-creating the shell script), or do we just have users run the verbose tcpdump command? Or take the packet walk doc and merge it into here and call it good?](#do-we-keep-this-requires-re-creating-the-shell-script-or-do-we-just-have-users-run-the-verbose-tcpdump-command-or-take-the-packet-walk-doc-and-merge-it-into-here-and-call-it-good)
   - [SRv6 Packet Walk](#srv6-packet-walk)
   - [End of Lab 2](#end-of-lab-2)
   
@@ -155,7 +154,7 @@ SRv6 uSID locator and source address information for nodes in the lab:
     fc00:0:1111:e005::          uDT6              'default'                         bgp-65000           InUse  Y
     ```
 > [!NOTE]
-> The bottom two entries. These SIDs belong to BGP and represent End.DT behaviors. Any packet arriving with either of these SIDs as the outer IPv6 destination address will be decasulated and then an LPM lookup in the global/default routing table will be performed on the inner destination address. More on this later in the *`SRv6 Packet Walk`* section.
+> The bottom two entries. These SIDs belong to BGP and represent End.DT behaviors. Any packet arriving with either of these SIDs as the outer IPv6 destination address will be decapsulated and then an LPM lookup in the global/default routing table will be performed on the inner destination address. More on this later in the *`SRv6 Packet Walk`* section.
 
 2. Validate the SRv6 prefix-SID configuration. As example for xrd01 look for *SID value: fc00:0000:1111::*
     ```
@@ -239,7 +238,12 @@ listening on Gi0-0-0-1, link-type EN10MB (Ethernet), capture size 262144 bytes
 16:52:42.628050 IP6 fc00:0:1111::1.179 > fc00:0:6666::1.59565: Flags [.], ack 19, win 31846, length 0
 ```
 
-Eventually pings should show up as tcpdump output. 
+1. Optional: ssh to **xrd01** and run a ping to **xrd07** that will be captured by the tcpdump:
+    ```
+    ping fc00:0:7777::1
+    or 
+    ping 10.0.0.7
+    ```
 
 ## SRv6 Packet Walk
 This is an optional section of the lab where we expand on the routing table behaviours during forwarding operations. 
