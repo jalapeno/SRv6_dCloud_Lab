@@ -213,10 +213,6 @@ try:
     # Execute AQL query
     db.aql.execute(aql, bind_vars={'hosts': hosts_data})
     print(f"Successfully inserted/updated {len(hosts_data)} hosts records")
-        
-    except Exception as e:
-        print(f"Error inserting hosts data: {str(e)}")
-
 
 try:
     # Read the edge data from JSON file
