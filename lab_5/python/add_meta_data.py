@@ -3,6 +3,7 @@
 # python3 add_meta_data.py
 
 from arango import ArangoClient
+import json
 
 user = "root"
 pw = "jalapeno"
@@ -187,11 +188,9 @@ ipv4topo.update(ipv4topo0706)
 
 print("meta data added")
 
-
-
 try:
     # Read the hosts data from JSON file
-    with open(hosts.json, 'r') as f:
+    with open('hosts.json', 'r') as f:
         hosts_data = json.load(f)
     
     # Create hosts collection if it doesn't exist
@@ -213,10 +212,12 @@ try:
     # Execute AQL query
     db.aql.execute(aql, bind_vars={'hosts': hosts_data})
     print(f"Successfully inserted/updated {len(hosts_data)} hosts records")
+except Exception as e:
+    print(f"Error processing hosts data: {e}")
 
 try:
-    # Read the edge data from JSON file
-    with open(hosts-v4-edge.json, 'r') as f:
+    # Read the IPv4 edge data from JSON file
+    with open('hosts-v4-edge.json', 'r') as f:  # Fixed string quotes
         edge_data = json.load(f)
     
     # Ensure ipv4_graph collection exists
@@ -238,10 +239,12 @@ try:
     # Execute AQL query
     db.aql.execute(aql, bind_vars={'edges': edge_data})
     print(f"Successfully inserted/updated {len(edge_data)} IPv4 edge records")
+except Exception as e:
+    print(f"Error processing IPv4 edge data: {e}")
 
 try:
-    # Read the edge data from JSON file
-    with open(hosts-v6-edge.json, 'r') as f:
+    # Read the IPv6 edge data from JSON file
+    with open('hosts-v6-edge.json', 'r') as f:  # Fixed string quotes
         edge_data = json.load(f)
     
     # Ensure ipv6_graph collection exists
@@ -263,3 +266,5 @@ try:
     # Execute AQL query
     db.aql.execute(aql, bind_vars={'edges': edge_data})
     print(f"Successfully inserted/updated {len(edge_data)} IPv6 edge records")
+except Exception as e:
+    print(f"Error processing IPv6 edge data: {e}")
