@@ -22,12 +22,12 @@ Each lab instance has a Jalapeno Web UI that can be accessed at the following UR
 - **Data Collections**: explore raw object and graph data collected from the network.
 - **Topology Viewer**: explore the network topology graphs built by Jalapeno and based on BMP data received from the network.
 - **Calculate a Path**: gives the user the ability to select a source and destination in the graph and calculate the best path through the network based upon a selected constraint.
-- **Schedule a Workload**: this function is still under construction. The idea behind `Schedule a Workload` is tohave a fabric load-balancing service.
+- **Schedule a Workload**: this function is still under construction. The idea behind `Schedule a Workload` is to have a fabric load-balancing service.
 
 ### Data Collections
 Currently populated with raw BMP data and graph data. We have placeholder's for future data collections such as Services (like firewalls or load balancers), Hosts, and GPUs.
 
-<img src="images/jalaeno-ui-data-collections.png" width="900">
+<img src="images/jalapeno-ui-data-collections.png" width="900">
 
 ### Topology Viewer
 Prompts the user to select a graph from the dropdown and then displays the graph in the center of the screen. The graph is interactive and the user can hover over a node to see more information about it. There are also dropdowns to change the graph's layout and to show a 'nodes-only' view. Funally the user can click on nodes along a path and the relevant SRv6 uSID stack will be displayed in the upper right corner of the screen.
