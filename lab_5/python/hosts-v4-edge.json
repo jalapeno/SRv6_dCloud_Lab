@@ -5,11 +5,7 @@
         "_from": "hosts/amsterdam-vpp",
         "_to": "ibgp_prefix_v4/10.101.1.0_24"
     },
-    {
-        "_key": "berlin-k8s_198_18_4_104_24",
-        "_from": "hosts/berlin-k8s",
-        "_to": "ls_prefix/2_0_0_0_0_198.18.4.0_24_0000.0000.0002"
-    },
+
     {
         "_key": "rome_10_107_1_0_24",
         "_from": "hosts/rome",
@@ -20,11 +16,7 @@
         "_from": "ibgp_prefix_v4/10.101.1.0_24",
         "_to": "hosts/amsterdam-vpp"
     },
-    {
-        "_key": "198_18_4_104_24_berlin-k8s",
-        "_from": "ls_prefix/2_0_2_0_0_198.18.4.104_24_0000.0000.0002",
-        "_to": "hosts/berlin-k8s"
-    },
+
     {
         "_key": "10_107_1_0_24_rome",
         "_from": "ibgp_prefix_v4/10.107.1.0_24",
