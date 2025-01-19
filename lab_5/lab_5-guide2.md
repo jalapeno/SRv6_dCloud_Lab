@@ -10,6 +10,7 @@ In Part 2 we will explore the experimental Jalapeno-UI and linux SRv6 client. Th
     - [Data Collections](#data-collections)
     - [Topology Viewer](#topology-viewer)
     - [Calculate a Path](#calculate-a-path)
+    - [Schedule a Workload](#schedule-a-workload)
   - [Use Case 1: Lowest Latency Path](#use-case-1-lowest-latency-path)
     - [Use Case 2: Lowest Bandwidth Utilization Path](#use-case-2-lowest-bandwidth-utilization-path)
     - [Use Case 3: Data Sovereignty Path](#use-case-3-data-sovereignty-path)
@@ -20,8 +21,8 @@ Each lab instance has a Jalapeno Web UI that can be accessed at the following UR
 
 - **Data Collections**: explore raw object and graph data collected from the network.
 - **Topology Viewer**: explore the network topology graphs built by Jalapeno and based on BMP data received from the network.
-- **Calculate a Path**: gives the user the ability to select a source and destination in the graph and calculate the best path through the network based upon a selected constraint. The calculated path will light up and the application will display the relevant SRv6 uSID stack.
-- **Schedule a Workload**: this function is still under construction. The idea behind `Schedule a Workload` is have a fabric load-balancing service where the user can select a set of endpoints, such as hosts or even GPUs, then ask Jalapeno to calculate a set of paths based on each source/destination pair of the selected endpoints. Jalapeno would return a set of uSIDs that would evenly balance the source/destination flows across available paths in the fabric.
+- **Calculate a Path**: gives the user the ability to select a source and destination in the graph and calculate the best path through the network based upon a selected constraint.
+- **Schedule a Workload**: this function is still under construction. The idea behind `Schedule a Workload` is tohave a fabric load-balancing service.
 
 ### Data Collections
 Currently populated with raw BMP data and graph data. We have placeholder's for future data collections such as Services (like firewalls or load balancers), Hosts, and GPUs.
@@ -31,11 +32,19 @@ Currently populated with raw BMP data and graph data. We have placeholder's for 
 ### Topology Viewer
 Prompts the user to select a graph from the dropdown and then displays the graph in the center of the screen. The graph is interactive and the user can hover over a node to see more information about it. There are also dropdowns to change the graph's layout and to show a 'nodes-only' view. Funally the user can click on nodes along a path and the relevant SRv6 uSID stack will be displayed in the upper right corner of the screen.
 
-<img src="images/jalapeno-topology-viewer.png" width="900">
+<img src="images/jalapeno-ui-topology-viewer.png" width="900">
 
 
 ### Calculate a Path
+This function gives the user the ability to select a source and destination in the graph and calculate the best path through the network based upon a selected constraint. The calculated path will light up and the application will display the relevant SRv6 uSID stack. The path calculation algorithms on the backend are using the telemetry meta data we uploaded in Part 1. In a future release we hope to incorporate streaming telemetry data into the graph and include it in path calculations.
 
+<img src="images/jalapeno-ui-calculate-path.png" width="900">
+
+
+### Schedule a Workload
+This function is still under construction. The idea behind `Schedule a Workload` is to have a fabric load-balancing service where the user can select a set of endpoints, such as hosts or even GPUs, then ask Jalapeno to calculate a set of paths based on each source/destination pair of the selected endpoints. Jalapeno would return a set of uSIDs that would evenly balance the source/destination flows across available paths in the fabric.
+
+<img src="images/jalapeno-ui-sched-workload.png" width="900">
 
 ## Use Case 1: Lowest Latency Path
 Our first use case is to make path selection through the network based on the cummulative link latency from A to Z. Using latency meta-data is not something traditional routing protocols can do. It may be possible to statically build routes through your network using weights to define a path. However, what these workarounds cannot do is provide path selection based on near real time data which is possible with an application like Jalapeno. This provides customers to have a flexible network policy that can react to changes in the WAN environment.
