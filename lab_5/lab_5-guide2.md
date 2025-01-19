@@ -26,12 +26,12 @@ Each lab instance has a Jalapeno Web UI that can be accessed at the following UR
 ### Data Collections
 Currently populated with raw BMP data and graph data. We have placeholder's for future data collections such as Services (like firewalls or load balancers), Hosts, and GPUs.
 
-<img src="images/jalapeno-uidata-collections.png" width="900">
+<img src="images/jalaeno-ui-data-collections.png" width="900">
 
 ### Topology Viewer
 Prompts the user to select a graph from the dropdown and then displays the graph in the center of the screen. The graph is interactive and the user can hover over a node to see more information about it. There are also dropdowns to change the graph's layout and to show a 'nodes-only' view. Funally the user can click on nodes along a path and the relevant SRv6 uSID stack will be displayed in the upper right corner of the screen.
 
-<img src="images/jalapeno-ui-topology-viewer.png" width="900">
+<img src="images/jalapeno-topology-viewer.png" width="900">
 
 
 ### Calculate a Path
