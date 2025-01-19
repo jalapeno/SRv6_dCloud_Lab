@@ -1,0 +1,32 @@
+[
+    {
+        "_key": "amsterdam-vpp_fc00_0_101_1_0",
+        "_from": "hosts/amsterdam-vpp",
+        "_to": "ibgp_prefix_v6/fc00:0:101:1::_64"
+    },
+    {
+        "_key": "berlin-k8s_fc00_0_8888_1_0",
+        "_from": "hosts/berlin-k8s",
+        "_to": "ls_prefix/2_0_2_0_0_fc00:0:8888::_64_0000.0000.0002"
+    },
+    {
+        "_key": "rome_fc00_0_107_1_0",
+        "_from": "hosts/rome",
+        "_to": "ibgp_prefix_v6/fc00:0:107:1::_64"
+    },
+    {
+        "_key": "fc00_0_101_1_0_amsterdam-vpp",
+        "_from": "ibgp_prefix_v6/fc00:0:101:1::_64",
+        "_to": "hosts/amsterdam-vpp"
+    },
+    {
+        "_key": "fc00_0_8888_1_0_berlin-k8s",
+        "_from": "ls_prefix/2_0_2_0_0_fc00:0:8888::_64_0000.0000.0002",
+        "_to": "hosts/berlin-k8s"
+    },
+    {
+        "_key": "fc00_0_107_1_0_rome",
+        "_from": "ibgp_prefix_v6/fc00:0:107:1::_64",
+        "_to": "hosts/rome"
+    }
+]

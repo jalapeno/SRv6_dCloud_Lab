@@ -1,0 +1,32 @@
+[
+    {
+        "_key": "amsterdam-vpp",
+        "name": "amsterdam-vpp",
+        "ipv4_address": "10.101.1.1",
+        "ipv6_address": "fc00:0:101:1::1",
+        "prefix_len": 64,
+        "interface": "eth0",
+        "dataplane": "vpp",
+        "tier": "dc-endpoint"
+    },
+    {
+        "_key": "berlin-k8s",
+        "name": "berlin-k8s",
+        "ipv4_address": "198.18.4.104",
+        "ipv6_address": "fc00:0:8888::1",
+        "prefix_len": 64,
+        "interface": "ens192",
+        "dataplane": "linux",
+        "tier": "dc-endpoint"
+    },
+    {
+        "_key": "rome",
+        "name": "rome",
+        "ipv4_address": "10.107.1.1",
+        "ipv6_address": "fc00:0:107:1::1",
+        "prefix_len": 64,
+        "interface": "ens192",
+        "dataplane": "linux",
+        "tier": "dc-endpoint"
+    }
+]

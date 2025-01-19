@@ -1,0 +1,33 @@
+[
+
+    {
+        "_key": "amsterdam-vpp_10_101_1_0_24",
+        "_from": "hosts/amsterdam-vpp",
+        "_to": "ibgp_prefix_v4/10.101.1.0_24"
+    },
+    {
+        "_key": "berlin-k8s_198_18_4_104_24",
+        "_from": "hosts/berlin-k8s",
+        "_to": "ibgp_prefix_v4/198.18.4.104_24"
+    },
+    {
+        "_key": "rome_10_107_1_0_24",
+        "_from": "hosts/rome",
+        "_to": "ibgp_prefix_v4/10.107.1.0_24"
+    },
+    {
+        "_key": "10_101_1_0_24_amsterdam-vpp",
+        "_from": "ibgp_prefix_v4/10.101.1.0_24",
+        "_to": "hosts/amsterdam-vpp"
+    },
+    {
+        "_key": "198_18_4_104_24_berlin-k8s",
+        "_from": "ibgp_prefix_v4/198.18.4.104_24",
+        "_to": "hosts/berlin-k8s"
+    },
+    {
+        "_key": "10_107_1_0_24_rome",
+        "_from": "ibgp_prefix_v4/10.107.1.0_24",
+        "_to": "hosts/rome"
+    }
+]

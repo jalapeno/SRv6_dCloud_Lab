@@ -20,10 +20,13 @@ if db.has_collection('peer'):
 if db.has_collection('ipv4_graph'):
     ipv4topo = db.collection('ipv4_graph')
 
+if db.has_collection('ipv6_graph'):
+    ipv6topo = db.collection('ipv6_graph')
+
 lsn.properties()
 ipv4topo.properties()
 
-print("adding addresses, country codes, and synthetic latency data to the graph")
+print("adding hosts, addresses, country codes, and synthetic latency data to the graph")
 
 # get the ls_node DB key and populate the document with location and latency data
 r01 = lsn.get('2_0_0_0000.0000.0001')
@@ -183,3 +186,84 @@ ipv4topo0706['country_codes'] = ['FRA', 'ITA']
 ipv4topo.update(ipv4topo0706)
 
 print("meta data added")
+
+
+
+try:
+    # Read the hosts data from JSON file
+    with open(hosts.json, 'r') as f:
+        hosts_data = json.load(f)
+    
+    # Create hosts collection if it doesn't exist
+    if not db.has_collection('hosts'):
+        db.create_collection('hosts')
+    
+    hosts_collection = db.collection('hosts')
+    
+    # AQL query to insert/update hosts data
+    aql = """
+    FOR host in @hosts
+        UPSERT { _key: host._key }
+        INSERT host
+        REPLACE host
+        IN hosts
+        RETURN NEW
+    """
+    
+    # Execute AQL query
+    db.aql.execute(aql, bind_vars={'hosts': hosts_data})
+    print(f"Successfully inserted/updated {len(hosts_data)} hosts records")
+        
+    except Exception as e:
+        print(f"Error inserting hosts data: {str(e)}")
+
+
+try:
+    # Read the edge data from JSON file
+    with open(hosts-v4-edge.json, 'r') as f:
+        edge_data = json.load(f)
+    
+    # Ensure ipv4_graph collection exists
+    if not db.has_collection('ipv4_graph'):
+        db.create_collection('ipv4_graph', edge=True)  # Note: edge=True for edge collection
+    
+    edge_collection = db.collection('ipv4_graph')
+    
+    # AQL query to insert/update edge data
+    aql = """
+    FOR edge in @edges
+        UPSERT { _key: edge._key }
+        INSERT edge
+        REPLACE edge
+        IN ipv4_graph
+        RETURN NEW
+    """
+    
+    # Execute AQL query
+    db.aql.execute(aql, bind_vars={'edges': edge_data})
+    print(f"Successfully inserted/updated {len(edge_data)} IPv4 edge records")
+
+try:
+    # Read the edge data from JSON file
+    with open(hosts-v6-edge.json, 'r') as f:
+        edge_data = json.load(f)
+    
+    # Ensure ipv6_graph collection exists
+    if not db.has_collection('ipv6_graph'):
+        db.create_collection('ipv6_graph', edge=True)  # Note: edge=True for edge collection
+    
+    edge_collection = db.collection('ipv6_graph')
+    
+    # AQL query to insert/update edge data
+    aql = """
+    FOR edge in @edges
+        UPSERT { _key: edge._key }
+        INSERT edge
+        REPLACE edge
+        IN ipv6_graph
+        RETURN NEW
+    """
+    
+    # Execute AQL query
+    db.aql.execute(aql, bind_vars={'edges': edge_data})
+    print(f"Successfully inserted/updated {len(edge_data)} IPv6 edge records")
