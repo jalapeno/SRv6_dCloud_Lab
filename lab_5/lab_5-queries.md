@@ -1,5 +1,8 @@
 #### Sample Basic Queries
 
+> [!Note]
+> General Arango AQL graph query syntax information can be found [HERE](https://www.arangodb.com/docs/stable/aql/graphs.html). Please reference this document on the shortest path algorithim in AQL [HERE](https://www.arangodb.com/docs/stable/aql/graphs-shortest-path.html) (2 minute read).
+
 Query filtering for a specific node name and return name and SID information 
 ```
 for x in igp_node 
@@ -76,6 +79,7 @@ for x in igp_node return { node: x.router_id, name: x.name, srv6sid: x.sids[*].s
 
 #### Return to lab_5 guide and run the add_meta_data.py step. 
 [add_meta_data](https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_5/lab_5-guide.md#populating-the-db-with-external-data)
+
 #### Then run this next set of queries
 ```
 for x in ipv4_graph filter x.latency != null return { key: x._key, from: x._from, to: x._to, latency: x.latency, utilization: x.percent_util_out, country_codes: x.country_codes }
@@ -83,29 +87,29 @@ for x in ipv4_graph filter x.latency != null return { key: x._key, from: x._from
 
 #### replaces shortest path query #3
 ```
-for v, e in any shortest_path 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_graph return  { key: v._key, node: v.name, location: v.location_id, address: v.address, sid: v.sids[*].srv6_sid, latency: e.latency }
+for v, e in any shortest_path 'ibgp_prefix_v4/10.101.1.0_24' TO 'ibgp_prefix_v4/20.0.0.0_24' ipv4_graph return  { key: v._key, node: v.name, location: v.location_id, address: v.address, sid: v.sids[*].srv6_sid, latency: e.latency }
 ```
 
 #### replaces shortest path query #4
 ```
-for v, e in any shortest_path 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_graph return  { key: v._key, node: v.name, location: v.location_id, address: v.address, sid: v.sids[*].srv6_sid, latency: e.latency }
+for v, e in any shortest_path 'ibgp_prefix_v4/10.101.1.0_24' TO 'ibgp_prefix_v4/20.0.0.0_24' ipv4_graph return  { key: v._key, node: v.name, location: v.location_id, address: v.address, sid: v.sids[*].srv6_sid, latency: e.latency }
 ```
 
 #### replace least utilized path queries:
 ```
-for v, e, p in 1..6 outbound 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' ipv4_graph options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' return distinct { path: p.vertices[*].name, sid: p.vertices[*].sids[*].srv6_sid, country_list: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
+for v, e, p in 1..6 outbound 'ibgp_prefix_v4/10.101.1.0_24' ipv4_graph options {uniqueVertices: "path", bfs: true} filter v._id == 'ibgp_prefix_v4/20.0.0.0_24' return distinct { path: p.vertices[*].name, sid: p.vertices[*].sids[*].srv6_sid, country_list: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
 
 ```
 ```
-for v, e, p in 1..6 outbound 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_graph options {uniqueVertices: "path", bfs: true} filter v._id == 'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' return { path: p.vertices[*].name, sid: p.vertices[*].sids[*].srv6_sid, country_list: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
+for v, e, p in 1..6 outbound 'ibgp_prefix_v4/20.0.0.0_24' ipv4_graph options {uniqueVertices: "path", bfs: true} filter v._id == 'ibgp_prefix_v4/10.101.1.0_24' return { path: p.vertices[*].name, sid: p.vertices[*].sids[*].srv6_sid, country_list: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency), percent_util_out: avg(p.edges[*].percent_util_out)}
 
 ```
 
 #### Shortest path from host to host
 Next we can expand the diameter of our query. In this case its no longer just ingress router to egress router, its a shortest path query from source prefix (Amsterdam VM) to destination prefix (Rome VM). This example query also includes hop by hop latency:
 ```
-for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1' 
-    TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_graph 
+for v, e in outbound shortest_path 'hosts/amsterdam' 
+    TO 'hosts/rome' ipv4_graph 
     return  { node: v.name, location: v.location_id, address: v.address, 
     srv6sid: v.sids[*].srv6_sid, latency: e.latency }
 ```
@@ -113,14 +117,19 @@ for v, e in outbound shortest_path 'unicast_prefix_v4/10.101.2.0_24_10.0.0.1'
 #### Data Sovereignty query
 A query
 ```
-for p in outbound k_shortest_paths  'unicast_prefix_v4/10.101.1.0_24_10.0.0.1' 
-          TO 'unicast_prefix_v4/20.0.0.0_24_10.0.0.7' ipv4_graph 
+for p in outbound k_shortest_paths  'hosts/amsterdam' 
+          TO 'hosts/rome' ipv4_graph 
             options {uniqueVertices: "path", bfs: true} 
             filter p.edges[*].country_codes !like "FRA" limit 1 
                 return { path: p.vertices[*].name, sid: p.vertices[*].sids[*].srv6_sid, 
                     countries_traversed: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency), 
                         percent_util_out: avg(p.edges[*].percent_util_out)}
 ```
+
+To reset load value:
+```
+FOR doc IN ipv4_graph
+  UPDATE doc WITH { load: 0 } IN ipv4_graph
 
 ## Back to Lab 5 Guide
 [Lab 5 Guide](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_5/lab_5-guide.md)

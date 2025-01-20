@@ -24,6 +24,14 @@ This lab is divided into two main sections:
   - [BGP SRv6 locator](#bgp-srv6-locator)
   - [Explore the Jalapeno ArangoDB Graph Database](#explore-the-jalapeno-arangodb-graph-database)
   - [Populating the DB with external data](#populating-the-db-with-external-data)
+- [Jalapeno Web UI](#jalapeno-web-ui)
+  - [Data Collections](#data-collections)
+  - [Topology Viewer](#topology-viewer)
+  - [Calculate a Path](#calculate-a-path)
+  - [Schedule a Workload](#schedule-a-workload)
+  - [Path Calculation: Lowest Latency Path](#path-calculation-lowest-latency-path)
+  - [Path Calculation: Lowest Bandwidth Utilization Path](#path-calculation-lowest-bandwidth-utilization-path)
+  - [Path Calculation: Data Sovereignty Path](#path-calculation-data-sovereignty-path)
   - [End of lab 5 Part 1](#end-of-lab-5-part-1)
 
 ## Lab Objectives
@@ -389,6 +397,108 @@ The [add_meta_data.py](python/add_meta_data.py) python script will connect to th
   
 > [!NOTE]
 > The *`add_meta_data.py`* script has also populated country codes for all the countries a given link traverses from one node to its adjacent peer. Example: **xrd01** is in Amsterdam, and **xrd02** is in Berlin. Thus the **xrd01** <--> **xrd02** link traverses *`[NLD, DEU]`*
+
+
+## Jalapeno Web UI
+
+The Jalapeno UI is very much a work in progress and is meant to illustrate the potential use cases for extending SRv6 services beyond traditional network elements and into the server, host, VM, k8s, or other workloads or endpoints. Once Jalapeno has programmatically collected data from the network and it built its topology graphs, the network operator has complete flexibility to add data or augment the graph as we saw in the previous section. From there its not too difficult to conceive of building network services based on calls to the Jalapeno API and leveraging the SRv6 uSID stacks that are returned.
+
+Each lab instance has a Jalapeno Web UI that can be accessed at the following URL: `http://198.18.128.101:30700`. On the left hand sidebar you will see that UI functionality is split into four sections:
+
+- **Data Collections**: explore raw object and graph data collected from the network.
+- **Topology Viewer**: explore the network topology graphs built by Jalapeno and based on BMP data received from the network.
+- **Calculate a Path**: gives the user the ability to select a source and destination in the graph and calculate the best path through the network based upon a selected constraint.
+- **Schedule a Workload**: this function is still under construction. The idea behind `Schedule a Workload` is to have a fabric load-balancing service.
+
+### Data Collections
+Currently populated with raw BMP data and graph data. We have placeholder's for future data collections such as Services (like firewalls or load balancers), Hosts, and GPUs.
+
+<img src="images/jalapeno-ui-data-collections.png" width="900">
+
+### Topology Viewer
+Prompts the user to select a graph from the dropdown and then displays the graph in the center of the screen. The graph is interactive and the user can hover over a node to see more information about it. There are also dropdowns to change the graph's layout and to show a 'nodes-only' view. Funally the user can click on nodes along a path and the relevant SRv6 uSID stack will be displayed in the upper right corner of the screen.
+
+<img src="images/jalapeno-ui-topology-viewer.png" width="900">
+
+
+### Calculate a Path
+This function gives the user the ability to select a source and destination in the graph and calculate the best path through the network based upon a selected constraint. The calculated path will light up and the application will display the relevant SRv6 uSID stack. The path calculation algorithms on the backend are using the telemetry meta data we uploaded in Part 1. In a future release we hope to incorporate streaming telemetry data into the graph and include it in path calculations.
+
+<img src="images/jalapeno-ui-calculate-path.png" width="900">
+
+
+### Schedule a Workload
+This function is still under construction. The idea behind `Schedule a Workload` is to have a fabric load-balancing service where the user can select a set of endpoints, such as hosts or even GPUs, then ask Jalapeno to calculate a set of paths based on each source/destination pair of the selected endpoints. Jalapeno would return a set of uSIDs that would evenly balance the source/destination flows across available paths in the fabric.
+
+<img src="images/jalapeno-ui-sched-workload.png" width="900">
+
+
+### Path Calculation: Lowest Latency Path
+
+Our first use case is to make path selection through the network based on the cummulative link latency from A to Z. Calculating best paths using latency meta-data is not something traditional routing protocols can do. It may be possible to statically build routes through your network using weights to define a path. However, what these workarounds cannot do is provide path selection based on near real time data which is possible with an application like Jalapeno. This provides customers to have a flexible network policy that can react to changes in the WAN environment.
+
+In this use case we want to idenitfy the lowest latency path for traffic originating from the *`Amsterdam VM`* destined to *`Rome VM`*. The UI makes an API call to trigger Arango's shortest path query capabilities and specify latency as our *weighted attribute* pulled from the meta-data. 
+
+### Path Calculation: Lowest Bandwidth Utilization Path
+
+In this use case we want to identify the least utilized path for traffic originating from the *`Amsterdam VM`* destined to *`Rome VM`*. The API call will specify link utilization as our *weighted attribute* pulled from the meta-data. 
+
+From the UI select *`Amsterdam`* as the source and the *`Rome`* as the destination. Then select *Least Utilized* from the constraints dropdown. The Least Utilized path will be highlighted and uSID stack will appear in the popup.
+
+  1. If we wanted to implement the returned query data into SRv6-TE steering XR config on router **xrd01** we would create a policy like the below example.
+     
+  2. Optional: on router **xrd07** add in config to advertise the global prefix with the bulk transfer community.
+     ```
+     extcommunity-set opaque bulk-transfer
+       40
+     end-set
+
+     route-policy set-global-color
+        if destination in (10.107.1.0/24) then
+          set extcommunity color bulk-transfer
+        endif
+        pass
+     end-policy 
+     ```
+  3. On router **xrd01** we would add an SRv6 segment-list config to define the hops returned from our query between router **xrd01** (source) and **xrd07** (destination). 
+   
+      ```
+      segment-routing
+        traffic-eng
+          segment-lists
+            segment-list xrd567
+              srv6
+               index 10 sid fc00:0:2222::
+               index 20 sid fc00:0:3333::
+               index 30 sid fc00:0:4444:: 
+
+          policy bulk-transfer
+           srv6
+            locator MyLocator binding-sid dynamic behavior ub6-insert-reduced
+           !
+           color 40 end-point ipv6 fc00:0:7777::1
+           candidate-paths
+            preference 100
+             explicit segment-list xrd2347
+      ```
+> [!NOTE]
+> The xrd01 configuration was applied in Lab 3 and is shown here for informational purposes only.
+  
+### Path Calculation: Data Sovereignty Path
+
+In this use case we want to idenitfy a path originating from *`Amsterdam`* destined to *`Rome`* that avoids passing through France (perhaps there's a toll on the link). The API call will utilize Arango's shortest path query capability and filter out results that pass through **xrd06** based in Paris, France. 
+
+From the UI select *`Amsterdam`* as the source and the *`Rome`* as the destination. Then select *Data Sovereignty* from the constraints dropdown. The Data Sovereignty path will be highlighted and uSID stack will appear in the popup.
+   1. Return to the ArangoDB browser UI and run a shortest path query from *10.101.1.0/24* to *20.0.0.0/24* , and have it return SRv6 SID data.
+      ```
+      for p in outbound k_shortest_paths  'ibgp_prefix_v4/10.101.1.0_24' 
+          TO 'ibgp_prefix_v4/20.0.0.0_24' ipv4_graph 
+            options {uniqueVertices: "path", bfs: true} 
+            filter p.edges[*].country_codes !like "FRA" limit 1 
+                return { path: p.vertices[*].name, sid: p.vertices[*].sids[*].srv6_sid, 
+                    countries_traversed: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency), 
+                        percent_util_out: avg(p.edges[*].percent_util_out)} 
+      ```
 
 ### End of lab 5 Part 1
 Please proceed to [Lab 5 Part 2: Host-Based SRv6](lab_5-guide2.md)
