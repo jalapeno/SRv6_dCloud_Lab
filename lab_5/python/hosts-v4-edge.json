@@ -1,8 +1,8 @@
 [
 
     {
-        "_key": "amsterdam-vpp_10_101_1_0_24",
-        "_from": "hosts/amsterdam-vpp",
+        "_key": "amsterdam_10_101_1_0_24",
+        "_from": "hosts/amsterdam",
         "_to": "ibgp_prefix_v4/10.101.1.0_24"
     },
 
@@ -12,9 +12,9 @@
         "_to": "ibgp_prefix_v4/10.107.1.0_24"
     },
     {
-        "_key": "10_101_1_0_24_amsterdam-vpp",
+        "_key": "10_101_1_0_24_amsterdam",
         "_from": "ibgp_prefix_v4/10.101.1.0_24",
-        "_to": "hosts/amsterdam-vpp"
+        "_to": "hosts/amsterdam"
     },
 
     {

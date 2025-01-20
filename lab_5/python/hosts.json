@@ -1,7 +1,7 @@
 [
     {
-        "_key": "amsterdam-vpp",
-        "name": "amsterdam-vpp",
+        "_key": "amsterdam",
+        "name": "amsterdam",
         "ipv4_address": "10.101.1.1",
         "ipv6_address": "fc00:0:101:1::1",
         "prefix_len": 64,

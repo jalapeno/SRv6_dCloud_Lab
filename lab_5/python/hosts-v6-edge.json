@@ -1,7 +1,7 @@
 [
     {
-        "_key": "amsterdam-vpp_fc00_0_101_1_0",
-        "_from": "hosts/amsterdam-vpp",
+        "_key": "amsterdam_fc00_0_101_1_0",
+        "_from": "hosts/amsterdam",
         "_to": "ibgp_prefix_v6/fc00:0:101:1::_64"
     },
     {
@@ -15,9 +15,9 @@
         "_to": "ibgp_prefix_v6/fc00:0:107:1::_64"
     },
     {
-        "_key": "fc00_0_101_1_0_amsterdam-vpp",
+        "_key": "fc00_0_101_1_0_amsterdam",
         "_from": "ibgp_prefix_v6/fc00:0:101:1::_64",
-        "_to": "hosts/amsterdam-vpp"
+        "_to": "hosts/amsterdam"
     },
     {
         "_key": "fc00_0_8888_1_0_berlin-k8s",
