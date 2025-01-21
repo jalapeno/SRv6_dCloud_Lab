@@ -84,7 +84,7 @@ For full size image see [LINK](/topo_drawings/management-network.png)
    
     - run the containerlab cli to deploy the XRd Lab-1 topology defined in the yaml file.
     ``` 
-    sudo containerlab deploy -t lab_1-topology.yaml
+    sudo containerlab deploy -t lab_1-topology.yml
     ```
     - Look for the below output from the end of the script confirming XRd instances 1-7 were created
     ```
