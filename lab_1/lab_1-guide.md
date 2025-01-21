@@ -115,7 +115,7 @@ For full size image see [LINK](/topo_drawings/management-network.png)
     ```
 
 > [!NOTE]
-> All *containerlab* commands can be abbreviated to *clab*. Example: *sudo clab deploy -t lab_1-topology.yaml*
+> All *containerlab* commands can be abbreviated to *clab*. Example: *sudo clab deploy -t lab_1-topology.yml*
 
 1. Check that the docker containers were created and running
     ```
