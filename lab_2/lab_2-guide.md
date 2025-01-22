@@ -129,7 +129,7 @@ SRv6 uSID locator and source address information for nodes in the lab:
     ```
 
 > [!NOTE]
-> Once you've configured xrd01 using the above, please proceed to configure the remainder of the routers using the configs found in the *`quick config doc`* [HERE](/lab_2/lab_2_quick_config.md) 
+> Once you've configured xrd01 using the above, please proceed to configure the remainder of the routers using the configs found in the *quick config document* [HERE](/lab_2/lab_2_quick_config.md) 
 
 #### Validate SRv6 configuration and reachability
 
