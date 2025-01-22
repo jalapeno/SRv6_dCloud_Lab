@@ -36,14 +36,13 @@ See results below and notice both the ICMP echo and ICMP echo reply packets with
 ![Router 1 Topology](/topo_drawings/packet-walk-r1.png)
 
 1. First SSH to the Amsterdam VM then start a ping to the Rome VM
-```
-ssh cisco@198.18.128.102
-ping 20.0.0.1 -i 1
-```
+   ```
+   ssh cisco@198.18.128.102
+   ping 20.0.0.1 -i 1
+   ```
 
 2. Then on the XRD host VM run tcpdump to capture SRv6 encapsulated traffic egressing **xrd01**. We don't know which interface the traffic will be hashed through so we may need to run tcpdump on both interfaces. Note, the tcpdump output may not show until you stop it with crtl-z.
-```
-sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-1
+```sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-1
 sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-2
 ```
 
