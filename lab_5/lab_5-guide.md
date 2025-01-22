@@ -3,7 +3,7 @@
 ### Description
 In Lab 5 we will explore the power of SRv6 as a truly end-to-end technology through host-based SRv6, and with the help of the open-source Jalapeno platform. Jalapeno is designed to run on Kubernetes (K8s), which allows for easy integration into existing environments and supports deployment on bare metal, VMs, or in a public cloud. Kubernetes experience is not required for this lab as K8s has been preinstalled on the Jalapeno VM and we have included the required *kubectl* validation commands. We've also included a brief guide to installing Kubernetes on your own host or VM: [K8s Install Instructions](lab_4/k8s-install-instructions.md).
 
-This lab is divided into two main sections:
+This lab is divided into two main sections :
 * **Part 1:** Exploring the Jalapeno platform and a "databases and APIs" apprach to SDN topology modeling
 * **Part 2:** Giving applications or workloads the ability to control their own SRv6 paths through the use of host-based SRv6
 
