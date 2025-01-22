@@ -33,7 +33,7 @@ This lab is divided into two main sections :
   - [Lowest Latency Path](#lowest-latency-path)
   - [Lowest Bandwidth Utilization Path](#lowest-bandwidth-utilization-path)
   - [Data Sovereignty Path](#data-sovereignty-path)
-  - [End of lab 5 Part 1](#end-of-lab-5-part-1)
+- [End of lab 5 Part 1](#end-of-lab-5-part-1)
 
 ## Lab Objectives
 The student upon completion of Lab 5 should have achieved the following objectives:
@@ -508,5 +508,5 @@ From the UI select *`Amsterdam`* as the source and the *`Rome`* as the destinati
                         percent_util_out: avg(p.edges[*].percent_util_out)} 
       ```
 
-### End of lab 5 Part 1
+## End of lab 5 Part 1
 Please proceed to [Lab 5 Part 2: Host-Based SRv6](lab_5-guide2.md)
