@@ -137,7 +137,7 @@ SRv6 uSID locator and source address information for nodes in the lab:
     ```
     show segment-routing srv6 sid
     ```
-    ```
+    ```diff
     RP/0/RP0/CPU0:xrd01#show segment-routing srv6 sid
     Fri Dec 15 22:37:40.028 UTC
 
@@ -150,8 +150,8 @@ SRv6 uSID locator and source address information for nodes in the lab:
     fc00:0:1111:e001::          uA (PSP/USD)      [Gi0/0/0/1, Link-Local]:0         isis-100            InUse  Y 
     fc00:0:1111:e002::          uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0:P       isis-100            InUse  Y 
     fc00:0:1111:e003::          uA (PSP/USD)      [Gi0/0/0/2, Link-Local]:0         isis-100            InUse  Y 
-    fc00:0:1111:e004::          uDT4              'default'                         bgp-65000           InUse  Y 
-    fc00:0:1111:e005::          uDT6              'default'                         bgp-65000           InUse  Y
+    +fc00:0:1111:e004::          uDT4              'default'                         bgp-65000           InUse  Y 
+    +fc00:0:1111:e005::          uDT6              'default'                         bgp-65000           InUse  Y
     ```
 > [!NOTE]
 > The bottom two entries. These SIDs belong to BGP and represent End.DT behaviors. Any packet arriving with either of these SIDs as the outer IPv6 destination address will be decapsulated and then an LPM lookup in the global/default routing table will be performed on the inner destination address. More on this later in the *`SRv6 Packet Walk`* section.
