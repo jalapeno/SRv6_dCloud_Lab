@@ -11,7 +11,7 @@ spec:
           graph: ipv4_graph
           pathType: shortest_path
           metric: latency
-          source: hosts/berlin
+          source: hosts/berlin-k8s
           destination: hosts/rome
           destination_prefix: "10.107.1.0/24"
           outbound_interface: "ens192"
@@ -21,7 +21,7 @@ spec:
           graph: ipv6_graph
           pathType: shortest_path
           metric: latency
-          source: hosts/berlin
+          source: hosts/berlin-k8s
           destination: hosts/rome
           destination_prefix: "fc00:0:107:1::/64"
           outbound_interface: "ens192"
