@@ -42,29 +42,29 @@ See results below and notice both the ICMP echo and ICMP echo reply packets with
    ```
 
 2. Then on the XRD host VM run tcpdump to capture SRv6 encapsulated traffic egressing **xrd01**. We don't know which interface the traffic will be hashed through so we may need to run tcpdump on both interfaces. Note, the tcpdump output may not show until you stop it with crtl-z.
-```sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-1
-sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-2
-```
+  ```sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-1
+  sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-2
+  ```
 
-Example output:
-```
-cisco@xrd:~/SRv6_dCloud_Lab/lab_2$ sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-1
-tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
-listening on Gi0-0-0-1, link-type EN10MB (Ethernet), capture size 262144 bytes
-^C01:54:41.418301 IP6 fc00:0:1111::1 > fc00:0:7777:e005::: IP 10.101.2.1 > 20.0.0.1: ICMP echo request, id 4, seq 11, length 64
-01:54:41.421606 IP6 fc00:0:7777::1 > fc00:0:1111:e005::: IP 20.0.0.1 > 10.101.2.1: ICMP echo reply, id 4, seq 11, length 64
-01:54:41.818159 IP6 fc00:0:1111::1 > fc00:0:7777:e005::: IP 10.101.2.1 > 20.0.0.1: ICMP echo request, id 4, seq 12, length 64
-01:54:41.821777 IP6 fc00:0:7777::1 > fc00:0:1111:e005::: IP 20.0.0.1 > 10.101.2.1: ICMP echo reply, id 4, seq 12, length 64
-```
-3. To see the encapsulated traffic further in the network you can tcpdump links on **xrd02**, **xrd05**, etc. Examples:
-```
-sudo ip netns exec clab-cleu25-xrd02 tcpdump -lni Gi0-0-0-1
-sudo ip netns exec clab-cleu25-xrd05 tcpdump -lni Gi0-0-0-1
+  Example output:
+  ```
+  cisco@xrd:~/SRv6_dCloud_Lab/lab_2$ sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-1
+  tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+  listening on Gi0-0-0-1, link-type EN10MB (Ethernet), capture size 262144 bytes
+  ^C01:54:41.418301 IP6 fc00:0:1111::1 > fc00:0:7777:e005::: IP 10.101.2.1 > 20.0.0.1: ICMP echo request, id 4, seq 11, length 64
+  01:54:41.421606 IP6 fc00:0:7777::1 > fc00:0:1111:e005::: IP 20.0.0.1 > 10.101.2.1: ICMP echo reply, id 4, seq 11, length 64
+  01:54:41.818159 IP6 fc00:0:1111::1 > fc00:0:7777:e005::: IP 10.101.2.1 > 20.0.0.1: ICMP echo request, id 4, seq 12, length 64
+  01:54:41.821777 IP6 fc00:0:7777::1 > fc00:0:1111:e005::: IP 20.0.0.1 > 10.101.2.1: ICMP echo reply, id 4, seq 12, length 64
+  ```
+  3. To see the encapsulated traffic further in the network you can tcpdump links on **xrd02**, **xrd05**, etc. Examples:
+  ```
+  sudo ip netns exec clab-cleu25-xrd02 tcpdump -lni Gi0-0-0-1
+  sudo ip netns exec clab-cleu25-xrd05 tcpdump -lni Gi0-0-0-1
 
-sudo ip netns exec clab-cleu25-xrd03 tcpdump -lni Gi0-0-0-1
-sudo ip netns exec clab-cleu25-xrd04 tcpdump -lni Gi0-0-0-1
-etc.
-```
+  sudo ip netns exec clab-cleu25-xrd03 tcpdump -lni Gi0-0-0-1
+  sudo ip netns exec clab-cleu25-xrd04 tcpdump -lni Gi0-0-0-1
+  etc.
+  ```
 
 ### SRv6 Encapsulation and BGP
 
@@ -115,7 +115,7 @@ In the above **xrd01** recieves IPv4 packets from Amsterdam destined to Rome. We
     No advertising protos.
   ```
 
-2. Lets now lookup in the CEF table to see the forwarding next hop.
+3. Lets now lookup in the CEF table to see the forwarding next hop.
   ```
   show ip cef 20.0.0.0/24
   ```
