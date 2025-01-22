@@ -21,3 +21,4 @@ metadata:
 spec:
   advertisements:
     - advertisementType: "PodCIDR"
+

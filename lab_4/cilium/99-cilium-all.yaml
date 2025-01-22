@@ -120,9 +120,9 @@ spec:
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: carrots
+  name: veggies
   labels:
-    name: carrots
+    name: veggies
 
 ---
 apiVersion: isovalent.com/v1alpha1
@@ -144,7 +144,7 @@ spec:
 apiVersion: v1
 kind: Pod
 metadata:
-  namespace: carrots
+  namespace: veggies
   labels:
     app: alpine-ping
     vrf: carrots
@@ -163,7 +163,7 @@ spec:
 apiVersion: v1
 kind: Pod
 metadata:
-  namespace: carrots
+  namespace: veggies
   labels:
     app: alpine-ping
     vrf: carrots
@@ -177,3 +177,63 @@ spec:
       - /bin/sh
       - "-c"
       - "sleep 60m"
+
+---
+apiVersion: isovalent.com/v1alpha1
+kind: IsovalentBGPVRFConfig
+metadata:
+  name: radish-config
+spec:
+  families:
+    - afi: ipv4
+      safi: mpls_vpn
+      advertisements:
+        matchLabels:
+          advertise: "bgp-radish"
+
+---
+apiVersion: isovalent.com/v1alpha1
+kind: IsovalentBGPAdvertisement
+metadata:
+  name: radish-adverts
+  labels:
+    advertise: bgp-radish
+spec:
+  advertisements:
+    - advertisementType: "PodCIDR"
+
+---
+apiVersion: isovalent.com/v1alpha1
+kind: IsovalentVRF
+metadata:
+  name: radish
+spec:
+  vrfID: 100
+  locatorPoolRef: pool0
+  rules:
+  - selectors:
+    - endpointSelector:
+        matchLabels:
+          vrf: radish
+    destinationCIDRs:
+    - 0.0.0.0/0
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: veggies
+  labels:
+    app: alpine-ping
+    vrf: radish
+  name: radish0
+spec:
+  containers:
+  - image: alpine:latest
+    imagePullPolicy: IfNotPresent
+    name: radish0
+    command:
+      - /bin/sh
+      - "-c"
+      - "sleep 60m"
+
