@@ -29,9 +29,10 @@ This lab is divided into two main sections :
   - [Topology Viewer](#topology-viewer)
   - [Calculate a Path](#calculate-a-path)
   - [Schedule a Workload](#schedule-a-workload)
-  - [Path Calculation: Lowest Latency Path](#path-calculation-lowest-latency-path)
-  - [Path Calculation: Lowest Bandwidth Utilization Path](#path-calculation-lowest-bandwidth-utilization-path)
-  - [Path Calculation: Data Sovereignty Path](#path-calculation-data-sovereignty-path)
+- [Path Calculation Use Cases:](#path-calculation-use-cases)
+  - [Lowest Latency Path](#lowest-latency-path)
+  - [Lowest Bandwidth Utilization Path](#lowest-bandwidth-utilization-path)
+  - [Data Sovereignty Path](#data-sovereignty-path)
   - [End of lab 5 Part 1](#end-of-lab-5-part-1)
 
 ## Lab Objectives
@@ -406,7 +407,9 @@ The [add_meta_data.py](python/add_meta_data.py) python script will connect to th
 
 The Jalapeno UI is very much a work in progress and is meant to illustrate the potential use cases for extending SRv6 services beyond traditional network elements and into the server, host, VM, k8s, or other workloads or endpoints. Once Jalapeno has programmatically collected data from the network and it built its topology graphs, the network operator has complete flexibility to add data or augment the graph as we saw in the previous section. From there its not too difficult to conceive of building network services based on calls to the Jalapeno API and leveraging the SRv6 uSID stacks that are returned.
 
-Each lab instance has a Jalapeno Web UI that can be accessed at the following URL: [http://198.18.128.101:30700](http://198.18.128.101:30700). On the left hand sidebar you will see that UI functionality is split into four sections:
+Each lab instance has a Jalapeno Web UI that can be accessed at the following URL: [http://198.18.128.101:30700](http://198.18.128.101:30700). 
+
+On the left hand sidebar you will see that UI functionality is split into four sections:
 
 - **Data Collections**: explore raw object and graph data collected from the network.
 - **Topology Viewer**: explore the network topology graphs built by Jalapeno and based on BMP data received from the network.
@@ -436,13 +439,15 @@ This function is still under construction. The idea behind `Schedule a Workload`
 <img src="images/jalapeno-ui-sched-workload.png" width="900">
 
 
-### Path Calculation: Lowest Latency Path
+## Path Calculation Use Cases: 
+
+### Lowest Latency Path
 
 Our first use case is to make path selection through the network based on the cummulative link latency from A to Z. Calculating best paths using latency meta-data is not something traditional routing protocols can do. It may be possible to statically build routes through your network using weights to define a path. However, what these workarounds cannot do is provide path selection based on near real time data which is possible with an application like Jalapeno. This provides customers to have a flexible network policy that can react to changes in the WAN environment.
 
 In this use case we want to idenitfy the lowest latency path for traffic originating from the *`Amsterdam VM`* destined to *`Rome VM`*. The UI makes an API call to trigger Arango's shortest path query capabilities and specify latency as our *weighted attribute* pulled from the meta-data. 
 
-### Path Calculation: Lowest Bandwidth Utilization Path
+### Lowest Bandwidth Utilization Path
 
 In this use case we want to identify the least utilized path for traffic originating from the *`Amsterdam VM`* destined to *`Rome VM`*. The API call will specify link utilization as our *weighted attribute* pulled from the meta-data. 
 
@@ -487,7 +492,7 @@ From the UI select *`Amsterdam`* as the source and the *`Rome`* as the destinati
 > [!NOTE]
 > The xrd01 configuration was applied in Lab 3 and is shown here for informational purposes only.
   
-### Path Calculation: Data Sovereignty Path
+### Data Sovereignty Path
 
 In this use case we want to idenitfy a path originating from *`Amsterdam`* destined to *`Rome`* that avoids passing through France (perhaps there's a toll on the link). The API call will utilize Arango's shortest path query capability and filter out results that pass through **xrd06** based in Paris, France. 
 
