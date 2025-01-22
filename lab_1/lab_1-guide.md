@@ -404,11 +404,21 @@ For full size image see [LINK](/topo_drawings/isis-topology-large.png)
 > [!NOTE]
 > Normally pinging xrd-to-xrd in this dockerized environment would result in ping times of ~1-3ms. However, we wanted to simulate something a little more real-world so we built a shell script to add synthetic latency to the underlying Linux links. The script uses the [netem](https://wiki.linuxfoundation.org/networking/netem) 'tc' command line tool and executes commands in the XRds' underlying network namespaces. After running the script you'll see a ping RTT of anywhere from ~10ms to ~150ms. This synthetic latency will allow us to really see the effect of later traffic steering execises.
 
-1. Run the `add-latency.sh` script:
+1. Test latency from **xrd01** to **xrd02**:
+   
+   Ping from router **xrd01** to **xrd02** and note latency time.
+   ```
+   RP/0/RP0/CPU0:xrd01#ping 10.1.1.1
+   Sending 5, 100-byte ICMP Echos to 10.1.1.1 timeout is 2 seconds:
+   !!!!!
+   Success rate is 100 percent (5/5), round-trip min/avg/max = 1/2/4 ms
+   ```
+   
+2. Run the `add-latency.sh` script:
    ```
    ~/SRv6_dCloud_Lab/util/add-latency.sh
    ```
-
+   
    The script output should look something like this:
    ```
     Latencies added. The following output applies in both directions, Ex: xrd01 -> xrd02 and xrd02 -> xrd01
@@ -429,6 +439,15 @@ For full size image see [LINK](/topo_drawings/isis-topology-large.png)
     qdisc netem 8012: dev Gi0-0-0-0 root refcnt 13 limit 1000 delay 30.0ms
    ```
 
+3. Now test for latency a second time:
+   Ping from router **xrd01** to **xrd02** and note latency time.
+   ```
+   RP/0/RP0/CPU0:xrd01#ping 10.1.1.1
+   Sending 5, 100-byte ICMP Echos to 10.1.1.1 timeout is 2 seconds:
+   !!!!!
+   Success rate is 100 percent (5/5), round-trip min/avg/max = 12/12/16 ms
+   ```
+   
 ## Validate BGP Topology
 
 In the topology we are running a single ASN 65000 with BGP running on **xrd01**, **xrd05**, **xrd06**, **xrd07**.  Routers **xrd05** and **xrd06** are functioning as route reflectors and xrd01 and xrd07 are clients. The student will want to confirm BGP peering sessions are up and routes are being exchanged.
