@@ -355,7 +355,7 @@ Our topology is running ISIS as its underlying IGP with basic settings pre-confi
 
 For full size image see [LINK](/topo_drawings/isis-topology-large.png)
 
-1. SSH into each router (or at least two or three routers) and verify that ISIS is up and running on interfaces as identified in the ISIS topology diagram.
+1. SSH into each router (or at least two or three routers) and verify that ISIS is up and running on interfaces as identified in the ISIS topology diagram. The below output is from **xrd03**
     ```
     show isis interface brief
     ```
