@@ -8,4 +8,3 @@ kubectl delete -f 05-bgp-vrf.yaml
 kubectl delete -f 06-srv6-locator-pool.yaml 
 kubectl delete -f 07-vrf-carrots.yaml 
 kubectl delete -f 08-vrf-radish.yaml 
-kubectl delete -f 09-carrot-to-radish.yaml 
