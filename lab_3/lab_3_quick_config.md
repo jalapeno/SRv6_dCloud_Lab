@@ -169,6 +169,29 @@ vrf carrots
    9:9
   !
  !
+! 
+vrf radish
+ address-family ipv4 unicast
+  import route-target
+   10:10
+  !
+  export route-target
+   10:10
+  !
+ !
+ address-family ipv6 unicast
+  import route-target
+   10:10
+  !
+  export route-target
+   10:10
+  !
+ !
+!
+interface Loopback100
+ vrf radish
+ ipv4 address 100.0.7.1 255.255.255.0
+ ipv6 address 2001:db8:100:7::1/64
 !
 interface GigabitEthernet0/0/0/3
  vrf carrots
@@ -216,6 +239,25 @@ router bgp 65000
    !
    redistribute connected
    redistribute static
+  !
+ !
+!
+router bgp 65000
+ vrf radish
+  rd auto
+  address-family ipv4 unicast
+   segment-routing srv6
+    locator MyLocator
+    alloc mode per-vrf
+   !
+   redistribute connected
+  !
+  address-family ipv6 unicast
+   segment-routing srv6
+    locator MyLocator
+    alloc mode per-vrf
+   !
+   redistribute connected
   !
  !
 !
