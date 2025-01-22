@@ -29,7 +29,7 @@ The expected results of a packet capture on **xrd01** is to see ICMP IPv4 traffi
 
 See results below and notice both the ICMP echo and ICMP echo reply packets with SRv6 encapsulation. 
 > [!NOTE]
->  In this example the egress and return traffic both happened to be hashed through xrd02.
+>  In this example the egress and return traffic both happened to be hashed through **xrd02**.
 >  Path selection using the global routing table as you will see in the detailed packet walk below
 >  has multiple ECMP path options.
 
@@ -41,7 +41,7 @@ ssh cisco@198.18.128.102
 ping 20.0.0.1 -i .4
 ```
 
-2. Then on the XRD host VM run tcpdump to capture SRv6 encapsulated traffic egressing *xrd01*. We don't know which interface the traffic will be hashed through so we may need to run tcpdump on both interfaces. Note, the tcpdump output may not show until you stop it with crtl-z.
+2. Then on the XRD host VM run tcpdump to capture SRv6 encapsulated traffic egressing **xrd01**. We don't know which interface the traffic will be hashed through so we may need to run tcpdump on both interfaces. Note, the tcpdump output may not show until you stop it with crtl-z.
 ```
 sudo ip netns exec clab-cleu25-xrd01 tcpdump -nil Gi0-0-0-1
 sudo ip netns exec clab-cleu25-xrd01 tcpdump -nil Gi0-0-0-2
@@ -57,7 +57,7 @@ listening on Gi0-0-0-1, link-type EN10MB (Ethernet), capture size 262144 bytes
 01:54:41.818159 IP6 fc00:0:1111::1 > fc00:0:7777:e005::: IP 10.101.2.1 > 20.0.0.1: ICMP echo request, id 4, seq 12, length 64
 01:54:41.821777 IP6 fc00:0:7777::1 > fc00:0:1111:e005::: IP 20.0.0.1 > 10.101.2.1: ICMP echo reply, id 4, seq 12, length 64
 ```
-3. To see the encapsulated traffic further in the network you can tcpdump links on xrd02, xrd05, etc. Examples:
+3. To see the encapsulated traffic further in the network you can tcpdump links on **xrd02**, **xrd05**, etc. Examples:
 ```
 sudo ip netns exec clab-cleu25-xrd02 tcpdump -nil Gi0-0-0-1
 sudo ip netns exec clab-cleu25-xrd05 tcpdump -nil Gi0-0-0-1
@@ -69,9 +69,9 @@ etc.
 
 ### SRv6 Encapsulation and BGP
 
-In the above *xrd01* recieves IPv4 packets from Amsterdam destined to Rome. We will walk through the process of determining that SRv6 encapsulation is required and lookup process.
+In the above **xrd01** recieves IPv4 packets from Amsterdam destined to Rome. We will walk through the process of determining that SRv6 encapsulation is required and lookup process.
 
-1. From *xrd01* we can see a lookup of the IPv4 DA address in the bgpv4 global routing table and the SRv6 SID associated with the route 20.0.0.0/24.
+1. From **xrd01** we can see a lookup of the IPv4 DA address in the bgpv4 global routing table and the SRv6 SID associated with the route 20.0.0.0/24.
   ```
   show ip bgp ipv4 unicast 20.0.0.0/24
   ```
