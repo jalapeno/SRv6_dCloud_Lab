@@ -378,12 +378,15 @@ The [add_meta_data.py](python/add_meta_data.py) python script will connect to th
    Expected output:
    ```
    cisco@jalapeno:~/SRv6_dCloud_Lab/lab_5/python$ python3 add_meta_data.py
-   adding addresses, country codes, and synthetic latency data to the graph
+   adding hosts, addresses, country codes, and synthetic latency data to the graph
    adding location, country codes, latency, and link utilization data
    meta data added
+   Successfully inserted/updated 3 hosts records
+   Successfully inserted/updated 4 IPv4 edge records
+   Successfully inserted/updated 6 IPv6 edge records
    ```
 
-2. Validate meta data with an ArangoDB query:
+2. Validate meta data with a query in the ArangoDB UI:
    ```
    for x in ipv4_graph return { key: x._key, from: x._from, to: x._to, latency: x.latency, 
     utilization: x.percent_util_out, country_codes: x.country_codes }
@@ -403,7 +406,7 @@ The [add_meta_data.py](python/add_meta_data.py) python script will connect to th
 
 The Jalapeno UI is very much a work in progress and is meant to illustrate the potential use cases for extending SRv6 services beyond traditional network elements and into the server, host, VM, k8s, or other workloads or endpoints. Once Jalapeno has programmatically collected data from the network and it built its topology graphs, the network operator has complete flexibility to add data or augment the graph as we saw in the previous section. From there its not too difficult to conceive of building network services based on calls to the Jalapeno API and leveraging the SRv6 uSID stacks that are returned.
 
-Each lab instance has a Jalapeno Web UI that can be accessed at the following URL: `http://198.18.128.101:30700`. On the left hand sidebar you will see that UI functionality is split into four sections:
+Each lab instance has a Jalapeno Web UI that can be accessed at the following URL: [http://198.18.128.101:30700](http://198.18.128.101:30700). On the left hand sidebar you will see that UI functionality is split into four sections:
 
 - **Data Collections**: explore raw object and graph data collected from the network.
 - **Topology Viewer**: explore the network topology graphs built by Jalapeno and based on BMP data received from the network.
@@ -411,7 +414,7 @@ Each lab instance has a Jalapeno Web UI that can be accessed at the following UR
 - **Schedule a Workload**: this function is still under construction. The idea behind `Schedule a Workload` is to have a fabric load-balancing service.
 
 ### Data Collections
-Currently populated with raw BMP data and graph data. We have placeholder's for future data collections such as Services (like firewalls or load balancers), Hosts, and GPUs.
+Currently populated with raw BMP data and graph data. We have placeholders for future data collections such as Services (like firewalls or load balancers), Hosts, and GPUs.
 
 <img src="images/jalapeno-ui-data-collections.png" width="900">
 
