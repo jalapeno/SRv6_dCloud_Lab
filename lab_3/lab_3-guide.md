@@ -374,7 +374,7 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
            T:1(Sid information), Sid:fc00:0:7777::, Behavior:63, SS-TLV Count:1
            SubSubTLV:
              T:1(Sid structure):
-         Source AFI: VPNv4 Unicast, Source VRF: default, Source Route Distinguisher: 10.0.0.7:0
+         Source AFI: VPNv4 Unicast, Source VRF: default, Source Route Distinguisher: 10.0.0.7:1
 
    RP/0/RP0/CPU0:xrd01#show bgp vpnv6 uni vrf carrots fc00:0:50::/64
    Sat Jan  7 21:27:56.050 UTC
@@ -399,7 +399,7 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
            T:1(Sid information), Sid:fc00:0:7777::, Behavior:62, SS-TLV Count:1
            SubSubTLV:
              T:1(Sid structure):
-         Source AFI: VPNv6 Unicast, Source VRF: default, Source Route Distinguisher: 10.0.0.7:0
+         Source AFI: VPNv6 Unicast, Source VRF: default, Source Route Distinguisher: 10.0.0.7:1
    ```
 
 4. On **xrd01** configure a pair of SRv6-TE segment lists for steering traffic over these specific paths through the network: 
