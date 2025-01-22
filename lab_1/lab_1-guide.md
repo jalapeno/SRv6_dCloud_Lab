@@ -450,7 +450,7 @@ For full size image see [LINK](/topo_drawings/isis-topology-large.png)
    
 ## Validate BGP Topology
 
-In the topology we are running a single ASN 65000 with BGP running on **xrd01**, **xrd05**, **xrd06**, **xrd07**.  Routers **xrd05** and **xrd06** are functioning as route reflectors and xrd01 and xrd07 are clients. The student will want to confirm BGP peering sessions are up and routes are being exchanged.
+In the topology we are running a single ASN 65000 with BGP running on **xrd01**, **xrd05**, **xrd06**, **xrd07**.  Routers **xrd05** and **xrd06** are functioning as route reflectors and **xrd01** and **xrd07** are clients. The student will want to confirm BGP peering sessions are up and routes are being exchanged.
 
 ![BGP Topology](/topo_drawings/bgp-topology-medium.png)
 
@@ -499,7 +499,7 @@ For full size image see [LINK](/topo_drawings/bgp-topology-large.png)
 
     Processed 2 prefixes, 4 paths
     ```
-4. Verify that router xrd01 has received route ```fc00:0:107:1::/64``` from the route reflectors **xrd05** and **xrd07**. Look for ```Paths: (2 available)```
+4. Verify that router **xrd01** has received route ```fc00:0:107:1::/64``` from the route reflectors **xrd05** and **xrd07**. Look for ```Paths: (2 available)```
     ```
     show bgp ipv6 unicast fc00:0:107:1::/64
     ```
