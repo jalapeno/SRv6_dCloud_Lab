@@ -363,11 +363,11 @@ The general workflow when executing a query is as follows:
  
 ### Populating the DB with external data 
 
-In preparation for our service use cases we need to populate the DB with meta-data that we will use for upcoming path calculation API calls.
+In preparation for our Host-Based SRv6 use cases we need to populate the DB with meta-data that we will use for upcoming path calculation API calls.
 
-The [add_meta_data.py](python/add_meta_data.py) python script will connect to the ArangoDB and populate elements in our data collections with addresses and country codes. Also, due to the fact that we can't run realistic traffic through the XRd topology the script will populate the relevant graphDB elements with synthetic link latency and outbound link utilization data per this diagram:
+The [add_meta_data.py](python/add_meta_data.py) python script will connect to the ArangoDB and populate elements in our data collections with addresses and country codes. Also, due to the fact that we can't run realistic traffic through the XRd topology the script will populate the relevant graphDB elements with synthetic *link latency* and *outbound link utilization* data per this diagram:
 
-<img src="/topo_drawings/path-latency-topology.png" width="900">
+<img src="/topo_drawings/path-latency-topology.png" width="1000">
 
 
 1. Return to the ssh session on the Jalapeno VM and add meta data to the DB. 
