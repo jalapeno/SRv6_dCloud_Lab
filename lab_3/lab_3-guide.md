@@ -75,7 +75,7 @@ BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4/6 L3VPN Network
 ### Add VRF to router interfaces for L3VPN
   Now that our VRF *carrots* has been created lets get the VRF added to the applicable interfaces. For **xrd01** we will use  interface *GigabitEthernet0/0/0/3* which connects to Amsterdam over link *M*. For **xrd07** we will use interface *GigabitEthernet0/0/0/3* which connects to Rome over link *K*.
 
-![iPerf Test](/topo_drawings/iperf-l3vpn.png)
+![L3VPN VRF Carrots](/topo_drawings/l3vpn-vrf-carrots.png)
 
  1. Add VRF to interfaces
 
