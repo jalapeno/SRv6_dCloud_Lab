@@ -1,0 +1,27 @@
+apiVersion: jalapeno.srv6/v1
+kind: PathRequest
+metadata:
+  name: berlin-routes
+spec:
+  platform: linux
+  defaultVrf:  # or defaultTable
+    ipv4:
+      routes:
+        - name: berlin-to-rome-v4
+          graph: ipv4_graph
+          pathType: shortest_path
+          metric: latency
+          source: hosts/berlin
+          destination: hosts/rome
+          destination_prefix: "10.107.1.0/24"
+          outbound_interface: "ens192"
+    ipv6:
+      routes:
+        - name: berlin-to-rome-v6
+          graph: ipv6_graph
+          pathType: shortest_path
+          metric: latency
+          source: hosts/berlin
+          destination: hosts/rome
+          destination_prefix: "fc00:0:107:1::/64"
+          outbound_interface: "ens192"

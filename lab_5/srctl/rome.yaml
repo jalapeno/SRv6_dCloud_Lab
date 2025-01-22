@@ -1,0 +1,27 @@
+apiVersion: jalapeno.srv6/v1
+kind: PathRequest
+metadata:
+  name: rome-routes
+spec:
+  platform: linux
+  defaultVrf:  # or defaultTable
+    ipv4:
+      routes:
+        - name: rome-to-amsterdam-v4
+          graph: ipv4_graph
+          pathType: shortest_path
+          metric: utilization
+          source: hosts/rome
+          destination: hosts/amsterdam
+          destination_prefix: "10.101.2.0/24"
+          outbound_interface: "ens192"
+    ipv6:
+      routes:
+        - name: rome-to-amsterdam-v6
+          graph: ipv6_graph
+          pathType: shortest_path
+          metric: utilization
+          source: hosts/rome
+          destination: hosts/amsterdam
+          destination_prefix: "fc00:0:101:2::/64"
+          outbound_interface: "ens192"
