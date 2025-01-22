@@ -43,13 +43,13 @@ ping 20.0.0.1 -i .4
 
 2. Then on the XRD host VM run tcpdump to capture SRv6 encapsulated traffic egressing xrd01. We don't know which interface the traffic will be hashed through so we may need to run tcpdump on both interfaces. Note, the tcpdump output may not show until you stop it with crtl-z.
 ```
-sudo ip netns exec clab-cleu25-xrd01 tcpdump -ni Gi0-0-0-1
-sudo ip netns exec clab-cleu25-xrd01 tcpdump -ni Gi0-0-0-2
+sudo ip netns exec clab-cleu25-xrd01 tcpdump -nil Gi0-0-0-1
+sudo ip netns exec clab-cleu25-xrd01 tcpdump -nil Gi0-0-0-2
 ```
 
 Example output:
 ```
-cisco@xrd:~/SRv6_dCloud_Lab/lab_2$ sudo ip netns exec clab-cleu25-xrd01 tcpdump -ni Gi0-0-0-1
+cisco@xrd:~/SRv6_dCloud_Lab/lab_2$ sudo ip netns exec clab-cleu25-xrd01 tcpdump -nil Gi0-0-0-1
 tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
 listening on Gi0-0-0-1, link-type EN10MB (Ethernet), capture size 262144 bytes
 ^C01:54:41.418301 IP6 fc00:0:1111::1 > fc00:0:7777:e005::: IP 10.101.2.1 > 20.0.0.1: ICMP echo request, id 4, seq 11, length 64
@@ -59,11 +59,11 @@ listening on Gi0-0-0-1, link-type EN10MB (Ethernet), capture size 262144 bytes
 ```
 3. To see the encapsulated traffic further in the network you can tcpdump links on xrd02, xrd05, etc. Examples:
 ```
-sudo ip netns exec clab-cleu25-xrd02 tcpdump -ni Gi0-0-0-1
-sudo ip netns exec clab-cleu25-xrd05 tcpdump -ni Gi0-0-0-1
+sudo ip netns exec clab-cleu25-xrd02 tcpdump -nil Gi0-0-0-1
+sudo ip netns exec clab-cleu25-xrd05 tcpdump -nil Gi0-0-0-1
 
-sudo ip netns exec clab-cleu25-xrd03 tcpdump -ni Gi0-0-0-1
-sudo ip netns exec clab-cleu25-xrd04 tcpdump -ni Gi0-0-0-1
+sudo ip netns exec clab-cleu25-xrd03 tcpdump -nil Gi0-0-0-1
+sudo ip netns exec clab-cleu25-xrd04 tcpdump -nil Gi0-0-0-1
 etc.
 ```
 
