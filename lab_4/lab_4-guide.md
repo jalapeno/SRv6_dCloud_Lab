@@ -562,15 +562,42 @@ In lab 3 we created the radish VRF on xrd07 and bound a loopback interface to it
    radish0    1/1     Running   0          103s
    ```
 
-3. Let's get the radish0 pod's IP addresses:
+3. Let's run a ping!
+
    ```
-   kubectl get pod -n veggies radish0 -o jsonpath="{.status.podIPs}" && echo
+   cisco@berlin:~/SRv6_dCloud_Lab/lab_4/cilium$ kubectl exec -it -n veggies radish0 -- /bin/sh
+   / # ping 100.0.7.1
+   PING 100.0.7.1 (100.0.7.1): 56 data bytes
+   64 bytes from 100.0.7.1: seq=0 ttl=253 time=4.373 ms
+   64 bytes from 100.0.7.1: seq=1 ttl=253 time=3.924 ms
+   64 bytes from 100.0.7.1: seq=2 ttl=253 time=4.759 ms
+   64 bytes from 100.0.7.1: seq=3 ttl=253 time=4.295 ms
    ```
 
-   Expected output should look something like:
-   ```
-   [{"ip":"10.200.0.252"},{"ip":"2001:db8:42::fb1a"}]
-   ```
+4. Switch carrots1 from the carrots VRF to the radish VRF and run a ping again:
+
+```
+kubectl apply -f 09-carrot-to-radish.yaml
+```
+
+5. Verify carrots1 is now in the radish VRF:
+```
+cisco@berlin:~/SRv6_dCloud_Lab/lab_4/cilium$ kubectl describe pod -n veggies carrots1 | more
+Name:             carrots1
+Namespace:        veggies
+Priority:         0
+Service Account:  default
+Node:             berlin/198.18.4.104
+Start Time:       Wed, 22 Jan 2025 02:19:34 -0500
+Labels:           app=alpine-ping
+                  vrf=radish
+Annotations:      <none>
+Status:           Running
+IP:               10.200.0.164
+IPs:
+  IP:  10.200.0.164
+  IP:  2001:db8:42::d582
+```
 
 > [!NOTE]
 > In a future version of this lab we hope to add support for Cilium SRv6-TE. 
