@@ -6,6 +6,7 @@ git config --global --add safe.directory /home/cisco/SRv6_dCloud_Lab
 git pull
 
 cd /home/cisco/srctl
+git config --global --add safe.directory /home/cisco/srctl
 git pull
 
 cd /home/cisco
