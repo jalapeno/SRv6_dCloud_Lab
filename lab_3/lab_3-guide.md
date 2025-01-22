@@ -520,7 +520,7 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
 
 1. Start a new SSH session to the XRD VM and run a tcpdump in the xrd01 namespace on the Gi0-0-0-1 interface. 
     ```
-    sudo ip netns exec clab-cleu25-xrd01 tcpdump -ni Gi0-0-0-1
+    sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-1
     ```
 
 2. From an SSH session to the Amsterdam VM ping the bulk transport destination IPv4 and IPv6 addresses.
@@ -534,7 +534,7 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
 In the example output below notice the outbound traffic is encapsulated with the correct SRv6 uSIDs. Also the reply traffic was not seen, so we ran a tcpdump on xrd01's other ISIS interface and saw it there:
 
     ```yaml
-    cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd01 tcpdump -ni Gi0-0-0-1      # tcpdump on xrd01's Gi0-0-0-1 interface
+    cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-1      # tcpdump on xrd01's Gi0-0-0-1 interface
     tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
     listening on Gi0-0-0-1, link-type EN10MB (Ethernet), capture size 262144 bytes
     23:30:36.415073 IP6 fc00:0:1111::1 > fc00:0:2222:3333:7777:e006::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 1, seq 47, length 64
@@ -544,7 +544,7 @@ In the example output below notice the outbound traffic is encapsulated with the
     3 packets captured
     3 packets received by filter
     0 packets dropped by kernel
-    cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd01 tcpdump -ni Gi0-0-0-2      # tcpdump on xrd01's other ISIS interface
+    cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-2      # tcpdump on xrd01's other ISIS interface
     tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
     listening on Gi0-0-0-2, link-type EN10MB (Ethernet), capture size 262144 bytes
     23:30:54.063927 IP6 fc00:0:7777::1 > fc00:0:1111:e009::: IP 40.0.0.1 > 10.101.3.1: ICMP echo reply, id 1, seq 91, length 64
@@ -553,18 +553,18 @@ In the example output below notice the outbound traffic is encapsulated with the
 
 3. Optional, run tcpdump on the outbound interfaces of xrd02, xrd03, and xrd04 to see SRv6 uSID shift-and-forward behavior:
     ```
-    sudo ip netns exec clab-cleu25-xrd02 tcpdump -ni Gi0-0-0-1
+    sudo ip netns exec clab-cleu25-xrd02 tcpdump -lni Gi0-0-0-1
     ```
     ```
-    sudo ip netns exec clab-cleu25-xrd03 tcpdump -ni Gi0-0-0-1
+    sudo ip netns exec clab-cleu25-xrd03 tcpdump -lni Gi0-0-0-1
     ```
     ```
-    sudo ip netns exec clab-cleu25-xrd04 tcpdump -ni Gi0-0-0-1
+    sudo ip netns exec clab-cleu25-xrd04 tcpdump -lni Gi0-0-0-1
     ```
 
     Example output from tcpdump on xrd02:
     ```yaml
-    cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd02 tcpdump -ni Gi0-0-0-1
+    cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd02 tcpdump -lni Gi0-0-0-1
     tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
     listening on Gi0-0-0-1, link-type EN10MB (Ethernet), capture size 262144 bytes
 
@@ -576,7 +576,7 @@ In the example output below notice the outbound traffic is encapsulated with the
 #### Validate low latency traffic takes the path: xrd01 -> 05 -> 06 -> 07 
 1.  Start a new tcpdump session on xrd01's outbound interface to xrd05 (Gi0-0-0-2):
     ```
-    sudo ip netns exec clab-cleu25-xrd01 tcpdump -ni Gi0-0-0-2
+    sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-2
     ```
 
 2.  Ping from **Amsterdam** to **Rome's** low latency destination IPv4 and IPv6 addresses:
@@ -590,7 +590,7 @@ In the example output below notice the outbound traffic is encapsulated with the
 
     Example output from tcpdump on xrd01. Notice how the even though our explicit policy configuration included 5555 and 6666, XR's SRv6 programming logic sees that there is only one best path to xrd07, so it saves uSID space by not including 6666 in the destination address:
     ```yaml
-    cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd01 tcpdump -ni Gi0-0-0-2
+    cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-2
     tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
     listening on Gi0-0-0-2, link-type EN10MB (Ethernet), capture size 262144 bytes
     ^C23:45:51.894299 IP6 fc00:0:1111::1 > fc00:0:5555:7777:e006::: IP 10.101.3.1 > 50.0.0.1: ICMP echo request, id 6, seq 629, length 64
@@ -601,10 +601,10 @@ In the example output below notice the outbound traffic is encapsulated with the
     ```
 3.  Optional, run tcpdump on the outbound interfaces of xrd05 and xrd06 to see SRv6 uSID shift-and-forward behavior:
     ```
-    sudo ip netns exec clab-cleu25-xrd05 tcpdump -ni Gi0-0-0-1
+    sudo ip netns exec clab-cleu25-xrd05 tcpdump -lni Gi0-0-0-1
     ```
     ```
-    sudo ip netns exec clab-cleu25-xrd06 tcpdump -ni Gi0-0-0-1
+    sudo ip netns exec clab-cleu25-xrd06 tcpdump -lni Gi0-0-0-1
     ```
 
 ### End of Lab 3

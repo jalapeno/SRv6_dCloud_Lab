@@ -520,7 +520,7 @@ In the next step we've combined creation of both the carrots VRF and kubernetes 
 1. Return to the XRd VM and run a tcpdump to capture Cilium's SRv6 encapsulation of outbound packets:
 
     ```
-    sudo ip netns exec clab-cleu25-xrd02 tcpdump -ni Gi0-0-0-3
+    sudo ip netns exec clab-cleu25-xrd02 tcpdump -lni Gi0-0-0-3
     ```
 
     Example output:

@@ -226,12 +226,12 @@ cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd01 ip link show
 
 Now that we have the network namespace and interface name we can run a tcpdump command. An example tcpdump command capturing traffic on xrd01 Gig0/0/0/1 would look like this:
 ```
-sudo ip netns exec clab-cleu25-xrd01 tcpdump -nil Gi0-0-0-1
+sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-1
 ```
 
 Examples:
 ```
-cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd01 tcpdump -nil Gi0-0-0-1
+cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-1
 tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
 listening on Gi0-0-0-1, link-type EN10MB (Ethernet), capture size 262144 bytes
 16:52:42.426927 IP6 fc00:0:6666::1.59565 > fc00:0:1111::1.179: Flags [P.], seq 3163804341:3163804360, ack 1727025708, win 31875, length 19: BGP

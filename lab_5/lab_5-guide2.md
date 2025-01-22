@@ -245,7 +245,7 @@ ssh cisco@198.18.128.103
 ```
  - Start tcpdump on the 2nd ssh session. This will capture packets outbound from Rome VM going toward xrd07:
 ```
-sudo tcpdump -ni ens192
+sudo tcpdump -lni ens192
 ```
  - Return to the first Rome ssh session and ping Amsterdam with Rome source address 20.0.0.1. The "-i .3" argument sets the ping interval to 300ms
 ```
@@ -254,7 +254,7 @@ ping 10.101.2.1 -I 20.0.0.1 -i .3
 
 1. Check the Rome tcpdump to validate traffic is encapsulated with the SRv6 SID. Expected output will be something like:
 ```
-cisco@rome:~$ sudo tcpdump -ni ens192
+cisco@rome:~$ sudo tcpdump -lni ens192
 tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
 listening on ens192, link-type EN10MB (Ethernet), capture size 262144 bytes
 18:04:14.873127 IP6 fc00:0:107:1::1 > fc00:0:7777:6666:2222:1111:e007:0: srcrt (len=2, type=4, segleft=0[|srcrt]
@@ -269,7 +269,7 @@ listening on ens192, link-type EN10MB (Ethernet), capture size 262144 bytes
 *Note: feel free to just spot check 1 or 2 of these:
 
 ```
-sudo netns exec clab-cleu25-xrd07 tcpdump -ni Gi0-0-0-1
+sudo netns exec clab-cleu25-xrd07 tcpdump -lni Gi0-0-0-1
 ```
 
  - Example output:
@@ -294,7 +294,7 @@ For full size image see [LINK](/topo_drawings/low-latency-path.png)
     ```
     1. As with Least Utilized Path we can run the tcpdump scripts On the XRD VM to see our SRv6 encapsulated traffic traverse the network with uSID shift-and-forward in action (feel free to spot check): 
     ```
-    sudo ip netns exec clab-cleu25-xrd01 tcpdump -ni Gi0-0-0-1
+    sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-1
     ```
 
 ### Low Latency Re-Route
@@ -568,7 +568,7 @@ sudo vppctl show ip fib 20.0.0.0/24
 ssh cisco@198.18.128.100
 ```
 ```
-sudo tcpdump -ni ens224
+sudo tcpdump -lni ens224
 ```
  - Return to your Amsterdam ssh session and ping
 ```
@@ -577,7 +577,7 @@ ping 20.0.0.1 -i .4
 
 3. Validate outbound traffic is encapsulated in the SRv6 label stack. Expected output will be something like:
 ```
-cisco@xrd:~/SRv6_dCloud_Lab/util$ sudo tcpdump -ni ens224
+cisco@xrd:~/SRv6_dCloud_Lab/util$ sudo tcpdump -lni ens224
 <snip>
 01:17:48.874686 IP6 fc00:0:101:1::1 > fc00:0:2222:3333:4444:7777:e007:0: IP 10.101.2.1 > 20.0.0.1: ICMP echo request, id 12, seq 3, length 64
 01:17:48.949955 IP 20.0.0.1 > 10.101.2.1: ICMP echo reply, id 12, seq 3, length 64
@@ -585,9 +585,9 @@ cisco@xrd:~/SRv6_dCloud_Lab/util$ sudo tcpdump -ni ens224
 
 Optional: tcpdump
 ```
-sudo netns exec clab-cleu25-xrd01 tcpdump -ni Gi0-0-0-1
-sudo netns exec clab-cleu25-xrd02 tcpdump -ni Gi0-0-0-1
-sudo netns exec clab-cleu25-xrd03 tcpdump -ni Gi0-0-0-1
+sudo netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-1
+sudo netns exec clab-cleu25-xrd02 tcpdump -lni Gi0-0-0-1
+sudo netns exec clab-cleu25-xrd03 tcpdump -lni Gi0-0-0-1
 ```
 
 ### Low Latency Path
@@ -617,8 +617,8 @@ Example truncated output:
   ```
   XRD VM extended tcpdump:
   ```
-  sudo ip netns exec clab-cleu25-xrd01 tcpdump -ni Gi0-0-0-1
-  sudo ip netns exec clab-cleu25-xrd05 tcpdump -ni Gi0-0-0-1
+  sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-1
+  sudo ip netns exec clab-cleu25-xrd05 tcpdump -lni Gi0-0-0-1
   ```
 
 ### Data Sovereignty Path 
@@ -647,10 +647,10 @@ ping 20.0.0.1 -i .4
 
 XRD VM extended tcpdump:
 ```
-sudo ip netns exec clab-cleu25-xrd01 tcpdump -ni Gi0-0-0-1
-sudo ip netns exec clab-cleu25-xrd04 tcpdump -ni Gi0-0-0-1
-sudo ip netns exec clab-cleu25-xrd05 tcpdump -ni Gi0-0-0-1
-sudo ip netns exec clab-cleu25-xrd07 tcpdump -ni Gi0-0-0-1
+sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-1
+sudo ip netns exec clab-cleu25-xrd04 tcpdump -lni Gi0-0-0-1
+sudo ip netns exec clab-cleu25-xrd05 tcpdump -lni Gi0-0-0-1
+sudo ip netns exec clab-cleu25-xrd07 tcpdump -lni Gi0-0-0-1
 ```
 
 ### You have reached the end of LTRSPG-2212, hooray!

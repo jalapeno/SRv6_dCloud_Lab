@@ -241,7 +241,7 @@ ssh cisco@198.18.128.103
 ```
  - Start tcpdump on the 2nd ssh session. This will capture packets outbound from Rome VM going toward xrd07:
 ```
-sudo tcpdump -ni ens192
+sudo tcpdump -lni ens192
 ```
  - Return to the first Rome ssh session and ping Amsterdam with Rome source address 20.0.0.1. The "-i .3" argument sets the ping interval to 300ms
 ```
@@ -271,7 +271,7 @@ ping 10.101.2.1 -I 20.0.0.1 -i .3
 
 5. Check the Rome tcpdump to validate traffic is encapsulated with the SRv6 SID. Expected output will be something like:
 ```
-cisco@rome:~$ sudo tcpdump -ni ens192
+cisco@rome:~$ sudo tcpdump -lni ens192
 tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
 listening on ens192, link-type EN10MB (Ethernet), capture size 262144 bytes
 18:04:14.873127 IP6 fc00:0:107:1::1 > fc00:0:7777:6666:2222:1111:e007:0: srcrt (len=2, type=4, segleft=0[|srcrt]
@@ -292,7 +292,7 @@ netns tcpdump
  - Example output for the link between *`xrd06`* to *`xrd02`* is below. Note how *`xrd06`* has performed SRv6 micro-SID shift-and-forward on the destination address. Also note how the return traffic is taking SR-MPLS transport (currently). 
 ```
 cisco@xrd:~/SRv6_dCloud_Lab/util$ ./tcpdump.sh xrd02-xrd06
-sudo tcpdump -ni br-07e02174172b
+sudo tcpdump -lni br-07e02174172b
 tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
 listening on br-07e02174172b, link-type EN10MB (Ethernet), capture size 262144 bytes
 23:30:45.978380 IP6 fc00:0:107:1::1 > fc00:0:2222:1111:e007::: srcrt (len=2, type=4, segleft=0[|srcrt]
@@ -595,7 +595,7 @@ sudo vppctl show ip fib 20.0.0.0/24
 ssh cisco@198.18.128.100
 ```
 ```
-sudo tcpdump -ni ens224
+sudo tcpdump -lni ens224
 ```
  - Return to your Amsterdam ssh session and ping
 ```
@@ -604,7 +604,7 @@ ping 20.0.0.1 -i .4
 
 3. Validate outbound traffic is encapsulated in the SRv6 label stack. Expected output will be something like:
 ```
-cisco@xrd:~/SRv6_dCloud_Lab/util$ sudo tcpdump -ni ens224
+cisco@xrd:~/SRv6_dCloud_Lab/util$ sudo tcpdump -lni ens224
 <snip>
 01:17:48.874686 IP6 fc00:0:101:1::1 > fc00:0:2222:3333:4444:7777:e007:0: IP 10.101.2.1 > 20.0.0.1: ICMP echo request, id 12, seq 3, length 64
 01:17:48.949955 IP 20.0.0.1 > 10.101.2.1: ICMP echo reply, id 12, seq 3, length 64
