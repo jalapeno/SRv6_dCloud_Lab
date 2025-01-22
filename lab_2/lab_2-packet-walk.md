@@ -41,7 +41,7 @@ ssh cisco@198.18.128.102
 ping 20.0.0.1 -i .4
 ```
 
-2. Then on the XRD host VM run tcpdump to capture SRv6 encapsulated traffic egressing xrd01. We don't know which interface the traffic will be hashed through so we may need to run tcpdump on both interfaces. Note, the tcpdump output may not show until you stop it with crtl-z.
+2. Then on the XRD host VM run tcpdump to capture SRv6 encapsulated traffic egressing *xrd01*. We don't know which interface the traffic will be hashed through so we may need to run tcpdump on both interfaces. Note, the tcpdump output may not show until you stop it with crtl-z.
 ```
 sudo ip netns exec clab-cleu25-xrd01 tcpdump -nil Gi0-0-0-1
 sudo ip netns exec clab-cleu25-xrd01 tcpdump -nil Gi0-0-0-2
@@ -69,9 +69,9 @@ etc.
 
 ### SRv6 Encapsulation and BGP
 
-In the above xrd01 recieves IPv4 packets from Amsterdam destined to Rome. We will walk through the process of determining that SRv6 encapsulation is required and lookup process.
+In the above *xrd01* recieves IPv4 packets from Amsterdam destined to Rome. We will walk through the process of determining that SRv6 encapsulation is required and lookup process.
 
-1. From xrd01 we can see a lookup of the IPv4 DA address in the bgpv4 global routing table and the SRv6 SID associated with the route 20.0.0.0/24.
+1. From *xrd01* we can see a lookup of the IPv4 DA address in the bgpv4 global routing table and the SRv6 SID associated with the route 20.0.0.0/24.
   ```
   show ip bgp ipv4 unicast 20.0.0.0/24
   ```
