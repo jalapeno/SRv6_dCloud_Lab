@@ -1,5 +1,25 @@
 ---
 apiVersion: isovalent.com/v1alpha1
+kind: IsovalentBGPClusterConfig
+metadata:
+  name: cilium-bgp
+spec:
+  nodeSelector:
+    matchLabels:
+      kubernetes.io/hostname: berlin
+  bgpInstances:
+  - name: "asn65000"
+    vrfs:
+    - vrfRef: "radish"
+      rd: "10:10"
+      importRTs:
+        - "10:10"
+      exportRTs:
+        - "10:10"
+      configRef: radish-config
+
+---
+apiVersion: isovalent.com/v1alpha1
 kind: IsovalentBGPVRFConfig
 metadata:
   name: radish-config

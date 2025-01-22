@@ -26,6 +26,7 @@ The original version of this lab was developed in partnership with Arkadiusz Kal
   - [Establish Cilium VRFs and Create Pods](#establish-cilium-vrfs-and-create-pods)
     - [Verify Cilium advertised L3vpn prefixes are reaching remote xrd nodes](#verify-cilium-advertised-l3vpn-prefixes-are-reaching-remote-xrd-nodes)
     - [Run a ping test!](#run-a-ping-test)
+  - [Create a radish VRF and pod](#create-a-radish-vrf-and-pod)
   - [Lab 4 Appendix](#lab-4-appendix)
   - [End of lab 4](#end-of-lab-4)
 
@@ -374,7 +375,7 @@ In the next step we've combined creation of both the carrots VRF and kubernetes 
 
 2. Verify the VRF carrots pods are running:
    ```
-   kubectl get pods -n carrots
+   kubectl get pods -n veggies
    ```
 
    Expected output:
@@ -386,8 +387,8 @@ In the next step we've combined creation of both the carrots VRF and kubernetes 
 
 3. Let's get the pods' IP addresses as we'll need them in a few more steps:
    ```
-   kubectl get pod -n carrots carrots0 -o jsonpath="{.status.podIPs}" && echo
-   kubectl get pod -n carrots carrots1 -o jsonpath="{.status.podIPs}" && echo
+   kubectl get pod -n veggies carrots0 -o jsonpath="{.status.podIPs}" && echo
+   kubectl get pod -n veggies carrots1 -o jsonpath="{.status.podIPs}" && echo
    ```
 
    Expected output should look something like:
@@ -510,7 +511,7 @@ In the next step we've combined creation of both the carrots VRF and kubernetes 
 
 1. On the Berlin VM exec into one of the carrotspod containers and ping Amsterdam's interface in the carrots VRF:
   ```
-  kubectl exec -it -n carrots carrots0 -- sh
+  kubectl exec -it -n veggies carrots0 -- sh
   ```
   ```
   ping 10.101.3.1 -i .4 
@@ -529,6 +530,47 @@ In the next step we've combined creation of both the carrots VRF and kubernetes 
     08:26.416 IP6 fc00:0:8888:0:250:56ff:fe3f:ffff > fc00:0:1111:e008::: IP 10.200.0.242 > 10.101.3.1: ICMP echo request, id 14, seq 1, length 64
     08:26.419 IP6 fc00:0:1111::1 > fc00:0:a0ba:ec7::: IP 10.101.3.1 > 10.200.0.242: ICMP echo reply, id 14, seq 1, length 64
     ```
+
+## Create a radish VRF and pod
+In lab 3 we created the radish VRF on xrd07 and bound a loopback interface to it. Then we redistributed VRF radish's 'connected' routes. Now we'll create a radish VRF and pod in Cilium.
+
+1. Exit from the carrots pod if you haven't already and apply the radish VRF yaml file:
+   [08-vrf-radish.yaml](cilium/08-vrf-radish.yaml)
+   ```
+   kubectl apply -f 08-vrf-radish.yaml
+   ```
+  
+  Expected output:
+  ```
+  cisco@berlin:~/SRv6_dCloud_Lab/lab_4/cilium$    kubectl apply -f 08-vrf-radish.yaml
+  isovalentbgpvrfconfig.isovalent.com/radish-config created
+  isovalentbgpadvertisement.isovalent.com/radish-adverts created
+  isovalentvrf.isovalent.com/radish created
+  pod/radish0 created
+  ```
+
+2. Verify the radish0 pod is running in the K8s veggies namespace:
+   ```
+   kubectl get pods -n veggies
+   ```
+
+   Expected output:
+   ```
+   NAME       READY   STATUS    RESTARTS   AGE
+   carrots0   1/1     Running   0          8m3s
+   carrots1   1/1     Running   0          8m3s
+   radish0    1/1     Running   0          103s
+   ```
+
+3. Let's get the radish0 pod's IP addresses:
+   ```
+   kubectl get pod -n veggies radish0 -o jsonpath="{.status.podIPs}" && echo
+   ```
+
+   Expected output should look something like:
+   ```
+   [{"ip":"10.200.0.252"},{"ip":"2001:db8:42::fb1a"}]
+   ```
 
 > [!NOTE]
 > In a future version of this lab we hope to add support for Cilium SRv6-TE. 
