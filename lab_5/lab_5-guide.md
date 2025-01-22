@@ -238,7 +238,7 @@ At the heart of Jalapeno is the Arango Graph Database, which is used to model ne
     ./deploy.sh
     ```
 
-The new processors will have created the following new collections in the ArangoDB graphDB, feel free to explore them in the ArangoDB UI, or move on to the next section.
+The new processors will have created the following new collections in the Arango graphDB, feel free to explore them in the ArangoDB UI, or move on to the next section.
 
 - *`igpv4_graph`*: a model of the ipv4 IGP topology including SRv6 SID data
 - *`igpv6_graph`*: a model of the ipv6 IGP topology including SRv6 SID data
@@ -260,7 +260,7 @@ The new processors will have created the following new collections in the Arango
     ```
 
 ### Jalapeno REST API
-The Jalapeno REST API is used to run queries against the Arango graphDB and retrieve graph topology data or execute shortest path calculations. 
+The Jalapeno REST API is used to run queries against the ArangoDB and retrieve graph topology data or execute shortest path calculations. 
 
 1. Test the Jalapeno REST API:
 
@@ -271,7 +271,7 @@ The Jalapeno REST API is used to run queries against the Arango graphDB and retr
     ```
     curl http://198.18.128.101:30800/api/v1/collections/ls_node
     ```
-    -  If you run your curl commands from the Jalapeno VM we installed the jq tool to help with nicer JSON parsing:
+    -  If you run your curl commands from the Jalapeno VM we installed the *`jq`* tool to help with nicer JSON parsing:
     ```
     curl http://198.18.128.101:30800/api/v1/graphs/igpv4_graph/vertices/keys | jq .
     ```
@@ -298,7 +298,7 @@ In lab 1 we configured an SRv6 locator for the BGP global/default table. When we
     fc00:0:1111:e006::          uDT6              'default'                         bgp-65000           InUse  Y
     ``` 
 
-  - As we saw earlier in the lab, the *`kubectl get pods -n jalapeno`* command will show you all the k8s containers that make up the Jalapeno application, including the *`srv6-localsids`* processor. This processor harvests SRv6 SID data from a Kafka streaming telemetry topic and populates it in the *`sr_local_sids`* collection. This data is not available via BMP and is needed to construct full End.DT SIDs that we'll use in lab 6. 
+  - As we saw earlier in the lab, the *`kubectl get pods -n jalapeno`* command will show you all the k8s containers that make up the Jalapeno application, including the *`srv6-localsids`* processor. This processor harvests SRv6 SID data from a Kafka streaming telemetry topic and populates it in the *`sr_local_sids`* collection. This data is not available via BMP and is needed to construct full End.DT SIDs that we'll use in lab 5 Part 2. 
   
     Example:
 
