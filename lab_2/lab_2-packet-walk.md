@@ -38,7 +38,7 @@ See results below and notice both the ICMP echo and ICMP echo reply packets with
 1. First SSH to the Amsterdam VM then start a ping to the Rome VM
 ```
 ssh cisco@198.18.128.102
-ping 20.0.0.1 -i .4
+ping 20.0.0.1 -i 1
 ```
 
 2. Then on the XRD host VM run tcpdump to capture SRv6 encapsulated traffic egressing **xrd01**. We don't know which interface the traffic will be hashed through so we may need to run tcpdump on both interfaces. Note, the tcpdump output may not show until you stop it with crtl-z.
