@@ -229,9 +229,9 @@ Validation command output examples can be found at this [LINK](https://github.co
    ```
    show segment-routing srv6 sid
    show bgp vpnv4 unicast
-   show bgp vpnv4 unicast rd 10.0.0.7:0 40.0.0.0/24
+   show bgp vpnv4 unicast rd 10.0.0.7:1 40.0.0.0/24
    show bgp vpnv6 unicast
-   show bgp vpnv6 unicast rd 10.0.0.7:0 fc00:0:40::/64 
+   show bgp vpnv6 unicast rd 10.0.0.7:1 fc00:0:40::/64 
    ping vrf carrots 40.0.0.1
    ping vrf carrots 50.0.0.1
    ping vrf carrots fc00:0:40::1
@@ -240,9 +240,9 @@ Validation command output examples can be found at this [LINK](https://github.co
 
    Example validation for vpnv4 route
    ```yaml
-   RP/0/RP0/CPU0:xrd01#show bgp vpnv4 unicast rd 10.0.0.7:0 40.0.0.0/24   
+   RP/0/RP0/CPU0:xrd01#show bgp vpnv4 unicast rd 10.0.0.7:1 40.0.0.0/24   
    Tue Jan 31 23:36:41.390 UTC
-   BGP routing table entry for 40.0.0.0/24, Route Distinguisher: 10.0.0.7:0   <--- WE HAVE A ROUTE. YAH
+   BGP routing table entry for 40.0.0.0/24, Route Distinguisher: 10.0.0.7:1   <--- WE HAVE A ROUTE. YAH
    Versions:
      Process           bRIB/RIB  SendTblVer
      Speaker                  11           11
