@@ -77,7 +77,7 @@ In the above **xrd01** recieves IPv4 packets from Amsterdam destined to Rome. We
   ```
 
   Example truncated output:
-  ```
+  ```diff
   RP/0/RP0/CPU0:xrd01#show bgp ipv4 unicast 20.0.0.0/24
   Wed Jan 15 07:05:49.623 UTC
   BGP routing table entry for 20.0.0.0/24
@@ -93,7 +93,7 @@ In the above **xrd01** recieves IPv4 packets from Amsterdam destined to Rome. We
         Originator: 10.0.0.7, Cluster list: 10.0.0.5
         PSID-Type:L3, SubTLV Count:1
         SubTLV:
-          T:1(Sid information), Sid:fc00:0:7777:e005::, Behavior:63, SS-TLV Count:1    <---- SRv6 SID encapsulation
+  +       T:1(Sid information), Sid:fc00:0:7777:e005::, Behavior:63, SS-TLV Count:1    <---- SRv6 SID encapsulation
           SubSubTLV:
             T:1(Sid structure):
   ```
@@ -122,7 +122,7 @@ In the above **xrd01** recieves IPv4 packets from Amsterdam destined to Rome. We
   ```
 
   Output:
-  ```
+  ```diff
   20.0.0.0/24, version 55, SRv6 Headend, internal 0x5000001 0x40 (ptr 0x873d5f38) [1], 0x0 (0x0), 0x0 (0x9423a3b0)
   Updated Jan 15 05:32:20.825
   Prefix Len 24, traffic index 0, precedence n/a, priority 4
@@ -142,10 +142,10 @@ In the above **xrd01** recieves IPv4 packets from Amsterdam destined to Rome. We
       SRv6 H.Encaps.Red SID-list {fc00:0:7777:e005::}
 
     Hash  OK  Interface                 Address
-    0     Y   GigabitEthernet0/0/0/1    fe80::42:c0ff:fea8:c003 <--- ECMP Next-hop
-    1     Y   GigabitEthernet0/0/0/2    fe80::42:c0ff:fea8:d003 <--- ECMP Next-hop
-    2     Y   GigabitEthernet0/0/0/1    fe80::42:c0ff:fea8:c003 <--- ECMP Next-hop
-    3     Y   GigabitEthernet0/0/0/2    fe80::42:c0ff:fea8:d003 <--- ECMP Next-hop
+  + 0     Y   GigabitEthernet0/0/0/1    fe80::42:c0ff:fea8:c003 <--- ECMP Next-hop
+  + 1     Y   GigabitEthernet0/0/0/2    fe80::42:c0ff:fea8:d003 <--- ECMP Next-hop
+  + 2     Y   GigabitEthernet0/0/0/1    fe80::42:c0ff:fea8:c003 <--- ECMP Next-hop
+  + 3     Y   GigabitEthernet0/0/0/2    fe80::42:c0ff:fea8:d003 <--- ECMP Next-hop
   ```
 
 ## Proceed to Lab 3
