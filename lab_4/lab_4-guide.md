@@ -532,7 +532,7 @@ In the next step we've combined creation of both the carrots VRF and kubernetes 
     ```
 
 ## Create a radish VRF and pod
-In lab 3 we created the radish VRF on xrd07 and bound a loopback interface to it. Then we redistributed VRF radish's 'connected' routes. Now we'll create a radish VRF and pod in Cilium.
+In lab 3 we created the *radish VRF* on *xrd07* and bound a loopback interface to it. Then we redistributed VRF radish's *connected* routes. Now we'll create a radish VRF and pod in Cilium.
 
 1. Exit from the carrots pod if you haven't already and apply the radish VRF yaml file:
    [08-vrf-radish.yaml](cilium/08-vrf-radish.yaml)
@@ -562,42 +562,53 @@ In lab 3 we created the radish VRF on xrd07 and bound a loopback interface to it
    radish0    1/1     Running   0          103s
    ```
 
-3. Let's run a ping!
+3. Let's exec into the radish0 pod and run a ping!
+
+    ```
+    kubectl exec -it -n veggies radish0 -- /bin/sh
+    ping 100.0.7.1
+    ```
+
+    Expected output:
+    ```
+    cisco@berlin:~/SRv6_dCloud_Lab/lab_4/cilium$ kubectl exec -it -n veggies radish0 -- /bin/sh
+    / # ping 100.0.7.1
+    PING 100.0.7.1 (100.0.7.1): 56 data bytes
+    64 bytes from 100.0.7.1: seq=0 ttl=253 time=4.373 ms
+    64 bytes from 100.0.7.1: seq=1 ttl=253 time=3.924 ms
+    64 bytes from 100.0.7.1: seq=2 ttl=253 time=4.759 ms
+    64 bytes from 100.0.7.1: seq=3 ttl=253 time=4.295 ms
+    ```
+
+4. Next, to demonstrate the flexibility of Cilium's SRv6 implementation, we'll switch the carrots1 pod from the carrots VRF to the radish VRF and run a ping again:
 
    ```
-   cisco@berlin:~/SRv6_dCloud_Lab/lab_4/cilium$ kubectl exec -it -n veggies radish0 -- /bin/sh
-   / # ping 100.0.7.1
-   PING 100.0.7.1 (100.0.7.1): 56 data bytes
-   64 bytes from 100.0.7.1: seq=0 ttl=253 time=4.373 ms
-   64 bytes from 100.0.7.1: seq=1 ttl=253 time=3.924 ms
-   64 bytes from 100.0.7.1: seq=2 ttl=253 time=4.759 ms
-   64 bytes from 100.0.7.1: seq=3 ttl=253 time=4.295 ms
+   kubectl apply -f 09-carrot-to-radish.yaml
    ```
-
-4. Switch carrots1 from the carrots VRF to the radish VRF and run a ping again:
-
-```
-kubectl apply -f 09-carrot-to-radish.yaml
-```
 
 5. Verify carrots1 is now in the radish VRF:
-```
-cisco@berlin:~/SRv6_dCloud_Lab/lab_4/cilium$ kubectl describe pod -n veggies carrots1 | more
-Name:             carrots1
-Namespace:        veggies
-Priority:         0
-Service Account:  default
-Node:             berlin/198.18.4.104
-Start Time:       Wed, 22 Jan 2025 02:19:34 -0500
-Labels:           app=alpine-ping
-                  vrf=radish
-Annotations:      <none>
-Status:           Running
-IP:               10.200.0.164
-IPs:
-  IP:  10.200.0.164
-  IP:  2001:db8:42::d582
-```
+   ```
+   kubectl describe pod -n veggies carrots1 | more
+   ```
+
+   Expected output:
+   ```yaml
+   cisco@berlin:~/SRv6_dCloud_Lab/lab_4/cilium$ kubectl describe pod -n veggies carrots1 | more
+   Name:             carrots1
+   Namespace:        veggies
+   Priority:         0
+   Service Account:  default
+   Node:             berlin/198.18.4.104
+   Start Time:       Wed, 22 Jan 2025 02:19:34 -0500
+   Labels:           app=alpine-ping
+                    vrf=radish           # carrots1 is now in the radish VRF
+   Annotations:      <none>
+   Status:           Running
+   IP:               10.200.0.164
+   IPs:
+     IP:  10.200.0.164
+     IP:  2001:db8:42::d582
+   ```
 
 > [!NOTE]
 > In a future version of this lab we hope to add support for Cilium SRv6-TE. 

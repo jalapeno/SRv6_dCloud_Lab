@@ -81,6 +81,8 @@ BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4/6 L3VPN Network
 
     **xrd01**
     ```yaml
+    conf t
+    
     interface GigabitEthernet0/0/0/3
       vrf carrots
       ipv4 address 10.101.3.2 255.255.255.0
@@ -91,6 +93,8 @@ BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4/6 L3VPN Network
 
     **xrd07**  
     ```yaml
+    conf t
+    
     interface GigabitEthernet0/0/0/3
       vrf carrots
       ipv4 address 10.107.2.2 255.255.255.0
@@ -105,6 +109,8 @@ BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4/6 L3VPN Network
 
     **xrd07**
     ```yaml
+    conf t
+    
     router static
       vrf carrots
         address-family ipv4 unicast

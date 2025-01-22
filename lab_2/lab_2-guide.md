@@ -185,7 +185,7 @@ The command we will use for tcpdump is *sudo ip netns exec <network namespace> t
 
 There are two pieces of information we need to run a tcpdump command; the *network namespace* and *interface name*.
 
-For a list of *network namespaces* use the below command: 
+For a list of *network namespaces* use the below command on the *XRD VM*: 
 ```
 sudo ip netns ls
 ```
