@@ -268,6 +268,15 @@ Here is a portion of the prefix advertisement CRD with notes:
    ```
    cilium bgp peers
    ```
+   ```yaml
+   cisco@berlin:~/SRv6_dCloud_Lab/lab_4/cilium$ cilium bgp peers
+   Node     Local AS   Peer AS   Peer Address     Session State   Uptime   Family          Received   Advertised
+   +berlin   65000      65000     fc00:0:5555::1   established     11m48s   ipv6/unicast    6          1
+                                                                            ipv4/mpls_vpn   5          0
+   +         65000      65000     fc00:0:6666::1   established     11m49s   ipv6/unicast    6          1
+                                                                            ipv4/mpls_vpn   5          0
+   ```  
+                                                                        
 
 3. Let's get a little more detail on advertised prefixes with the `cilium bgp routes` command. Let's first add a -h flag to see our options
 
