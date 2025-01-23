@@ -575,12 +575,7 @@ Validate bulk traffic takes the non-shortest path: **xrd01 -> 02 -> 03 -> 04 -> 
     sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-1
     ```
 
-2. From an SSH session to the Amsterdam VM ping the bulk transport destination IPv4 and IPv6 addresses.
-    ```
-    ping 40.0.0.1 -i 1
-    ```
-
-    What your looking for in the below output is the translation of the previously configured SRv6 TE policy below translated into the actual SRv6 packet header. So the TE bulk policy configured was:
+2. Lets now tie the SRv6 TE policy configured to what we expect to see in the tcpdump. What your looking for in the below output is the translation of the previously configured SRv6 TE policy below translated into the actual SRv6 packet header. So the TE bulk policy configured was:
 
    ```
       segment-list xrd2347
@@ -595,6 +590,11 @@ Validate bulk traffic takes the non-shortest path: **xrd01 -> 02 -> 03 -> 04 -> 
    ```
 > [!IMPORTANT]
 > Notice that the above that the above SID stack the last hop xrd04 (4444). As mentioned in the lecture XR looks at the penultimate hop and does a calculation using the ISIS topology table and determines that **xrd03** best forwarding path to **xrd07** (7777) is through **xrd04**. Therefor for effiecency it drops the penultimate hop off the SID stack.
+
+3. From an SSH session to the Amsterdam VM ping the bulk transport destination IPv4 and IPv6 addresses.
+    ```
+    ping 40.0.0.1 -i 1
+    ```
 
    ```yaml
    cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-1
