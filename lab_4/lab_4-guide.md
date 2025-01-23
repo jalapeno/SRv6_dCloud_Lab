@@ -303,7 +303,39 @@ Here is a portion of the prefix advertisement CRD with notes:
    ```
 > [!NOTE]
 > The adverstised IPv6 network prefix is the assigned IPv6 used by Cilium on **Berlin**. In addtion the NextHop address listed in the above command lists the IPv6 interface address on the **Berlin** that connects to **xrd02** in the topology. You can see this detail if you run the command *ifconfig cilium_host* and *ifconfig ens192* respectively.
-> 
+
+5. Validate that we see the route *2001:db8:42::/64* received on the XR routers. Lets log into **xrd01** and validate we have received the router for **Berlin** in the IPv6 bgp unicast table.
+   
+   On **xrd01** run the below command:
+   ```
+   show bgp ipv6 unicast 2001:db8:42::/64
+   ```
+   ```yaml
+   RP/0/RP0/CPU0:xrd01#show bgp ipv6 unicast 2001:db8:42::/64
+   Thu Jan 23 21:24:54.885 UTC
+   BGP routing table entry for 2001:db8:42::/64
+   Versions:
+     Process           bRIB/RIB   SendTblVer
+     Speaker                 43           43
+   Last Modified: Jan 23 20:53:43.418 for 00:31:11
+   Paths: (2 available, best #1)
+     Not advertised to any peer
+     Path #1: Received by speaker 0
+     Not advertised to any peer
+     Local
+       fc00:0:8888::1 (metric 2) from fc00:0:5555::1 (198.18.4.104)
+       Origin IGP, localpref 100, valid, internal, best, group-best
+       Received Path ID 0, Local Path ID 1, version 43
+       Originator: 198.18.4.104, Cluster list: 10.0.0.5
+   Path #2: Received by speaker 0
+     Not advertised to any peer
+     Local
+       fc00:0:8888::1 (metric 2) from fc00:0:6666::1 (198.18.4.104)
+         Origin IGP, localpref 100, valid, internal
+         Received Path ID 0, Local Path ID 0, version 0
+         Originator: 198.18.4.104, Cluster list: 10.0.0.6
+   ```
+
 ### Create the carrots BGP VRF
 
 We've combined the BGP VRF config and prefix advertisement into a single yaml file. The VRF config portion is comparable to the `02-bgp-peer.yaml` in that it defines the VRF address families and route policies. The prefix advertisement mirrors `04-bgp-advert.yaml` in that it defines the prefixes to advertise. Feel free to review it here: [05-bgp-vrf.yaml](cilium/05-bgp-vrf.yaml)
