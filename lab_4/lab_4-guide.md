@@ -242,7 +242,7 @@ In the next few steps we'll walk through applying the configuration one element 
    
 ### Cilium BGP prefix advertisement
 
-We have not added ipv6 prefix advertisesments yet, hence a zero value in the Advertised output above. Also, **xrd05** and **xrd06**'s peering sessions with Cilium inherited the vpnv4 address family configuration during Lab 3 so we don't need to update their configs. 
+We have not added IPv6 prefix advertisesments yet, hence a zero value in the Advertised output above. Also, **xrd05** and **xrd06**'s peering sessions with Cilium inherited the vpnv4 address family configuration during Lab 3 so we don't need to update their configs. 
 
 Here is a portion of the prefix advertisement CRD with notes:
    ```yaml
@@ -275,8 +275,7 @@ Here is a portion of the prefix advertisement CRD with notes:
                                                                             ipv4/mpls_vpn   5          0
    +         65000      65000     fc00:0:6666::1   established     11m49s   ipv6/unicast    6          1
                                                                             ipv4/mpls_vpn   5          0
-   ```  
-                                                                        
+   ```                                                                         
 
 3. Let's get a little more detail on advertised prefixes with the `cilium bgp routes` command. Let's first add a -h flag to see our options
 
@@ -302,7 +301,9 @@ Here is a portion of the prefix advertisement CRD with notes:
    berlin   65000     fc00:0:5555::1   2001:db8:42::/64   fc00:0:8888::1   18s   [{Origin: i} {AsPath: } {LocalPref: 100} {MpReach(ipv6-unicast): {Nexthop: fc00:0:8888::1, NLRIs: [2001:db8:42::/64]}}]   
             65000     fc00:0:6666::1   2001:db8:42::/64   fc00:0:8888::1   18s   [{Origin: i} {AsPath: } {LocalPref: 100} {MpReach(ipv6-unicast): {Nexthop: fc00:0:8888::1, NLRIs: [2001:db8:42::/64]}}] 
    ```
-
+> [!NOTE]
+> The adverstised IPv6 network prefix is the assigned IPv6 used by Cilium on **Berlin**. In addtion the NextHop address listed in the above command lists the IPv6 interface address on the **Berlin** that connects to **xrd02** in the topology. You can see this detail if you run the command *ifconfig cilium_host* and *ifconfig ens192* respectively.
+> 
 ### Create the carrots BGP VRF
 
 We've combined the BGP VRF config and prefix advertisement into a single yaml file. The VRF config portion is comparable to the `02-bgp-peer.yaml` in that it defines the VRF address families and route policies. The prefix advertisement mirrors `04-bgp-advert.yaml` in that it defines the prefixes to advertise. Feel free to review it here: [05-bgp-vrf.yaml](cilium/05-bgp-vrf.yaml)
