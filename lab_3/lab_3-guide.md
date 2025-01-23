@@ -379,7 +379,7 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
    show bgp vpnv6 uni vrf carrots fc00:0:40::/64
    show bgp vpnv6 uni vrf carrots fc00:0:50::/64
    ```
-   - For easier reading you can filter the show command output:
+   - We now rerun the same command from step #1 and see that there is now an extended community *Color:40* tag
    ```
    show bgp vpnv4 uni vrf carrots 40.0.0.0/24
    ```
