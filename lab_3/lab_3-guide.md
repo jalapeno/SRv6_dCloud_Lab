@@ -606,7 +606,10 @@ Validate bulk traffic takes the non-shortest path: **xrd01 -> 02 -> 03 -> 04 -> 
    ```
    ping fc00:0:40::1 -i 1
    ```
-   ```yamnl
+   ```yaml
+   cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-1
+   tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+   listening on Gi0-0-0-1, link-type EN10MB (Ethernet), capture size 262144 bytes
    13:04:46.481863 IP6 fc00:0:1111::1 > fc00:0:2222:3333:7777:e009::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:40::1: ICMP6, echo request, seq 2, length 64
    13:04:47.483568 IP6 fc00:0:1111::1 > fc00:0:2222:3333:7777:e009::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:40::1: ICMP6, echo request, seq 3, length 64
    13:04:48.484592 IP6 fc00:0:1111::1 > fc00:0:2222:3333:7777:e009::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:40::1: ICMP6, echo request, seq 4, length 64
@@ -643,20 +646,21 @@ Validate bulk traffic takes the non-shortest path: **xrd01 -> 02 -> 03 -> 04 -> 
     ```
     ping 50.0.0.1 -i 1
     ```
-   
-   What your looking for in the below output is the translation of the previously configured SRv6 TE policy below translated into the actual SRv6 packet header. So the TE low latency policy configured was:
-   
-   ```
+
+    What your looking for in the below output is the translation of the previously configured SRv6 TE policy below translated into the actual SRv6 packet header. So the TE low latency policy configured was:
+
+    ```
     segment-list xrd2347
        srv6
          index 10 sid fc00:0:5555::
          index 20 sid fc00:0:6666::
-   ```
-And we expect to see in the packet header the follow tag order shown below in the tcpdump output:
+    ```
 
-   ```
-5555:6666
-   ```
+    And we expect to see in the packet header the follow tag order shown below in the tcpdump output:
+
+    ```
+    5555:6666
+    ```
     ```
     cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-2
     tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
