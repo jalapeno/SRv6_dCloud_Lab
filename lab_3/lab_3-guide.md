@@ -570,7 +570,7 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
 Validate bulk traffic takes the non-shortest path: **xrd01 -> 02 -> 03 -> 04 -> 07** 
 
 
-1. Start a new SSH session to the XRD VM and run a tcpdump in the xrd01 namespace on the Gi0-0-0-1 interface. 
+1. Start a new SSH session to the XRD VM and run a tcpdump in the **xrd01's** outbound interface to **xrd02** (Gi0-0-0-1):
     ```
     sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-1
     ```
@@ -621,7 +621,7 @@ Validate bulk traffic takes the non-shortest path: **xrd01 -> 02 -> 03 -> 04 -> 
     ```
 
 #### Validate low latency traffic takes the path: xrd01 -> 05 -> 06 -> 07 
-1.  Start a new tcpdump session on **xrd01's** outbound interface to xrd05 (Gi0-0-0-2):
+1.  Start a new tcpdump session on **xrd01's** outbound interface to **xrd05** (Gi0-0-0-2):
     ```
     sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-2
     ```
