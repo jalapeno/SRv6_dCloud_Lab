@@ -323,7 +323,7 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
          Received Label 0xe0060
          Origin incomplete, metric 0, localpref 100, valid, internal, best, group-best, import-candidate, imported
          Received Path ID 0, Local Path ID 1, version 63
-         Extended community: RT:9:9
+   +     Extended community: RT:9:9
          Originator: 10.0.0.7, Cluster list: 10.0.0.5
          PSID-Type:L3, SubTLV Count:1
           SubTLV:
@@ -381,35 +381,33 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
    ```
    - For easier reading you can filter the show command output:
    ```
-   show bgp vpnv4 uni vrf carrots 40.0.0.0/24 | include *olor 
-   ```
+   show bgp vpnv4 uni vrf carrots 40.0.0.0/24
+   ```diff
    RP/0/RP0/CPU0:xrd01#show bgp vpnv4 uni vrf carrots 40.0.0.0/24
-Thu Jan 23 17:16:49.248 UTC
-BGP routing table entry for 40.0.0.0/24, Route Distinguisher: 10.0.0.1:0
-Versions:
-  Process           bRIB/RIB   SendTblVer
-  Speaker                 67           67
-Last Modified: Jan 23 17:16:39.418 for 00:00:09
-Paths: (1 available, best #1)
-  Not advertised to any peer
-  Path #1: Received by speaker 0
-  Not advertised to any peer
-  Local
-    fc00:0:7777::1 (metric 3) from fc00:0:5555::1 (10.0.0.7)
-      Received Label 0xe0060
-      Origin incomplete, metric 0, localpref 100, valid, internal, best, group-best, import-candidate, imported
-      Received Path ID 0, Local Path ID 1, version 67
-      Extended community: Color:40 RT:9:9 
-      Originator: 10.0.0.7, Cluster list: 10.0.0.5
-      PSID-Type:L3, SubTLV Count:1
-       SubTLV:
-        T:1(Sid information), Sid:fc00:0:7777::(Transposed), Behavior:63, SS-TLV Count:1
-         SubSubTLV:
-          T:1(Sid structure):
-      Source AFI: VPNv4 Unicast, Source VRF: default, Source Route Distinguisher: 10.0.0.7:1
+   Thu Jan 23 17:16:49.248 UTC
+   BGP routing table entry for 40.0.0.0/24, Route Distinguisher: 10.0.0.1:0
+   Versions:
+     Process           bRIB/RIB   SendTblVer
+     Speaker                 67           67
+   Last Modified: Jan 23 17:16:39.418 for 00:00:09
+   Paths: (1 available, best #1)
+     Not advertised to any peer
+     Path #1: Received by speaker 0
+     Not advertised to any peer
+     Local
+       fc00:0:7777::1 (metric 3) from fc00:0:5555::1 (10.0.0.7)
+         Received Label 0xe0060
+         Origin incomplete, metric 0, localpref 100, valid, internal, best, group-best, import-candidate, imported
+         Received Path ID 0, Local Path ID 1, version 67
+   +     Extended community: Color:40 RT:9:9
+         Originator: 10.0.0.7, Cluster list: 10.0.0.5
+         PSID-Type:L3, SubTLV Count:1
+          SubTLV:
+           T:1(Sid information), Sid:fc00:0:7777::(Transposed), Behavior:63, SS-TLV Count:1
+            SubSubTLV:
+             T:1(Sid structure):
+         Source AFI: VPNv4 Unicast, Source VRF: default, Source Route Distinguisher: 10.0.0.7:1
    ```
-
-
 
 5. On **xrd01** configure a pair of SRv6-TE segment lists for steering traffic over these specific paths through the network: 
     - Segment list *xrd2347* will execute the explicit path: xrd01 -> 02 -> 03 -> 04 -> 07
