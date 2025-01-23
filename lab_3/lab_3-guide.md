@@ -577,31 +577,26 @@ Validate bulk traffic takes the non-shortest path: **xrd01 -> 02 -> 03 -> 04 -> 
 
 2. From an SSH session to the Amsterdam VM ping the bulk transport destination IPv4 and IPv6 addresses.
     ```
-    ping 40.0.0.1 -i .4
+    ping 40.0.0.1 -i 1
     ```
     ```
-    ping fc00:0:40::1 -i .4
-    ```
-
-In the example output below notice the outbound traffic is encapsulated with the correct SRv6 uSIDs. Also the reply traffic was not seen, so we ran a tcpdump on xrd01's other ISIS interface and saw it there:
-
-    ```yaml
     cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-1      # tcpdump on xrd01's Gi0-0-0-1 interface
     tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
     listening on Gi0-0-0-1, link-type EN10MB (Ethernet), capture size 262144 bytes
     23:30:36.415073 IP6 fc00:0:1111::1 > fc00:0:2222:3333:7777:e006::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 1, seq 47, length 64
     23:30:36.815397 IP6 fc00:0:1111::1 > fc00:0:2222:3333:7777:e006::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 1, seq 48, length 64
     23:30:37.216952 IP6 fc00:0:1111::1 > fc00:0:2222:3333:7777:e006::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 1, seq 49, length 64
-
-    3 packets captured
-    3 packets received by filter
-    0 packets dropped by kernel
-    cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-2      # tcpdump on xrd01's other ISIS interface
-    tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
-    listening on Gi0-0-0-2, link-type EN10MB (Ethernet), capture size 262144 bytes
-    23:30:54.063927 IP6 fc00:0:7777::1 > fc00:0:1111:e009::: IP 40.0.0.1 > 10.101.3.1: ICMP echo reply, id 1, seq 91, length 64
-    23:30:54.463372 IP6 fc00:0:7777::1 > fc00:0:1111:e009::: IP 40.0.0.1 > 10.101.3.1: ICMP echo reply, id 1, seq 92, length 64
     ```
+
+   Now lets try the IPv6 bulk transport destination
+   ```
+   ping fc00:0:40::1 -i 1
+   ```
+   ```
+   13:04:46.481863 IP6 fc00:0:1111::1 > fc00:0:2222:3333:7777:e009::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:40::1: ICMP6, echo request, seq 2, length 64
+   13:04:47.483568 IP6 fc00:0:1111::1 > fc00:0:2222:3333:7777:e009::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:40::1: ICMP6, echo request, seq 3, length 64
+   13:04:48.484592 IP6 fc00:0:1111::1 > fc00:0:2222:3333:7777:e009::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:40::1: ICMP6, echo request, seq 4, length 64
+   ```
 
 3. Optional, run tcpdump on the outbound interfaces of xrd02, xrd03, and xrd04 to see SRv6 uSID shift-and-forward behavior:
     ```
