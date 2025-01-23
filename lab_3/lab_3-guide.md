@@ -300,7 +300,40 @@ In our lab we will configure **xrd07** as the egress PE router with the ODN meth
 
 The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and SRv6 ODN steering policies that match routes with the respective color and apply the appropriate SID stack on outbound traffic.
 
-1. On **xrd07** advertise Rome's "40" and "50" prefixes with their respective color extended communities:
+1. Prior to configuring SRV6-TE policy lets get a baseline look at our vpvn4 route as viewed from **xrd01**
+   Run the following command:
+   ```
+   show bgp vpnv4 uni vrf carrots 40.0.0.0/24
+   ```
+
+   ```diff
+   RP/0/RP0/CPU0:xrd01#show bgp vpnv4 uni vrf carrots 40.0.0.0/24
+   Thu Jan 23 17:12:01.018 UTC
+   BGP routing table entry for 40.0.0.0/24, Route Distinguisher: 10.0.0.1:0
+   Versions:
+     Process           bRIB/RIB   SendTblVer
+     Speaker                 63           63
+   Last Modified: Jan 23 17:11:58.418 for 00:00:02
+   Paths: (1 available, best #1)
+     Not advertised to any peer
+     Path #1: Received by speaker 0
+     Not advertised to any peer
+     Local
+       fc00:0:7777::1 (metric 3) from fc00:0:5555::1 (10.0.0.7)
+         Received Label 0xe0060
+         Origin incomplete, metric 0, localpref 100, valid, internal, best, group-best, import-candidate, imported
+         Received Path ID 0, Local Path ID 1, version 63
+         Extended community: RT:9:9
+         Originator: 10.0.0.7, Cluster list: 10.0.0.5
+         PSID-Type:L3, SubTLV Count:1
+          SubTLV:
+           T:1(Sid information), Sid:fc00:0:7777::(Transposed), Behavior:63, SS-TLV Count:1
+               SubSubTLV:
+             T:1(Sid structure):
+         Source AFI: VPNv4 Unicast, Source VRF: default, Source Route Distinguisher: 10.0.0.7:1
+   ```
+      
+2. On **xrd07** advertise Rome's "40" and "50" prefixes with their respective color extended communities:
    **xrd07**
    ```yaml
    conf t
@@ -338,7 +371,7 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
    commit
    ```
 
-2. Validate vpnv4 and v6 prefixes are received at **xrd01** and that they have their color extcomms:
+3. Validate vpnv4 and v6 prefixes are received at **xrd01** and that they have their color extcomms:
    **xrd01**
    ```
    show bgp vpnv4 uni vrf carrots 40.0.0.0/24 
@@ -350,9 +383,88 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
    ```
    show bgp vpnv4 uni vrf carrots 40.0.0.0/24 | include *olor 
    ```
+   RP/0/RP0/CPU0:xrd01#show bgp vpnv4 uni vrf carrots 40.0.0.0/24
+Thu Jan 23 17:16:49.248 UTC
+BGP routing table entry for 40.0.0.0/24, Route Distinguisher: 10.0.0.1:0
+Versions:
+  Process           bRIB/RIB   SendTblVer
+  Speaker                 67           67
+Last Modified: Jan 23 17:16:39.418 for 00:00:09
+Paths: (1 available, best #1)
+  Not advertised to any peer
+  Path #1: Received by speaker 0
+  Not advertised to any peer
+  Local
+    fc00:0:7777::1 (metric 3) from fc00:0:5555::1 (10.0.0.7)
+      Received Label 0xe0060
+      Origin incomplete, metric 0, localpref 100, valid, internal, best, group-best, import-candidate, imported
+      Received Path ID 0, Local Path ID 1, version 67
+      Extended community: Color:40 RT:9:9 
+      Originator: 10.0.0.7, Cluster list: 10.0.0.5
+      PSID-Type:L3, SubTLV Count:1
+       SubTLV:
+        T:1(Sid information), Sid:fc00:0:7777::(Transposed), Behavior:63, SS-TLV Count:1
+         SubSubTLV:
+          T:1(Sid structure):
+      Source AFI: VPNv4 Unicast, Source VRF: default, Source Route Distinguisher: 10.0.0.7:1
+   ```
 
-   Examples:
 
+
+5. On **xrd01** configure a pair of SRv6-TE segment lists for steering traffic over these specific paths through the network: 
+    - Segment list *xrd2347* will execute the explicit path: xrd01 -> 02 -> 03 -> 04 -> 07
+    - Segment list *xrd567* will execute the explicit path: xrd01 -> 05 -> 06 -> 07
+
+   **xrd01**
+   ```yaml
+   conf t
+   segment-routing
+    traffic-eng
+     segment-lists
+      srv6
+       sid-format usid-f3216
+      
+      segment-list xrd2347
+       srv6
+        index 10 sid fc00:0:2222::
+        index 20 sid fc00:0:3333::
+        index 30 sid fc00:0:4444::
+
+      segment-list xrd567
+       srv6
+        index 10 sid fc00:0:5555::
+        index 20 sid fc00:0:6666::
+     commit
+   ```
+
+6. On **xrd01** configure our bulk transport and low latency SRv6 steering policies. Low latency traffic will be forced over the *xrd01-05-06-07* path, and bulk transport traffic will take the longer *xrd01-02-03-04-07* path:
+  
+   **xrd01**
+   ```yaml
+   conf t
+   segment-routing
+   traffic-eng
+     policy bulk-transfer
+     srv6
+       locator MyLocator binding-sid dynamic behavior ub6-insert-reduced
+     
+     color 40 end-point ipv6 fc00:0:7777::1
+     candidate-paths
+       preference 100
+       explicit segment-list xrd2347
+      
+     policy low-latency
+     srv6
+       locator MyLocator binding-sid dynamic behavior ub6-insert-reduced
+    
+     color 50 end-point ipv6 fc00:0:7777::1
+     candidate-paths
+       preference 100
+       explicit segment-list xrd567
+     commit
+   ```
+
+   Example output again now with TE policy applied on **xrd01**:
    ```yaml
    RP/0/RP0/CPU0:xrd01#show bgp vpnv4 uni vrf carrots 40.0.0.0/24
    Sat Jan  7 21:27:26.645 UTC
@@ -405,60 +517,7 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
          Source AFI: VPNv6 Unicast, Source VRF: default, Source Route Distinguisher: 10.0.0.7:1
    ```
 
-4. On **xrd01** configure a pair of SRv6-TE segment lists for steering traffic over these specific paths through the network: 
-    - Segment list *xrd2347* will execute the explicit path: xrd01 -> 02 -> 03 -> 04 -> 07
-    - Segment list *xrd567* will execute the explicit path: xrd01 -> 05 -> 06 -> 07
-
-   **xrd01**
-   ```yaml
-   conf t
-   segment-routing
-    traffic-eng
-     segment-lists
-      srv6
-       sid-format usid-f3216
-      
-      segment-list xrd2347
-       srv6
-        index 10 sid fc00:0:2222::
-        index 20 sid fc00:0:3333::
-        index 30 sid fc00:0:4444::
-
-      segment-list xrd567
-       srv6
-        index 10 sid fc00:0:5555::
-        index 20 sid fc00:0:6666::
-     commit
-   ```
-
-5. On **xrd01** configure our bulk transport and low latency SRv6 steering policies. Low latency traffic will be forced over the *xrd01-05-06-07* path, and bulk transport traffic will take the longer *xrd01-02-03-04-07* path:
-  
-   **xrd01**
-   ```yaml
-   conf t
-   segment-routing
-   traffic-eng
-     policy bulk-transfer
-     srv6
-       locator MyLocator binding-sid dynamic behavior ub6-insert-reduced
-     
-     color 40 end-point ipv6 fc00:0:7777::1
-     candidate-paths
-       preference 100
-       explicit segment-list xrd2347
-      
-     policy low-latency
-     srv6
-       locator MyLocator binding-sid dynamic behavior ub6-insert-reduced
-    
-     color 50 end-point ipv6 fc00:0:7777::1
-     candidate-paths
-       preference 100
-       explicit segment-list xrd567
-     commit
-   ```
-
-6. Validate **xrd01's** SRv6-TE SID is allocated and that policy is up:
+7. Validate **xrd01's** SRv6-TE SID is allocated and that policy is up:
    ```
    show segment-routing srv6 sid
    show segment-routing traffic-eng policy 
