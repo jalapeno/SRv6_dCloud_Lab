@@ -104,10 +104,9 @@ CRDs come in YAML file format and in the next several sections of this lab we'll
 
 ### Cilium BGP CRD
 
-![Cilium SRv6 L3VPN](/topo_drawings/cilium-l3vpn-topology.png)
-
 For the sake of simplicity in this lab we'll use iBGP peering between our Berlin K8s node and our route reflectors **xrd05** and **xrd06**. 
-1. On Berlin VM change to the lab_4/cilium directory and check out the contents
+
+On Berlin VM change to the lab_4/cilium directory and check out the contents
    ```
    cd ~/SRv6_dCloud_Lab/lab_4/cilium/
    ls
@@ -117,10 +116,10 @@ For the sake of simplicity in this lab we'll use iBGP peering between our Berlin
    * [01-bgp-cluster.yaml](cilium/01-bgp-cluster.yaml) - Cilium BGP global configuration
    * [02-bgp-peer.yaml](cilium/02-bgp-peer.yaml) - Cilium BGP peer address families and route policies
    * [03-bgp-node-override.yaml](cilium/03-bgp-node-override.yaml) - Cilium BGP node override; we use this to specify the BGP source address
-       * 04-bgp-advert.yaml](cilium/04-bgp-advert.yaml) - Cilium BGP prefix advertisement(s), including SRv6 locator prefix(s)
-       * [05-bgp-vrf.yaml](cilium/05-bgp-vrf.yaml) - Cilium BGP VRF configuration(s
-       * [06-srv6-locator-pool.yaml](cilium/06-srv6-locator-pool.yaml) - Cilium SRv6 SID manager and Locator pool configuration
-       * * [07-vrf-carrots.yaml](cilium/07-vrf-carrots.yaml) - Cilium VRF 'carrots' configuration and pods
+   * 04-bgp-advert.yaml](cilium/04-bgp-advert.yaml) - Cilium BGP prefix advertisement(s), including SRv6 locator prefix(s)
+   * [05-bgp-vrf.yaml](cilium/05-bgp-vrf.yaml) - Cilium BGP VRF configuration(s
+   * [06-srv6-locator-pool.yaml](cilium/06-srv6-locator-pool.yaml) - Cilium SRv6 SID manager and Locator pool configuration
+   * [07-vrf-carrots.yaml](cilium/07-vrf-carrots.yaml) - Cilium VRF 'carrots' configuration and pods
 
 
 Here is a portion of our Cilium BGP configuration in CRD form and with notes:
@@ -152,12 +151,13 @@ spec:
 
 One of the great things about CRDs is you can combine all the configuration elements into a single file, or you can break it up into multiple files by configuration element: 
 
-
 In the next few steps we'll walk through applying the configuration one element at a time. For reference the [99-cilium-all.yaml](cilium/99-cilium-all.yaml) file, would apply all the elements at once.
 
 ### Establish the Cilium BGP global and peer configurations
 
-1. On the Berlin VM cd into the Lab 4 cilium directory and apply the Cilium BGP Cluster Config CRD. BGP Cluster config establishes our Cilium Node's BGP ASN and base BGP peering with the route reflectors *`xrd05`* and *`xrd06`*.
+![Cilium SRv6 L3VPN](/topo_drawings/cilium-l3vpn-topology.png)
+
+1. On the **Berlin** VM cd into the Lab 4 cilium directory and apply the Cilium BGP Cluster Config CRD. BGP Cluster config establishes our Cilium Node's BGP ASN and base BGP peering with the route reflectors **xrd05** and **xrd06**.
    ```
    cd ~/SRv6_dCloud_Lab/lab_4/cilium/
    kubectl apply -f 01-bgp-cluster.yaml
