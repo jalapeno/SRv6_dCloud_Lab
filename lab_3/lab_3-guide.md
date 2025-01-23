@@ -504,9 +504,9 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
    Color: 40, End-point: fc00:0:7777::1
      Name: srte_c_40_ep_fc00:0:7777::1
        Status:
-+      Admin: up  Operational: up for 00:09:43 (since Jan 23 17:37:50.369)
-     Candidate-paths:
-       Preference: 100 (configuration) (active)
+   +      Admin: up  Operational: up for 00:09:43 (since Jan 23 17:37:50.369)
+       Candidate-paths:
+        Preference: 100 (configuration) (active)
          Name: bulk-transfer
          Requested BSID: dynamic
          Constraints:
