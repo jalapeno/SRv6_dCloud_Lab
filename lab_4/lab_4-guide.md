@@ -337,9 +337,7 @@ Here is a portion of the prefix advertisement CRD with notes:
    ```
 
 ### Create the carrots BGP VRF
-
-We've combined the BGP VRF config and prefix advertisement into a single yaml file. The VRF config portion is comparable to the `02-bgp-peer.yaml` in that it defines the VRF address families and route policies. The prefix advertisement mirrors `04-bgp-advert.yaml` in that it defines the prefixes to advertise. Feel free to review it here: [05-bgp-vrf.yaml](cilium/05-bgp-vrf.yaml)
-
+We are now going to apply the vrf configuration for *vrf carrots* to BGP. For details on the yaml file see here: [05-bgp-vrf.yaml](cilium/05-bgp-vrf.yaml)
 
 1. Apply the carrots BGP VRF configuration:
    ```
