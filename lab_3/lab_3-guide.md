@@ -593,9 +593,9 @@ Validate bulk traffic takes the non-shortest path: **xrd01 -> 02 -> 03 -> 04 -> 
    ```
    2222:3333:7777
    ```
-   > [!IMPORTANT]
-   > Notice that the above that the above SID stack the last hop xrd04 (4444). As mentioned in the lecture XR looks at the penultimate hop and does a calculation using the ISIS topology table and determines that **xrd03** best forwarding path to **xrd07** (7777) is through **xrd04**. Therefor for effiecency it drops the penultimate hop off the SID stack.
-   > 
+> [!IMPORTANT]
+> Notice that the above that the above SID stack the last hop xrd04 (4444). As mentioned in the lecture XR looks at the penultimate hop and does a calculation using the ISIS topology table and determines that **xrd03** best forwarding path to **xrd07** (7777) is through **xrd04**. Therefor for effiecency it drops the penultimate hop off the SID stack.
+
    ```yaml
    cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-1
    tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
