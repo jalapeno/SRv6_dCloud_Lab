@@ -579,7 +579,22 @@ Validate bulk traffic takes the non-shortest path: **xrd01 -> 02 -> 03 -> 04 -> 
     ```
     ping 40.0.0.1 -i 1
     ```
-    ```
+
+    What your looking for in the below output is the translation of the previously configured SRv6 TE policy below translated into the actual SRv6 packet header. So the bulk policy configured was:
+
+   ```
+      segment-list xrd2347
+       srv6
+        index 10 sid fc00:0:2222::
+        index 20 sid fc00:0:3333::
+        index 30 sid fc00:0:4444::
+   ```
+   And we expect to see in the packet header the follow tag order shown below in the tcpdump output:
+
+   ```
+   2222:3333:7777
+   ```
+   ```
     cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-1      # tcpdump on xrd01's Gi0-0-0-1 interface
     tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
     listening on Gi0-0-0-1, link-type EN10MB (Ethernet), capture size 262144 bytes
@@ -598,7 +613,7 @@ Validate bulk traffic takes the non-shortest path: **xrd01 -> 02 -> 03 -> 04 -> 
    13:04:48.484592 IP6 fc00:0:1111::1 > fc00:0:2222:3333:7777:e009::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:40::1: ICMP6, echo request, seq 4, length 64
    ```
 
-3. Optional, run tcpdump on the outbound interfaces of xrd02, xrd03, and xrd04 to see SRv6 uSID shift-and-forward behavior:
+4. Optional, run tcpdump on the outbound interfaces of xrd02, xrd03, and xrd04 to see SRv6 uSID shift-and-forward behavior:
     ```
     sudo ip netns exec clab-cleu25-xrd02 tcpdump -lni Gi0-0-0-1
     ```
@@ -635,7 +650,7 @@ Validate bulk traffic takes the non-shortest path: **xrd01 -> 02 -> 03 -> 04 -> 
     cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-2
     tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
     listening on Gi0-0-0-2, link-type EN10MB (Ethernet), capture size 262144 bytes
-    ^C23:45:51.894299 IP6 fc00:0:1111::1 > fc00:0:5555:7777:e006::: IP 10.101.3.1 > 50.0.0.1: ICMP echo request, id 6, seq 629, length 64
+    23:45:51.894299 IP6 fc00:0:1111::1 > fc00:0:5555:7777:e006::: IP 10.101.3.1 > 50.0.0.1: ICMP echo request, id 6, seq 629, length 64
     23:45:51.898852 IP6 fc00:0:7777::1 > fc00:0:1111:e009::: IP 50.0.0.1 > 10.101.3.1: ICMP echo reply, id 6, seq 629, length 64
     23:45:52.295091 IP6 fc00:0:1111::1 > fc00:0:5555:7777:e006::: IP 10.101.3.1 > 50.0.0.1: ICMP echo request, id 6, seq 630, length 64
     23:45:52.298848 IP6 fc00:0:7777::1 > fc00:0:1111:e009::: IP 50.0.0.1 > 10.101.3.1: ICMP echo reply, id 6, seq 630, length 64
