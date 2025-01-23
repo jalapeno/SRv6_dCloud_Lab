@@ -42,7 +42,7 @@ The student upon completion of Lab 3 should have achieved the following objectiv
   
 ## Verify pre-installed Cilium is running
 
-Kubernetes and Cilium Enterprise are pre-installed on the Berlin VM. All of the following steps are to be performed on the Berlin VM unless otherwise specified.
+Kubernetes and Cilium Enterprise are pre-installed on the **Berlin** VM. All of the following steps are to be performed on the **Berlin** VM unless otherwise specified.
 
 1. SSH into the Berlin VM and cd into the lab_4/cilium directory and check out the contents
    ```
