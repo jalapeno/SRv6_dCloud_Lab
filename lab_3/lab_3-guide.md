@@ -464,64 +464,16 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
      commit
    ```
 
-   Example output again now with TE policy applied on **xrd01**:
-   ```yaml
-   RP/0/RP0/CPU0:xrd01#show bgp vpnv4 uni vrf carrots 40.0.0.0/24
-   Sat Jan  7 21:27:26.645 UTC
-   BGP routing table entry for 40.0.0.0/24, Route Distinguisher: 10.0.0.1:0
-   Versions:
-     Process           bRIB/RIB  SendTblVer
-     Speaker                  58           58
-   Last Modified: Jan  7 21:27:19.204 for 00:00:07
-   Paths: (1 available, best #1)
-     Not advertised to any peer
-     Path #1: Received by speaker 0
-     Not advertised to any peer
-     Local
-       fc00:0:7777::1 (metric 3) from fc00:0:5555::1 (10.0.0.7)
-         Received Label 0xe0040
-         Origin incomplete, metric 0, localpref 100, valid, internal, best, group-best, import-candidate, imported
-         Received Path ID 0, Local Path ID 1, version 30
-         Extended community: Color:40 RT:9:9                      <------------------- HERE
-         Originator: 10.0.0.7, Cluster list: 10.0.0.5
-         PSID-Type:L3, SubTLV Count:1
-         SubTLV:
-           T:1(Sid information), Sid:fc00:0:7777::, Behavior:63, SS-TLV Count:1
-           SubSubTLV:
-             T:1(Sid structure):
-         Source AFI: VPNv4 Unicast, Source VRF: default, Source Route Distinguisher: 10.0.0.7:1
-
-   RP/0/RP0/CPU0:xrd01#show bgp vpnv6 uni vrf carrots fc00:0:50::/64
-   Sat Jan  7 21:27:56.050 UTC
-   BGP routing table entry for fc00:0:50::/64, Route Distinguisher: 10.0.0.1:0
-   Versions:
-     Process           bRIB/RIB  SendTblVer
-     Speaker                  46           46
-   Last Modified: Jan  7 21:27:19.204 for 00:00:36
-   Paths: (1 available, best #1)
-     Not advertised to any peer
-     Path #1: Received by speaker 0
-     Not advertised to any peer
-     Local
-       fc00:0:7777::1 (metric 3) from fc00:0:5555::1 (10.0.0.7)
-         Received Label 0xe0050
-         Origin incomplete, metric 0, localpref 100, valid, internal, best, group-best, import-candidate, imported
-         Received Path ID 0, Local Path ID 1, version 34
-         Extended community: Color:50 RT:9:9                      <------------------- HERE
-         Originator: 10.0.0.7, Cluster list: 10.0.0.5
-         PSID-Type:L3, SubTLV Count:1
-         SubTLV:
-           T:1(Sid information), Sid:fc00:0:7777::, Behavior:62, SS-TLV Count:1
-           SubSubTLV:
-             T:1(Sid structure):
-         Source AFI: VPNv6 Unicast, Source VRF: default, Source Route Distinguisher: 10.0.0.7:1
-   ```
-
-6. Validate **xrd01's** SRv6-TE SID is allocated and that policy is up:
+6. Validate **xrd01's** SRv6-TE SID policy is enabled and up:
    ```
    show segment-routing srv6 sid
-   show segment-routing traffic-eng policy 
+   show segment-routing traffic-eng policy
+   show bgp vpnv4 uni vrf carrots 40.0.0.0/24 
    ```
+   
+   Example output again now with TE policy applied on **xrd01**:
+
+   
    Example output, note the additional uDT VRF carrots and SRv6-TE **uB6 Insert.Red** SIDs added to the list:
    ```yaml
    RP/0/RP0/CPU0:xrd01#  show segment-routing srv6 sid
@@ -543,45 +495,77 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
    fc00:0:1111:e008::          uDT4              'carrots'                         bgp-65000           InUse  Y 
    fc00:0:1111:e009::          uDT6              'carrots'                         bgp-65000           InUse  Y 
    ```
-   ```yaml
-   RP/0/RP0/CPU0:xrd01#show segment-routing traffic-eng policy 
-   Sat Jan 28 00:06:23.479 UTC
+   
+   ```diff
+   RP/0/RP0/CPU0:xrd01#show segment-routing traffic-eng policy color 40
    SR-TE policy database
    ---------------------
- 
-   Color: 50, End-point: fc00:0:7777::1
-     Name: srte_c_50_ep_fc00:0:7777::1
-     Status:
-       Admin: up  Operational: up for 00:23:59 (since Jan 27 23:42:24.041)
+
+   Color: 40, End-point: fc00:0:7777::1
+     Name: srte_c_40_ep_fc00:0:7777::1
+       Status:
++      Admin: up  Operational: up for 00:09:43 (since Jan 23 17:37:50.369)
      Candidate-paths:
        Preference: 100 (configuration) (active)
-         Name: low-latency
+         Name: bulk-transfer
          Requested BSID: dynamic
          Constraints:
            Protection Type: protected-preferred
-           Maximum SID Depth: 19 
-         Explicit: segment-list xrd567 (valid)      <------------- HERE
+           Maximum SID Depth: 25
+   +     Explicit: segment-list xrd2347 (valid)
            Weight: 1, Metric Type: TE
-             SID[0]: fc00:0:5555::/48
+             SID[0]: fc00:0:2222::/48
                      Format: f3216
                      LBL:32 LNL:16 FL:0 AL:80
-             SID[1]: fc00:0:6666::/48
+             SID[1]: fc00:0:3333::/48
+                     Format: f3216
+                     LBL:32 LNL:16 FL:0 AL:80
+             SID[2]: fc00:0:4444::/48
                      Format: f3216
                      LBL:32 LNL:16 FL:0 AL:80
          SRv6 Information:
            Locator: MyLocator
            Binding SID requested: Dynamic
-           Binding SID behavior: End.B6.Insert.Red
+           Binding SID behavior: uB6 (Insert.Red)
      Attributes:
-       Binding SID: fc00:0:1111:e006::
+       Binding SID: fc00:0:1111:e009::
        Forward Class: Not Configured
        Steering labeled-services disabled: no
        Steering BGP disabled: no
        IPv6 caps enable: yes
        Invalidation drop enabled: no
        Max Install Standby Candidate Paths: 0
+       Path Type: SRV6
    ```
-
+   
+   ```diff
+   RP/0/RP0/CPU0:xrd01#show bgp vpnv4 uni vrf carrots 40.0.0.0/24
+   Sat Jan  7 21:27:26.645 UTC
+   BGP routing table entry for 40.0.0.0/24, Route Distinguisher: 10.0.0.1:0
+   Versions:
+     Process           bRIB/RIB  SendTblVer
+     Speaker                  58           58
+   Last Modified: Jan  7 21:27:19.204 for 00:00:07
+   Paths: (1 available, best #1)
+     Not advertised to any peer
+     Path #1: Received by speaker 0
+     Not advertised to any peer
+     Local
+       fc00:0:7777::1 (metric 3) from fc00:0:5555::1 (10.0.0.7)
+         Received Label 0xe0040
+         Origin incomplete, metric 0, localpref 100, valid, internal, best, group-best, import-candidate, imported
+         Received Path ID 0, Local Path ID 1, version 30
+   +     Extended community: Color:40 RT:9:9                      
+         Originator: 10.0.0.7, Cluster list: 10.0.0.5
+   +     SR policy color 40, up, not-registered, bsid fc00:0:1111:e009::
+   
+         PSID-Type:L3, SubTLV Count:1
+         SubTLV:
+           T:1(Sid information), Sid:fc00:0:7777::, Behavior:63, SS-TLV Count:1
+           SubSubTLV:
+             T:1(Sid structure):
+         Source AFI: VPNv4 Unicast, Source VRF: default, Source Route Distinguisher: 10.0.0.7:1
+   ```
 ### Validate SRv6-TE steering of L3VPN traffic
 #### Validate bulk traffic takes the non-shortest path: xrd01 -> 02 -> 03 -> 04 -> 07 
 
