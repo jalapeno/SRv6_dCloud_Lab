@@ -585,22 +585,22 @@ Validate bulk traffic takes the non-shortest path: **xrd01 -> 02 -> 03 -> 04 -> 
    ```
       segment-list xrd2347
        srv6
-         index 10 sid fc00:0:5555::
-         index 20 sid fc00:0:6666::
+        index 10 sid fc00:0:2222::
+        index 20 sid fc00:0:3333::
+        index 30 sid fc00:0:4444::
    ```
    And we expect to see in the packet header the follow tag order shown below in the tcpdump output:
-
    ```
-   5555:6666
+   2222:3333:7777
    ```
    ```
-    cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-1
-    tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
-    listening on Gi0-0-0-1, link-type EN10MB (Ethernet), capture size 262144 bytes
-    23:30:36.415073 IP6 fc00:0:1111::1 > fc00:0:2222:3333:7777:e006::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 1, seq 47, length 64
-    23:30:36.815397 IP6 fc00:0:1111::1 > fc00:0:2222:3333:7777:e006::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 1, seq 48, length 64
-    23:30:37.216952 IP6 fc00:0:1111::1 > fc00:0:2222:3333:7777:e006::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 1, seq 49, length 64
-    ```
+   cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-1
+   tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+   listening on Gi0-0-0-1, link-type EN10MB (Ethernet), capture size 262144 bytes
+   23:30:36.415073 IP6 fc00:0:1111::1 > fc00:0:2222:3333:7777:e006::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 1, seq 47, length 64
+   23:30:36.815397 IP6 fc00:0:1111::1 > fc00:0:2222:3333:7777:e006::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 1, seq 48, length 64
+   23:30:37.216952 IP6 fc00:0:1111::1 > fc00:0:2222:3333:7777:e006::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 1, seq 49, length 64
+   ```
 
    Now lets try the IPv6 bulk transport destination
    ```
@@ -631,7 +631,6 @@ Validate bulk traffic takes the non-shortest path: **xrd01 -> 02 -> 03 -> 04 -> 
 
     23:35:34.304332 IP6 fc00:0:1111::1 > fc00:0:3333:7777:e006::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 1, seq 790, length 64
     23:35:34.705547 IP6 fc00:0:1111::1 > fc00:0:3333:7777:e006::: IP 10.101.3.1 > 40.0.0.1: ICMP echo request, id 1, seq 791, length 64
-
     ```
 
 #### Validate low latency traffic takes the path: xrd01 -> 05 -> 06 -> 07 
@@ -651,14 +650,13 @@ Validate bulk traffic takes the non-shortest path: **xrd01 -> 02 -> 03 -> 04 -> 
    ```
       segment-list xrd2347
        srv6
-        index 10 sid fc00:0:2222::
-        index 20 sid fc00:0:3333::
-        index 30 sid fc00:0:4444::
+         index 10 sid fc00:0:5555::
+         index 20 sid fc00:0:6666::
    ```
    And we expect to see in the packet header the follow tag order shown below in the tcpdump output:
 
    ```
-   2222:3333:7777
+5555:6666
    ```
     ```
     cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-2
