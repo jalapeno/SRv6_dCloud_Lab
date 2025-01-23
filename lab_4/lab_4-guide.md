@@ -163,23 +163,23 @@ In the next few steps we'll walk through applying the configuration one element 
    kubectl apply -f 01-bgp-cluster.yaml
    ```
 
-The BGP Peer Config CRD is where we control address families and other BGP peering or route policies on a per peer or peer-group basis.
-Here is a portion of the BGP Peer Config CRD with notes:
+   The BGP Peer Config CRD is where we control address families and other BGP peering or route policies on a per peer or peer-group basis.
+   Here is a portion of the BGP Peer Config CRD with notes:
    ```yaml
-    metadata:
-      name: cilium-peer    # name of the peer-group
-    spec:
-      families:            # afi/safi address family combinations
-        - afi: ipv6
-          safi: unicast
-          advertisements:
-            matchLabels:
-              advertise: "bgpv6unicast"        # advertise ipv6 prefixes found in the bgpv6unicast advertisement CRD
-        - afi: ipv4
-          safi: mpls_vpn     # a bit of a misnomer, but we're advertising SRv6 L3VPN, or the equivalent of vpnv4 unicast in XR
+   metadata:
+     name: cilium-peer    # name of the peer-group
+   spec:
+     families:            # afi/safi address family combinations
+       - afi: ipv6
+         safi: unicast
+         advertisements:
+           matchLabels:
+             advertise: "bgpv6unicast"        # advertise ipv6 prefixes found in the bgpv6unicast advertisement CR
+       - afi: ipv4
+         safi: mpls_vpn     # a bit of a misnomer, but we're advertising SRv6 L3VPN, or the equivalent of vpnv4 unicast in XR
    ```
 
-2. Apply the Cilium BGP Peer Config CRD. 
+3. Apply the Cilium BGP Peer Config CRD. 
    ```
    kubectl apply -f 02-bgp-peer.yaml
    ```
