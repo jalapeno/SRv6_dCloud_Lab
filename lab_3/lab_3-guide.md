@@ -661,7 +661,7 @@ Validate bulk traffic takes the non-shortest path: **xrd01 -> 02 -> 03 -> 04 -> 
     ```
     5555:6666
     ```
-    ```
+    ```yaml
     cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-2
     tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
     listening on Gi0-0-0-2, link-type EN10MB (Ethernet), capture size 262144 bytes
@@ -678,7 +678,7 @@ Validate bulk traffic takes the non-shortest path: **xrd01 -> 02 -> 03 -> 04 -> 
     ping fc00:0:50::1 -i 1
     ```
 
-    ```
+    ```yaml
     13:42:18.216436 IP6 fc00:0:1111::1 > fc00:0:5555:7777:e009::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:50::1: ICMP6, echo request, seq 8, length 64
     13:42:18.617008 IP6 fc00:0:1111::1 > fc00:0:5555:7777:e009::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:50::1: ICMP6, echo request, seq 9, length 64
     13:42:19.419534 IP6 fc00:0:1111::1 > fc00:0:5555:7777:e009::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:50::1: ICMP6, echo request, seq 11, length 64
