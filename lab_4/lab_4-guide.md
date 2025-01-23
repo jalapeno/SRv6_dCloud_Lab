@@ -268,7 +268,7 @@ Here is a portion of the prefix advertisement CRD with notes:
    ```
    cilium bgp peers
    ```
-   ```yaml
+   ```diff
    cisco@berlin:~/SRv6_dCloud_Lab/lab_4/cilium$ cilium bgp peers
    Node     Local AS   Peer AS   Peer Address     Session State   Uptime   Family          Received   Advertised
    +berlin   65000      65000     fc00:0:5555::1   established     11m48s   ipv6/unicast    6          1
