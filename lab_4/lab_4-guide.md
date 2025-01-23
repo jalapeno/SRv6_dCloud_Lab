@@ -179,7 +179,7 @@ In the next few steps we'll walk through applying the configuration one element 
          safi: mpls_vpn     # a bit of a misnomer, but we're advertising SRv6 L3VPN, or the equivalent of vpnv4 unicast in XR
    ```
 
-3. Apply the Cilium BGP Peer Config CRD. 
+2. Apply the Cilium BGP Peer Config CRD. 
    ```
    kubectl apply -f 02-bgp-peer.yaml
    ```
@@ -189,10 +189,9 @@ In the next few steps we'll walk through applying the configuration one element 
    isovalentbgpclusterconfig.isovalent.com/cilium-bgp created
    isovalentbgppeeringpolicy.isovalent.com/cilium-peer created
    ```
+   At this point our peer sessions are not yet established. Next we'll apply the *`localAddress`* parameter which tells Cilium which source address to use for its BGP peering sessions. This knob is comparable to IOS-XR's `update-source` parameter.
 
-At this point our peer sessions are not yet established. Next we'll apply the *`localAddress`* parameter which tells Cilium which source address to use for its BGP peering sessions. This knob is comparable to IOS-XR's `update-source` parameter.
-
-Here is a portion of the node override CRD with notes:
+   Here is a portion of the node override CRD with notes:
    ```yaml
     metadata:
       name: berlin     # this CRD will only apply to the berlin node
@@ -205,7 +204,7 @@ Here is a portion of the node override CRD with notes:
               localAddress: fc00:0:8888::1     # the source address to use for the peering session
    ```
 
-3. Apply the node override CRD:
+4. Apply the node override CRD:
    ```
    kubectl apply -f 03-bgp-node-override.yaml
    ```
