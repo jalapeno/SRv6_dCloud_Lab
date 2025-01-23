@@ -90,7 +90,7 @@ Kubernetes and Cilium Enterprise are pre-installed on the **Berlin** VM. All of 
 Now we're ready!
 
 ##  Setup Cilium BGP Peering
-### Brief explanation of *`Kubernetes Custom Resource Definitions (CRDs)`*. 
+### Brief explanation of Kubernetes Custom Resource Definitions (CRDs) 
 
 Per: https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/
 
