@@ -366,7 +366,7 @@ For simplicity we're going to allocate the very commonly deployed /48 bit uSID b
    kubectl apply -f 06-srv6-locator-pool.yaml
    ```
 
-Recall the BGP prefix advertisement CRD included a spec for advertising the SRv6 locator pool as well:
+   Recall the BGP prefix advertisement CRD included a spec for advertising the SRv6 locator pool as well:
    ```yaml
      advertisements:
        - advertisementType: "SRv6LocatorPool"  
@@ -375,7 +375,7 @@ Recall the BGP prefix advertisement CRD included a spec for advertising the SRv6
              export: "pool0"
    ```
 
-2. Now that we have a local pool to advertise, let's check our BGP advertised prefixes again:
+3. Now that we have a local pool to advertise, let's check our BGP advertised prefixes again:
    ```
    cilium bgp routes advertised ipv6 unicast
    ```
@@ -388,7 +388,7 @@ Recall the BGP prefix advertisement CRD included a spec for advertising the SRv6
      --->   65000     fc00:0:6666::1   fc00:0:a01f::/48   fc00:0:8888::1   6s      [{Origin: i} {AsPath: } {LocalPref: 100} {MpReach(ipv6-unicast): {Nexthop: fc00:0:8888::1, NLRIs: [fc00:0:a01f::/48]}}] 
    ```
 
-> [!NOTE]
+> [!IMPORTANT]
 > The Cilium image we are currently using has a bug where the SRv6 locator is only advertised to one neighbor. A fix is being incorporated in the 1.18 release.
 
 3. Now that we've created locator pool, let's validate it:
