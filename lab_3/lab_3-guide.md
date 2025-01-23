@@ -626,7 +626,7 @@ In the example output below notice the outbound traffic is encapsulated with the
     ```
 
 #### Validate low latency traffic takes the path: xrd01 -> 05 -> 06 -> 07 
-1.  Start a new tcpdump session on xrd01's outbound interface to xrd05 (Gi0-0-0-2):
+1.  Start a new tcpdump session on **xrd01's** outbound interface to xrd05 (Gi0-0-0-2):
     ```
     sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-2
     ```
