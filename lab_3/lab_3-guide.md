@@ -382,6 +382,8 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
    - For easier reading you can filter the show command output:
    ```
    show bgp vpnv4 uni vrf carrots 40.0.0.0/24
+   ```
+   
    ```diff
    RP/0/RP0/CPU0:xrd01#show bgp vpnv4 uni vrf carrots 40.0.0.0/24
    Thu Jan 23 17:16:49.248 UTC
@@ -409,7 +411,7 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
          Source AFI: VPNv4 Unicast, Source VRF: default, Source Route Distinguisher: 10.0.0.7:1
    ```
 
-5. On **xrd01** configure a pair of SRv6-TE segment lists for steering traffic over these specific paths through the network: 
+4. On **xrd01** configure a pair of SRv6-TE segment lists for steering traffic over these specific paths through the network: 
     - Segment list *xrd2347* will execute the explicit path: xrd01 -> 02 -> 03 -> 04 -> 07
     - Segment list *xrd567* will execute the explicit path: xrd01 -> 05 -> 06 -> 07
 
@@ -435,7 +437,7 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
      commit
    ```
 
-6. On **xrd01** configure our bulk transport and low latency SRv6 steering policies. Low latency traffic will be forced over the *xrd01-05-06-07* path, and bulk transport traffic will take the longer *xrd01-02-03-04-07* path:
+5. On **xrd01** configure our bulk transport and low latency SRv6 steering policies. Low latency traffic will be forced over the *xrd01-05-06-07* path, and bulk transport traffic will take the longer *xrd01-02-03-04-07* path:
   
    **xrd01**
    ```yaml
@@ -515,7 +517,7 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
          Source AFI: VPNv6 Unicast, Source VRF: default, Source Route Distinguisher: 10.0.0.7:1
    ```
 
-7. Validate **xrd01's** SRv6-TE SID is allocated and that policy is up:
+6. Validate **xrd01's** SRv6-TE SID is allocated and that policy is up:
    ```
    show segment-routing srv6 sid
    show segment-routing traffic-eng policy 
