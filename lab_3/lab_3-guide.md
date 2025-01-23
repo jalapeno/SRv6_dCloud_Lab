@@ -238,6 +238,9 @@ Validation command output examples can be found at this [LINK](https://github.co
    ping vrf carrots fc00:0:50::1
    ```
 
+> [!NOTE] xrd01 and xrd07 are configured to use dynamic RD allocation, so the L3VPN RD+prefix combination shown in the lab guide may differ from the one you see in your environment. For example, xrd07 might advertise the 40.0.0.0/24 prefix with rd 10.0.0.7:0 or it might be rd 10.0.0.7:1
+>
+
    Example validation for vpnv4 route
    ```yaml
    RP/0/RP0/CPU0:xrd01#show bgp vpnv4 unicast rd 10.0.0.7:1 40.0.0.0/24   
