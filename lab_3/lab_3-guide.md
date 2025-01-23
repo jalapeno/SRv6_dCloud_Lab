@@ -226,7 +226,7 @@ BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4/6 L3VPN Network
 Validation command output examples can be found at this [LINK](https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_3/validation-cmd-output.md)
 
 > [!NOTE]
-> xrd01 and xrd07 are configured to use dynamic RD allocation, so the L3VPN RD+prefix combination shown in the lab guide may differ from the one you see in your environment. For example, xrd07 might advertise the 40.0.0.0/24 prefix with rd 10.0.0.7:0 or it might be rd 10.0.0.7:1
+> **xrd01** and **xrd07** are configured to use dynamic RD allocation, so the L3VPN RD+prefix combination shown in the lab guide may differ from the one you see in your environment. For example, **xrd07** might advertise the 40.0.0.0/24 prefix with rd 10.0.0.7:0 or it might be rd 10.0.0.7:1
 > 
 1. From **xrd01** run the following set of validation commands (for the sake of time you can paste them in as a group, or spot check some subset of commands):
    ```
