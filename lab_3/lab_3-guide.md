@@ -567,7 +567,7 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
          Source AFI: VPNv4 Unicast, Source VRF: default, Source Route Distinguisher: 10.0.0.7:1
    ```
 ### Validate SRv6-TE steering of L3VPN traffic
-#### Validate bulk traffic takes the non-shortest path: xrd01 -> 02 -> 03 -> 04 -> 07 
+Validate bulk traffic takes the non-shortest path: **xrd01 -> 02 -> 03 -> 04 -> 07** 
 
 
 1. Start a new SSH session to the XRD VM and run a tcpdump in the xrd01 namespace on the Gi0-0-0-1 interface. 
