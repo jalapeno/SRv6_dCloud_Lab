@@ -217,6 +217,8 @@ In the next few steps we'll walk through applying the configuration one element 
 ### Verify Cilium BGP peering 
 
 1. Verify Cilium BGP has successfully established peering sessions with **xrd05** and **xrd06** with the following cilium CLI. Note, it may take a few seconds for the peering sessions to establish.
+   
+   We will be using the below command to interact with the Cilium BGP process.
    ```
    cilium bgp peers
    ```
@@ -232,7 +234,12 @@ In the next few steps we'll walk through applying the configuration one element 
             65000      65000     fc00:0:6666::1   established     24s      ipv6/unicast    5          0    
                                                                            ipv4/mpls_vpn   5          0  
    ```
-
+   
+   To list the additional cli options we will use the -h flag
+   ```
+   cilium bgp peers -h
+   ```
+   
 ### Cilium BGP prefix advertisement
 
 We have not added ipv6 prefix advertisesments yet, hence a zero value in the Advertised output above. Also, **xrd05** and **xrd06**'s peering sessions with Cilium inherited the vpnv4 address family configuration during Lab 3 so we don't need to update their configs. 
@@ -263,9 +270,7 @@ Here is a portion of the prefix advertisement CRD with notes:
    ```
 
 3. Let's get a little more detail on advertised prefixes with the `cilium bgp routes` command. Let's first add a -h flag to see our options
-   ```
-   cilium bgp routes -h
-   ```
+
 
    Example output:
    ```
