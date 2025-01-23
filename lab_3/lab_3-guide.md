@@ -52,7 +52,8 @@ BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4/6 L3VPN Network
 
   Configure the VRF on **xrd01** and **xrd07**:
 
-> Note: the below commands are also available in the *`quick config doc`* [HERE](/lab_3/lab_3_quick_config.md)  
+> [!NOTE]
+> the below commands are also available in the *`quick config doc`* [HERE](/lab_3/lab_3_quick_config.md)  
 
   ```yaml
   conf t
