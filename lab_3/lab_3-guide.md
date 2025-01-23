@@ -631,17 +631,12 @@ In the example output below notice the outbound traffic is encapsulated with the
     sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-2
     ```
 
-2.  Ping from **Amsterdam** to **Rome's** low latency destination IPv4 and IPv6 addresses:
+2.  Lets test and validate that our SRv6 TE policy is applied on **xrd01*. From **Amsterdam** we will ping to **Rome's** to the low latency destination using both the IPv4 and IPv6 addresses:
 
     ```
     ping 50.0.0.1 -i .4
     ```
     ```
-    ping fc00:0:50::1 -i .4
-    ```
-
-    Example output from tcpdump on xrd01. Notice how the even though our explicit policy configuration included 5555 and 6666, XR's SRv6 programming logic sees that there is only one best path to xrd07, so it saves uSID space by not including 6666 in the destination address:
-    ```yaml
     cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-2
     tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
     listening on Gi0-0-0-2, link-type EN10MB (Ethernet), capture size 262144 bytes
@@ -651,7 +646,20 @@ In the example output below notice the outbound traffic is encapsulated with the
     23:45:52.298848 IP6 fc00:0:7777::1 > fc00:0:1111:e009::: IP 50.0.0.1 > 10.101.3.1: ICMP echo reply, id 6, seq 630, length 64
     23:45:52.695944 IP6 fc00:0:1111::1 > fc00:0:5555:7777:e006::: IP 10.101.3.1 > 50.0.0.1: ICMP echo request, id 6, seq 631, length 64
     ```
-3.  Optional, run tcpdump on the outbound interfaces of xrd05 and xrd06 to see SRv6 uSID shift-and-forward behavior:
+
+    Now lets try the same ping test using the IPv6 address:
+    
+    ```
+    ping fc00:0:50::1 -i .4
+    ```
+
+    ```
+    12:56:03.277231 IP6 fc00:0:1111::1 > fc00:0:2222:3333:7777:e009::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:40::1: ICMP6, echo request, seq 1, length 64
+    12:56:03.678308 IP6 fc00:0:1111::1 > fc00:0:2222:3333:7777:e009::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:40::1: ICMP6, echo request, seq 2, length 64
+    12:56:04.079206 IP6 fc00:0:1111::1 > fc00:0:2222:3333:7777:e009::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:40::1: ICMP6, echo request, seq 3, length 64
+    ```
+
+4.  Optional, run tcpdump on the outbound interfaces of xrd05 and xrd06 to see SRv6 uSID shift-and-forward behavior:
     ```
     sudo ip netns exec clab-cleu25-xrd05 tcpdump -lni Gi0-0-0-1
     ```
