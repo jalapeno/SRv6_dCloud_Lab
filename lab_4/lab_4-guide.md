@@ -507,20 +507,20 @@ In the next step we've combined creation of both the carrots VRF and kubernetes 
 
 ### Verify Cilium advertised L3vpn prefixes are reaching remote xrd nodes
 
-1. On the xrd VM ssh to *`xrd01`* and run some BGP verification commands. 
-  ```
-  ssh cisco@clab-cleu25-xrd01
-  show bgp vpnv4 unicast
-  show bgp vpnv4 unicast rd 9:9 10.200.0.0/24
-  ```
+1. On the xrd VM ssh to **xrd01** and run some BGP verification commands.
+   ```
+   ssh cisco@clab-cleu25-xrd01
+   show bgp vpnv4 unicast
+   show bgp vpnv4 unicast rd 9:9 10.200.0.0/24
+   ```
 
-  In the output of the first command we expect to see Cilium advertise L3VPN prefix:
-  ```
-  *>i10.200.0.0/24      fc00:0:8888::1                100      0 ?
-  ```
+   In the output of the first command we expect to see Cilium advertise L3VPN prefix:
+   ```
+   *>i10.200.0.0/24      fc00:0:8888::1                100      0 ?
+   ```
 
-  In the output of the second command we expect to see detailed information. Here is truncated output:
-  ```yaml
+   In the output of the second command we expect to see detailed information. Here is truncated output:
+   ```yaml
   Path #1: Received by speaker 0
   Not advertised to any peer
   Local
@@ -538,7 +538,7 @@ In the next step we've combined creation of both the carrots VRF and kubernetes 
   ```
 
 2. Back on the Berlin VM, verify SRv6 Egress Policies. This command will give you a rough equivalent to the SRv6 L3VPN FIB table
-  ```
+```
   kubectl get IsovalentSRv6EgressPolicy -o yaml
   ```
 
