@@ -572,7 +572,7 @@ In the next step we've combined creation of both the carrots VRF and kubernetes 
          - 10.200.0.0/24
          destinationSID: 'fc00:0:a0ba:ec7::' # SRv6 SID for local prefix 10.200.0.0/24 in vrfID 99 (carrots)
          vrfID: 99
-  ```
+   ```
 
 ### Run a ping test!
 
