@@ -258,11 +258,14 @@ The general workflow when executing a query is as follows:
     ```
     This query will return ALL records in the *`ls_node`* collection. In our lab topology you should expect 7 records. 
 
+
+    Next lets get the AQL to return only the *`key:value`* field we are interested in. We will query the name of all nodes in the *`igp_node`* collection with the below query. To reference a specific key field we use use the format **x.key** syntax.
+
      - Note: after running a query you will need to either comment it out or delete it before running the next query. To comment-out use two forward slashes *`//`* as shown in this pic:
 
     <img src="images/arango-query.png" width="600">
 
-    Next lets get the AQL to return only the *`key:value`* field we are interested in. We will query the name of all nodes in the *`igp_node`* collection with the below query. To reference a specific key field we use use the format **x.key** syntax.
+    
     ```
     for x in igp_node return x.name
     ```
