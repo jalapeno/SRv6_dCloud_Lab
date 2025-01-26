@@ -438,7 +438,12 @@ The Topology Viewer prompts the user to select a graph from the dropdown and the
 
 
 ### Calculate a Path
-This function gives the user the ability to select a source and destination in the graph and calculate the best path through the network based upon a selected constraint. The calculated path will light up and the application will display the relevant SRv6 uSID stack. The path calculation algorithms on the backend are using the telemetry meta data we uploaded in Part 1. In a future release we hope to incorporate streaming telemetry data into the graph and include it in path calculations.
+This function gives the user the ability to select a source and destination in the graph and calculate the best path through the network based upon a selected constraint. The calculated path will light up and the application will display the relevant SRv6 uSID stack. The path calculation algorithms on the backend are using the telemetry meta data we uploaded earlier in the lab. In a future release we hope to incorporate streaming telemetry data into the graph and include it in path calculations.
+
+To use the path calculation function, select a source and destination node in the graph, then select a constraint from the dropdown. The application will then calculate the shortest path through the network based on the selected constraint:
+
+* **Lowest Latency**: The path calculation will return the shortest path through the network based on the latency meta-data we uploaded earlier in the lab
+* **Least Utilized**: The path calculation will return the path with the lowest average outbound utilization
 
 <img src="images/jalapeno-ui-calculate-path.png" width="900">
 

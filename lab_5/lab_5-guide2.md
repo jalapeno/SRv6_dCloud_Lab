@@ -13,14 +13,16 @@ In Part 2 we will use the Jalapeno SRv6 client to program SRv6 routes on the Ams
 - [Lab 5 Part 2: Host-Based SRv6](#lab-5-part-2-host-based-srv6)
   - [Contents](#contents)
   - [Host-Based SR/SRv6 and building your own SDN App](#host-based-srsrv6-and-building-your-own-sdn-app)
+    - [Why host-based SRv6?](#why-host-based-srv6)
   - [Lab Objectives](#lab-objectives)
-  - [Path Calculation Use Cases:](#path-calculation-use-cases)
-    - [Lowest Latency Path](#lowest-latency-path)
-    - [Lowest Bandwidth Utilization Path](#lowest-bandwidth-utilization-path)
-    - [Data Sovereignty Path](#data-sovereignty-path)
+  - [srctl command line tool](#srctl-command-line-tool)
+    - [Explore srctl on the Rome VM](#explore-srctl-on-the-rome-vm)
   - [Rome VM: Segment Routing \& SRv6 on Linux](#rome-vm-segment-routing--srv6-on-linux)
     - [Preliminary steps for SR/SRv6 on Rome VM](#preliminary-steps-for-srsrv6-on-rome-vm)
-    - [jalapeno.py:](#jalapenopy)
+    - [Rome to Amsterdam: Lowest Latency Path](#rome-to-amsterdam-lowest-latency-path)
+    - [Amsterdam to Rome: Least Utilized Path](#amsterdam-to-rome-least-utilized-path)
+    - [Lowest Bandwidth Utilization Path](#lowest-bandwidth-utilization-path)
+    - [Data Sovereignty Path](#data-sovereignty-path)
       - [fix the writeup of this section](#fix-the-writeup-of-this-section)
   - [Rome Network Services](#rome-network-services)
     - [Get All Paths](#get-all-paths)
@@ -40,17 +42,19 @@ In Part 2 we will use the Jalapeno SRv6 client to program SRv6 routes on the Ams
 
 ## Host-Based SR/SRv6 and building your own SDN App
 
-We won't claim to be professional developers, but using Jalapeno and just a few hours of python coding we were able to build an SRv6 SDN App called **"jalapeno.py"**. Our App can program SRv6-TE routes/policies on Linux hosts/VMs and on [VPP](https://fd.io/). Hopefully soon we'll be able to do the same for Cilium!
+We won't claim to be professional developers, but using Jalapeno and just a few hours of python coding we were able to build an SRv6 SDN App called **"srctl"**. Our App can program SRv6-TE routes/policies on Linux hosts/VMs and on [VPP](https://fd.io/). 
 
-Its not a very sophisticated App, but it gives a sense of the power and possibilities when combining *SRv6 and host-based or cloud-native networking*. 
+**srctl** is still under development and is modeled after Kubernetes' *kubectl* command line tool. It gives a sense of the power and possibilities when combining *SRv6 and host-based or cloud-native networking*. 
 
 And if the two of us knuckleheads can cobble together a functional SDN App in a couple of hours, imagine what a group of real developers could do in a few short weeks!
 
-Why host-based SRv6? 
+### Why host-based SRv6? 
 
-* We get tremendous control of the SRv6 SIDs and our encapsulation depth isn't subject to ASIC limitations
-* With host-based SRv6 traffic reaches the transport network already encapsulated, thus the ingress PE or SRv6-TE headend doesn't need all the resource intense policy configuration; they just statelessly forward traffic per the SRv6 encapsulation or Network Program
-* We could extend SRv6 into the Cloud! Or to IoT devices or other endpoints connected to the physical network...
+* **Flexibility and Control**: We get tremendous control of the SRv6 SIDs and our encapsulation depth isn't subject to ASIC limitations
+
+* **Performance and Massive Scale**: With host-based SRv6 traffic reaches the transport network already encapsulated, thus the ingress PE or SRv6-TE headend doesn't need all the resource intense policy configuration; they just statelessly forward traffic per the SRv6 encapsulation or Network Program
+  
+* **SRv6 as Common E2E Architecture**: We could extend SRv6 into the Cloud! Or to IoT devices or other endpoints connected to the physical network...
  
 We feel this ability to perform SRv6 operations at the host or other endpoint is a game changer which opens up enormous potential for innovation!
 
@@ -63,14 +67,170 @@ The student upon completion of Lab 6 should have achieved the following objectiv
 * Using Python to craft specific SRv6 headers for traffic steering or other use cases
 * Using Python to to program SRv6 forwarding entries on a Linux host
 
-## Path Calculation Use Cases: 
+## srctl command line tool
+As mentioned in the introduction, **srctl** is a command line tool that allows us to access SRv6 network services by programing SRv6 routes on Linux hosts or VPP. It is modeled after Kubernetes' *kubectl* command line tool, and as such it expects to be fed a yaml file defining the source and destination prefixes for which we want a specific SRv6 network service. When the user runs the command, **srctl** will call the Jalapeno API and pass the list of source and destination prefixes and the requested network service(s) or constraint(s). Jalapeno will perform its path calculations and will return a set of SRv6 instructions. **srctl** will then program the SRv6 routes on the Linux host or VPP.
 
-### Lowest Latency Path
+ `srctl's` currently supported network services are: 
+
+ - Low Latency Path
+ - Least Utilized Path
+ - Data Sovereignty Path
+ - Get All Paths (informational only)
+
+### Explore srctl on the Rome VM
+
+1. Login to the Rome VM 
+   ```
+   ssh cisco@198.18.128.103
+   ```
+
+2. Run *srctl --help* to see the help menu for the tool.
+   ```
+   srctl --help
+   ```
+
+   Expected output:
+   ```yaml
+   cisco@rome:~$ srctl --help
+   Usage: srctl [OPTIONS] COMMAND [ARGS]...
+
+     Command line interface for Segment Routing Configuration
+
+   Options:
+     --api-server TEXT  Jalapeno API server address
+     --help             Show this message and exit.
+
+   Commands:
+     apply   Apply a configuration from file
+     delete  Delete a configuration from file
+   ```
+
+   Per the *help* output we see that we can *apply* or *delete* a configuration from a yaml file.
+
+3. Here is a commented version of Rome's srctl yaml file:
+   
+   ```yaml
+   apiVersion: jalapeno.srv6/v1     # following the k8s design pattern, the api version
+   kind: PathRequest  # the type of object we are creating, a path request of Jalapeno
+   metadata:
+     name: rome-routes  # the name of the object
+   spec:
+     platform: linux   # we specify the platform so srctl knows which type of routes to install (linux or vpp)
+     defaultVrf:       # also supports linux and vpp VRFs or tables
+       ipv4:           # address family
+         routes:       # a list of routes for which we want SRv6 services
+           - name: rome-to-amsterdam-v4  # the name of the route
+             graph: ipv4_graph          # the Jalapeno graph to use for calculating the route
+             pathType: shortest_path     # the type of path to use for the route
+             metric: utilization         # the metric to use for the route
+             source: hosts/rome          # the source's database ID
+             destination: hosts/amsterdam  # the destination's database ID
+             destination_prefix: "10.101.2.0/24"  # the destination prefix
+             outbound_interface: "ens192"       # the linux or VPP outbound interface
+       ipv6:  # the same applies to ipv6
+         routes:
+           - name: rome-to-amsterdam-v6
+             graph: ipv6_graph
+             pathType: shortest_path
+             metric: utilization
+             source: hosts/rome
+             destination: hosts/amsterdam
+             destination_prefix: "fc00:0:101:2::/64"
+             outbound_interface: "ens192"
+   ```
+
+4. Here is a commented portion of Amsterdam's srctl yaml file. Note the platform is *vpp* and we need to specify a *binding SID* or *bsid* for VPP.
+   
+   ```yaml
+   apiVersion: jalapeno.srv6/v1
+   kind: PathRequest
+   metadata:
+     name: amsterdam-routes
+   spec:
+     platform: vpp # srctl knows that it will be programming VPP routes (technically sr policies)
+     defaultVrf:  
+       ipv4:
+         routes:
+           - name: amsterdam-to-rome-v4
+             graph: ipv4_graph
+             pathType: shortest_path
+             metric: latency
+             source: hosts/amsterdam
+             destination: hosts/rome
+             destination_prefix: "10.107.1.0/24"
+             bsid: "101::101"  # Required for VPP
+   ```
+
+## Rome VM: Segment Routing & SRv6 on Linux
+
+The Rome VM is simulating a user host or endpoint and will use its Linux dataplane to perform SRv6 traffic encapsulation:
+
+ - Linux SRv6 route reference: https://segment-routing.org/index.php/Implementation/Configuration
+
+### Preliminary steps for SR/SRv6 on Rome VM
+   1.  Login to the Rome VM
+   ```
+   ssh cisco@198.18.128.103
+   ```
+
+   2. cd into the lab_5/srctl directory. I you like you can review the yaml files in the directory - they should match the commented examples we saw earlier.
+
+   ```
+   cd ~/SRv6_dCloud_Lab/lab_5/srctl
+   cat rome.yaml
+   ```
+
+   3. For SRv6 outbound encapsulation we'll need to set Rome's SRv6 source address:
+
+   ```
+   sudo ip sr tunsrc set fc00:0:107:1::1
+   ```
+
+### Rome to Amsterdam: Lowest Latency Path
 
 Our first use case is to make path selection through the network based on the cummulative link latency from A to Z. Calculating best paths using latency meta-data is not something traditional routing protocols can do. It may be possible to statically build routes through your network using weights to define a path. However, what these workarounds cannot do is provide path selection based on near real time data which is possible with an application like Jalapeno. This provides customers to have a flexible network policy that can react to changes in the WAN environment.
 
-In this use case we want to idenitfy the lowest latency path for traffic originating from the *`Amsterdam VM`* destined to *`Rome VM`*. The UI makes an API call to trigger Arango's shortest path query capabilities and specify latency as our *weighted attribute* pulled from the meta-data. 
+1. From the lab_5/srctl directory on Rome, run the following command (note, we add *sudo* to the command as we are applying the routes to the Linux host):
+   ```
+   sudo srctl --api-server http://198.18.128.101:30800 apply -f rome.yaml
+   ```
 
+   The Output should look something like this:
+   ```yaml
+   cisco@rome:~/SRv6_dCloud_Lab/lab_5/srctl$ sudo srctl --api-server http://198.18.128.101:30800 apply -f rome.yaml
+   Loaded configuration from rome.yaml
+   Deleted existing route to 10.101.2.0/24 in table 0  # cleanup existing route
+   Adding route with encap: {'type': 'seg6', 'mode': 'encap', 'segs': ['fc00:0:7777:6666:2222:1111:0:0']} to table 0  # add new route
+   Adding route with encap: {'type': 'seg6', 'mode': 'encap', 'segs': ['fc00:0:7777:6666:2222:1111:0:0']} to table 0
+   rome-to-amsterdam-v4: fc00:0:7777:6666:2222:1111: Route to 10.101.2.0/24 via fc00:0:7777:6666:2222:1111:0:0 programmed successfully in table 0  # success message
+   rome-to-amsterdam-v6: fc00:0:7777:6666:2222:1111: Route to fc00:0:101:2::/64 via fc00:0:7777:6666:2222:1111:0:0 programmed successfully in table 0  # success message
+  ```
+
+2. Take a look at the Linux route table on Rome to see the new routes:
+   ```
+   ip route show 
+   ip -6 route show 
+   ```
+
+   Expected truncated output for ipv4:
+   ```
+   10.101.2.0/24  encap seg6 mode encap segs 1 [ fc00:0:7777:6666:2222:1111:: ] dev ens192 proto static 
+   ```
+
+   Expected truncated output for ipv6:
+   ```
+   fc00:0:101:2::/64  encap seg6 mode encap segs 1 [ fc00:0:7777:6666:2222:1111:: ] dev ens192 proto static metric 1024 pref medium
+   ```
+
+
+### Amsterdam to Rome: Least Utilized Path
+
+1. From the lab_5/srctl directory on Amsterdam, run the following command (note, we add *sudo* to the command as we are applying the routes to the Linux host):
+   ```
+   sudo srctl --api-server http://198.18.128.101:30800 apply -f amsterdam.yaml
+   sudo srctl --api-server http://198.18.128.101:30800 apply -f rome.yaml
+   sudo srctl --api-server http://198.18.128.101:30800 apply -f berlin.yaml
+   ```
 ### Lowest Bandwidth Utilization Path
 
 In this use case we want to identify the least utilized path for traffic originating from the *`Amsterdam VM`* destined to *`Rome VM`*. The API call will specify link utilization as our *weighted attribute* pulled from the meta-data. 
@@ -133,98 +293,6 @@ From the UI select *`Amsterdam`* as the source and the *`Rome`* as the destinati
       ```
 
 
-```
-sudo srctl --api-server http://198.18.128.101:30800 apply -f amsterdam.yaml
-sudo srctl --api-server http://198.18.128.101:30800 apply -f rome.yaml
-sudo srctl --api-server http://198.18.128.101:30800 apply -f berlin.yaml
-```
-
-
-> [!NOTE]
-> The python code used in this lab has a dependency on the python-arango module. The module has been preinstalled on both the Rome and Amsterdam VMs, however, if one wishes to recreate this lab in their own environment, any client node will need to install the module. We also suggest upgrading the http *'requests'* library as that will eliminate some cosmetic http error codes.
-> For reference:
-```
-sudo apt install python3-pip
-pip install python-arango 
-pip3 install --upgrade requests
-```
-
-## Rome VM: Segment Routing & SRv6 on Linux
-
-The Rome VM is simulating a user host or endpoint and will use its Linux dataplane to perform SRv6 traffic encapsulation:
-
- - Linux SRv6 route reference: https://segment-routing.org/index.php/Implementation/Configuration
-
-### Preliminary steps for SR/SRv6 on Rome VM
-   1.  Login to the Rome VM
-   ```
-   ssh cisco@198.18.128.103
-   ```
-
-   2. On the Rome VM cd into the lab_6 directory where the jalapeno.py client resides:
-   ```
-   cd ~/SRv6_dCloud_Lab/lab_6/python
-   ```
-   3. Get familiar with files in the directory; specifically:
-   ```
-   cat rome.json                 <------- data jalapeno.py will use to execute its query and program its SRv6 route
-   cat cleanup_rome_routes.sh    <------- script to cleanup any old SRv6 routes
-   cat jalapeno.py               <------- python app that takes cmd line args to request/execute an SRv6 network service
-   ls netservice/                <------- contains python libraries available to jalapeno.py for calculating SRv6 SIDs
-
-   ```
-   4. For SRv6 outbound encapsulation we'll need to set Rome's SRv6 source address:
-
-   ```
-   sudo ip sr tunsrc set fc00:0:107:1::1
-   ```
-
-### jalapeno.py:
-Both the Rome and Amsterdam VM's are pre-loaded with the *`jalapeno.py`* App. When we run `jalapeno.py` it will program a local route/policy with SRv6 encapsulation, which will allow the VM to *`self-encapsulate`* its outbound traffic. The XRd network will then statelessly forward the traffic per the SRv6 encapsulation.
-
- `jalapeno.py's` currently supported network services are: 
-
- - Low Latency Path
- - Least Utilized Path
- - Data Sovereignty Path
- - Get All Paths (informational only)
- 
- When executed `jalapeno.py` passes its service request as an API call to execute a Shortest Path query on the graph database. The database performs a graph-traversal, as seen in lab 5, and responds with a dataset reflecting the shortest path per the parameters of the query. `jalapeno.py` receives the data and constructs a local SRv6 route/policy for any traffic it would send to the destination.
-
-Currently `jalapeno.py` operates as a CLI tool, which expects to see a set of command line arguments specifying network service (-s), encapsulation (-e), and input a json file which contains source and destination info and a few other items.
-
-For ease of use the currently supported network services are abbreviated: 
-
- - gp = get_all_paths
- - ll = low_latency
- - lu = least_utilized
- - ds = data_sovereignty
-
-1. On the Rome VM cd into the lab_6 python directory and access client help with the *-h* argument:
-    ```
-    cd ~/SRv6_dCloud_Lab/lab_6/python
-    python3 jalapeno.py -h
-    ``` 
-    Expected output:
-    ```
-    cisco@rome:~/SRv6_dCloud_Lab/lab_6/python$ python3 jalapeno.py -h
-    usage: Jalapeno client [-h] [-e E] [-f F] [-s S]
-
-    takes command line input and calls path calculator functions
-
-    optional arguments:
-      -h, --help  show this help message and exit
-      -e E        encapsulation type <sr> <srv6>
-      -f F        json file with src, dst, parameters
-      -s S        requested network service: ll = low_latency, lu = least_utilized, ds = data_sovereignty, gp = get_paths
-
-    jalapeno.py -f <json file> -e <sr or srv6> -s <ll, lu, ds, or gp>
-    ```
-
-    Example command with network-service arguments asking for the least utilized srv6 path to the destination specified in rome.json:
-    ```
-    python3 jalapeno.py -f rome.json -e srv6 -s lu
-    ```
 
 > [!NOTE]
 > The jalapeno.py supports both SRv6 and SR-MPLS, however, we don't have SR-MPLS configured in our lab so we'll only be using the *`-e srv6`* encapsulation option.
