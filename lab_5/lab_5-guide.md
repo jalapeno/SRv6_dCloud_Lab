@@ -20,10 +20,11 @@ This lab is divided into two main sections :
 - [Exploring Jalapeno](#exploring-jalapeno)
   - [Optional: Explore Kafka Topics](#optional-explore-kafka-topics)
   - [Jalapeno Arango Graph Database](#jalapeno-arango-graph-database)
-  - [Jalapeno REST API](#jalapeno-rest-api)
+  - [ArangoDB Query Language (AQL)](#arangodb-query-language-aql)
+  - [Install Jalapeno Graph Processors](#install-jalapeno-graph-processors)
   - [BGP SRv6 locator](#bgp-srv6-locator)
-  - [Explore the Jalapeno ArangoDB Graph Database](#explore-the-jalapeno-arangodb-graph-database)
   - [Populating the DB with external data](#populating-the-db-with-external-data)
+  - [Jalapeno REST API](#jalapeno-rest-api)
 - [Jalapeno Web UI](#jalapeno-web-ui)
   - [Data Collections](#data-collections)
   - [Topology Viewer](#topology-viewer)
@@ -196,7 +197,11 @@ Reference: the GoBMP Git Repository can be found [HERE](https://github.com/sbezv
 
 ### Optional: Explore Kafka Topics 
 
-Jalapeno uses the very popular Kafka messaging bus to transport data received from the network to data processors which map it into the graph database. We've included a brief guide to exploring the Jalapeno Kafka setup including listing and monitoring topics: [Kafka](lab_5/lab_5-kafka.md). This element of the lab is completely optional, however, because this lab guide is published on Github, you can come back to it in the future to explore Kafka on your own.
+Jalapeno uses the very popular Kafka messaging bus to transport data received from the network to data processors which map it into the graph database. We've included a brief guide to exploring the Jalapeno Kafka setup including listing and monitoring topics: 
+
+[Explore Kafka on Jalapeno](lab_5/lab_5-kafka.md)
+
+This element of the lab is completely optional, however, because this lab guide is published on Github, you can come back to it in the future to explore Kafka on your own.
 
 ### Jalapeno Arango Graph Database
 At the heart of Jalapeno is the Arango Graph Database, which is used to model network topology and provide a graph-based data store for the network data collected via BMP or other sources. 
@@ -229,96 +234,7 @@ At the heart of Jalapeno is the Arango Graph Database, which is used to model ne
     - unicast_prefix_v4
     - unicast_prefix_v6
 
-3. Install Jalapeno Graph Processors - Jalapeno's base installation includes the Topology and Link-State data processors. We have since written some addtitinoal processors which mine the existing data collections and create enriched topology models or graphs. We'll add these additional processors to our Jalapeno K8s cluster via a simple shell script.
-   
-   - ssh to Jalapeno VM, cd to the lab_5/graph-processors directory, and run the deploy.sh script:
-    ```
-    ssh cisco@198.18.128.101
-
-    cd ~/SRv6_dCloud_Lab/lab_5/graph-processors
-    ./deploy.sh
-    ```
-
-The new processors will have created the following new collections in the Arango graphDB, feel free to explore them in the ArangoDB UI, or move on to the next section.
-
-- *`igpv4_graph`*: a model of the ipv4 IGP topology including SRv6 SID data
-- *`igpv6_graph`*: a model of the ipv6 IGP topology including SRv6 SID data
-- *`ipv4_graph`*: a model of the entire ipv4 topology (IGP and BGP)
-- *`ipv6_graph`*: a model of the entire ipv6 topology (IGP and BGP)
-- *`sr_local_sids`*: a collection of SRv6 SIDs that are not automatically available via BMP. You may have noticed in the xrd routers' streaming telemetry configuration we have added the YANG path for XR to stream all SRv6 SIDs to Jalapeno's Telegraf telemetry collector.
-  
-4. Verify the Graph Processors have deployed successfully:
-    ```
-    kubectl get pods -n jalapeno
-    ```
-
-    Expected (truncated) output::
-    ```
-    igp-graph-5f7fcd6f88-8xqxr                     1/1     Running   0              53s
-    ipv4-graph-7ccc46bc57-xzjnk                    1/1     Running   0              53s
-    ipv6-graph-56db757fc9-kgbbg                    1/1     Running   0              52s
-    srv6-localsids-78c644bc76-ccpwh                1/1     Running   0              52s
-    ```
-
-### Jalapeno REST API
-The Jalapeno REST API is used to run queries against the ArangoDB and retrieve graph topology data or execute shortest path calculations. 
-
-1. Test the Jalapeno REST API:
-
-   - From the ssh session on the Jalapeno VM or the XRD VM (or the command line on your local machine) validate the Jalapeno REST API is running:
-    ```
-    curl http://198.18.128.101:30800/api/v1/collections
-    ```
-    ```
-    curl http://198.18.128.101:30800/api/v1/collections/ls_node
-    ```
-    -  If you run your curl commands from the Jalapeno VM we installed the *`jq`* tool to help with nicer JSON parsing:
-    ```
-    curl http://198.18.128.101:30800/api/v1/graphs/igpv4_graph/vertices/keys | jq .
-    ```
-    ```
-    curl http://198.18.128.101:30800/api/v1/graphs/igpv4_graph/edges | jq .
-    ```
-
-   - The API also has auto-generated documentation at: [http://198.18.128.101:30800/docs/](http://198.18.128.101:30800/docs/) 
-
-We'll test the Jalapeno UI a bit later in the lab.
-
-### BGP SRv6 locator
-In lab 1 we configured an SRv6 locator for the BGP global/default table. When we get to *`lab 5 Part 2`* we'll use these locators as we'll be sending SRv6 encapsulated traffic directly to/from the Amsterdam and Rome VMs. With our endpoints performing SRv6 encapsulation our BGP SRv6 locator will provide the end.DT4/6 function at the egress nodes **xrd01** and **xrd07** to be able to pop the SRv6 encap and perform a global table lookup on the underlying payload.
-
-2. Optional: ssh to **xrd01** and re-validate end.DT4/6 SIDs belonging to BGP default table:
-    ```
-    ssh cisco@clab-cleu25-XR01
-    show segment-routing srv6 sid
-    ```
-
-    Expected (truncated)output on **xrd01** should look something like the below table with both a uDT4 and uDT6 SID in the 'default' context:  
-    ```
-    fc00:0:1111:e004::          uDT4              'default'                         bgp-65000           InUse  Y 
-    fc00:0:1111:e006::          uDT6              'default'                         bgp-65000           InUse  Y
-    ``` 
-
-  - As we saw earlier in the lab, the *`kubectl get pods -n jalapeno`* command will show you all the k8s containers that make up the Jalapeno application, including the *`srv6-localsids`* processor. This processor harvests SRv6 SID data from a Kafka streaming telemetry topic and populates it in the *`sr_local_sids`* collection. This data is not available via BMP and is needed to construct full End.DT SIDs that we'll use in lab 5 Part 2. 
-  
-    Example:
-
-    ```
-    SID                         Behavior          Context                    Owner              
-    ----------------------  --------------  -----------------------------  ------------
-    fc00:0:1111::           uN (PSP/USD)    'default':4369                 sidmgr     <-------- Collected via BMP
-    fc00:0:1111:e000::      uA (PSP/USD)    [Gi0/0/0/1, Link-Local]:0:P    isis-100    <---|   
-    fc00:0:1111:e001::      uA (PSP/USD)    [Gi0/0/0/1, Link-Local]:0      isis-100    <---|  These are not available via BMP
-    fc00:0:1111:e002::      uA (PSP/USD)    [Gi0/0/0/2, Link-Local]:0:P    isis-100    <---|  We collect and process
-    fc00:0:1111:e003::      uA (PSP/USD)    [Gi0/0/0/2, Link-Local]:0      isis-100    <---|  these SIDs via streaming
-    fc00:0:1111:e004::      uDT4            'carrots'                      bgp-65000   <---|  telemetry and the 
-    fc00:0:1111:e005::      uDT6            'carrots'                      bgp-65000   <---|  "srv6-localsids" processor
-
-    ```
-  > [!NOTE]
-  > The SRv6 SID streaming telemetry configuration for capturing *`xrd07's`* srv6 sid data can be seen here: [SRv6 SID mdt path](https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_1/config/xrd07.cfg#L23)
-
-### Explore the Jalapeno ArangoDB Graph Database
+### ArangoDB Query Language (AQL)
 
 The ArangoDB Query Language (AQL) can be used to retrieve and modify data that are stored in ArangoDB.
 
@@ -360,7 +276,73 @@ The general workflow when executing a query is as follows:
     ```
 
 2. Optional or for reference: feel free to try a number of additional queries in the lab_5-queries.md doc [Here](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_5/lab_5-queries.md)
-    
+
+### Install Jalapeno Graph Processors
+Jalapeno's base installation includes the Topology and Link-State data processors. We have since written some addtitinoal processors which mine the existing data collections and create enriched topology models or graphs. We'll add these additional processors to our Jalapeno K8s cluster via a simple shell script.
+   
+   - ssh to Jalapeno VM, cd to the lab_5/graph-processors directory, and run the deploy.sh script:
+    ```
+    ssh cisco@198.18.128.101
+
+    cd ~/SRv6_dCloud_Lab/lab_5/graph-processors
+    ./deploy.sh
+    ```
+
+The new processors will have created the following new collections in the Arango graphDB, feel free to explore them in the ArangoDB UI, or move on to the next section.
+
+- *`igpv4_graph`*: a model of the ipv4 IGP topology including SRv6 SID data
+- *`igpv6_graph`*: a model of the ipv6 IGP topology including SRv6 SID data
+- *`ipv4_graph`*: a model of the entire ipv4 topology (IGP and BGP)
+- *`ipv6_graph`*: a model of the entire ipv6 topology (IGP and BGP)
+- *`sr_local_sids`*: a collection of SRv6 SIDs that are not automatically available via BMP. You may have noticed in the xrd routers' streaming telemetry configuration we have added the YANG path for XR to stream all SRv6 SIDs to Jalapeno's Telegraf telemetry collector.
+  
+1. Verify the Graph Processors have deployed successfully:
+    ```
+    kubectl get pods -n jalapeno
+    ```
+
+    Expected (truncated) output::
+    ```
+    igp-graph-5f7fcd6f88-8xqxr                     1/1     Running   0              53s
+    ipv4-graph-7ccc46bc57-xzjnk                    1/1     Running   0              53s
+    ipv6-graph-56db757fc9-kgbbg                    1/1     Running   0              52s
+    srv6-localsids-78c644bc76-ccpwh                1/1     Running   0              52s
+    ```
+
+### BGP SRv6 locator
+In lab 1 we configured an SRv6 locator for the BGP global/default table. When we get to *`lab 5 Part 2`* we'll use these locators as we'll be sending SRv6 encapsulated traffic directly to/from the Amsterdam and Rome VMs. With our endpoints performing SRv6 encapsulation our BGP SRv6 locator will provide the end.DT4/6 function at the egress nodes **xrd01** and **xrd07** to be able to pop the SRv6 encap and perform a global table lookup on the underlying payload.
+
+2. Optional: ssh to **xrd01** and re-validate end.DT4/6 SIDs belonging to BGP default table:
+    ```
+    ssh cisco@clab-cleu25-XR01
+    show segment-routing srv6 sid
+    ```
+
+    Expected (truncated)output on **xrd01** should look something like the below table with both a uDT4 and uDT6 SID in the 'default' context:  
+    ```
+    fc00:0:1111:e004::          uDT4              'default'                         bgp-65000           InUse  Y 
+    fc00:0:1111:e006::          uDT6              'default'                         bgp-65000           InUse  Y
+    ``` 
+
+  - As we saw earlier in the lab, the *`kubectl get pods -n jalapeno`* command will show you all the k8s containers that make up the Jalapeno application, including the *`srv6-localsids`* processor. This processor harvests SRv6 SID data from a Kafka streaming telemetry topic and populates it in the *`sr_local_sids`* collection. This data is not available via BMP and is needed to construct full End.DT SIDs that we'll use in lab 5 Part 2. 
+  
+    Example:
+
+    ```
+    SID                         Behavior          Context                    Owner              
+    ----------------------  --------------  -----------------------------  ------------
+    fc00:0:1111::           uN (PSP/USD)    'default':4369                 sidmgr     <-------- Collected via BMP
+    fc00:0:1111:e000::      uA (PSP/USD)    [Gi0/0/0/1, Link-Local]:0:P    isis-100    <---|   
+    fc00:0:1111:e001::      uA (PSP/USD)    [Gi0/0/0/1, Link-Local]:0      isis-100    <---|  These are not available via BMP
+    fc00:0:1111:e002::      uA (PSP/USD)    [Gi0/0/0/2, Link-Local]:0:P    isis-100    <---|  We collect and process
+    fc00:0:1111:e003::      uA (PSP/USD)    [Gi0/0/0/2, Link-Local]:0      isis-100    <---|  these SIDs via streaming
+    fc00:0:1111:e004::      uDT4            'carrots'                      bgp-65000   <---|  telemetry and the 
+    fc00:0:1111:e005::      uDT6            'carrots'                      bgp-65000   <---|  "srv6-localsids" processor
+
+    ```
+  > [!NOTE]
+  > The SRv6 SID streaming telemetry configuration for capturing *`xrd07's`* srv6 sid data can be seen here: [SRv6 SID mdt path](https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_1/config/xrd07.cfg#L23)
+
  
 ### Populating the DB with external data 
 
@@ -401,6 +383,29 @@ The [add_meta_data.py](python/add_meta_data.py) python script will connect to th
   
 > [!NOTE]
 > The *`add_meta_data.py`* script has also populated country codes for all the countries a given link traverses from one node to its adjacent peer. Example: **xrd01** is in Amsterdam, and **xrd02** is in Berlin. Thus the **xrd01** <--> **xrd02** link traverses *`[NLD, DEU]`*
+
+
+### Jalapeno REST API
+The Jalapeno REST API is used to run queries against the ArangoDB and retrieve graph topology data or execute shortest path calculations. 
+
+1. Test the Jalapeno REST API:
+
+   - From the ssh session on the Jalapeno VM or the XRD VM (or the command line on your local machine) validate the Jalapeno REST API is running:
+    ```
+    curl http://198.18.128.101:30800/api/v1/collections
+    ```
+    ```
+    curl http://198.18.128.101:30800/api/v1/collections/ls_node
+    ```
+    -  If you run your curl commands from the Jalapeno VM we installed the *`jq`* tool to help with nicer JSON parsing:
+    ```
+    curl http://198.18.128.101:30800/api/v1/graphs/igpv4_graph/vertices/keys | jq .
+    ```
+    ```
+    curl http://198.18.128.101:30800/api/v1/graphs/igpv4_graph/edges | jq .
+    ```
+
+   - The API also has auto-generated documentation at: [http://198.18.128.101:30800/docs/](http://198.18.128.101:30800/docs/) 
 
 
 ## Jalapeno Web UI
