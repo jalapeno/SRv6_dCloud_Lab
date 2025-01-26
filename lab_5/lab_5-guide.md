@@ -263,9 +263,10 @@ The general workflow when executing a query is as follows:
 
      - Note: after running a query you will need to either comment it out or delete it before running the next query. To comment-out use two forward slashes *`//`* as shown in this pic:
 
+
     <img src="images/arango-query.png" width="600">
 
-    
+
     ```
     for x in igp_node return x.name
     ```
