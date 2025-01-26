@@ -607,14 +607,14 @@ In lab 3 we created the *radish VRF* on *xrd07* and bound a loopback interface t
    kubectl apply -f 08-vrf-radish.yaml
    ```
   
-  Expected output:
-  ```
-  cisco@berlin:~/SRv6_dCloud_Lab/lab_4/cilium$    kubectl apply -f 08-vrf-radish.yaml
-  isovalentbgpvrfconfig.isovalent.com/radish-config created
-  isovalentbgpadvertisement.isovalent.com/radish-adverts created
-  isovalentvrf.isovalent.com/radish created
-  pod/radish0 created
-  ```
+   Expected output:
+   ```
+   cisco@berlin:~/SRv6_dCloud_Lab/lab_4/cilium$    kubectl apply -f 08-vrf-radish.yaml
+   isovalentbgpvrfconfig.isovalent.com/radish-config created
+   isovalentbgpadvertisement.isovalent.com/radish-adverts created
+   isovalentvrf.isovalent.com/radish created
+   pod/radish0 created
+   ```
 
 2. Verify the radish0 pod is running in the K8s veggies namespace:
    ```
@@ -633,7 +633,9 @@ In lab 3 we created the *radish VRF* on *xrd07* and bound a loopback interface t
 
     ```
     kubectl exec -it -n veggies radish0 -- /bin/sh
-    ping 100.0.7.1
+    ```
+    ```
+    ping 100.0.7.1 -i .4
     ```
 
     Expected output:
@@ -668,7 +670,7 @@ In lab 3 we created the *radish VRF* on *xrd07* and bound a loopback interface t
    Node:             berlin/198.18.4.104
    Start Time:       Wed, 22 Jan 2025 02:19:34 -0500
    Labels:           app=alpine-ping
-                    vrf=radish           # carrots1 is now in the radish VRF
+                    vrf=radish                            # carrots1 is now in the radish VRF
    Annotations:      <none>
    Status:           Running
    IP:               10.200.0.164
