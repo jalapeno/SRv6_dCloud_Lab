@@ -19,6 +19,8 @@ The original version of this lab was developed in partnership with Arkadiusz Kal
   - [Lab Objectives](#lab-objectives)
   - [Verify pre-installed Cilium is running](#verify-pre-installed-cilium-is-running)
   - [Setup Cilium BGP Peering](#setup-cilium-bgp-peering)
+    - [Brief explanation of Kubernetes Custom Resource Definitions (CRDs)](#brief-explanation-of-kubernetes-custom-resource-definitions-crds)
+    - [Cilium BGP CRD](#cilium-bgp-crd)
     - [Establish the Cilium BGP global and peer configurations](#establish-the-cilium-bgp-global-and-peer-configurations)
     - [Verify Cilium BGP peering](#verify-cilium-bgp-peering)
     - [Cilium BGP prefix advertisement](#cilium-bgp-prefix-advertisement)
@@ -544,32 +546,32 @@ In the next step we've combined creation of both the carrots VRF and kubernetes 
 
    Example of partial output:
    ```yaml
-  - apiVersion: isovalent.com/v1alpha1
-    kind: IsovalentSRv6EgressPolicy
-    metadata:
-      creationTimestamp: "2025-01-17T06:49:36Z"
-      generation: 1
-      name: bgp-control-plane-31cc5366b9918e658bada220b4232aa252f16e3f93572d69131a842239bbcce5
-      resourceVersion: "49954"
-      uid: e47b55f9-095d-4b45-a163-522b8f7d6f9a
-    spec:
-      destinationCIDRs:
-      - 40.0.0.0/24
-      destinationSID: 'fc00:0:7777:e007::'  # SRv6 SID for prefix 40.0.0.0/24 in vrfID 99 (carrots) on xrd07
-      vrfID: 99
-  - apiVersion: isovalent.com/v1alpha1
-    kind: IsovalentSRv6EgressPolicy
-    metadata:
-      creationTimestamp: "2025-01-17T06:49:36Z"
-      generation: 1
-      name: bgp-control-plane-46ef5ca48abb5cee93f383fe8966f85194a398116bea35fdf49b17cd1d5fbe79
-      resourceVersion: "49948"
-      uid: d786342b-9edd-4610-8f78-b11354714c6a
-    spec:
-      destinationCIDRs:
-      - 10.200.0.0/24
-      destinationSID: 'fc00:0:a0ba:ec7::' # SRv6 SID for local prefix 10.200.0.0/24 in vrfID 99 (carrots)
-      vrfID: 99
+     - apiVersion: isovalent.com/v1alpha1
+       kind: IsovalentSRv6EgressPolicy
+       metadata:
+         creationTimestamp: "2025-01-17T06:49:36Z"
+         generation: 1
+         name: bgp-control-plane-31cc5366b9918e658bada220b4232aa252f16e3f93572d69131a842239bbcce5
+         resourceVersion: "49954"
+         uid: e47b55f9-095d-4b45-a163-522b8f7d6f9a
+       spec:
+         destinationCIDRs:
+         - 40.0.0.0/24
+         destinationSID: 'fc00:0:7777:e007::'  # SRv6 SID for prefix 40.0.0.0/24 in vrfID 99 (carrots) on xrd07
+         vrfID: 99
+     - apiVersion: isovalent.com/v1alpha1
+       kind: IsovalentSRv6EgressPolicy
+       metadata:
+         creationTimestamp: "2025-01-17T06:49:36Z"
+         generation: 1
+         name: bgp-control-plane-46ef5ca48abb5cee93f383fe8966f85194a398116bea35fdf49b17cd1d5fbe79
+         resourceVersion: "49948"
+         uid: d786342b-9edd-4610-8f78-b11354714c6a
+       spec:
+         destinationCIDRs:
+         - 10.200.0.0/24
+         destinationSID: 'fc00:0:a0ba:ec7::' # SRv6 SID for local prefix 10.200.0.0/24 in vrfID 99 (carrots)
+         vrfID: 99
   ```
 
 ### Run a ping test!
