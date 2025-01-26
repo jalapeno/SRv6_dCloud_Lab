@@ -4,8 +4,8 @@
 In Lab 5 we will explore the power of SRv6 as a truly end-to-end technology through host-based SRv6, and with the help of the open-source Jalapeno platform. Jalapeno is designed to run on Kubernetes (K8s), which allows for easy integration into existing environments and supports deployment on bare metal, VMs, or in a public cloud. Kubernetes experience is not required for this lab as K8s has been preinstalled on the Jalapeno VM and we have included the required *kubectl* validation commands. We've also included a brief guide to installing Kubernetes on your own host or VM: [K8s Install Instructions](lab_4/k8s-install-instructions.md).
 
 This lab is divided into two main sections :
-* **Part 1:** Exploring the Jalapeno platform and a "databases and APIs" apprach to SDN topology modeling
-* **Part 2:** Giving applications or workloads the ability to control their own SRv6 paths through the use of host-based SRv6
+* **Part 1:** Exploring the Jalapeno platform and a *`databases and APIs`* approach to SDN topology modeling
+* **Part 2:** Giving applications or workloads the ability to control their own SRv6 paths through the use of *`host-based SRv6`*
 
 
 ## Contents
@@ -24,7 +24,7 @@ This lab is divided into two main sections :
   - [Install Jalapeno Graph Processors](#install-jalapeno-graph-processors)
   - [BGP SRv6 locator](#bgp-srv6-locator)
   - [Populating the DB with external data](#populating-the-db-with-external-data)
-  - [Jalapeno REST API](#jalapeno-rest-api)
+- [Jalapeno REST API](#jalapeno-rest-api)
 - [Jalapeno Web UI](#jalapeno-web-ui)
   - [Data Collections](#data-collections)
   - [Topology Viewer](#topology-viewer)
@@ -46,7 +46,9 @@ The student upon completion of Lab 5 should have achieved the following objectiv
 * Familiarity with the Jalapeno API and UI
 
 ## Jalapeno Overview
-Project Jalapeno combines existing open source tools with some new stuff we've developed into a data collection and warehousing infrastructure intended to enable development of network service applications. Think of it as applying microservices architecture and concepts to SDN: give developers the ability to quickly and easily build microservice control planes on top of a common data infrastructure. More information on Jalapeno can be found at the Jalapeno Git repository: [LINK](https://github.com/cisco-open/jalapeno/blob/main/README.md)
+Project Jalapeno combines existing open source tools with some new stuff we've developed into a data collection and warehousing infrastructure intended to enable development of network service applications. Think of it as applying microservices architecture and concepts to SDN: give developers the ability to quickly and easily build microservice control planes on top of a common data infrastructure. More information on Jalapeno can be found at the Jalapeno Git repository: 
+
+[Jalapeno on Cisco-Open Github](https://github.com/cisco-open/jalapeno/blob/main/README.md)
 
 ### Jalapeno Architecture and Data Flow
 ![jalapeno_architecture](https://github.com/cisco-open/jalapeno/blob/main/docs/img/jalapeno_architecture.png)
@@ -278,9 +280,9 @@ The general workflow when executing a query is as follows:
 2. Optional or for reference: feel free to try a number of additional queries in the lab_5-queries.md doc [Here](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_5/lab_5-queries.md)
 
 ### Install Jalapeno Graph Processors
-Jalapeno's base installation includes the Topology and Link-State data processors. We have since written some addtitinoal processors which mine the existing data collections and create enriched topology models or graphs. We'll add these additional processors to our Jalapeno K8s cluster via a simple shell script.
+Jalapeno's base installation includes the Topology and Link-State data processors. We have since written some addtitional processors which mine the existing data collections and create enriched topology models or graphs. We'll add these additional processors to our Jalapeno K8s cluster via a simple shell script.
    
-   - ssh to Jalapeno VM, cd to the lab_5/graph-processors directory, and run the deploy.sh script:
+1. ssh to Jalapeno VM, cd to the lab_5/graph-processors directory, and run the deploy.sh script:
     ```
     ssh cisco@198.18.128.101
 
@@ -296,7 +298,7 @@ The new processors will have created the following new collections in the Arango
 - *`ipv6_graph`*: a model of the entire ipv6 topology (IGP and BGP)
 - *`sr_local_sids`*: a collection of SRv6 SIDs that are not automatically available via BMP. You may have noticed in the xrd routers' streaming telemetry configuration we have added the YANG path for XR to stream all SRv6 SIDs to Jalapeno's Telegraf telemetry collector.
   
-1. Verify the Graph Processors have deployed successfully:
+2. Verify the Graph Processors have deployed successfully:
     ```
     kubectl get pods -n jalapeno
     ```
@@ -312,7 +314,7 @@ The new processors will have created the following new collections in the Arango
 ### BGP SRv6 locator
 In lab 1 we configured an SRv6 locator for the BGP global/default table. When we get to *`lab 5 Part 2`* we'll use these locators as we'll be sending SRv6 encapsulated traffic directly to/from the Amsterdam and Rome VMs. With our endpoints performing SRv6 encapsulation our BGP SRv6 locator will provide the end.DT4/6 function at the egress nodes **xrd01** and **xrd07** to be able to pop the SRv6 encap and perform a global table lookup on the underlying payload.
 
-2. Optional: ssh to **xrd01** and re-validate end.DT4/6 SIDs belonging to BGP default table:
+1. Optional: ssh to **xrd01** and re-validate end.DT4/6 SIDs belonging to BGP default table:
     ```
     ssh cisco@clab-cleu25-XR01
     show segment-routing srv6 sid
@@ -324,7 +326,7 @@ In lab 1 we configured an SRv6 locator for the BGP global/default table. When we
     fc00:0:1111:e006::          uDT6              'default'                         bgp-65000           InUse  Y
     ``` 
 
-  - As we saw earlier in the lab, the *`kubectl get pods -n jalapeno`* command will show you all the k8s containers that make up the Jalapeno application, including the *`srv6-localsids`* processor. This processor harvests SRv6 SID data from a Kafka streaming telemetry topic and populates it in the *`sr_local_sids`* collection. This data is not available via BMP and is needed to construct full End.DT SIDs that we'll use in lab 5 Part 2. 
+  - As we saw earlier in the lab, the *`kubectl get pods -n jalapeno`* command will show you all the k8s containers that make up the Jalapeno application, including the *`srv6-localsids`* processor. This processor harvests SRv6 SID data from a Kafka streaming telemetry topic and populates it in the *`sr_local_sids`* collection in ArangoDB.  
   
     Example:
 
@@ -385,7 +387,7 @@ The [add_meta_data.py](python/add_meta_data.py) python script will connect to th
 > The *`add_meta_data.py`* script has also populated country codes for all the countries a given link traverses from one node to its adjacent peer. Example: **xrd01** is in Amsterdam, and **xrd02** is in Berlin. Thus the **xrd01** <--> **xrd02** link traverses *`[NLD, DEU]`*
 
 
-### Jalapeno REST API
+## Jalapeno REST API
 The Jalapeno REST API is used to run queries against the ArangoDB and retrieve graph topology data or execute shortest path calculations. 
 
 1. Test the Jalapeno REST API:
