@@ -335,15 +335,15 @@ In lab 1 we configured an SRv6 locator for the BGP global/default table. When we
     Example:
 
     ```
-    SID                         Behavior          Context                    Owner              
-    ----------------------  --------------  -----------------------------  ------------
-    fc00:0:1111::           uN (PSP/USD)    'default':4369                 sidmgr     <-------- Collected via BMP
-    fc00:0:1111:e000::      uA (PSP/USD)    [Gi0/0/0/1, Link-Local]:0:P    isis-100    <---|   
-    fc00:0:1111:e001::      uA (PSP/USD)    [Gi0/0/0/1, Link-Local]:0      isis-100    <---|  These are not available via BMP
-    fc00:0:1111:e002::      uA (PSP/USD)    [Gi0/0/0/2, Link-Local]:0:P    isis-100    <---|  We collect and process
-    fc00:0:1111:e003::      uA (PSP/USD)    [Gi0/0/0/2, Link-Local]:0      isis-100    <---|  these SIDs via streaming
-    fc00:0:1111:e004::      uDT4            'carrots'                      bgp-65000   <---|  telemetry and the 
-    fc00:0:1111:e005::      uDT6            'carrots'                      bgp-65000   <---|  "srv6-localsids" processor
+    SID                  Behavior         Context                    Owner              
+    -------------------  -------------  ---------------------------  ----------
+    fc00:0:1111::        uN (PSP/USD)   'default':4369               sidmgr     <-------- Collected via BMP
+    fc00:0:1111:e000::   uA (PSP/USD)   [Gi0/0/0/1, Link-Local]:0:P  isis-100    <---|   
+    fc00:0:1111:e001::   uA (PSP/USD)   [Gi0/0/0/1, Link-Local]:0    isis-100    <---|  These are not available via BMP
+    fc00:0:1111:e002::   uA (PSP/USD)   [Gi0/0/0/2, Link-Local]:0:P  isis-100    <---|  We collect and process
+    fc00:0:1111:e003::   uA (PSP/USD)   [Gi0/0/0/2, Link-Local]:0    isis-100    <---|  these SIDs via streaming
+    fc00:0:1111:e004::   uDT4           'carrots'                    bgp-65000   <---|  telemetry and the 
+    fc00:0:1111:e005::   uDT6           'carrots'                    bgp-65000   <---|  "srv6-localsids" processor
 
     ```
   > [!NOTE]
