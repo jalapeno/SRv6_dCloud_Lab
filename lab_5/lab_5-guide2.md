@@ -14,6 +14,10 @@ In Part 2 we will use the Jalapeno SRv6 client to program SRv6 routes on the Ams
   - [Contents](#contents)
   - [Host-Based SR/SRv6 and building your own SDN App](#host-based-srsrv6-and-building-your-own-sdn-app)
   - [Lab Objectives](#lab-objectives)
+  - [Path Calculation Use Cases:](#path-calculation-use-cases)
+    - [Lowest Latency Path](#lowest-latency-path)
+    - [Lowest Bandwidth Utilization Path](#lowest-bandwidth-utilization-path)
+    - [Data Sovereignty Path](#data-sovereignty-path)
   - [Rome VM: Segment Routing \& SRv6 on Linux](#rome-vm-segment-routing--srv6-on-linux)
     - [Preliminary steps for SR/SRv6 on Rome VM](#preliminary-steps-for-srsrv6-on-rome-vm)
     - [jalapeno.py:](#jalapenopy)
@@ -23,7 +27,7 @@ In Part 2 we will use the Jalapeno SRv6 client to program SRv6 routes on the Ams
     - [Least Utilized Path](#least-utilized-path)
     - [Low Latency Path](#low-latency-path)
     - [Low Latency Re-Route](#low-latency-re-route)
-    - [Data Sovereignty Path](#data-sovereignty-path)
+    - [Data Sovereignty Path](#data-sovereignty-path-1)
   - [Amsterdam VM](#amsterdam-vm)
     - [POC host-based SRv6 and SR-MPLS SDN using the VPP dataplane](#poc-host-based-srv6-and-sr-mpls-sdn-using-the-vpp-dataplane)
     - [jalapeno.py on Amsterdam:](#jalapenopy-on-amsterdam)
@@ -31,7 +35,7 @@ In Part 2 we will use the Jalapeno SRv6 client to program SRv6 routes on the Ams
     - [Get All Paths](#get-all-paths-1)
     - [Least Utilized Path](#least-utilized-path-1)
     - [Low Latency Path](#low-latency-path-1)
-    - [Data Sovereignty Path](#data-sovereignty-path-1)
+    - [Data Sovereignty Path](#data-sovereignty-path-2)
     - [You have reached the end of LTRSPG-2212, hooray!](#you-have-reached-the-end-of-ltrspg-2212-hooray)
 
 ## Host-Based SR/SRv6 and building your own SDN App
@@ -58,6 +62,76 @@ The student upon completion of Lab 6 should have achieved the following objectiv
 * How to query Jalapeno API with Python for network topology and SRv6 data
 * Using Python to craft specific SRv6 headers for traffic steering or other use cases
 * Using Python to to program SRv6 forwarding entries on a Linux host
+
+## Path Calculation Use Cases: 
+
+### Lowest Latency Path
+
+Our first use case is to make path selection through the network based on the cummulative link latency from A to Z. Calculating best paths using latency meta-data is not something traditional routing protocols can do. It may be possible to statically build routes through your network using weights to define a path. However, what these workarounds cannot do is provide path selection based on near real time data which is possible with an application like Jalapeno. This provides customers to have a flexible network policy that can react to changes in the WAN environment.
+
+In this use case we want to idenitfy the lowest latency path for traffic originating from the *`Amsterdam VM`* destined to *`Rome VM`*. The UI makes an API call to trigger Arango's shortest path query capabilities and specify latency as our *weighted attribute* pulled from the meta-data. 
+
+### Lowest Bandwidth Utilization Path
+
+In this use case we want to identify the least utilized path for traffic originating from the *`Amsterdam VM`* destined to *`Rome VM`*. The API call will specify link utilization as our *weighted attribute* pulled from the meta-data. 
+
+From the UI select *`Amsterdam`* as the source and the *`Rome`* as the destination. Then select *Least Utilized* from the constraints dropdown. The Least Utilized path will be highlighted and uSID stack will appear in the popup.
+
+  1. If we wanted to implement the returned query data into SRv6-TE steering XR config on router **xrd01** we would create a policy like the below example.
+     
+  2. Optional: on router **xrd07** add in config to advertise the global prefix with the bulk transfer community.
+     ```
+     extcommunity-set opaque bulk-transfer
+       40
+     end-set
+
+     route-policy set-global-color
+        if destination in (10.107.1.0/24) then
+          set extcommunity color bulk-transfer
+        endif
+        pass
+     end-policy 
+     ```
+  3. On router **xrd01** we would add an SRv6 segment-list config to define the hops returned from our query between router **xrd01** (source) and **xrd07** (destination). 
+   
+      ```
+      segment-routing
+        traffic-eng
+          segment-lists
+            segment-list xrd567
+              srv6
+               index 10 sid fc00:0:2222::
+               index 20 sid fc00:0:3333::
+               index 30 sid fc00:0:4444:: 
+
+          policy bulk-transfer
+           srv6
+            locator MyLocator binding-sid dynamic behavior ub6-insert-reduced
+           !
+           color 40 end-point ipv6 fc00:0:7777::1
+           candidate-paths
+            preference 100
+             explicit segment-list xrd2347
+      ```
+> [!NOTE]
+> The xrd01 configuration was applied in Lab 3 and is shown here for informational purposes only.
+  
+### Data Sovereignty Path
+
+In this use case we want to idenitfy a path originating from *`Amsterdam`* destined to *`Rome`* that avoids passing through France (perhaps there's a toll on the link). The API call will utilize Arango's shortest path query capability and filter out results that pass through **xrd06** based in Paris, France. 
+
+From the UI select *`Amsterdam`* as the source and the *`Rome`* as the destination. Then select *Data Sovereignty* from the constraints dropdown. The Data Sovereignty path will be highlighted and uSID stack will appear in the popup.
+   1. Return to the ArangoDB browser UI and run a shortest path query from *10.101.1.0/24* to *20.0.0.0/24* , and have it return SRv6 SID data.
+      ```
+      for p in outbound k_shortest_paths  'ibgp_prefix_v4/10.101.1.0_24' 
+          TO 'ibgp_prefix_v4/20.0.0.0_24' ipv4_graph 
+            options {uniqueVertices: "path", bfs: true} 
+            filter p.edges[*].country_codes !like "FRA" limit 1 
+                return { path: p.vertices[*].name, sid: p.vertices[*].sids[*].srv6_sid, 
+                    countries_traversed: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency), 
+                        percent_util_out: avg(p.edges[*].percent_util_out)} 
+      ```
+
 
 ```
 sudo srctl --api-server http://198.18.128.101:30800 apply -f amsterdam.yaml

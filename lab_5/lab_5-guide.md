@@ -30,10 +30,6 @@ This lab is divided into two main sections :
   - [Topology Viewer](#topology-viewer)
   - [Calculate a Path](#calculate-a-path)
   - [Schedule a Workload](#schedule-a-workload)
-- [Path Calculation Use Cases:](#path-calculation-use-cases)
-  - [Lowest Latency Path](#lowest-latency-path)
-  - [Lowest Bandwidth Utilization Path](#lowest-bandwidth-utilization-path)
-  - [Data Sovereignty Path](#data-sovereignty-path)
 - [End of lab 5 Part 1](#end-of-lab-5-part-1)
 
 ## Lab Objectives
@@ -433,7 +429,10 @@ Currently populated with raw BMP data and graph data. We have placeholders for f
 <img src="images/jalapeno-ui-data-collections.png" width="900">
 
 ### Topology Viewer
-Prompts the user to select a graph from the dropdown and then displays the graph in the center of the screen. The graph is interactive and the user can hover over a node to see more information about it. There are also dropdowns to change the graph's layout and to show a 'nodes-only' view. Funally the user can click on nodes along a path and the relevant SRv6 uSID stack will be displayed in the upper right corner of the screen.
+The Topology Viewer prompts the user to select a graph from the dropdown and then displays the graph in the center of the screen. The graph is interactive and the user can hover over a node to see more information about it. There are also dropdowns to change the graph's layout and to show a 'nodes-only' view. Finally the user can click on nodes along a path and the relevant SRv6 uSID stack will be displayed in the upper right corner of the screen.
+
+> [!NOTE]
+> There is currently a bug in the Topology Viewer where the node highlight and click function doesn't work at first. Try changing the layout using the upper left dropdown, then change it back to the **Default Layout** dropdown. Node highlighting and clicking functionality should then work.
 
 <img src="images/jalapeno-ui-topology-viewer.png" width="900">
 
@@ -449,75 +448,6 @@ This function is still under construction. The idea behind `Schedule a Workload`
 
 <img src="images/jalapeno-ui-sched-workload.png" width="900">
 
-
-## Path Calculation Use Cases: 
-
-### Lowest Latency Path
-
-Our first use case is to make path selection through the network based on the cummulative link latency from A to Z. Calculating best paths using latency meta-data is not something traditional routing protocols can do. It may be possible to statically build routes through your network using weights to define a path. However, what these workarounds cannot do is provide path selection based on near real time data which is possible with an application like Jalapeno. This provides customers to have a flexible network policy that can react to changes in the WAN environment.
-
-In this use case we want to idenitfy the lowest latency path for traffic originating from the *`Amsterdam VM`* destined to *`Rome VM`*. The UI makes an API call to trigger Arango's shortest path query capabilities and specify latency as our *weighted attribute* pulled from the meta-data. 
-
-### Lowest Bandwidth Utilization Path
-
-In this use case we want to identify the least utilized path for traffic originating from the *`Amsterdam VM`* destined to *`Rome VM`*. The API call will specify link utilization as our *weighted attribute* pulled from the meta-data. 
-
-From the UI select *`Amsterdam`* as the source and the *`Rome`* as the destination. Then select *Least Utilized* from the constraints dropdown. The Least Utilized path will be highlighted and uSID stack will appear in the popup.
-
-  1. If we wanted to implement the returned query data into SRv6-TE steering XR config on router **xrd01** we would create a policy like the below example.
-     
-  2. Optional: on router **xrd07** add in config to advertise the global prefix with the bulk transfer community.
-     ```
-     extcommunity-set opaque bulk-transfer
-       40
-     end-set
-
-     route-policy set-global-color
-        if destination in (10.107.1.0/24) then
-          set extcommunity color bulk-transfer
-        endif
-        pass
-     end-policy 
-     ```
-  3. On router **xrd01** we would add an SRv6 segment-list config to define the hops returned from our query between router **xrd01** (source) and **xrd07** (destination). 
-   
-      ```
-      segment-routing
-        traffic-eng
-          segment-lists
-            segment-list xrd567
-              srv6
-               index 10 sid fc00:0:2222::
-               index 20 sid fc00:0:3333::
-               index 30 sid fc00:0:4444:: 
-
-          policy bulk-transfer
-           srv6
-            locator MyLocator binding-sid dynamic behavior ub6-insert-reduced
-           !
-           color 40 end-point ipv6 fc00:0:7777::1
-           candidate-paths
-            preference 100
-             explicit segment-list xrd2347
-      ```
-> [!NOTE]
-> The xrd01 configuration was applied in Lab 3 and is shown here for informational purposes only.
-  
-### Data Sovereignty Path
-
-In this use case we want to idenitfy a path originating from *`Amsterdam`* destined to *`Rome`* that avoids passing through France (perhaps there's a toll on the link). The API call will utilize Arango's shortest path query capability and filter out results that pass through **xrd06** based in Paris, France. 
-
-From the UI select *`Amsterdam`* as the source and the *`Rome`* as the destination. Then select *Data Sovereignty* from the constraints dropdown. The Data Sovereignty path will be highlighted and uSID stack will appear in the popup.
-   1. Return to the ArangoDB browser UI and run a shortest path query from *10.101.1.0/24* to *20.0.0.0/24* , and have it return SRv6 SID data.
-      ```
-      for p in outbound k_shortest_paths  'ibgp_prefix_v4/10.101.1.0_24' 
-          TO 'ibgp_prefix_v4/20.0.0.0_24' ipv4_graph 
-            options {uniqueVertices: "path", bfs: true} 
-            filter p.edges[*].country_codes !like "FRA" limit 1 
-                return { path: p.vertices[*].name, sid: p.vertices[*].sids[*].srv6_sid, 
-                    countries_traversed: p.edges[*].country_codes[*], latency: sum(p.edges[*].latency), 
-                        percent_util_out: avg(p.edges[*].percent_util_out)} 
-      ```
 
 ## End of lab 5 Part 1
 Please proceed to [Lab 5 Part 2: Host-Based SRv6](lab_5-guide2.md)
