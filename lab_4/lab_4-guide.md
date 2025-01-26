@@ -577,14 +577,14 @@ In the next step we've combined creation of both the carrots VRF and kubernetes 
 ### Run a ping test!
 
 1. On the Berlin VM exec into one of the carrotspod containers and ping Amsterdam's interface in the carrots VRF:
-  ```
-  kubectl exec -it -n veggies carrots0 -- sh
-  ```
-  ```
-  ping 10.101.3.1 -i .4 
-  ```
+    ```
+    kubectl exec -it -n veggies carrots0 -- sh
+    ```
+    ```
+    ping 10.101.3.1 -i .4 
+    ```
 
-1. Return to the XRd VM and run a tcpdump to capture Cilium's SRv6 encapsulation of outbound packets:
+2. Return to the XRd VM and run a tcpdump to capture Cilium's SRv6 encapsulation of outbound packets:
 
     ```
     sudo ip netns exec clab-cleu25-xrd02 tcpdump -lni Gi0-0-0-3
