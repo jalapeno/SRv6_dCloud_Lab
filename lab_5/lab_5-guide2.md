@@ -234,7 +234,7 @@ Many segment routing and other SDN solutions focus on the *low latency path* as 
            - name: amsterdam-to-rome-v4
              graph: ipv4_graph
              pathType: shortest_path  # the path type is a signal to the API/DB to use the shortest path algorithm based on the specified metric
-             metric: least_utilized   # in the case we're specifying shortest_path based on lowest avg utilization
+             metric: utilization   # in the case we're specifying shortest_path based on lowest avg utilization
              source: hosts/amsterdam
              destination: hosts/rome
              destination_prefix: "10.107.1.0/24"
@@ -251,8 +251,8 @@ Many segment routing and other SDN solutions focus on the *low latency path* as 
    ```yaml
    cisco@amsterdam:~/SRv6_dCloud_Lab/lab_5/srctl$ sudo srctl --api-server http://198.18.128.101:30800 apply -f amsterdam.yaml
    Loaded configuration from amsterdam.yaml
-   amsterdam-to-rome-v4: fc00:0:1111:5555:6666:7777: Route programmed successfully
-   amsterdam-to-rome-v6: fc00:0:1111:5555:6666:7777: Route programmed successfully
+   amsterdam-to-rome-v4: fc00:0:1111:2222:3333:4444:7777: Route programmed successfully
+   amsterdam-to-rome-v6: fc00:0:1111:2222:3333:4444:7777: Route programmed successfully
    ```
 
 4. Check VPP's SR policies table. Note the assigned Binding SIDs and uSID structured segment lists.
@@ -264,19 +264,20 @@ Many segment routing and other SDN solutions focus on the *low latency path* as 
    ```yaml
    cisco@amsterdam:~/SRv6_dCloud_Lab/lab_5/srctl$ sudo vppctl show sr policies
    SR policies:
-   [0].-	BSID: 101::101
+   [0].-	BSID: 101::102
      Behavior: Encapsulation
      Type: Default
      FIB table: 0
      Segment Lists:
-       [0].- < fc00:0:1111:5555:6666:7777:: > weight: 1
+       [0].- < fc00:0:1111:2222:3333:4444:7777:0 > weight: 1
    -----------
-   [1].-	BSID: 101::102
+   [1].-	BSID: 101::101
      Behavior: Encapsulation
      Type: Default
      FIB table: 0
      Segment Lists:
-       [1].- < fc00:0:1111:5555:6666:7777:: > weight: 1
+       [1].- < fc00:0:1111:2222:3333:4444:7777:0 > weight: 1
+   -----------
    ```
 
 5. Check VPP's SR traffic steering rules. 
@@ -303,60 +304,58 @@ Many segment routing and other SDN solutions focus on the *low latency path* as 
    Optional: run tcpdump on the XRD VM to see the traffic flow and SRv6 uSID in action. 
    ```
    sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-0
-   sudo ip netns exec clab-cleu25-xrd06 tcpdump -lni Gi0-0-0-0
+   sudo ip netns exec clab-cleu25-xrd03 tcpdump -lni Gi0-0-0-0
    ```
 
-   We expect the ping to work, and tcpdump output should look something like this:
+   We expect the ping to work, and because the outbound traffic is taking the least utilized path, and the return traffic is taking the low latency path we expect the above tcpdump output to only show SRv6 encapsulated ping requests:
    ```yaml
-   cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-0
+   cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd03 tcpdump -lni Gi0-0-0-0
    tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
    listening on Gi0-0-0-0, link-type EN10MB (Ethernet), capture size 262144 bytes
-   22:39:50.038727 IP6 fc00:0:101:1::1 > fc00:0:1111:5555:6666:7777::: IP6 fc00:0:101:2::1 > fc00:0:107:1::1: ICMP6, echo request, seq 7, length 64
-   22:39:50.044195 IP6 fc00:0:107:1::1 > fc00:0:101:2::1: ICMP6, echo reply, seq 7, length 64
-   22:39:50.438815 IP6 fc00:0:101:1::1 > fc00:0:1111:5555:6666:7777::: IP6 fc00:0:101:2::1 > fc00:0:107:1::1: ICMP6, echo request, seq 8, length 64
-   22:39:50.443896 IP6 fc00:0:107:1::1 > fc00:0:101:2::1: ICMP6, echo reply, seq 8, length 64
+   22:49:37.171693 IP6 fc00:0:101:1::1 > fc00:0:3333:4444:7777::: IP6 fc00:0:101:2::1 > fc00:0:107:1::1: ICMP6, echo request, seq 34, length 64
+   22:49:37.571757 IP6 fc00:0:101:1::1 > fc00:0:3333:4444:7777::: IP6 fc00:0:101:2::1 > fc00:0:107:1::1: ICMP6, echo request, seq 35, length 64
    ```
 
-
-  1. If we wanted to implement the returned query data into SRv6-TE steering XR config on router **xrd01** we would create a policy like the below example.
+  > [!NOTE]
+  > If we wanted to implement either the Amsterdam or Rome or Rome to Amsterdam SRv6 service for global table traffic as an SRv6-TE steering policy on our xrd routers we would create a policy like the below example, which is very similar to the work we did in Lab 3 for L3VPN prefixes.
      
-  2. Optional: on router **xrd07** add in config to advertise the global prefix with the bulk transfer community.
+  On router **xrd07** we need to add in config to advertise the global prefix with the bulk transfer community.
      ```
      extcommunity-set opaque bulk-transfer
        40
      end-set
 
      route-policy set-global-color
-        if destination in (10.107.1.0/24) then
+        if destination in (fc00:0:107:1::/64) then
           set extcommunity color bulk-transfer
         endif
         pass
      end-policy 
      ```
-  3. On router **xrd01** we would add an SRv6 segment-list config to define the hops returned from our query between router **xrd01** (source) and **xrd07** (destination). 
-   
-      ```
-      segment-routing
-        traffic-eng
-          segment-lists
-            segment-list xrd567
-              srv6
-               index 10 sid fc00:0:2222::
-               index 20 sid fc00:0:3333::
-               index 30 sid fc00:0:4444:: 
-
-          policy bulk-transfer
-           srv6
-            locator MyLocator binding-sid dynamic behavior ub6-insert-reduced
-           !
-           color 40 end-point ipv6 fc00:0:7777::1
-           candidate-paths
-            preference 100
-             explicit segment-list xrd2347
-      ```
-> [!NOTE]
-> The xrd01 configuration was applied in Lab 3 and is shown here for informational purposes only.
   
+  Then on router **xrd01** we would add an SRv6 segment-list config to define the hops returned from our query between router **xrd01** (source) and **xrd07** (destination). 
+   
+  ```
+  segment-routing
+  traffic-eng
+    segment-lists
+      segment-list xrd2347
+        srv6
+         index 10 sid fc00:0:2222::
+         index 20 sid fc00:0:3333::
+         index 30 sid fc00:0:4444:: 
+
+    policy bulk-transfer
+     srv6
+      locator MyLocator binding-sid dynamic behavior ub6-insert-reduced
+     !
+     color 40 end-point ipv6 fc00:0:7777::1
+     candidate-paths
+      preference 100
+       explicit segment-list xrd2347
+  ```
+
+
 ### Data Sovereignty Path
 
 In this use case we want to idenitfy a path originating from *`Amsterdam`* destined to *`Rome`* that avoids passing through France (perhaps there's a toll on the link). The API call will utilize Arango's shortest path query capability and filter out results that pass through **xrd06** based in Paris, France. 
