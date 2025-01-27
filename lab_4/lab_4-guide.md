@@ -472,7 +472,7 @@ In the next step we've combined creation of both the *carrots* VRF and kubernete
    ```
 
     Example output from sidmanager:
-    ```yaml
+    ```diff
     apiVersion: isovalent.com/v1alpha1
     kind: IsovalentSRv6SIDManager
     metadata:
@@ -485,7 +485,7 @@ In the next step we've combined creation of both the *carrots* VRF and kubernete
       locatorAllocations:
       - locators:
         - behaviorType: uSID
-          prefix: fc00:0:a0ba::/48     # Berlin's dynamically allocated uSID prefix (Locator)
+    +     prefix: fc00:0:a0ba::/48     # Berlin's dynamically allocated uSID prefix (Locator)
           structure:
             argumentLenBits: 0
             functionLenBits: 16
