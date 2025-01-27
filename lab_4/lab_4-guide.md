@@ -432,7 +432,9 @@ For simplicity we're going to allocate the very commonly deployed /48 bit uSID b
 
 ## Establish Cilium VRFs and Create Pods
 
-In the next step we've combined creation of both the carrots VRF and kubernetes namespace, and we've included a couple CRDs to spin up a couple Alpine linux container pods in the VRF/namespace.
+In the next step we've combined creation of both the *carrots* VRF and kubernetes namespace, and we've included a couple CRDs to spin up a couple Alpine linux container pods in the VRF/namespace. The goal is to create a forwarding policy so that packets from our container get placed into the *carrots* vrf and then encapsulated in an SRv6 header as detailed in the below diagram.
+
+![Cilium SRv6 L3VPN](/topo_drawings/cilium-packet-forwarding.png)
 
 1. Add VRF, namespace, and pods:
    [07-vrf-carrots.yaml](cilium/07-vrf-carrots.yaml)
