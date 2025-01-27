@@ -111,23 +111,23 @@ As mentioned in the introduction, **srctl** is a command line tool that allows u
    
    ```yaml
    apiVersion: jalapeno.srv6/v1     # following the k8s design pattern, the api version
-   kind: PathRequest  # the type of object we are creating, a path request of Jalapeno
+   kind: PathRequest      # the type of object we are creating, a path request of Jalapeno
    metadata:
-     name: rome-routes  # the name of the object
+     name: rome-routes    # the name of the object
    spec:
-     platform: linux   # we specify the platform so srctl knows which type of routes to install (linux or vpp)
-     defaultVrf:       # also supports linux and vpp VRFs or tables
-       ipv4:           # address family
-         routes:       # a list of routes for which we want SRv6 services
-           - name: rome-to-amsterdam-v4  # the name of the route
-             graph: ipv4_graph          # the Jalapeno graph to use for calculating the route
-             pathType: shortest_path     # the type of path to use for the route
-             metric: utilization         # the metric to use for the route
-             source: hosts/rome          # the source's database ID
-             destination: hosts/amsterdam  # the destination's database ID
+     platform: linux      # we specify the platform so srctl knows which type of routes to install (linux or vpp)
+     defaultVrf:          # also supports linux and vpp VRFs or tables
+       ipv4:              # address family
+         routes:          # a list of routes for which we want SRv6 services
+           - name: rome-to-amsterdam-v4           # the name of the route
+             graph: ipv4_graph                    # the Jalapeno graph to use for calculating the route
+             pathType: shortest_path              # the type of path to use for the route
+             metric: utilization                  # the metric to use for the route
+             source: hosts/rome                   # the source's database ID
+             destination: hosts/amsterdam         # the destination's database ID
              destination_prefix: "10.101.2.0/24"  # the destination prefix
-             outbound_interface: "ens192"       # the linux or VPP outbound interface
-       ipv6:  # the same applies to ipv6
+             outbound_interface: "ens192"         # the linux or VPP outbound interface
+       ipv6:      # the same applies to ipv6
          routes:
            - name: rome-to-amsterdam-v6
              graph: ipv6_graph
