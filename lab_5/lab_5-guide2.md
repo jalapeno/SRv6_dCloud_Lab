@@ -7,7 +7,7 @@ The goals of the Jalapeno project are:
    
 2. Enable developers to quickly and easily build network control or SDN Apps that client applications may use achieve goal #1 
    
-In Part 2 we will use the Jalapeno SRv6 client to program SRv6 routes on the Amsterdam and Rome VMs, thus enabling the hosts or their workloads to the direct control that we've been discussing.
+In Part 2 we will use the **srctl** command line tool to program SRv6 routes on the Amsterdam and Rome VMs, thus enabling the hosts or their workloads to the direct control that we've been discussing.
 
 ## Contents
 - [Lab 5 Part 2: Host-Based SRv6](#lab-5-part-2-host-based-srv6)
@@ -63,12 +63,10 @@ The student upon completion of Lab 6 should have achieved the following objectiv
 
 * Understanding of the SRv6 stack available in Linux
 * Understanding the use of VPP as a host-based SRv6 forwarding element 
-* How to query Jalapeno API with Python for network topology and SRv6 data
-* Using Python to craft specific SRv6 headers for traffic steering or other use cases
-* Using Python to to program SRv6 forwarding entries on a Linux host
+* How to use the **srctl** command line tool to program SRv6 routes on Linux hosts or VPP
 
 ## srctl command line tool
-As mentioned in the introduction, **srctl** is a command line tool that allows us to access SRv6 network services by programing SRv6 routes on Linux hosts or VPP. It is modeled after Kubernetes' *kubectl* command line tool, and as such it expects to be fed a yaml file defining the source and destination prefixes for which we want a specific SRv6 network service. When the user runs the command, **srctl** will call the Jalapeno API and pass the list of source and destination prefixes and the requested network service(s) or constraint(s). Jalapeno will perform its path calculations and will return a set of SRv6 instructions. **srctl** will then program the SRv6 routes on the Linux host or VPP.
+As mentioned in the introduction, **srctl** is a command line tool that allows us to access SRv6 network services by programing SRv6 routes on Linux hosts or VPP. It is modeled after *kubectl*, and as such it expects to be fed a yaml file defining the source and destination prefixes for which we want a specific SRv6 network service. When the user runs the command, **srctl** will call the Jalapeno API and pass the list of source and destination prefixes and the requested network service(s) or constraint(s). Jalapeno will perform its path calculations and will return a set of SRv6 instructions. **srctl** will then program the SRv6 routes on the Linux host or VPP.
 
  `srctl's` currently supported network services are: 
 
@@ -105,20 +103,20 @@ As mentioned in the introduction, **srctl** is a command line tool that allows u
      delete  Delete a configuration from file
    ```
 
-   Per the *help* output we see that we can *apply* or *delete* a configuration from a yaml file.
+   Per the *help* output we see that our current options are to *apply* or *delete* a configuration from a yaml file.
 
 3. Here is a commented version of Rome's srctl yaml file:
    
    ```yaml
    apiVersion: jalapeno.srv6/v1     # following the k8s design pattern, the api version
-   kind: PathRequest      # the type of object we are creating, a path request of Jalapeno
+   kind: PathRequest                # the type of object we are creating, a path request of Jalapeno
    metadata:
-     name: rome-routes    # the name of the object
+     name: rome-routes              # the name of the object
    spec:
-     platform: linux      # we specify the platform so srctl knows which type of routes to install (linux or vpp)
-     defaultVrf:          # also supports linux and vpp VRFs or tables
-       ipv4:              # address family
-         routes:          # a list of routes for which we want SRv6 services
+     platform: linux             # we specify the platform so srctl knows which type of routes to install (linux or vpp)
+     defaultVrf:                 # also supports linux and vpp VRFs or tables
+       ipv4:                     # address family
+         routes:                 # a list of routes for which we want SRv6 services
            - name: rome-to-amsterdam-v4           # the name of the route
              graph: ipv4_graph                    # the Jalapeno graph to use for calculating the route
              pathType: shortest_path              # the type of path to use for the route
@@ -127,6 +125,7 @@ As mentioned in the introduction, **srctl** is a command line tool that allows u
              destination: hosts/amsterdam         # the destination's database ID
              destination_prefix: "10.101.2.0/24"  # the destination prefix
              outbound_interface: "ens192"         # the linux or VPP outbound interface
+ 
        ipv6:      # the same applies to ipv6
          routes:
            - name: rome-to-amsterdam-v6
@@ -139,7 +138,7 @@ As mentioned in the introduction, **srctl** is a command line tool that allows u
              outbound_interface: "ens192"
    ```
 
-4. Here is a commented portion of Amsterdam's srctl yaml file. Note the platform is *vpp* and we need to specify a *binding SID* or *bsid* for VPP.
+4. Here is a commented portion of Amsterdam's *srctl* yaml file. Note the platform is *vpp* and we need to specify a *binding SID* or *bsid* for VPP.
    
    ```yaml
    apiVersion: jalapeno.srv6/v1
@@ -147,7 +146,7 @@ As mentioned in the introduction, **srctl** is a command line tool that allows u
    metadata:
      name: amsterdam-routes
    spec:
-     platform: vpp # srctl knows that it will be programming VPP routes (technically sr policies)
+     platform: vpp    # srctl knows that it will be programming VPP routes (technically sr policies)
      defaultVrf:  
        ipv4:
          routes:
@@ -158,7 +157,7 @@ As mentioned in the introduction, **srctl** is a command line tool that allows u
              source: hosts/amsterdam
              destination: hosts/rome
              destination_prefix: "10.107.1.0/24"
-             bsid: "101::101"  # Required for VPP
+             bsid: "101::101"                       # Required for VPP
    ```
 
 ## Rome VM: Segment Routing & SRv6 on Linux
@@ -173,7 +172,7 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
    ssh cisco@198.18.128.103
    ```
 
-   2. cd into the lab_5/srctl directory. I you like you can review the yaml files in the directory - they should match the commented examples we saw earlier.
+   2. cd into the *lab_5/srctl* directory. If you like you can review the yaml files in the directory - they should match the commented examples we saw earlier.
 
    ```
    cd ~/SRv6_dCloud_Lab/lab_5/srctl
@@ -190,7 +189,7 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
 
 Our first use case is to make path selection through the network based on the cummulative link latency from A to Z. Calculating best paths using latency meta-data is not something traditional routing protocols can do. It may be possible to statically build routes through your network using weights to define a path. However, what these workarounds cannot do is provide path selection based on near real time data which is possible with an application like Jalapeno. This provides customers to have a flexible network policy that can react to changes in the WAN environment.
 
-1. From the lab_5/srctl directory on Rome, run the following command (note, we add *sudo* to the command as we are applying the routes to the Linux host):
+1. From the *lab_5/srctl* directory on Rome, run the following command (note, we add *sudo* to the command as we are applying the routes to the Linux host):
    ```
    sudo srctl --api-server http://198.18.128.101:30800 apply -f rome.yaml
    ```
@@ -204,7 +203,7 @@ Our first use case is to make path selection through the network based on the cu
    Adding route with encap: {'type': 'seg6', 'mode': 'encap', 'segs': ['fc00:0:7777:6666:2222:1111:0:0']} to table 0
    rome-to-amsterdam-v4: fc00:0:7777:6666:2222:1111: Route to 10.101.2.0/24 via fc00:0:7777:6666:2222:1111:0:0 programmed successfully in table 0  # success message
    rome-to-amsterdam-v6: fc00:0:7777:6666:2222:1111: Route to fc00:0:101:2::/64 via fc00:0:7777:6666:2222:1111:0:0 programmed successfully in table 0  # success message
-  ```
+   ```
 
 2. Take a look at the Linux route table on Rome to see the new routes:
    ```
