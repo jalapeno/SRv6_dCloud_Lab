@@ -20,7 +20,9 @@ spec:
         - name: berlin-to-rome-v6
           graph: ipv6_graph
           pathType: shortest_path
-          metric: latency
+          metric: dataSovereignty
+          dataSovereignty:
+            avoid: FRA
           source: hosts/berlin-k8s
           destination: hosts/rome
           destination_prefix: "fc00:0:107:1::/64"

@@ -127,13 +127,13 @@ ipv6topo.update(ipv6topo0206)
 ipv4topo0304 = ipv4topo.get("2_0_0_0_0000.0000.0003_10.1.1.4_0000.0000.0004_10.1.1.5")
 ipv4topo0304['latency'] = 40
 ipv4topo0304['percent_util_out'] = 20
-ipv4topo0304['country_codes'] = ['POL', 'UKR' 'ROM']
+ipv4topo0304['country_codes'] = ['POL', 'UKR', 'ROM']
 ipv4topo.update(ipv4topo0304)
 
 ipv6topo0304 = ipv6topo.get("2_0_2_0_0000.0000.0003_2001:1:1:1::4_0000.0000.0004_2001:1:1:1::5")
 ipv6topo0304['latency'] = 40
 ipv6topo0304['percent_util_out'] = 20
-ipv6topo0304['country_codes'] = ['POL', 'UKR' 'ROM']
+ipv6topo0304['country_codes'] = ['POL', 'UKR', 'ROM']
 ipv6topo.update(ipv6topo0304)
 
 ipv4topo0504 = ipv4topo.get("2_0_0_0_0000.0000.0005_10.1.1.12_0000.0000.0004_10.1.1.13")
