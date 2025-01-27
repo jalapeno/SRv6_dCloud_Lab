@@ -16,12 +16,10 @@ In Part 2 we will use the **srctl** command line tool to program SRv6 routes on 
     - [Why host-based SRv6?](#why-host-based-srv6)
   - [Lab Objectives](#lab-objectives)
   - [srctl command line tool](#srctl-command-line-tool)
-    - [Explore srctl on the Rome VM](#explore-srctl-on-the-rome-vm)
-  - [Rome VM: Segment Routing \& SRv6 on Linux](#rome-vm-segment-routing--srv6-on-linux)
-    - [Preliminary steps for SR/SRv6 on Rome VM](#preliminary-steps-for-srsrv6-on-rome-vm)
+  - [Rome VM: SRv6 on Linux](#rome-vm-srv6-on-linux)
     - [Rome to Amsterdam: Lowest Latency Path](#rome-to-amsterdam-lowest-latency-path)
+  - [Amsterdam VM: SRv6 on VPP](#amsterdam-vm-srv6-on-vpp)
     - [Amsterdam to Rome: Least Utilized Path](#amsterdam-to-rome-least-utilized-path)
-    - [Lowest Bandwidth Utilization Path](#lowest-bandwidth-utilization-path)
     - [Data Sovereignty Path](#data-sovereignty-path)
       - [fix the writeup of this section](#fix-the-writeup-of-this-section)
     - [Get All Paths](#get-all-paths)
@@ -72,9 +70,13 @@ As mentioned in the introduction, **srctl** is a command line tool that allows u
  - Data Sovereignty Path
  - Get All Paths (informational only)
 
-### Explore srctl on the Rome VM
+## Rome VM: SRv6 on Linux
 
-1. Login to the Rome VM 
+The Rome VM is simulating a user host or endpoint and will use its Linux dataplane to perform SRv6 traffic encapsulation:
+
+ - Linux SRv6 route reference: https://segment-routing.org/index.php/Implementation/Configuration
+
+   1.  Login to the Rome VM
    ```
    ssh cisco@198.18.128.103
    ```
@@ -135,48 +137,14 @@ As mentioned in the introduction, **srctl** is a command line tool that allows u
              outbound_interface: "ens192"
    ```
 
-4. Here is a commented portion of Amsterdam's *srctl* yaml file. Note the platform is *vpp* and we need to specify a *binding SID* or *bsid* for VPP.
-   
-   ```yaml
-   apiVersion: jalapeno.srv6/v1
-   kind: PathRequest
-   metadata:
-     name: amsterdam-routes
-   spec:
-     platform: vpp    # srctl knows that it will be programming VPP routes (technically sr policies)
-     defaultVrf:  
-       ipv4:
-         routes:
-           - name: amsterdam-to-rome-v4
-             graph: ipv4_graph
-             pathType: shortest_path
-             metric: latency
-             source: hosts/amsterdam
-             destination: hosts/rome
-             destination_prefix: "10.107.1.0/24"
-             bsid: "101::101"                       # Required for VPP
-   ```
-
-## Rome VM: Segment Routing & SRv6 on Linux
-
-The Rome VM is simulating a user host or endpoint and will use its Linux dataplane to perform SRv6 traffic encapsulation:
-
- - Linux SRv6 route reference: https://segment-routing.org/index.php/Implementation/Configuration
-
-### Preliminary steps for SR/SRv6 on Rome VM
-   1.  Login to the Rome VM
-   ```
-   ssh cisco@198.18.128.103
-   ```
-
-   2. cd into the *lab_5/srctl* directory. If you like you can review the yaml files in the directory - they should match the commented examples we saw earlier.
+   4. cd into the *lab_5/srctl* directory. If you like you can review the yaml files in the directory - they should basically match the commented example.
 
    ```
    cd ~/SRv6_dCloud_Lab/lab_5/srctl
    cat rome.yaml
    ```
 
-   3. For SRv6 outbound encapsulation we'll need to set Rome's SRv6 source address:
+   5. For SRv6 outbound encapsulation we'll need to set Rome's SRv6 source address:
 
    ```
    sudo ip sr tunsrc set fc00:0:107:1::1
@@ -240,6 +208,7 @@ Our first use case is to make path selection through the network based on the cu
    22:23:10.701436 IP6 fc00:0:101:1::1 > fc00:0:7777::: IP6 fc00:0:101:2::1 > fc00:0:107:1:250:56ff:fe97:11bb: ICMP6, echo reply, seq 2, length 64
    ```
 
+## Amsterdam VM: SRv6 on VPP
 ### Amsterdam to Rome: Least Utilized Path
 
 Many segment routing and other SDN solutions focus on the *low latency path* as their primary use case. We absolutely feel low latency is an important network service, especially for real time applications. However, we believe one of the use cases which deliver the most bang for the buck is **Least Utilized Path**. The idea behind this use case is that the routing protocol's chosen best path is very often *`The Actual Best Path`*. Because of this `srctl's` *`Least Utilized`* service looks to steer lower priority traffic (backups, content replication, etc.) to lesser used paths and preserve the routing protocol's *"best path"* for higher priority traffic.
@@ -250,15 +219,28 @@ Many segment routing and other SDN solutions focus on the *low latency path* as 
    cd ~/SRv6_dCloud_Lab/lab_5/srctl
    ```
 
-2. Optional, review the amsterdam.yaml file. Note that in addition to specifying the platform as *vpp* the yaml includes both shortest_path and metric: least_utilized.
+2. Here is a commented portion of Amsterdam's *srctl* yaml file. Note the platform is *vpp* and we need to specify a *binding SID* or *bsid* for VPP. Also note the *pathType* and *metric* comments indicating we still want the shortest path, but it should be based on the lowest avg utilization.
    
    ```yaml
-   graph: ipv6_graph
-   pathType: shortest_path   # the path type is a signal to the API/DB to use the shortest path algorithm based on the specified metric
-   metric: least_utilized    # in the case we're specifying shortest_path based on lowest avg utilization
-   source: hosts/amsterdam
-   destination: hosts/rome
+   apiVersion: jalapeno.srv6/v1
+   kind: PathRequest
+   metadata:
+     name: amsterdam-routes
+   spec:
+     platform: vpp    # srctl knows that it will be programming VPP routes (technically sr policies)
+     defaultVrf:  
+       ipv4:
+         routes:
+           - name: amsterdam-to-rome-v4
+             graph: ipv4_graph
+             pathType: shortest_path  # the path type is a signal to the API/DB to use the shortest path algorithm based on the specified metric
+             metric: least_utilized   # in the case we're specifying shortest_path based on lowest avg utilization
+             source: hosts/amsterdam
+             destination: hosts/rome
+             destination_prefix: "10.107.1.0/24"
+             bsid: "101::101"                       # Required for VPP
    ```
+
 
 3. Run **srctl** *Least Utilized* service on Amsterdam VM
    ```
@@ -313,56 +295,28 @@ Many segment routing and other SDN solutions focus on the *low latency path* as 
 
    Note the steering rules match on an ipv4 or ipv6 destination prefix and set the SR policy BSID. Traffic arriving at VPP's ingress destined for the prefixes listed in the steering rules will be steered to the Binding SID's SR policy 
 
-6. Run a ping test 
- - Open up a second ssh session to the Rome VM
-```
-ssh cisco@198.18.128.103
-```
- - Start tcpdump on the 2nd ssh session. This will capture packets outbound from Rome VM going toward xrd07:
-```
-sudo tcpdump -lni ens192
-```
- - Return to the first Rome ssh session and ping Amsterdam with Rome source address 20.0.0.1. The "-i .3" argument sets the ping interval to 300ms
-```
-ping 10.101.2.1 -I 20.0.0.1 -i .3
-```
-
-1. Check the Rome tcpdump to validate traffic is encapsulated with the SRv6 SID. Expected output will be something like:
-```
-cisco@rome:~$ sudo tcpdump -lni ens192
-tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
-listening on ens192, link-type EN10MB (Ethernet), capture size 262144 bytes
-18:04:14.873127 IP6 fc00:0:107:1::1 > fc00:0:7777:6666:2222:1111:e007:0: srcrt (len=2, type=4, segleft=0[|srcrt]
-18:04:14.945878 IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 3, seq 1, length 64
-18:04:15.173485 IP6 fc00:0:107:1::1 > fc00:0:7777:6666:2222:1111:e007:0: srcrt (len=2, type=4, segleft=0[|srcrt]
-18:04:15.241699 IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 3, seq 2, length 64
-```
-
-1. Return to an SSH session on the XRD VM and use tcpdump.sh <xrd0x-xrd0y>" to capture packets along the path from Rome VM to Amsterdam VM. Given the SRv6 Micro-SID combination seen above, we'll monitor the linux bridges linking *`xrd07`* to *`xrd06`*, *`xrd06`* to *`xrd02`*, then *`xrd02`* to *`xrd01`*:
- - restart the ping if it is stopped
-
-*Note: feel free to just spot check 1 or 2 of these:
-
-```
-sudo netns exec clab-cleu25-xrd07 tcpdump -lni Gi0-0-0-1
-```
-
- - Example output:
-```
-placeholder
-```
-
-1. From the lab_5/srctl directory on Amsterdam, run the following command (note, we add *sudo* to the command as we are applying the routes to the Linux host):
+6. Run a ping test. From the Amsterdam VM, ping Rome:
    ```
-   sudo srctl --api-server http://198.18.128.101:30800 apply -f amsterdam.yaml
-   sudo srctl --api-server http://198.18.128.101:30800 apply -f rome.yaml
-   sudo srctl --api-server http://198.18.128.101:30800 apply -f berlin.yaml
+   ping fc00:0:107:1::1 -i .4
    ```
-### Lowest Bandwidth Utilization Path
 
-In this use case we want to identify the least utilized path for traffic originating from the *`Amsterdam VM`* destined to *`Rome VM`*. The API call will specify link utilization as our *weighted attribute* pulled from the meta-data. 
+   Optional: run tcpdump on the XRD VM to see the traffic flow and SRv6 uSID in action. 
+   ```
+   sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-0
+   sudo ip netns exec clab-cleu25-xrd06 tcpdump -lni Gi0-0-0-0
+   ```
 
-From the UI select *`Amsterdam`* as the source and the *`Rome`* as the destination. Then select *Least Utilized* from the constraints dropdown. The Least Utilized path will be highlighted and uSID stack will appear in the popup.
+   We expect the ping to work, and tcpdump output should look something like this:
+   ```yaml
+   cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-0
+   tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+   listening on Gi0-0-0-0, link-type EN10MB (Ethernet), capture size 262144 bytes
+   22:39:50.038727 IP6 fc00:0:101:1::1 > fc00:0:1111:5555:6666:7777::: IP6 fc00:0:101:2::1 > fc00:0:107:1::1: ICMP6, echo request, seq 7, length 64
+   22:39:50.044195 IP6 fc00:0:107:1::1 > fc00:0:101:2::1: ICMP6, echo reply, seq 7, length 64
+   22:39:50.438815 IP6 fc00:0:101:1::1 > fc00:0:1111:5555:6666:7777::: IP6 fc00:0:101:2::1 > fc00:0:107:1::1: ICMP6, echo request, seq 8, length 64
+   22:39:50.443896 IP6 fc00:0:107:1::1 > fc00:0:101:2::1: ICMP6, echo reply, seq 8, length 64
+   ```
+
 
   1. If we wanted to implement the returned query data into SRv6-TE steering XR config on router **xrd01** we would create a policy like the below example.
      
