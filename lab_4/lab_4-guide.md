@@ -432,7 +432,9 @@ For simplicity we're going to allocate the very commonly deployed /48 bit uSID b
 
 ## Establish Cilium VRFs and Create Pods
 
-In the next step we've combined creation of both the carrots VRF and kubernetes namespace, and we've included a couple CRDs to spin up a couple Alpine linux container pods in the VRF/namespace.
+In the next step we've combined creation of both the *carrots* VRF and kubernetes namespace, and we've included a couple CRDs to spin up a couple Alpine linux container pods in the VRF/namespace. The goal is to create a forwarding policy so that packets from our container get placed into the *carrots* vrf and then encapsulated in an SRv6 header as detailed in the below diagram.
+
+![Cilium SRv6 L3VPN](/topo_drawings/cilium-packet-forwarding.png)
 
 1. Add VRF, namespace, and pods:
    [07-vrf-carrots.yaml](cilium/07-vrf-carrots.yaml)
@@ -470,7 +472,7 @@ In the next step we've combined creation of both the carrots VRF and kubernetes 
    ```
 
     Example output from sidmanager:
-    ```yaml
+    ```diff
     apiVersion: isovalent.com/v1alpha1
     kind: IsovalentSRv6SIDManager
     metadata:
@@ -483,7 +485,7 @@ In the next step we've combined creation of both the carrots VRF and kubernetes 
       locatorAllocations:
       - locators:
         - behaviorType: uSID
-          prefix: fc00:0:a0ba::/48     # Berlin's dynamically allocated uSID prefix (Locator)
+    +     prefix: fc00:0:a0ba::/48     # Berlin's dynamically allocated uSID prefix (Locator)
           structure:
             argumentLenBits: 0
             functionLenBits: 16
@@ -494,12 +496,12 @@ In the next step we've combined creation of both the carrots VRF and kubernetes 
       sidAllocations:
       - poolRef: pool0
         sids:
-        - behavior: uDT4                # uDT4 is uSID 'End' with IPv4 table lookup behavior
+    +   - behavior: uDT4                # uDT4 is uSID 'End' with IPv4 table lookup behavior
           behaviorType: uSID
-          metadata: carrots             # table to perform the lookup in
+    +     metadata: carrots             # table to perform the lookup in
           owner: srv6-manager
           sid:
-            addr: 'fc00:0:a0ba:ec7::'   # Berlin VRF carrots SRv6 Locator + uDT4 Function
+    +       addr: 'fc00:0:a0ba:ec7::'   # Berlin VRF carrots SRv6 Locator + uDT4 Function
             structure:
               argumentLenBits: 0
               functionLenBits: 16
@@ -522,19 +524,19 @@ In the next step we've combined creation of both the carrots VRF and kubernetes 
    ```
 
    In the output of the second command we expect to see detailed information. Here is truncated output:
-   ```yaml
+   ```diff
    Path #1: Received by speaker
    Not advertised to any peer
    Local
        fc00:0:8888::1 (metric 2) from fc00:0:5555::1 (198.18.4.104)
-         Received Label 0xec70      # uDT4 function bits match the SRv6 SID manager output from Cilium
+   +     Received Label 0xec70      # uDT4 function bits match the SRv6 SID manager output from Cilium
          Origin incomplete, localpref 100, valid, internal, best, group-best, import-candidate, not-in-vrf
          Received Path ID 0, Local Path ID 1, version 20
          Extended community: RT:9:9
          Originator: 198.18.4.104, Cluster list: 10.0.0.5
        PSID-Type:L3, SubTLV Count:1
          SubTLV:
-        T:1(Sid information), Sid:fc00:0:a0ba::(Transposed), Behavior:63, SS-TLV Count:1  # Sid value matches Berlin's SRv6 Locat
+   +    T:1(Sid information), Sid:fc00:0:a0ba::(Transposed), Behavior:63, SS-TLV Count:1  # Sid value matches Berlin's SRv6 Locat
          SubSubTLV:
           T:1(Sid structure):
    ```
@@ -545,7 +547,7 @@ In the next step we've combined creation of both the carrots VRF and kubernetes 
    ```
 
    Example of partial output:
-   ```yaml
+   ```diff
      - apiVersion: isovalent.com/v1alpha1
        kind: IsovalentSRv6EgressPolicy
        metadata:
@@ -557,7 +559,7 @@ In the next step we've combined creation of both the carrots VRF and kubernetes 
        spec:
          destinationCIDRs:
          - 40.0.0.0/24
-         destinationSID: 'fc00:0:7777:e007::'  # SRv6 SID for prefix 40.0.0.0/24 in vrfID 99 (carrots) on xrd07
+   +     destinationSID: 'fc00:0:7777:e007::'  # SRv6 SID for prefix 40.0.0.0/24 in vrfID 99 (carrots) on xrd07
          vrfID: 99
      - apiVersion: isovalent.com/v1alpha1
        kind: IsovalentSRv6EgressPolicy
@@ -570,7 +572,7 @@ In the next step we've combined creation of both the carrots VRF and kubernetes 
        spec:
          destinationCIDRs:
          - 10.200.0.0/24
-         destinationSID: 'fc00:0:a0ba:ec7::' # SRv6 SID for local prefix 10.200.0.0/24 in vrfID 99 (carrots)
+   +     destinationSID: 'fc00:0:a0ba:ec7::' # SRv6 SID for local prefix 10.200.0.0/24 in vrfID 99 (carrots)
          vrfID: 99
    ```
 
@@ -648,7 +650,17 @@ In lab 3 we created the *radish VRF* on *xrd07* and bound a loopback interface t
     64 bytes from 100.0.7.1: seq=2 ttl=253 time=4.759 ms
     64 bytes from 100.0.7.1: seq=3 ttl=253 time=4.295 ms
     ```
+3. Return to the XRd VM and run a tcpdump to capture Cilium's SRv6 encapsulation of outbound packets:
 
+    ```
+    sudo ip netns exec clab-cleu25-xrd02 tcpdump -lni Gi0-0-0-3
+    ```
+
+    Example output:
+    ```yaml
+    16:08:24.320379 IP6 fc00:0:8888:0:250:56ff:fe3f:ffff > fc00:0:7777:e004::: IP 10.200.0.133 > 100.0.7.1: ICMP echo request, id 15, seq 0, length 64
+    16:08:24.720482 IP6 fc00:0:8888:0:250:56ff:fe3f:ffff > fc00:0:7777:e004::: IP 10.200.0.133 > 100.0.7.1: ICMP echo request, id 15, seq 1, length 64
+    ```
 4. Next, to demonstrate the flexibility of Cilium's SRv6 implementation, we'll switch the carrots1 pod from the carrots VRF to the radish VRF and run a ping again:
 
    ```
