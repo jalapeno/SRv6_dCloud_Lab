@@ -24,10 +24,7 @@ In Part 2 we will use the **srctl** command line tool to program SRv6 routes on 
     - [Lowest Bandwidth Utilization Path](#lowest-bandwidth-utilization-path)
     - [Data Sovereignty Path](#data-sovereignty-path)
       - [fix the writeup of this section](#fix-the-writeup-of-this-section)
-  - [Rome Network Services](#rome-network-services)
     - [Get All Paths](#get-all-paths)
-    - [Least Utilized Path](#least-utilized-path)
-    - [Low Latency Path](#low-latency-path)
     - [Low Latency Re-Route](#low-latency-re-route)
     - [Data Sovereignty Path](#data-sovereignty-path-1)
   - [Amsterdam VM](#amsterdam-vm)
@@ -35,8 +32,8 @@ In Part 2 we will use the **srctl** command line tool to program SRv6 routes on 
     - [jalapeno.py on Amsterdam:](#jalapenopy-on-amsterdam)
   - [Amsterdam Network Services](#amsterdam-network-services)
     - [Get All Paths](#get-all-paths-1)
-    - [Least Utilized Path](#least-utilized-path-1)
-    - [Low Latency Path](#low-latency-path-1)
+    - [Least Utilized Path](#least-utilized-path)
+    - [Low Latency Path](#low-latency-path)
     - [Data Sovereignty Path](#data-sovereignty-path-2)
     - [You have reached the end of LTRSPG-2212, hooray!](#you-have-reached-the-end-of-ltrspg-2212-hooray)
 
@@ -221,8 +218,139 @@ Our first use case is to make path selection through the network based on the cu
    fc00:0:101:2::/64  encap seg6 mode encap segs 1 [ fc00:0:7777:6666:2222:1111:: ] dev ens192 proto static metric 1024 pref medium
    ```
 
+3. Run a ping test from Rome to Amsterdam.
+   ```
+   ping fc00:0:101:1::1 -i .4
+   ```
+
+   Optional: run tcpdump on the XRD VM to see the traffic flow and SRv6 uSID in action. 
+   ```
+   sudo ip netns exec clab-cleu25-xrd07 tcpdump -lni Gi0-0-0-0
+   sudo ip netns exec clab-cleu25-xrd06 tcpdump -lni Gi0-0-0-0
+   ```
+
+   We expect the ping to work, and tcpdump output should look something like this:
+   ```yaml
+   cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd06 tcpdump -lni Gi0-0-0-0
+   tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+   listening on Gi0-0-0-0, link-type EN10MB (Ethernet), capture size 262144 bytes
+   22:23:10.294176 IP6 fc00:0:107:1::1 > fc00:0:6666:2222:1111::: srcrt (len=2, type=4, segleft=0[|srcrt]
+   22:23:10.301615 IP6 fc00:0:101:1::1 > fc00:0:7777::: IP6 fc00:0:101:2::1 >  fc00:0:107:1:250:56ff:fe97:11bb: ICMP6, echo reply, seq 1, length 64
+   22:23:10.694957 IP6 fc00:0:107:1::1 > fc00:0:6666:2222:1111::: srcrt (len=2, type=4, segleft=0[|srcrt]
+   22:23:10.701436 IP6 fc00:0:101:1::1 > fc00:0:7777::: IP6 fc00:0:101:2::1 > fc00:0:107:1:250:56ff:fe97:11bb: ICMP6, echo reply, seq 2, length 64
+   ```
 
 ### Amsterdam to Rome: Least Utilized Path
+
+Many segment routing and other SDN solutions focus on the *low latency path* as their primary use case. We absolutely feel low latency is an important network service, especially for real time applications. However, we believe one of the use cases which deliver the most bang for the buck is **Least Utilized Path**. The idea behind this use case is that the routing protocol's chosen best path is very often *`The Actual Best Path`*. Because of this `srctl's` *`Least Utilized`* service looks to steer lower priority traffic (backups, content replication, etc.) to lesser used paths and preserve the routing protocol's *"best path"* for higher priority traffic.
+
+1. ssh to the Amsterdam VM and cd into the *lab_5/srctl* directory. 
+   ```
+   ssh cisco@198.18.128.102
+   cd ~/SRv6_dCloud_Lab/lab_5/srctl
+   ```
+
+2. Optional, review the amsterdam.yaml file. Note that in addition to specifying the platform as *vpp* the yaml includes both shortest_path and metric: least_utilized.
+   
+   ```yaml
+   graph: ipv6_graph
+   pathType: shortest_path   # the path type is a signal to the API/DB to use the shortest path algorithm based on the specified metric
+   metric: least_utilized    # in the case we're specifying shortest_path based on lowest avg utilization
+   source: hosts/amsterdam
+   destination: hosts/rome
+   ```
+
+3. Run **srctl** *Least Utilized* service on Amsterdam VM
+   ```
+   sudo srctl --api-server http://198.18.128.101:30800 apply -f amsterdam.yaml
+   ```
+
+   Expected output:
+   ```yaml
+   cisco@amsterdam:~/SRv6_dCloud_Lab/lab_5/srctl$ sudo srctl --api-server http://198.18.128.101:30800 apply -f amsterdam.yaml
+   Loaded configuration from amsterdam.yaml
+   amsterdam-to-rome-v4: fc00:0:1111:5555:6666:7777: Route programmed successfully
+   amsterdam-to-rome-v6: fc00:0:1111:5555:6666:7777: Route programmed successfully
+   ```
+
+4. Check VPP's SR policies table. Note the assigned Binding SIDs and uSID structured segment lists.
+   ```
+   sudo vppctl show sr policies
+   ```
+
+   Expected output:
+   ```yaml
+   cisco@amsterdam:~/SRv6_dCloud_Lab/lab_5/srctl$ sudo vppctl show sr policies
+   SR policies:
+   [0].-	BSID: 101::101
+     Behavior: Encapsulation
+     Type: Default
+     FIB table: 0
+     Segment Lists:
+       [0].- < fc00:0:1111:5555:6666:7777:: > weight: 1
+   -----------
+   [1].-	BSID: 101::102
+     Behavior: Encapsulation
+     Type: Default
+     FIB table: 0
+     Segment Lists:
+       [1].- < fc00:0:1111:5555:6666:7777:: > weight: 1
+   ```
+
+5. Check VPP's SR traffic steering rules. 
+   ```
+   sudo vppctl show sr steering-policies
+   ```
+
+   Expected output:
+   ```yaml
+   cisco@amsterdam:~/SRv6_dCloud_Lab/lab_5/srctl$ sudo vppctl show sr steering-policies
+   SR steering policies:
+   Traffic		SR policy BSID
+   L3 10.107.1.0/24	101::101
+   L3 fc00:0:107:1::/64	101::102
+   ```
+
+   Note the steering rules match on an ipv4 or ipv6 destination prefix and set the SR policy BSID. Traffic arriving at VPP's ingress destined for the prefixes listed in the steering rules will be steered to the Binding SID's SR policy 
+
+6. Run a ping test 
+ - Open up a second ssh session to the Rome VM
+```
+ssh cisco@198.18.128.103
+```
+ - Start tcpdump on the 2nd ssh session. This will capture packets outbound from Rome VM going toward xrd07:
+```
+sudo tcpdump -lni ens192
+```
+ - Return to the first Rome ssh session and ping Amsterdam with Rome source address 20.0.0.1. The "-i .3" argument sets the ping interval to 300ms
+```
+ping 10.101.2.1 -I 20.0.0.1 -i .3
+```
+
+1. Check the Rome tcpdump to validate traffic is encapsulated with the SRv6 SID. Expected output will be something like:
+```
+cisco@rome:~$ sudo tcpdump -lni ens192
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on ens192, link-type EN10MB (Ethernet), capture size 262144 bytes
+18:04:14.873127 IP6 fc00:0:107:1::1 > fc00:0:7777:6666:2222:1111:e007:0: srcrt (len=2, type=4, segleft=0[|srcrt]
+18:04:14.945878 IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 3, seq 1, length 64
+18:04:15.173485 IP6 fc00:0:107:1::1 > fc00:0:7777:6666:2222:1111:e007:0: srcrt (len=2, type=4, segleft=0[|srcrt]
+18:04:15.241699 IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 3, seq 2, length 64
+```
+
+1. Return to an SSH session on the XRD VM and use tcpdump.sh <xrd0x-xrd0y>" to capture packets along the path from Rome VM to Amsterdam VM. Given the SRv6 Micro-SID combination seen above, we'll monitor the linux bridges linking *`xrd07`* to *`xrd06`*, *`xrd06`* to *`xrd02`*, then *`xrd02`* to *`xrd01`*:
+ - restart the ping if it is stopped
+
+*Note: feel free to just spot check 1 or 2 of these:
+
+```
+sudo netns exec clab-cleu25-xrd07 tcpdump -lni Gi0-0-0-1
+```
+
+ - Example output:
+```
+placeholder
+```
 
 1. From the lab_5/srctl directory on Amsterdam, run the following command (note, we add *sudo* to the command as we are applying the routes to the Linux host):
    ```
@@ -292,15 +420,9 @@ From the UI select *`Amsterdam`* as the source and the *`Rome`* as the destinati
       ```
 
 
-
-> [!NOTE]
-> The jalapeno.py supports both SRv6 and SR-MPLS, however, we don't have SR-MPLS configured in our lab so we'll only be using the *`-e srv6`* encapsulation option.
-
 #### fix the writeup of this section
 
-*`jalapeno.py's`* network service modules are located in the lab_6 *`python/netservice/`* directory. When invoked `jalapeno.py` feeds the source and destination prefixes from the json file to the *`src_dst.py`* module, which calls the API and returns the prefixes' database ID info. `jalapeno.py` then runs the selected network service module (gp, ll, lu, or ds). The network service module queries and calculates an SRv6 uSID or SR label stack, which will satisfy the network service request. The netservice module then calls the *`add_route.py`* module to create the local SR or SRv6 route or policy.
 
-## Rome Network Services
 ### Get All Paths
 
 The Get All Paths Service will query the DB for all paths up to 6-hops in length between a pair of source and destination prefixes.
@@ -348,102 +470,8 @@ The Get All Paths Service will query the DB for all paths up to 6-hops in length
     ```
     Save the file and re-run the script. You should see 8 total path options in the command line output and log.
 
-### Least Utilized Path
-Many segment routing and other SDN solutions focus on the low latency path as their primary use case. We absolutely feel low latency is an important network service, especially for real time applications. However, we believe one of the use cases which deliver the most bang for the buck is "Least Utilized Path". The idea behind this use case is that the routing protocol's chosen best path is very often *The Actual Best Path*. Because of this `jalapeno.py's` *`Least Utilized`* service looks to steer lower priority traffic (backups, content replication, etc.) to lesser used paths and preserve the routing protocol's "best path" for higher priority traffic.
 
-1. Cleanup Rome's routes and execute the least utilized path service with SRv6 encapsulation
-    ```
-    ./cleanup_rome_routes.sh 
-    python3 jalapeno.py -f rome.json -e srv6 -s lu
-    ```
-    Expected console output should include some log info from the script, and output of linux *ip route* command showing the newly added route with SRv6 encapsulation:
-    ```
-    cisco@rome:~/SRv6_dCloud_Lab/lab_6/python$ python3 jalapeno.py -f rome.json -e srv6 -s lu
 
-    Least Utilized Service
-    locator list for least utilized path:  ['fc00:0:7777::', 'fc00:0:6666::', 'fc00:0:2222::', 'fc00:0:1111::']
-    egress node locator:  fc00:0:1111::
-    end.dt SID:  ['fc00:0:1111:e007::']
-    srv6 sid:  fc00:0:7777:6666:2222:1111:e007::
-
-    adding linux SRv6 route: ip route add 10.101.2.0/24 encap seg6 mode encap segs fc00:0:7777:6666:2222:1111:e007:: dev ens192
-    RTNETLINK answers: File exists
-
-    Show Linux Route Table: 
-    default via 198.18.128.1 dev ens160 proto static 
-    10.0.0.0/24 via 10.107.1.2 dev ens192 proto static 
-    10.1.1.0/24 via 10.107.1.2 dev ens192 proto static 
-    10.101.1.0/24 via 10.107.1.2 dev ens192 proto static 
-    10.101.2.0/24  encap seg6 mode encap segs 1 [ fc00:0:6666:2222:1111:e004:: ] dev ens192 scope link  <--------
-    10.101.3.0/24 via 10.107.2.2 dev ens224 proto static 
-    10.107.1.0/24 dev ens192 proto kernel scope link src 10.107.1.1 
-    10.107.2.0/24 dev ens224 proto kernel scope link src 10.107.2.1 
-    198.18.128.0/18 dev ens160 proto kernel scope link src 198.18.128.103 
-    ```
-
-2. Optional: the logfile output will show more detailed info:
-    ```
-    cat log/least_util.json
-    ```
-
-3. Run a ping test 
- - Open up a second ssh session to the Rome VM
-```
-ssh cisco@198.18.128.103
-```
- - Start tcpdump on the 2nd ssh session. This will capture packets outbound from Rome VM going toward xrd07:
-```
-sudo tcpdump -lni ens192
-```
- - Return to the first Rome ssh session and ping Amsterdam with Rome source address 20.0.0.1. The "-i .3" argument sets the ping interval to 300ms
-```
-ping 10.101.2.1 -I 20.0.0.1 -i .3
-```
-
-1. Check the Rome tcpdump to validate traffic is encapsulated with the SRv6 SID. Expected output will be something like:
-```
-cisco@rome:~$ sudo tcpdump -lni ens192
-tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
-listening on ens192, link-type EN10MB (Ethernet), capture size 262144 bytes
-18:04:14.873127 IP6 fc00:0:107:1::1 > fc00:0:7777:6666:2222:1111:e007:0: srcrt (len=2, type=4, segleft=0[|srcrt]
-18:04:14.945878 IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 3, seq 1, length 64
-18:04:15.173485 IP6 fc00:0:107:1::1 > fc00:0:7777:6666:2222:1111:e007:0: srcrt (len=2, type=4, segleft=0[|srcrt]
-18:04:15.241699 IP 10.101.2.1 > 20.0.0.1: ICMP echo reply, id 3, seq 2, length 64
-```
-
-2. Return to an SSH session on the XRD VM and use tcpdump.sh <xrd0x-xrd0y>" to capture packets along the path from Rome VM to Amsterdam VM. Given the SRv6 Micro-SID combination seen above, we'll monitor the linux bridges linking *`xrd07`* to *`xrd06`*, *`xrd06`* to *`xrd02`*, then *`xrd02`* to *`xrd01`*:
- - restart the ping if it is stopped
-
-*Note: feel free to just spot check 1 or 2 of these:
-
-```
-sudo netns exec clab-cleu25-xrd07 tcpdump -lni Gi0-0-0-1
-```
-
- - Example output:
-```
-placeholder
-```
-
-### Low Latency Path
-The Low Latency Path service will calculate an SRv6 encapsulation instruction for sending traffic over the lowest latency path from a source to a given destination. The procedure for testing/running the Low Latency Path service is the same as the one we followed with Least Utilized Path. 
-
-The low latency path from Rome to Amsterdam should follow the path shown in the below diagram. Traffic should flow in the direction of **xrd07** -> **xrd06** -> **xrd05** -> **xrd01**
-
-![Low Latency Path](/topo_drawings/low-latency-path.png)
-
-For full size image see [LINK](/topo_drawings/low-latency-path.png)
-
-1. Low latency SRv6 service on Rome VM:
-    ```
-    ./cleanup_rome_routes.sh 
-    python3 jalapeno.py -f rome.json -e srv6 -s ll
-    ping 10.101.2.1 -I 20.0.0.1 -i .3
-    ```
-    1. As with Least Utilized Path we can run the tcpdump scripts On the XRD VM to see our SRv6 encapsulated traffic traverse the network with uSID shift-and-forward in action (feel free to spot check): 
-    ```
-    sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-1
-    ```
 
 ### Low Latency Re-Route
 Now we are going to simulate a recalculation of the SRv6 topology. The *Sub-Standard Construction Company* has taken out fiber link "G" with a backhoe. Luckily you have paid for optical path redundancy and the link has failed to a geographicaly different path. The result though is that the primary path latency of *5ms* has increased to *25 ms*. This should cause a new low latency route. Time to test it out!
