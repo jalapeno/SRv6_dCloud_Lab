@@ -22,8 +22,8 @@ In Part 2 we will use the **srctl** command line tool to program SRv6 routes on 
     - [Amsterdam to Rome: Least Utilized Path](#amsterdam-to-rome-least-utilized-path)
   - [Berlin VM - not quite Cilium SRv6-TE](#berlin-vm---not-quite-cilium-srv6-te)
     - [Berlin to Rome: Data Sovereignty Path](#berlin-to-rome-data-sovereignty-path)
-    - [Get All Paths](#get-all-paths)
-    - [Low Latency Re-Route](#low-latency-re-route)
+  - [Get All Paths](#get-all-paths)
+  - [Low Latency Re-Route](#low-latency-re-route)
     - [You have reached the end of LTRSPG-2212, hooray!](#you-have-reached-the-end-of-ltrspg-2212-hooray)
 
 ## Host-Based SR/SRv6 and building your own SDN App
@@ -385,6 +385,29 @@ Many segment routing and other SDN solutions focus on the *low latency path* as 
 
    Note the steering rules match on an ipv4 or ipv6 destination prefix and set the SR policy BSID. Traffic arriving at VPP's ingress destined for the prefixes listed in the steering rules will be steered to the Binding SID's SR policy 
 
+   Optional: check the VPP FIB table to see the SRv6 policy programmed.
+   ```
+   sudo vppctl show ip6 fib fc00:0:107:1::/64
+   ```
+
+   Expected output:
+   ```yaml
+   cisco@amsterdam:~$ sudo vppctl show ip6 fib fc00:0:107:1::/64
+   ipv6-VRF:0, fib_index:0, flow hash:[src dst sport dport proto flowlabel ] epoch:0 flags:none locks:[adjacency:1, default-route:1, ]
+   fc00:0:107:1::/64 fib:0 index:40 locks:2
+     SR refs:1 entry-flags:uRPF-exempt, src-flags:added,contributing,active,
+       path-list:[48] locks:2 flags:shared, uPRF-list:42 len:0 itfs:[]
+         path:[60] pl-index:48 ip6 weight=1 pref=0 recursive:  oper-flags:resolved,
+           via 101::102 in fib:4 via-fib:37 via-dpo:[dpo-load-balance:39]             # via BSID 101::102
+
+   forwarding:   unicast-ip6-chain
+     [@0]: dpo-load-balance: [proto:ip6 index:42 buckets:1 uRPF:41 to:[18891:1964664]]
+       [0] [@23]: dpo-load-balance: [proto:ip6 index:39 buckets:1 uRPF:-1 to:[0:0] via:[18891:1964664]]
+             [0] [@22]: SR: Segment List index:[0]  # BSID recurses to sr policy encapsulation
+     Segments:< fc00:0:1111:2222:3333:4444:7777:0 > - Weight: 1
+   SRv6 steering of IP4 prefixes through BSIDs, fib_index:3, flow hash:[src dst sport dport proto flowlabel ] epoch:0 flags:none locks:[SR:1, recursive-resolution:1, ]
+   ```
+
 6. Run a ping test. From the Amsterdam VM, ping Rome:
    ```
    ping fc00:0:107:1::1 -i .4
@@ -445,17 +468,17 @@ Many segment routing and other SDN solutions focus on the *low latency path* as 
   ```
 
 ## Berlin VM - not quite Cilium SRv6-TE
+On the Berlin VM we have our K8s pods which are connected to Cilium SRv6 L3VPN instances. However, Cilium doesn't currently support SRv6-TE. But as we saw with Rome, Linux does! So for now we'll use **srctl** to program a Berlin to Rome path, but we'll specify Linux as the platform. Hopefully by this time next year Cilium will support SRv6-TE and we'll add it to the list of *srctl* platforms.
 
 ### Berlin to Rome: Data Sovereignty Path
 
-In this use case we want to idenitfy a path originating from *`Berlin`* destined to *`Rome`* that avoids passing through France (perhaps there's a toll on the link). In this case we'll specify the dataSovereignty service in the *`berlin.yaml`* file, and specify the country code *`FRA`* which is to be avoided.
+The Data Sovereignty service enables the user or application to steer their traffic through a path or geography that is considered safe per a set of legal guidelines or other regulatory framework. In our case the *`dataSovereignty`* service allows us to choose a country (or countries) to avoid when transmitting traffic from a source to a given destination. The country to avoid is specified as a country code in the *srctl* yaml file. 
 
-The Data Sovereignty service enables the user or application to steer their traffic through a path or geography that is considered safe per a set of legal guidelines or other regulatory framework. In our case the *`DS`* service allows us to choose a country (or countries) to avoid when transmitting traffic from a source to a given destination. The country to avoid is specified as a country code in the *`rome.json`* and *`amsterdam.json`* files. In our testing we've specified that traffic should avoid France (FRA) - no offense, its just the easiest path in our topology to demonstrate. *`xrd06`* is located in Paris, so all requests to the DS service should produce a shortest-path result that avoids *`xrd06`*.
-
-The procedure for testing/running the Data Sovereignty Service is the same as the one we followed with Least Utilized and Low Latency Path. Data Sovereignty traffic should flow in the direction of **xrd07** -> **xrd04** -> **xrd05** -> **xrd01**. We'll skip running the Data Sovereignty service on Rome and will do so later on the Amsterdam VM.
+In our testing we've specified that traffic should avoid France (FRA) - no offense, its just the easiest path in our topology to demonstrate. *`xrd06`* is located in Paris, so all requests to the *`dataSovereignty`* service should produce a shortest-path result that avoids *`xrd06`*.
 
 
-### Get All Paths
+
+## Get All Paths
 
 The Get All Paths Service will query the DB for all paths up to 6-hops in length between a pair of source and destination prefixes.
 
@@ -505,7 +528,7 @@ The Get All Paths Service will query the DB for all paths up to 6-hops in length
 
 
 
-### Low Latency Re-Route
+## Low Latency Re-Route
 Now we are going to simulate a recalculation of the SRv6 topology. The *Sub-Standard Construction Company* has taken out fiber link "G" with a backhoe. Luckily you have paid for optical path redundancy and the link has failed to a geographicaly different path. The result though is that the primary path latency of *5ms* has increased to *25 ms*. This should cause a new low latency route. Time to test it out!
 
 ![Low Latency Path](/topo_drawings/low-latency-alternate-path.png)
@@ -566,31 +589,6 @@ For full size image see [LINK](/topo_drawings/low-latency-alternate-path.png)
 
     iperf Done. 
     ```
-
-
-
-
-
-
-
-
-
-```
-
-Display VPP FIB entry: 
-ipv4-VRF:0, fib_index:0, flow hash:[src dst sport dport proto flowlabel ] epoch:0 flags:none locks:[adjacency:1, default-route:1, ]
-20.0.0.0/24 fib:0 index:36 locks:2
-  SR refs:1 entry-flags:uRPF-exempt, src-flags:added,contributing,active,
-    path-list:[41] locks:2 flags:shared, uPRF-list:39 len:0 itfs:[]
-      path:[49] pl-index:41 ip6 weight=1 pref=0 recursive:  oper-flags:resolved,
-        via 101::101 in fib:3 via-fib:35 via-dpo:[dpo-load-balance:37]
-
- forwarding:   unicast-ip4-chain
-  [@0]: dpo-load-balance: [proto:ip4 index:38 buckets:1 uRPF:38 to:[0:0]]
-    [0] [@14]: dpo-load-balance: [proto:ip4 index:37 buckets:1 uRPF:-1 to:[0:0]]
-          [0] [@13]: SR: Segment List index:[0]
-   Segments:< fc00:0:2222:3333:4444:7777:e007:0 > - Weight: 1      <------------ SRv6 Micro-SID encapsulation
-```
 
 
 
