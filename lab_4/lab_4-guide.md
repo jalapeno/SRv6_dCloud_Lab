@@ -650,7 +650,17 @@ In lab 3 we created the *radish VRF* on *xrd07* and bound a loopback interface t
     64 bytes from 100.0.7.1: seq=2 ttl=253 time=4.759 ms
     64 bytes from 100.0.7.1: seq=3 ttl=253 time=4.295 ms
     ```
+3. Return to the XRd VM and run a tcpdump to capture Cilium's SRv6 encapsulation of outbound packets:
 
+    ```
+    sudo ip netns exec clab-cleu25-xrd02 tcpdump -lni Gi0-0-0-3
+    ```
+
+    Example output:
+    ```yaml
+    16:08:24.320379 IP6 fc00:0:8888:0:250:56ff:fe3f:ffff > fc00:0:7777:e004::: IP 10.200.0.133 > 100.0.7.1: ICMP echo request, id 15, seq 0, length 64
+    16:08:24.720482 IP6 fc00:0:8888:0:250:56ff:fe3f:ffff > fc00:0:7777:e004::: IP 10.200.0.133 > 100.0.7.1: ICMP echo request, id 15, seq 1, length 64
+    ```
 4. Next, to demonstrate the flexibility of Cilium's SRv6 implementation, we'll switch the carrots1 pod from the carrots VRF to the radish VRF and run a ping again:
 
    ```
