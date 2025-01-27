@@ -524,19 +524,19 @@ In the next step we've combined creation of both the *carrots* VRF and kubernete
    ```
 
    In the output of the second command we expect to see detailed information. Here is truncated output:
-   ```yaml
+   ```diff
    Path #1: Received by speaker
    Not advertised to any peer
    Local
        fc00:0:8888::1 (metric 2) from fc00:0:5555::1 (198.18.4.104)
-         Received Label 0xec70      # uDT4 function bits match the SRv6 SID manager output from Cilium
+   +     Received Label 0xec70      # uDT4 function bits match the SRv6 SID manager output from Cilium
          Origin incomplete, localpref 100, valid, internal, best, group-best, import-candidate, not-in-vrf
          Received Path ID 0, Local Path ID 1, version 20
          Extended community: RT:9:9
          Originator: 198.18.4.104, Cluster list: 10.0.0.5
        PSID-Type:L3, SubTLV Count:1
          SubTLV:
-        T:1(Sid information), Sid:fc00:0:a0ba::(Transposed), Behavior:63, SS-TLV Count:1  # Sid value matches Berlin's SRv6 Locat
+   +    T:1(Sid information), Sid:fc00:0:a0ba::(Transposed), Behavior:63, SS-TLV Count:1  # Sid value matches Berlin's SRv6 Locat
          SubSubTLV:
           T:1(Sid structure):
    ```
@@ -547,7 +547,7 @@ In the next step we've combined creation of both the *carrots* VRF and kubernete
    ```
 
    Example of partial output:
-   ```yaml
+   ```diff
      - apiVersion: isovalent.com/v1alpha1
        kind: IsovalentSRv6EgressPolicy
        metadata:
@@ -559,7 +559,7 @@ In the next step we've combined creation of both the *carrots* VRF and kubernete
        spec:
          destinationCIDRs:
          - 40.0.0.0/24
-         destinationSID: 'fc00:0:7777:e007::'  # SRv6 SID for prefix 40.0.0.0/24 in vrfID 99 (carrots) on xrd07
+   +     destinationSID: 'fc00:0:7777:e007::'  # SRv6 SID for prefix 40.0.0.0/24 in vrfID 99 (carrots) on xrd07
          vrfID: 99
      - apiVersion: isovalent.com/v1alpha1
        kind: IsovalentSRv6EgressPolicy
@@ -572,7 +572,7 @@ In the next step we've combined creation of both the *carrots* VRF and kubernete
        spec:
          destinationCIDRs:
          - 10.200.0.0/24
-         destinationSID: 'fc00:0:a0ba:ec7::' # SRv6 SID for local prefix 10.200.0.0/24 in vrfID 99 (carrots)
+   +     destinationSID: 'fc00:0:a0ba:ec7::' # SRv6 SID for local prefix 10.200.0.0/24 in vrfID 99 (carrots)
          vrfID: 99
    ```
 
