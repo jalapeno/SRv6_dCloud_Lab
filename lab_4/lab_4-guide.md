@@ -496,12 +496,12 @@ In the next step we've combined creation of both the *carrots* VRF and kubernete
       sidAllocations:
       - poolRef: pool0
         sids:
-        - behavior: uDT4                # uDT4 is uSID 'End' with IPv4 table lookup behavior
+    +   - behavior: uDT4                # uDT4 is uSID 'End' with IPv4 table lookup behavior
           behaviorType: uSID
-          metadata: carrots             # table to perform the lookup in
+    +     metadata: carrots             # table to perform the lookup in
           owner: srv6-manager
           sid:
-            addr: 'fc00:0:a0ba:ec7::'   # Berlin VRF carrots SRv6 Locator + uDT4 Function
+    +       addr: 'fc00:0:a0ba:ec7::'   # Berlin VRF carrots SRv6 Locator + uDT4 Function
             structure:
               argumentLenBits: 0
               functionLenBits: 16
