@@ -468,11 +468,13 @@ Many segment routing and other SDN solutions focus on the *low latency path* as 
   ```
 
 ## Berlin VM - not quite Cilium SRv6-TE
-On the Berlin VM we have our K8s pods which are connected to Cilium SRv6 L3VPN instances. However, Cilium doesn't currently support SRv6-TE. But as we saw with Rome, Linux does! So for now we'll use **srctl** to program a Berlin to Rome path, but we'll specify Linux as the platform. Hopefully by this time next year Cilium will support SRv6-TE and we'll add it to the list of *srctl* platforms.
+On the Berlin VM we have our K8s pods which are connected to Cilium SRv6 L3VPN instances. However, Cilium doesn't currently support SRv6-TE. But as we saw with Rome, Linux does! So for now we'll use **srctl** to program a Berlin to Rome path, but we'll specify Linux as the platform. This workaround is functional because Cilium performs the SRv6 L3VPN encapsulation, and then Linux performs the SRv6-TE encapsulation before sending the packets out the interface.
+
+Hopefully by this time next year Cilium will support SRv6-TE and we'll add it to the list of *srctl* platforms.
 
 ### Berlin to Rome: Data Sovereignty Path
 
-The Data Sovereignty service enables the user or application to steer their traffic through a path or geography that is considered safe per a set of legal guidelines or other regulatory framework. In our case the *`dataSovereignty`* service allows us to choose a country (or countries) to avoid when transmitting traffic from a source to a given destination. The country to avoid is specified as a country code in the *srctl* yaml file. 
+The Data Sovereignty service enables the user or application to steer their traffic through a path or geography that is considered safe per a set of legal guidelines or other regulatory framework. Or perhaps to avoid a country or geography for similar reasons. In our case the *`sovereignty`* service allows us to choose a country (or countries) to avoid when transmitting traffic from a source to a given destination. The country to avoid is specified as a country code in the *srctl* yaml file. 
 
 In our testing we've specified that traffic should avoid France (FRA) - no offense, its just the easiest path in our topology to demonstrate. *`xrd06`* is located in Paris, so all requests to the *`dataSovereignty`* service should produce a shortest-path result that avoids *`xrd06`*.
 

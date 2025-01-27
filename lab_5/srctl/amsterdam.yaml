@@ -10,7 +10,7 @@ spec:
         - name: amsterdam-to-rome-v4
           graph: ipv4_graph
           pathType: shortest_path
-          metric: utilization
+          metric: least-utilized
           source: hosts/amsterdam
           destination: hosts/rome
           destination_prefix: "10.107.1.0/24"
@@ -20,7 +20,7 @@ spec:
         - name: amsterdam-to-rome-v6
           graph: ipv6_graph
           pathType: shortest_path
-          metric: utilization
+          metric: least-utilized
           source: hosts/amsterdam
           destination: hosts/rome
           destination_prefix: "fc00:0:107:1::/64"

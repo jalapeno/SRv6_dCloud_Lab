@@ -10,7 +10,7 @@ spec:
         - name: berlin-to-rome-v6
           graph: ipv6_graph
           pathType: shortest_path
-          metric: sovereignty
+          metric: data-sovereignty
           excluded_countries: 
             - FRA
           direction: outbound
@@ -22,7 +22,7 @@ spec:
         - name: berlin-to-xrd07
           graph: ipv6_graph
           pathType: shortest_path
-          metric: sovereignty
+          metric: data-sovereignty
           excluded_countries: 
             - FRA
           direction: outbound
