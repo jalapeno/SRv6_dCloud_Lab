@@ -17,13 +17,6 @@ This lab is divided into two main sections :
     - [Jalapeno Architecture and Data Flow](#jalapeno-architecture-and-data-flow)
   - [Lab 5 Part 1: Project Jalapeno](#lab-5-part-1-project-jalapeno)
   - [BGP Monitoring Protocol (BMP)](#bgp-monitoring-protocol-bmp)
-  - [Exploring Jalapeno](#exploring-jalapeno)
-    - [Optional: Explore Kafka Topics](#optional-explore-kafka-topics)
-    - [Jalapeno Arango Graph Database](#jalapeno-arango-graph-database)
-    - [ArangoDB Query Language (AQL)](#arangodb-query-language-aql)
-    - [Install Jalapeno Graph Processors](#install-jalapeno-graph-processors)
-    - [BGP SRv6 locator](#bgp-srv6-locator)
-    - [Populating the DB with external data](#populating-the-db-with-external-data)
   - [Jalapeno REST API](#jalapeno-rest-api)
   - [Jalapeno Web UI](#jalapeno-web-ui)
     - [Data Collections](#data-collections)
@@ -121,32 +114,32 @@ Reference: the GoBMP Git Repository can be found [HERE](https://github.com/sbezv
 
 Here is an example of the BMP configuration on **xrd05** and **xrd06**:
 
-    ```
-    bmp server 1
-      host 198.18.128.101 port 30511
-      description jalapeno GoBMP  
-      update-source MgmtEth0/RP0/CPU0/0
-      flapping-delay 60
-      initial-delay 5
-      stats-reporting-period 60
-      initial-refresh delay 25 spread 2
+   ```
+   bmp server 1
+     host 198.18.128.101 port 30511
+     description jalapeno GoBMP  
+     update-source MgmtEth0/RP0/CPU0/0
+     flapping-delay 60
+     initial-delay 5
+       stats-reporting-period 60
+       initial-refresh delay 25 spread 2
     
-    router bgp 65000
-      neighbor 10.0.0.1
-        bmp-activate server 1
+     router bgp 65000
+       neighbor 10.0.0.1
+         bmp-activate server 1
     
-      neighbor fc00:0000:1111::1
-        bmp-activate server 1
+       neighbor fc00:0000:1111::1
+         bmp-activate server 1
 
-      neighbor 10.0.0.7
-        bmp-activate server 1
+       neighbor 10.0.0.7
+         bmp-activate server 1
     
-      neighbor fc00:0000:7777::1
-        bmp-activate server 1
+       neighbor fc00:0000:7777::1
+         bmp-activate server 1
 
-      neighbor fc00:0000:8888::1
-        bmp-activate server 1
-    ```
+       neighbor fc00:0000:8888::1
+         bmp-activate server 1
+     ```
 
 1. ssh to **xrd05** or **xrd06** and validate BMP session establishment and client monitoring:
 
