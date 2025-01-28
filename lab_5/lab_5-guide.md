@@ -9,29 +9,29 @@ This lab is divided into two main sections :
 
 
 ## Contents
-- [Lab 5: Project Jalapeno and Host-Based SRv6 \[30 Min\]](#lab-5-project-jalapeno-and-host-based-srv6-30-min)
-  - [Description](#description)
-- [Contents](#contents)
-- [Lab Objectives](#lab-objectives)
-- [Jalapeno Overview](#jalapeno-overview)
-  - [Jalapeno Architecture and Data Flow](#jalapeno-architecture-and-data-flow)
-- [Lab 5 Part 1: Project Jalapeno](#lab-5-part-1-project-jalapeno)
-- [BGP Monitoring Protocol (BMP)](#bgp-monitoring-protocol-bmp)
-- [Exploring Jalapeno](#exploring-jalapeno)
-  - [Optional: Explore Kafka Topics](#optional-explore-kafka-topics)
-  - [Jalapeno Arango Graph Database](#jalapeno-arango-graph-database)
-  - [ArangoDB Query Language (AQL)](#arangodb-query-language-aql)
-  - [Install Jalapeno Graph Processors](#install-jalapeno-graph-processors)
-  - [BGP SRv6 locator](#bgp-srv6-locator)
-  - [Populating the DB with external data](#populating-the-db-with-external-data)
-- [Jalapeno REST API](#jalapeno-rest-api)
-- [Jalapeno Web UI](#jalapeno-web-ui)
-  - [Data Collections](#data-collections)
-  - [Topology Viewer](#topology-viewer)
-  - [Calculate a Path](#calculate-a-path)
-    - [Constraints:](#constraints)
-  - [Schedule a Workload](#schedule-a-workload)
-- [End of lab 5 Part 1](#end-of-lab-5-part-1)
+- [Lab 5: Project Jalapeno and Host-Based SRv6 \[20 Min\]](#lab-5-project-jalapeno-and-host-based-srv6-20-min)
+    - [Description](#description)
+  - [Contents](#contents)
+  - [Lab Objectives](#lab-objectives)
+  - [Jalapeno Overview](#jalapeno-overview)
+    - [Jalapeno Architecture and Data Flow](#jalapeno-architecture-and-data-flow)
+  - [Lab 5 Part 1: Project Jalapeno](#lab-5-part-1-project-jalapeno)
+  - [BGP Monitoring Protocol (BMP)](#bgp-monitoring-protocol-bmp)
+  - [Exploring Jalapeno](#exploring-jalapeno)
+    - [Optional: Explore Kafka Topics](#optional-explore-kafka-topics)
+    - [Jalapeno Arango Graph Database](#jalapeno-arango-graph-database)
+    - [ArangoDB Query Language (AQL)](#arangodb-query-language-aql)
+    - [Install Jalapeno Graph Processors](#install-jalapeno-graph-processors)
+    - [BGP SRv6 locator](#bgp-srv6-locator)
+    - [Populating the DB with external data](#populating-the-db-with-external-data)
+  - [Jalapeno REST API](#jalapeno-rest-api)
+  - [Jalapeno Web UI](#jalapeno-web-ui)
+    - [Data Collections](#data-collections)
+    - [Topology Viewer](#topology-viewer)
+    - [Calculate a Path](#calculate-a-path)
+      - [Constraints:](#constraints)
+    - [Schedule a Workload](#schedule-a-workload)
+  - [End of lab 5 Part 1](#end-of-lab-5-part-1)
 
 ## Lab Objectives
 The student upon completion of Lab 5 should have achieved the following objectives:
@@ -120,6 +120,7 @@ We've preconfigured BMP on the **xrd05** and **xrd06** route-reflectors to send 
 Reference: the GoBMP Git Repository can be found [HERE](https://github.com/sbezverk/gobmp)
 
 Here is an example of the BMP configuration on **xrd05** and **xrd06**:
+
     ```
     bmp server 1
       host 198.18.128.101 port 30511
