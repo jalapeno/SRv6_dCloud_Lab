@@ -1,4 +1,4 @@
-# Lab 4: SRv6 for Kubernetes with Cilium [25 Min]
+# Lab 4: SRv6 for Kubernetes with Cilium [30 Min]
 
 ### Description
 Now that we've established SRv6 L3VPNs across our network, we're going to transition from router-based services to host-based services. And our first step will be to enable SRv6 L3VPN for Kubernetes. The Berlin VM has had Kubernetes pre-installed and running the Cilium CNI (Container Network Interface). In this lab we'll review some basic Kubernetes commands (kubectl) and then we'll setup Cilium BGP peering with our XRd route reflectors. After that we'll configure Cilium SRv6 SID manager and Locator pool. We'll then add a couple containers to our K8s cluster and join them to the carrots VRF.
