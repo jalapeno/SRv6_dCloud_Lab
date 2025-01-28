@@ -17,7 +17,7 @@ This lab is divided into two main sections :
   - [Lab 5 Part 1: Project Jalapeno](#lab-5-part-1-project-jalapeno)
     - [BGP Monitoring Protocol (BMP)](#bgp-monitoring-protocol-bmp)
     - [Kafka](#kafka)
-    - [Jalapeno Arango Graph Database](#jalapeno-arango-graph-database)
+    - [Arango Graph Database](#arango-graph-database)
     - [Install Jalapeno Graph Processors](#install-jalapeno-graph-processors)
     - [Populating the DB with external data](#populating-the-db-with-external-data)
   - [Jalapeno REST API](#jalapeno-rest-api)
@@ -170,7 +170,7 @@ Jalapeno uses the very popular Kafka messaging bus to transport data received fr
 
 This element of the lab is completely optional, however, because this lab guide is published on Github, you can come back to it in the future to explore Kafka on your own.
 
-### Jalapeno Arango Graph Database
+### Arango Graph Database
 At the heart of Jalapeno is the Arango Graph Database, which is used to model network topology and provide a graph-based data store for the network data collected via BMP or other sources. 
 
 1. Validate Jalapeno has populated the Arango graphDB with BMP data. Open the Arango web UI at:
@@ -326,4 +326,4 @@ This function is still under construction. The idea behind `Schedule a Workload`
 
 
 ## End of lab 5 Part 1
-Please proceed to [Lab 5 Part 2: Host-Based SRv6](lab_5-guide2.md)
+Please proceed to [Lab 5 Part 2: Host-Based SRv6](lab_5-guide_part-2.md)
