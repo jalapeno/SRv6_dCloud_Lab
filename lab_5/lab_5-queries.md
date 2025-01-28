@@ -3,6 +3,40 @@
 > [!Note]
 > General Arango AQL graph query syntax information can be found [HERE](https://www.arangodb.com/docs/stable/aql/graphs.html). Please reference this document on the shortest path algorithim in AQL [HERE](https://www.arangodb.com/docs/stable/aql/graphs-shortest-path.html) (2 minute read).
 
+On the left side of the Arango UI click on Queries:
+    
+For the most basic query below *x* is a object variable with each key field in a record populated as a child object. So basic syntax can be thought of as:
+
+*`for x in <collection_name> return x `*
+
+```
+for x in ls_node return x
+```
+This query will return ALL records in the *`ls_node`* collection. In our lab topology you should expect 7 records. 
+
+
+Next lets get the AQL to return only the *`key:value`* field we are interested in. We will query the name of all nodes in the *`igp_node`* collection with the below query. To reference a specific key field we use use the format **x.key** syntax.
+
+    - Note: after running a query you will need to either comment it out or delete it before running the next query. To comment-out use two forward slashes *`//`* as shown in this pic:
+
+
+<img src="images/arango-query.png" width="600">
+
+
+```
+for x in igp_node return x.name
+```
+Expected output from Arango query:
+```   
+"xrd01",
+"xrd02",
+"xrd03",
+"xrd04",
+"xrd05",
+"xrd06",
+"xrd07"
+```
+
 Query filtering for a specific node name and return name and SID information 
 ```
 for x in igp_node 

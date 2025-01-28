@@ -29,6 +29,7 @@ This lab is divided into two main sections :
   - [Data Collections](#data-collections)
   - [Topology Viewer](#topology-viewer)
   - [Calculate a Path](#calculate-a-path)
+    - [Constraints:](#constraints)
   - [Schedule a Workload](#schedule-a-workload)
 - [End of lab 5 Part 1](#end-of-lab-5-part-1)
 
@@ -38,7 +39,6 @@ The student upon completion of Lab 5 should have achieved the following objectiv
 * Understanding and configuration of BMP
 * A tour of the Jalapeno platform and high level understanding of how it collects and processes data
 * Familiarity with the ArangoDB UI and the BMP/BGP data collections the system has created
-* Basic introduction to Arango Query Language (AQL) syntax
 * Familiarity with the Jalapeno API and UI
 
 ## Jalapeno Overview
@@ -49,17 +49,8 @@ Project Jalapeno combines existing open source tools with some new stuff we've d
 ### Jalapeno Architecture and Data Flow
 ![jalapeno_architecture](https://github.com/cisco-open/jalapeno/blob/main/docs/img/jalapeno_architecture.png)
 
-Jalapeno breaks the data collection and warehousing problem down into a series of components and services:
-- **Data Collector** services such as GoBMP and Telegraf collect network topology and statistics and publish to Kafka
-- **Data Processor** services such as "Topology", and the "Graph" services we'll deploy in this lab, subscribe to Kafka topics and write the data they receive to databases
-- **Kafka** is used as a message bus between Collectors and Processors
-- **Arango GraphDB** is used for modeling topology data
-- **InfluxDB** is used for warehousing statistical time-series data
-- **Grafana**: is used for visualizing the Influx time-series data and supports user creation of custom dashboards (not currentlyused in this lab)
-- **REST API**: is used as a communication layer between the Jalapeno UI and external applications or clients, and the Jalapeno GraphDB
-- **Jalapeno UI**: is a web application that allows users to interact with the Jalapeno topology model and path calculation tools. Note: the UI is still a work in progress, so not all functionality is available yet.
 
-One of the primary goals of the Jalapeno project is to be flexible and extensible. In the future we expect Jalapeno could support any number of data collectors and processors. For example there could be a collector/processor pair that creates an LLDP Topology model in the graphDB. Netflow data could be incorporated via a future integration with a tool like [pmacct](http://www.pmacct.net/). Or an operator might already have a telemetry stack and could choose to selectively integrate Jalapeno's GoBMP/Topology/GraphDB modules into an existing environment running Kafka. We also envision future integrations with other API-driven data warehouses such as Cisco ThousandEyes: https://www.thousandeyes.com/
+One of the primary goals of the Jalapeno project is to be flexible and extensible. In the future we expect Jalapeno could support any number of Topology models (LLDP, Service Chain, Service Mesh, etc.). Netflow data could be incorporated via a future integration with a tool like [pmacct](http://www.pmacct.net/). Or an operator might already have a telemetry stack and could choose to selectively integrate Jalapeno's Topology modules into an existing environment running Kafka. We also envision future integrations with other API-driven data warehouses such as Cisco ThousandEyes: https://www.thousandeyes.com/ or Accedian Skylight: https://docs.accedian.io/docs/provider-connectivity-assurance
 
 ## Lab 5 Part 1: Project Jalapeno 
 
@@ -103,26 +94,9 @@ The Jalapeno package is preinstalled and running on the **Jalapeno** VM (198.18.
     kube-system   kube-scheduler-jalapeno                        1/1     Running   3 (4h41m ago)    363d
     ```
 
-2. Display only the pods in the jalapeno namespace:
+2. Optional: Display only the pods in the jalapeno namespace:
     ```
     kubectl get pods -n jalapeno
-    ```
-    Output will look something like:
-    ```yaml
-    cisco@jalapeno:~$ kubectl get pods -n jalapeno
-    NAME                                          READY   STATUS    RESTARTS      AGE
-    arangodb-0                                    1/1     Running   0             39m     # Arango GraphDB
-    gobmp-5db68bd644-p8r24                        1/1     Running   1 (90s ago)   38m     # GoBMP Collector
-    grafana-deployment-565756bd74-nmp6g           1/1     Running   0             39m     # Grafana
-    influxdb-0                                    1/1     Running   0             39m     # Influx Time-Series DB
-    jalapeno-api-5d8469557-w4dcm                  1/1     Running   0             39m     # Jalapeno REST API
-    jalapeno-ui-54f8f95c5d-9vns7                  1/1     Running   0             39m     # Jalapeno UI
-    kafka-0                                       1/1     Running   0             39m     # Kafka
-    lslinknode-edge-b954577f9-jmkn4               1/1     Running   3 (38m ago)   39m     # LS Link & Node Processor
-    telegraf-egress-deployment-5795ffdd9c-8lpd4   1/1     Running   0             39m     # Telegraf Egress Processor
-    telegraf-ingress-deployment-5b456574dc-cxt9v  1/1     Running   0             38m     # Telegraf Ingress Collector
-    topology-678ddb8bb4-4kmq8                     1/1     Running   1 (38m ago)   39m     # BMP Topology Processor
-    zookeeper-0                                   1/1     Running   0             39m     # Zookeeper
     ```
 
 3. Optional: here are some additional k8s commands to try. Note the different outputs when specifying a particular namespace (-n option) vs. all namespaces (-A option):
@@ -141,13 +115,12 @@ The Jalapeno package is preinstalled and running on the **Jalapeno** VM (198.18.
 
 Most transport SDN systems use BGP-LS to gather and model the underlying IGP topology. Jalapeno is intended to be a more generalized data platform to support development of all sorts of use cases such as VPNs or service chains. Because of this, Jalapeno's primary method of capturing topology data is via BMP. BMP provides all BGP AFI/SAFI info including BGP-LS, thus Jalapeno is able to model many different kinds of topologies, including the topology of the Internet (at least from the perspective of our peering routers).
 
-So we're going to take a brief step back and do some more router configuration. We'll first establish a BMP session between our route-reflectors and the open-source GoBMP collector, which comes pre-packaged with the Jalapeno install. We'll then enable BMP monitoring of the RRs' BGP peering sessions with our PE routers **xrd01** and **xrd07**. Once established, the RRs' will stream all BGP NLRI info they receive from the PE routers to the GoBMP collector, and the BGP data will flow up the Jalapeno stack into the graph database. 
+We've preconfigured BMP on the **xrd05** and **xrd06** route-reflectors to send BMP data to Jalapeno's GoBMP collector. We've also enabled BMP monitoring of the RRs' BGP peering sessions with our PE routers **xrd01** and **xrd07**. With these configurations in place the RRs' will stream all BGP NLRI info they receive from the PE routers to Jalapeno to be stored in the graph database. 
 
 Reference: the GoBMP Git Repository can be found [HERE](https://github.com/sbezverk/gobmp)
 
-1. BMP configuration on **xrd05** and **xrd06**:
+Here is an example of the BMP configuration on **xrd05** and **xrd06**:
     ```
-    conf t
     bmp server 1
       host 198.18.128.101 port 30511
       description jalapeno GoBMP  
@@ -172,11 +145,14 @@ Reference: the GoBMP Git Repository can be found [HERE](https://github.com/sbezv
 
       neighbor fc00:0000:8888::1
         bmp-activate server 1
-        
-    commit
     ```
 
-2. Validate BMP session establishment and client monitoring (the session may take a couple minutes to become active/established):
+1. ssh to **xrd05** or **xrd06** and validate BMP session establishment and client monitoring:
+
+    ```
+    ssh cisco@clab-cleu25-XR05
+    ```
+
     ```
     show bgp bmp summary
     ```
@@ -188,7 +164,6 @@ Reference: the GoBMP Git Repository can be found [HERE](https://github.com/sbezv
     ID   Host                 Port     State   Time        NBRs
     1   198.18.128.101       30511    ESTAB   00:00:07    4   
     RP/0/RP0/CPU0:xrd06#
-
     ```
 
 ## Exploring Jalapeno
@@ -219,68 +194,19 @@ At the heart of Jalapeno is the Arango Graph Database, which is used to model ne
 
   <img src="images/arango-collections.png" width="1000">
 
-2. Feel free to spot check the various data collections in Arango. Several will be empty as they are for future use. With successful BMP processing we would expect to see data in all the following collections:
-
-    - l3vpn_v4_prefix
-    - l3vpn_v6_prefix
-    - ls_link
-    - ls_node
-    - ls_node_edge
-    - ls_prefix
-    - ls_srv6_sid
-    - peer
-    - unicast_prefix_v4
-    - unicast_prefix_v6
+2. Feel free to spot check the various data collections in Arango. At this point some will be empty as we are not using those AFI/SAFI types.
 
 ### ArangoDB Query Language (AQL)
 
 The ArangoDB Query Language (AQL) can be used to retrieve and modify data that are stored in ArangoDB.
 
-The general workflow when executing a query is as follows:
-
-- A client application ships an AQL query to the ArangoDB server. The query text contains everything ArangoDB needs to compile the result set
-
-- ArangoDB will parse the query, execute it and compile the results. If the query is invalid or cannot be executed, the server will return an error that the client can process and react to. If the query can be executed successfully, the server will return the query results (if any) to the client. See ArangoDB documentation [HERE](https://www.arangodb.com/docs/stable/aql/index.html)
+For more information on AQL see the ArangoDB documentation [HERE](https://www.arangodb.com/docs/stable/aql/index.html)
 
 
-1. Run some DB Queries (one the left side of the Arango UI click on Queries):
-    
-    For the most basic query below *x* is a object variable with each key field in a record populated as a child object. So basic syntax can be thought of as:
-
-    *`for x in <collection_name> return x `*
-
-    ```
-    for x in ls_node return x
-    ```
-    This query will return ALL records in the *`ls_node`* collection. In our lab topology you should expect 7 records. 
-
-
-    Next lets get the AQL to return only the *`key:value`* field we are interested in. We will query the name of all nodes in the *`igp_node`* collection with the below query. To reference a specific key field we use use the format **x.key** syntax.
-
-     - Note: after running a query you will need to either comment it out or delete it before running the next query. To comment-out use two forward slashes *`//`* as shown in this pic:
-
-
-    <img src="images/arango-query.png" width="600">
-
-
-    ```
-    for x in igp_node return x.name
-    ```
-    Expected output from Arango query:
-    ```   
-    "xrd01",
-    "xrd02",
-    "xrd03",
-    "xrd04",
-    "xrd05",
-    "xrd06",
-    "xrd07"
-    ```
-
-2. Optional or for reference: feel free to try a number of additional queries in the lab_5-queries.md doc [Here](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_5/lab_5-queries.md)
+1. Optional or for reference: feel free to connect to the DB and try some of the queries in the [lab_5-queries.md doc](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_5/lab_5-queries.md)
 
 ### Install Jalapeno Graph Processors
-Jalapeno's base installation includes the Topology and Link-State data processors. We have since written some addtitional processors which mine the existing data collections and create enriched topology models or graphs. We'll add these additional processors to our Jalapeno K8s cluster via a simple shell script.
+Jalapeno's base installation processes BMP data and populates it into ArangoDB. We have since written some addtitional processors which mine the existing data collections and create enriched topology models or graphs. We'll add these additional processors to our Jalapeno K8s cluster via a simple shell script.
    
 1. ssh to Jalapeno VM, cd to the lab_5/graph-processors directory, and run the deploy.sh script:
     ```
@@ -296,7 +222,7 @@ The new processors will have created the following new collections in the Arango
 - *`igpv6_graph`*: a model of the ipv6 IGP topology including SRv6 SID data
 - *`ipv4_graph`*: a model of the entire ipv4 topology (IGP and BGP)
 - *`ipv6_graph`*: a model of the entire ipv6 topology (IGP and BGP)
-- *`sr_local_sids`*: a collection of SRv6 SIDs that are not automatically available via BMP. You may have noticed in the xrd routers' streaming telemetry configuration we have added the YANG path for XR to stream all SRv6 SIDs to Jalapeno's Telegraf telemetry collector.
+- *`sr_local_sids`*: a collection of SRv6 SID information that is not available via BMP
   
 2. Verify the Graph Processors have deployed successfully:
     ```
@@ -348,12 +274,11 @@ In lab 1 we configured an SRv6 locator for the BGP global/default table. When we
  
 ### Populating the DB with external data 
 
-In preparation for our Host-Based SRv6 use cases we need to populate the DB with meta-data that we will use for upcoming path calculation API calls.
+In preparation for our Host-Based SRv6 use cases in Part 2, we need to populate the DB with meta-data that we will use for upcoming path calculation API calls.
 
 The [add_meta_data.py](python/add_meta_data.py) python script will connect to the ArangoDB and populate elements in our data collections with addresses and country codes. Also, due to the fact that we can't run realistic traffic through the XRd topology the script will populate the relevant graphDB elements with synthetic *link latency* and *outbound link utilization* data per this diagram:
 
 <img src="/topo_drawings/path-latency-topology.png" width="1000">
-
 
 1. Return to the ssh session on the Jalapeno VM and add meta data to the DB. 
    ```
@@ -370,18 +295,6 @@ The [add_meta_data.py](python/add_meta_data.py) python script will connect to th
    Successfully inserted/updated 4 IPv4 edge records
    Successfully inserted/updated 6 IPv6 edge records
    ```
-
-2. Validate meta data with a query in the ArangoDB UI:
-   ```
-   for x in ipv4_graph return { key: x._key, from: x._from, to: x._to, latency: x.latency, 
-    utilization: x.percent_util_out, country_codes: x.country_codes }
-   ```
-
-   Example Output:
-   <img src="images/arango-meta-data.png" width="900">
-   
-> [!NOTE]
-> Only the ISIS links in the DB have latency and utilization numbers. The Amsterdam and Rome VMs are directly connected to PEs **xrd01** and **xrd07**, so their "edge connections" in the DB are effectively zero latency. 
   
 > [!NOTE]
 > The *`add_meta_data.py`* script has also populated country codes for all the countries a given link traverses from one node to its adjacent peer. Example: **xrd01** is in Amsterdam, and **xrd02** is in Berlin. Thus the **xrd01** <--> **xrd02** link traverses *`[NLD, DEU]`*
@@ -396,9 +309,7 @@ The Jalapeno REST API is used to run queries against the ArangoDB and retrieve g
     ```
     curl http://198.18.128.101:30800/api/v1/collections
     ```
-    ```
-    curl http://198.18.128.101:30800/api/v1/collections/ls_node
-    ```
+
     -  If you run your curl commands from the Jalapeno VM we installed the *`jq`* tool to help with nicer JSON parsing:
     ```
     curl http://198.18.128.101:30800/api/v1/graphs/igpv4_graph/vertices/keys | jq .
@@ -412,19 +323,19 @@ The Jalapeno REST API is used to run queries against the ArangoDB and retrieve g
 
 ## Jalapeno Web UI
 
-The Jalapeno UI is very much a work in progress and is meant to illustrate the potential use cases for extending SRv6 services beyond traditional network elements and into the server, host, VM, k8s, or other workloads or endpoints. Once Jalapeno has programmatically collected data from the network and it built its topology graphs, the network operator has complete flexibility to add data or augment the graph as we saw in the previous section. From there its not too difficult to conceive of building network services based on calls to the Jalapeno API and leveraging the SRv6 uSID stacks that are returned.
+The Jalapeno UI is very much a work in progress and is meant to illustrate the potential use cases for extending SRv6 services beyond traditional network elements and into the server, host, VM, k8s, or other workloads. Once Jalapeno has programmatically collected data from the network and built its topology graphs, the network operator has complete flexibility to add data or augment the graph as we saw in the previous section. From there its not too difficult to conceive of building network services based on calls to the Jalapeno API and leveraging the SRv6 uSID stacks that are returned.
 
 Each lab instance has a Jalapeno Web UI that can be accessed at the following URL: [http://198.18.128.101:30700](http://198.18.128.101:30700). 
 
 On the left hand sidebar you will see that UI functionality is split into four sections:
 
 - **Data Collections**: explore raw object and graph data collected from the network.
-- **Topology Viewer**: explore the network topology graphs built by Jalapeno and based on BMP data received from the network.
+- **Topology Viewer**: explore the network topology graphs built by Jalapeno's BMP data.
 - **Calculate a Path**: gives the user the ability to select a source and destination in the graph and calculate the best path through the network based upon a selected constraint.
-- **Schedule a Workload**: this function is still under construction. The idea behind `Schedule a Workload` is to have a fabric load-balancing service.
+- **Schedule a Workload**: this function is still under construction. The idea behind `Schedule a Workload` is to have a SRv6-based fabric load-balancing service.
 
 ### Data Collections
-Currently populated with raw BMP data and graph data. We have placeholders for future data collections such as Services (like firewalls or load balancers), Hosts, and GPUs.
+Currently populated with raw BMP and graph data. We have placeholders for future data collections such as Services (like firewalls or load balancers), Hosts, and GPUs.
 
 <img src="images/jalapeno-ui-data-collections.png" width="900">
 
@@ -438,12 +349,12 @@ The Topology Viewer prompts the user to select a graph from the dropdown and the
 
 
 ### Calculate a Path
-This function gives the user the ability to select a source and destination in the graph and calculate the best path through the network based upon a selected constraint. The calculated path will light up and the application will display the relevant SRv6 uSID stack. The path calculation algorithms on the backend are using the telemetry meta data we uploaded earlier in the lab. In a future release we hope to incorporate streaming telemetry data into the graph and include it in path calculations.
+To use the path calculation function, select a source and destination node in the graph, then select a constraint from the dropdown. The application will then calculate and light up the shortest path through the network based on the selected constraint. The path calculation algorithms on the backend are using the telemetry meta data we uploaded earlier in the lab. In a future release we hope to incorporate streaming telemetry data into the graph and include it in path calculations.
 
-To use the path calculation function, select a source and destination node in the graph, then select a constraint from the dropdown. The application will then calculate the shortest path through the network based on the selected constraint:
-
+#### Constraints:
 * **Lowest Latency**: The path calculation will return the shortest path through the network based on the latency meta-data we uploaded earlier in the lab
 * **Least Utilized**: The path calculation will return the path with the lowest average outbound utilization
+* **Load**: under construction (see Schedule a Workload below)
 
 <img src="images/jalapeno-ui-calculate-path.png" width="900">
 
