@@ -110,7 +110,7 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
            - name: rome-to-amsterdam-v4           # the name of the route
              graph: ipv4_graph                    # the Jalapeno graph to use for calculating the route
              pathType: shortest_path              # the type of path to use for the route
-             metric: utilization                  # the metric to use for the route
+             metric: least-utilized            # the metric to use for the route
              source: hosts/rome                   # the source's database ID
              destination: hosts/amsterdam         # the destination's database ID
              destination_prefix: "10.101.2.0/24"  # the destination prefix
@@ -121,7 +121,7 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
            - name: rome-to-amsterdam-v6
              graph: ipv6_graph
              pathType: shortest_path
-             metric: utilization
+             metric: least-utilized
              source: hosts/rome
              destination: hosts/amsterdam
              destination_prefix: "fc00:0:101:2::/64"
@@ -155,10 +155,10 @@ Our first use case is to make path selection through the network based on the cu
    cisco@rome:~/SRv6_dCloud_Lab/lab_5/srctl$ sudo srctl --api-server http://198.18.128.101:30800 apply -f rome.yaml
    Loaded configuration from rome.yaml
    Deleted existing route to 10.101.2.0/24 in table 0  # cleanup existing route
-   Adding route with encap: {'type': 'seg6', 'mode': 'encap', 'segs': ['fc00:0:7777:6666:2222:1111:0:0']} to table 0  # add new route
-   Adding route with encap: {'type': 'seg6', 'mode': 'encap', 'segs': ['fc00:0:7777:6666:2222:1111:0:0']} to table 0
-   rome-to-amsterdam-v4: fc00:0:7777:6666:2222:1111: Route to 10.101.2.0/24 via fc00:0:7777:6666:2222:1111:0:0 programmed successfully in table 0  # success message
-   rome-to-amsterdam-v6: fc00:0:7777:6666:2222:1111: Route to fc00:0:101:2::/64 via fc00:0:7777:6666:2222:1111:0:0 programmed successfully in table 0  # success message
+   Adding route with encap: {'type': 'seg6', 'mode': 'encap', 'segs': ['fc00:0:7777:6666:5555:1111:0:0']} to table 0  # add new route
+   Adding route with encap: {'type': 'seg6', 'mode': 'encap', 'segs': ['fc00:0:7777:6666:5555:1111:0:0']} to table 0
+   rome-to-amsterdam-v4: fc00:0:7777:6666:5555:1111: Route to 10.101.2.0/24 via fc00:0:7777:6666:5555:1111:0:0 programmed successfully in table 0  # success message
+   rome-to-amsterdam-v6: fc00:0:7777:6666:5555:1111: Route to fc00:0:101:2::/64 via fc00:0:7777:6666:5555:1111:0:0 programmed successfully in table 0  # success message
    ```
 
 2. Take a look at the Linux route table on Rome to see the new routes:
@@ -169,12 +169,12 @@ Our first use case is to make path selection through the network based on the cu
 
    Expected truncated output for ipv4:
    ```
-   10.101.2.0/24  encap seg6 mode encap segs 1 [ fc00:0:7777:6666:2222:1111:: ] dev ens192 proto static 
+   10.101.2.0/24  encap seg6 mode encap segs 1 [ fc00:0:7777:6666:5555:1111:: ] dev ens192 proto static 
    ```
 
    Expected truncated output for ipv6:
    ```
-   fc00:0:101:2::/64  encap seg6 mode encap segs 1 [ fc00:0:7777:6666:2222:1111:: ] dev ens192 proto static metric 1024 pref medium
+   fc00:0:101:2::/64  encap seg6 mode encap segs 1 [ fc00:0:7777:6666:5555:1111:: ] dev ens192 proto static metric 1024 pref medium
    ```
 
 3. Run a ping test from Rome to Amsterdam.
@@ -193,9 +193,9 @@ Our first use case is to make path selection through the network based on the cu
    cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd06 tcpdump -lni Gi0-0-0-0
    tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
    listening on Gi0-0-0-0, link-type EN10MB (Ethernet), capture size 262144 bytes
-   22:23:10.294176 IP6 fc00:0:107:1::1 > fc00:0:6666:2222:1111::: srcrt (len=2, type=4, segleft=0[|srcrt]
+   22:23:10.294176 IP6 fc00:0:107:1::1 > fc00:0:6666:5555:1111::: srcrt (len=2, type=4, segleft=0[|srcrt]
    22:23:10.301615 IP6 fc00:0:101:1::1 > fc00:0:7777::: IP6 fc00:0:101:2::1 >  fc00:0:107:1:250:56ff:fe97:11bb: ICMP6, echo reply, seq 1, length 64
-   22:23:10.694957 IP6 fc00:0:107:1::1 > fc00:0:6666:2222:1111::: srcrt (len=2, type=4, segleft=0[|srcrt]
+   22:23:10.694957 IP6 fc00:0:107:1::1 > fc00:0:6666:5555:1111::: srcrt (len=2, type=4, segleft=0[|srcrt]
    22:23:10.701436 IP6 fc00:0:101:1::1 > fc00:0:7777::: IP6 fc00:0:101:2::1 > fc00:0:107:1:250:56ff:fe97:11bb: ICMP6, echo reply, seq 2, length 64
    ```
 
@@ -208,32 +208,13 @@ In our lab the Amsterdam VM represents a content server whose application owners
 ssh cisco@198.18.128.102
 ```
 
-1. Amsterdam has a Linux veth pair connecting kernel forwarding to its onboard VPP instance. The VM has preconfigured ip routes (see /etc/netplan/00-installer-config.yaml) pointing to VPP via its "ams-out" interface:
+2. Amsterdam has a Linux veth pair connecting kernel forwarding to its onboard VPP instance. The VM has preconfigured ip routes (see /etc/netplan/00-installer-config.yaml) pointing to VPP via its "ams-out" interface. If you like you can check the ip link and routes:
 ```
 ip link | grep ams-out
 ip route
 ```
-Output:
-```
-cisco@amsterdam:~/SRv6_dCloud_Lab/lab_6$ ip link | grep ams-out
-4: vpp-in@ams-out: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
-5: ams-out@vpp-in: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
 
-cisco@amsterdam:~/SRv6_dCloud_Lab/lab_6$ ip route
-default via 198.18.128.1 dev ens160 proto static 
-default via 198.18.128.1 dev ens160 proto static metric 100 
-10.0.0.0/24 via 10.101.2.2 dev ams-out proto static 
-10.101.1.0/24 via 10.101.2.2 dev ams-out proto static 
-10.101.2.0/24 dev ams-out proto kernel scope link src 10.101.2.1 
-10.101.3.0/24 dev ens224 proto kernel scope link src 10.101.3.1 
-10.107.0.0/20 via 10.101.2.2 dev ams-out proto static 
-20.0.0.0/24 via 10.101.2.2 dev ams-out proto static 
-30.0.0.0/24 via 10.101.2.2 dev ams-out proto static 
-40.0.0.0/24 via 10.101.3.2 dev ens224 proto static 
-50.0.0.0/24 via 10.101.3.2 dev ens224 proto static 
-198.18.128.0/18 dev ens160 proto kernel scope link src 198.18.128.102 
-```
-4. VPP has been given a startup config which establishes IP connectivity to the network as a whole on bootup.
+3. VPP has been given a startup config which establishes IP connectivity to the network as a whole on bootup.
 ```
 cat /etc/vpp/startup.conf
 ```
@@ -245,15 +226,16 @@ unix {
   full-coredump
   cli-listen /run/vpp/cli.sock
   gid vpp
-  startup-config /home/cisco/SRv6_dCloud_Lab/lab_1/config/vpp.conf
+  startup-config /home/cisco/SRv6_dCloud_Lab/lab_1/config/amsterdam-vpp.conf
 }
 dpdk {
   dev 0000:0b:00.0
 }
 ```
- - VPP startup-config file: https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_1/config/vpp.conf
+ - You can review the VPP startup-config file here: https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_1/config/amsterdam-vpp.conf
 
-1. VPP's CLI may be invoked directly:
+
+4. VPP's CLI may be invoked directly:
 ```
 sudo vppctl
 ```
@@ -279,7 +261,8 @@ vpp#
 vpp# quit
 cisco@amsterdam:~/SRv6_dCloud_Lab/lab_6/python$
 ```
-6. VPP CLI can also be driven from the Linux command line:
+
+5. The VPP CLI can also be driven from the Linux command line:
 ```
 cisco@amsterdam:~/SRv6_dCloud_Lab/lab_6$ sudo vppctl show interface address
 GigabitEthernetb/0/0 (up):
@@ -289,11 +272,13 @@ host-vpp-in (up):
   L3 10.101.2.2/24
 local0 (dn):
 ```
-7. Other handy VPP commands:
+
+6. Other handy VPP commands:
 ```
 quit                     # exit VPP CLI
 show ip fib              # show VPP's forwarding table, which will include SR and SRv6 policy/encap info later
 sudo vppctl show ip fib  # same command but executed from Linux
+sudo vppctl show ip6 fib # show VPP's ipv6 forwarding table
 show interface           # interface status and stats
 sudo vppctl show interface # same command but executed from Linux
 ```
@@ -323,7 +308,7 @@ Many segment routing and other SDN solutions focus on the *low latency path* as 
            - name: amsterdam-to-rome-v4
              graph: ipv4_graph
              pathType: shortest_path  # the path type is a signal to the API/DB to use the shortest path algorithm based on the specified metric
-             metric: utilization   # in the case we're specifying shortest_path based on lowest avg utilization
+             metric: least_utilized   # in the case we're specifying shortest_path based on lowest avg utilization
              source: hosts/amsterdam
              destination: hosts/rome
              destination_prefix: "10.107.1.0/24"
@@ -419,7 +404,7 @@ Many segment routing and other SDN solutions focus on the *low latency path* as 
    sudo ip netns exec clab-cleu25-xrd03 tcpdump -lni Gi0-0-0-0
    ```
 
-   We expect the ping to work, and because the outbound traffic is taking the least utilized path, and the return traffic is taking the low latency path we expect the above tcpdump output to only show SRv6 encapsulated ping requests:
+   We expect the ping to work, and because the outbound traffic is taking the least utilized path, and the return traffic is taking the low latency path we expect the above tcpdump output to only show the outbound SRv6 encapsulated ping requests:
    ```yaml
    cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd03 tcpdump -lni Gi0-0-0-0
    tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
@@ -468,17 +453,70 @@ Many segment routing and other SDN solutions focus on the *low latency path* as 
   ```
 
 ## Berlin VM - not quite Cilium SRv6-TE
-On the Berlin VM we have our K8s pods which are connected to Cilium SRv6 L3VPN instances. However, Cilium doesn't currently support SRv6-TE. But as we saw with Rome, Linux does! So for now we'll use **srctl** to program a Berlin to Rome path, but we'll specify Linux as the platform. This workaround is functional because Cilium performs the SRv6 L3VPN encapsulation, and then Linux performs the SRv6-TE encapsulation before sending the packets out the interface.
+On the Berlin VM we have our K8s pods which are connected to Cilium SRv6 L3VPN instances. However, Cilium doesn't currently support SRv6-TE. But as we saw with Rome, Linux does! So for now we'll use **srctl** to program a Berlin to Rome path, but we'll specify Linux as the platform. This workaround is functional because Cilium performs the SRv6 L3VPN encapsulation, and then Linux performs the SRv6-TE encapsulation before sending the packets out the interface. Sure, double encapsulation is not ideal, but...
 
 Hopefully by this time next year Cilium will support SRv6-TE and we'll add it to the list of *srctl* platforms.
 
 ### Berlin to Rome: Data Sovereignty Path
 
-The Data Sovereignty service enables the user or application to steer their traffic through a path or geography that is considered safe per a set of legal guidelines or other regulatory framework. Or perhaps to avoid a country or geography for similar reasons. In our case the *`sovereignty`* service allows us to choose a country (or countries) to avoid when transmitting traffic from a source to a given destination. The country to avoid is specified as a country code in the *srctl* yaml file. 
+The Data Sovereignty service enables the user or application to steer their traffic through a path or geography that is considered safe per a set of legal guidelines or other regulatory framework. Or perhaps to avoid a country or geography for similar reasons. In our case the *`data-sovereignty`* service allows us to choose a country (or countries) to avoid when transmitting traffic from a source to a given destination. The country to avoid is specified as a country code in the *srctl* yaml file:
 
-In our testing we've specified that traffic should avoid France (FRA) - no offense, its just the easiest path in our topology to demonstrate. *`xrd06`* is located in Paris, so all requests to the *`dataSovereignty`* service should produce a shortest-path result that avoids *`xrd06`*.
+```yaml
+      routes:
+        - name: berlin-to-rome-v6
+          graph: ipv6_graph
+          pathType: shortest_path
+          metric: data-sovereignty  # data-sovereignty metric
+          excluded_countries:       # list of countries to avoid
+            - FRA
+``` 
 
+For our lab we've specified that Berlin-to-Rome traffic should avoid France (FRA) - no offense, its just the easiest path in our topology to demonstrate the use case. *`xrd06`* is located in Paris, so all requests to the *`data-sovereignty`* service should produce a shortest-path result that avoids *`xrd06`*.
 
+1. ssh to the Berlin VM and cd into the *lab_5/srctl* directory. 
+   ```
+   ssh cisco@198.18.128.104
+   cd ~/SRv6_dCloud_Lab/lab_5/srctl
+   ```
+
+2. Run **srctl** and apply the *berlin.yaml* file to get your Berlin-to-Rome path. This file specifies both the Rome VM's ipv6 prefix in the global table, but also a route to xrd07 - this second route gives us a *data-sovereignty* path that Berlin's VRF pods can reach.
+   ```
+   sudo srctl --api-server http://198.18.128.101:30800 apply -f berlin.yaml
+   ```
+
+   Expected output:
+   ```yaml
+   cisco@berlin:~/SRv6_dCloud_Lab/lab_5/srctl$ sudo srctl --api-server http://198.18.128.101:30800 apply -f berlin.yaml 
+   Loaded configuration from berlin.yaml
+   Deleted existing route to fc00:0:107:1::/64 in table 0
+   Adding route with encap: {'type': 'seg6', 'mode': 'encap', 'segs': ['fc00:0:2222:3333:4444:7777:0:0']} to table 0
+   Deleted existing route to fc00:0:7777::/48 in table 0
+   Adding route with encap: {'type': 'seg6', 'mode': 'encap', 'segs': ['fc00:0:2222:3333:4444:7777:0:0']} to table 0
+   berlin-to-rome-v6: fc00:0:2222:3333:4444:7777: Route to fc00:0:107:1::/64 via fc00:0:2222:3333:4444:7777:0:0 programmed successfully in table 0
+   berlin-to-xrd07: fc00:0:2222:3333:4444:7777: Route to fc00:0:7777::/48 via fc00:0:2222:3333:4444:7777:0:0 programmed successfully in table 0
+   ```
+
+3. Exec into one of the carrots pods and run a ping:
+   ```
+   kubectl exec -it carrots0 -n veggies -- ping fc00:0:107:2::1 -i .4
+   ```
+
+4. Optional: run tcpdump on the XRD VM to see the traffic flow and SRv6 uSID in action. 
+   ```
+   sudo ip netns exec clab-cleu25-xrd02 tcpdump -lni Gi0-0-0-3
+   ```
+
+   This tcpdump shows the outer SRv6 encapsulation and the *data-sovereignty* uSID combination.
+
+   ```yaml
+   cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd02 tcpdump -lni Gi0-0-0-3
+   tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+   listening on Gi0-0-0-3, link-type EN10MB (Ethernet), capture size 262144 bytes
+   18:58:38.173922 IP6 fc00:0:8888:0:250:56ff:fe3f:ffff > fc00:0:2222:3333:4444:7777::: srcrt (len=2, type=4, segleft=0[|srcrt]
+   18:58:38.178211 IP6 fc00:0:7777::1 > fc00:0:a0fb:3845::: IP 10.107.2.1 > 10.200.0.134: ICMP echo reply, id 32, seq 10, length 64
+   18:58:38.574172 IP6 fc00:0:8888:0:250:56ff:fe3f:ffff > fc00:0:2222:3333:4444:7777::: srcrt (len=2, type=4, segleft=0[|srcrt]
+   18:58:38.578878 IP6 fc00:0:7777::1 > fc00:0:a0fb:3845::: IP 10.107.2.1 > 10.200.0.134: ICMP echo reply, id 32, seq 11, length 64
+   ```
 
 ## Get All Paths
 
