@@ -1,5 +1,5 @@
 
-# Lab 5 Part 2: Host-Based SRv6
+# Lab 5 Part 2: Host-Based SRv6 [25 min]
 
 The goals of the Jalapeno project are:
 

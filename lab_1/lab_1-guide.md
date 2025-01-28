@@ -1,4 +1,4 @@
-# Lab 1 Guide: XRd Topology Setup and Validation [30 Min]
+# Lab 1 Guide: XRd Topology Setup and Validation [20 Min]
 The Cisco Live LTRSPG-2212 lab makes heavy use of containerlab to orchestrate our dockerized IOS-XR router known as XRd. If you wish to explore XRd and its uses beyond the scope of this lab the xrdocs team has posted a number of tutorials here: 
 
 https://xrdocs.io/virtual-routing/tags/#xrd-tutorial-series
