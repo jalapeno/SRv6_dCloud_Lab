@@ -7,10 +7,10 @@ The goals of the Jalapeno project are:
    
 2. Enable developers to quickly and easily build network control or SDN Apps that client applications may use achieve goal #1 
    
-In Part 2 we will use the **srctl** command line tool to program SRv6 routes on the Amsterdam and Rome VMs, thus enabling the hosts or their workloads to the direct control that we've been discussing.
+In Part 2 we will use the **`srctl`** command line tool to program SRv6 routes on the Amsterdam, Rome, and Berlin VMs, thus giving the hosts or their workloads the direct control that we've been discussing.
 
 ## Contents
-- [Lab 5 Part 2: Host-Based SRv6](#lab-5-part-2-host-based-srv6)
+- [Lab 5 Part 2: Host-Based SRv6 \[25 min\]](#lab-5-part-2-host-based-srv6-25-min)
   - [Contents](#contents)
   - [Host-Based SR/SRv6 and building your own SDN App](#host-based-srsrv6-and-building-your-own-sdn-app)
     - [Why host-based SRv6?](#why-host-based-srv6)
@@ -28,7 +28,7 @@ In Part 2 we will use the **srctl** command line tool to program SRv6 routes on 
 
 ## Host-Based SR/SRv6 and building your own SDN App
 
-We won't claim to be professional developers, but using Jalapeno and just a few hours of python coding we were able to build an SRv6 SDN App called **"srctl"**. Our App can program SRv6-TE routes/policies on Linux hosts/VMs and on [VPP](https://fd.io/). 
+We won't claim to be professional developers, but using Jalapeno and just a few hours of python coding we were able to build an SRv6 SDN App called **"srctl"**. Our App can program SRv6-TE routes/policies on Linux hostsor VMs and on [VPP](https://fd.io/). 
 
 **srctl** is still under development and is modeled after Kubernetes' *kubectl* command line tool. It gives a sense of the power and possibilities when combining *SRv6 and host-based or cloud-native networking*. 
 
@@ -52,7 +52,7 @@ The student upon completion of Lab 6 should have achieved the following objectiv
 * How to use the **srctl** command line tool to program SRv6 routes on Linux hosts or VPP
 
 ## srctl command line tool
-As mentioned in the introduction, **srctl** is a command line tool that allows us to access SRv6 network services by programing SRv6 routes on Linux hosts or VPP. It is modeled after *kubectl*, and as such it expects to be fed a yaml file defining the source and destination prefixes for which we want a specific SRv6 network service. When the user runs the command, **srctl** will call the Jalapeno API and pass the list of source and destination prefixes and the requested network service(s) or constraint(s). Jalapeno will perform its path calculations and will return a set of SRv6 instructions. **srctl** will then program the SRv6 routes on the Linux host or VPP.
+As mentioned in the introduction, **srctl** is a command line tool that allows us to access SRv6 network services by programing SRv6 routes on Linux hosts or VPP. It is modeled after *kubectl*, and as such it expects to be fed a *yaml* file defining the source and destination prefixes or endpionts for which we want a specific SRv6 network service. When the user runs the command, **srctl** will call the Jalapeno API and pass the yaml file data. Jalapeno will perform its path calculations and will return a set of SRv6 instructions. **srctl** will then program the SRv6 routes on the Linux host or VPP.
 
  `srctl's` currently supported network services are: 
 
@@ -67,7 +67,7 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
 
  - Linux SRv6 route reference: https://segment-routing.org/index.php/Implementation/Configuration
 
-   1.  Login to the Rome VM
+1.  Login to the Rome VM
    ```
    ssh cisco@198.18.128.103
    ```
