@@ -17,6 +17,13 @@ This lab is divided into two main sections :
     - [Jalapeno Architecture and Data Flow](#jalapeno-architecture-and-data-flow)
   - [Lab 5 Part 1: Project Jalapeno](#lab-5-part-1-project-jalapeno)
   - [BGP Monitoring Protocol (BMP)](#bgp-monitoring-protocol-bmp)
+  - [Exploring Jalapeno](#exploring-jalapeno)
+    - [Optional: Explore Kafka Topics](#optional-explore-kafka-topics)
+    - [Jalapeno Arango Graph Database](#jalapeno-arango-graph-database)
+    - [ArangoDB Query Language (AQL)](#arangodb-query-language-aql)
+    - [Install Jalapeno Graph Processors](#install-jalapeno-graph-processors)
+    - [BGP SRv6 locator](#bgp-srv6-locator)
+    - [Populating the DB with external data](#populating-the-db-with-external-data)
   - [Jalapeno REST API](#jalapeno-rest-api)
   - [Jalapeno Web UI](#jalapeno-web-ui)
     - [Data Collections](#data-collections)
@@ -139,7 +146,7 @@ Here is an example of the BMP configuration on **xrd05** and **xrd06**:
 
        neighbor fc00:0000:8888::1
          bmp-activate server 1
-     ```
+   ```
 
 1. ssh to **xrd05** or **xrd06** and validate BMP session establishment and client monitoring:
 
