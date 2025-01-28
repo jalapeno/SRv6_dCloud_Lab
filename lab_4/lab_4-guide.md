@@ -13,7 +13,7 @@ https://cilium.io/labs/
 The original version of this lab was developed in partnership with Arkadiusz Kaliwoda, Cisco SE in EMEA SP
 
 ## Contents
-- [Lab 4: SRv6 for Kubernetes with Cilium \[25 Min\]](#lab-4-srv6-for-kubernetes-with-cilium-25-min)
+- [Lab 4: SRv6 for Kubernetes with Cilium \[30 Min\]](#lab-4-srv6-for-kubernetes-with-cilium-30-min)
     - [Description](#description)
   - [Contents](#contents)
   - [Lab Objectives](#lab-objectives)
@@ -128,7 +128,7 @@ Here is a portion of our Cilium BGP configuration in CRD form and with notes:
 
 ```yaml
 apiVersion: isovalent.com/v1alpha1
-kind: IsovalentBGPClusterConfig
+kind: IsovalentBGPClusterConfig  # the BGP cluster configuration CRD  
 metadata:
   name: cilium-bgp 
 spec:
@@ -339,7 +339,34 @@ Here is a portion of the prefix advertisement CRD with notes:
    ```
 
 ### Create the carrots BGP VRF
-We are now going to apply the vrf configuration for *vrf carrots* to BGP. For details on the yaml file see here: [05-bgp-vrf.yaml](cilium/05-bgp-vrf.yaml)
+We are now going to apply the BGP configuration for *vrf carrots* per the yaml file here: [05-bgp-vrf.yaml](cilium/05-bgp-vrf.yaml)
+
+Earlier you saw we broke the BGP peering and route advertisement configurations into two separate yaml files. For the VRf we've got both in single file to illustrate the point about config modularity, and to also have one less step to apply. Here is a brief overview of the BGP VRF CRD:
+  ```yaml
+  ---
+  apiVersion: isovalent.com/v1alpha1
+  kind: IsovalentBGPVRFConfig      # the BGP VRF configuration CRD
+  metadata:
+    name: carrots-config   # a meta data label / name of the vrf config
+  spec:
+    families:
+      - afi: ipv4        # the address family (AFI)
+        safi: mpls_vpn   # the sub-address family (SAFI)
+        advertisements:
+          matchLabels:
+            advertise: "bgp-carrots"  # a meta data label / name for the route advertisement - this is analogous to a outbound route policy
+
+  ---
+  apiVersion: isovalent.com/v1alpha1
+  kind: IsovalentBGPAdvertisement      # BGP route advertisement CRD
+  metadata:
+    name: carrots-adverts     # a meta data label / name for the VRF route advertisement
+    labels:
+      advertise: bgp-carrots  # a meta data label / name for this particular advertisement
+  spec:
+    advertisements:
+      - advertisementType: "PodCIDR"   # we're going to advertise the k8s pod CIDR or subnet
+  ```
 
 1. Apply the carrots BGP VRF configuration:
    ```
@@ -352,14 +379,16 @@ Our Cilium BGP configuration is now complete. Next we'll setup the Cilium SRv6 S
 Per Cilium Enterprise documentation:
 *The SID Manager manages a cluster-wide pool of SRv6 locator prefixes. You can define a prefix pool using the IsovalentSRv6LocatorPool resource. The Cilium Operator assigns a locator for each node from this prefix.*
 
-For simplicity we're going to allocate the very commonly deployed /48 bit uSID based locators, however, Cilium does support /64 locators as well. Here is a portion of the yaml file CRD with notes:
+So essentially we're going to configure a /40 range from which Cilium will allocate a /48 bit uSID based locator to each node in the K8s cluster.
+
+Cilium also supports /64 locators, but for simplicity and consistency with our *xrd* nodes we're going to use the very commonly deployed /48 bit uSID based locators. Here is a portion of the yaml file CRD with notes:
 
    ```yaml
    behaviorType: uSID          # options are uSID or SRH
-   prefix: fc00:0:A000::/40    # the larger block from which a /48 would be allocated to each node in the cluster
+   prefix: fc00:0:A000::/40    # the larger /40 block from which a /48 would be allocated to each node in the cluster
    structure:
      locatorBlockLenBits: 32   # the uSID block length
-     locatorNodeLenBits: 16    # the uSID node length
+     locatorNodeLenBits: 16    # the uSID node length - here 32 + 16 results in our /48 bit uSID
    ```
 
 1. Define and apply a Cilium SRv6 locator pool. The full CRD may be reviewed here: [06-srv6-locator-pool.yaml](cilium/06-srv6-locator-pool.yaml)
@@ -435,6 +464,25 @@ For simplicity we're going to allocate the very commonly deployed /48 bit uSID b
 In the next step we've combined creation of both the *carrots* VRF and kubernetes namespace, and we've included a couple CRDs to spin up a couple Alpine linux container pods in the VRF/namespace. The goal is to create a forwarding policy so that packets from our container get placed into the *carrots* vrf and then encapsulated in an SRv6 header as detailed in the below diagram.
 
 ![Cilium SRv6 L3VPN](/topo_drawings/cilium-packet-forwarding.png)
+
+A brief explanation of the VRF and pods CRD:
+```yaml
+---
+apiVersion: isovalent.com/v1alpha1
+kind: IsovalentVRF         # VRF CRD - analogous to the global VRF config on a router
+metadata:
+  name: carrots
+spec:
+  vrfID: 99                  # the VRF ID - analogous to the Route Distinguisher on a router
+  locatorPoolRef: pool0       # use our previously created locator pool
+  rules:
+  - selectors:
+    - endpointSelector:
+        matchLabels:
+          vrf: carrots    # analogous to the RT import/export policy on a router
+    destinationCIDRs:
+    - 0.0.0.0/0
+  ```
 
 1. Add VRF, namespace, and pods:
    [07-vrf-carrots.yaml](cilium/07-vrf-carrots.yaml)
