@@ -18,11 +18,10 @@ This lab is divided into two main sections :
   - [Lab 5 Part 1: Project Jalapeno](#lab-5-part-1-project-jalapeno)
   - [BGP Monitoring Protocol (BMP)](#bgp-monitoring-protocol-bmp)
   - [Exploring Jalapeno](#exploring-jalapeno)
-    - [Optional: Explore Kafka Topics](#optional-explore-kafka-topics)
+      - [Optional: Explore Kafka Topics](#optional-explore-kafka-topics)
     - [Jalapeno Arango Graph Database](#jalapeno-arango-graph-database)
     - [ArangoDB Query Language (AQL)](#arangodb-query-language-aql)
     - [Install Jalapeno Graph Processors](#install-jalapeno-graph-processors)
-    - [BGP SRv6 locator](#bgp-srv6-locator)
     - [Populating the DB with external data](#populating-the-db-with-external-data)
   - [Jalapeno REST API](#jalapeno-rest-api)
   - [Jalapeno Web UI](#jalapeno-web-ui)
@@ -151,7 +150,7 @@ Here is an example of the BMP configuration on **xrd05** and **xrd06**:
 1. ssh to **xrd05** or **xrd06** and validate BMP session establishment and client monitoring:
 
     ```
-    ssh cisco@clab-cleu25-XR05
+    ssh cisco@clab-cleu25-xrd06
     ```
 
     ```
@@ -169,7 +168,7 @@ Here is an example of the BMP configuration on **xrd05** and **xrd06**:
 
 ## Exploring Jalapeno
 
-### Optional: Explore Kafka Topics 
+#### Optional: Explore Kafka Topics 
 
 Jalapeno uses the very popular Kafka messaging bus to transport data received from the network to data processors which map it into the graph database. We've included a brief guide to exploring the Jalapeno Kafka setup including listing and monitoring topics: 
 
@@ -191,7 +190,7 @@ At the heart of Jalapeno is the Arango Graph Database, which is used to model ne
     password: jalapeno
     DB: jalapeno
     ```
-    Once logged the UI should then show you its 'collections' view, which should look something like:
+    Once logged the UI should then show you its *collections* view, which should look something like:
 
   <img src="images/arango-collections.png" width="1000">
 
@@ -237,41 +236,6 @@ The new processors will have created the following new collections in the Arango
     ipv6-graph-56db757fc9-kgbbg                    1/1     Running   0              52s
     srv6-localsids-78c644bc76-ccpwh                1/1     Running   0              52s
     ```
-
-### BGP SRv6 locator
-In lab 1 we configured an SRv6 locator for the BGP global/default table. When we get to *`lab 5 Part 2`* we'll use these locators as we'll be sending SRv6 encapsulated traffic directly to/from the Amsterdam and Rome VMs. With our endpoints performing SRv6 encapsulation our BGP SRv6 locator will provide the end.DT4/6 function at the egress nodes **xrd01** and **xrd07** to be able to pop the SRv6 encap and perform a global table lookup on the underlying payload.
-
-1. Optional: ssh to **xrd01** and re-validate end.DT4/6 SIDs belonging to BGP default table:
-    ```
-    ssh cisco@clab-cleu25-XR01
-    show segment-routing srv6 sid
-    ```
-
-    Expected (truncated)output on **xrd01** should look something like the below table with both a uDT4 and uDT6 SID in the 'default' context:  
-    ```
-    fc00:0:1111:e004::          uDT4              'default'                         bgp-65000           InUse  Y 
-    fc00:0:1111:e006::          uDT6              'default'                         bgp-65000           InUse  Y
-    ``` 
-
-  - As we saw earlier in the lab, the *`kubectl get pods -n jalapeno`* command will show you all the k8s containers that make up the Jalapeno application, including the *`srv6-localsids`* processor. This processor harvests SRv6 SID data from a Kafka streaming telemetry topic and populates it in the *`sr_local_sids`* collection in ArangoDB.  
-  
-    Example:
-
-    ```
-    SID                  Behavior         Context                    Owner              
-    -------------------  -------------  ---------------------------  ----------
-    fc00:0:1111::        uN (PSP/USD)   'default':4369               sidmgr     <-------- Collected via BMP
-    fc00:0:1111:e000::   uA (PSP/USD)   [Gi0/0/0/1, Link-Local]:0:P  isis-100    <---|   
-    fc00:0:1111:e001::   uA (PSP/USD)   [Gi0/0/0/1, Link-Local]:0    isis-100    <---|  These are not available via BMP
-    fc00:0:1111:e002::   uA (PSP/USD)   [Gi0/0/0/2, Link-Local]:0:P  isis-100    <---|  We collect and process
-    fc00:0:1111:e003::   uA (PSP/USD)   [Gi0/0/0/2, Link-Local]:0    isis-100    <---|  these SIDs via streaming
-    fc00:0:1111:e004::   uDT4           'carrots'                    bgp-65000   <---|  telemetry and the 
-    fc00:0:1111:e005::   uDT6           'carrots'                    bgp-65000   <---|  "srv6-localsids" processor
-
-    ```
-  > [!NOTE]
-  > The SRv6 SID streaming telemetry configuration for capturing *`xrd07's`* srv6 sid data can be seen here: [SRv6 SID mdt path](https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_1/config/xrd07.cfg#L23)
-
  
 ### Populating the DB with external data 
 
@@ -311,16 +275,17 @@ The Jalapeno REST API is used to run queries against the ArangoDB and retrieve g
     curl http://198.18.128.101:30800/api/v1/collections
     ```
 
-    -  If you run your curl commands from the Jalapeno VM we installed the *`jq`* tool to help with nicer JSON parsing:
+    -  Also on the Jalapeno VM we installed the *`jq`* tool to help with nicer JSON parsing:
+
     ```
-    curl http://198.18.128.101:30800/api/v1/graphs/igpv4_graph/vertices/keys | jq .
-    ```
-    ```
-    curl http://198.18.128.101:30800/api/v1/graphs/igpv4_graph/edges | jq .
+    curl http://198.18.128.101:30800/api/v1/collections | jq | more
     ```
 
    - The API also has auto-generated documentation at: [http://198.18.128.101:30800/docs/](http://198.18.128.101:30800/docs/) 
 
+2. The Jalapeno API github repo has a collection of example curl commands as well:
+
+    [Jalapeno API Github](https://github.com/jalapeno/jalapeno-api/blob/main/notes/curl-commands.md)
 
 ## Jalapeno Web UI
 
