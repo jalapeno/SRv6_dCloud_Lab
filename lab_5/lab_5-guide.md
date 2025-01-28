@@ -14,13 +14,10 @@ This lab is divided into two main sections :
   - [Contents](#contents)
   - [Lab Objectives](#lab-objectives)
   - [Jalapeno Overview](#jalapeno-overview)
-    - [Jalapeno Architecture and Data Flow](#jalapeno-architecture-and-data-flow)
   - [Lab 5 Part 1: Project Jalapeno](#lab-5-part-1-project-jalapeno)
-  - [BGP Monitoring Protocol (BMP)](#bgp-monitoring-protocol-bmp)
-  - [Exploring Jalapeno](#exploring-jalapeno)
-      - [Optional: Explore Kafka Topics](#optional-explore-kafka-topics)
+    - [BGP Monitoring Protocol (BMP)](#bgp-monitoring-protocol-bmp)
+    - [Kafka](#kafka)
     - [Jalapeno Arango Graph Database](#jalapeno-arango-graph-database)
-    - [ArangoDB Query Language (AQL)](#arangodb-query-language-aql)
     - [Install Jalapeno Graph Processors](#install-jalapeno-graph-processors)
     - [Populating the DB with external data](#populating-the-db-with-external-data)
   - [Jalapeno REST API](#jalapeno-rest-api)
@@ -28,7 +25,6 @@ This lab is divided into two main sections :
     - [Data Collections](#data-collections)
     - [Topology Viewer](#topology-viewer)
     - [Calculate a Path](#calculate-a-path)
-      - [Constraints:](#constraints)
     - [Schedule a Workload](#schedule-a-workload)
   - [End of lab 5 Part 1](#end-of-lab-5-part-1)
 
@@ -45,7 +41,7 @@ Project Jalapeno combines existing open source tools with some new stuff we've d
 
 [Jalapeno on Cisco-Open Github](https://github.com/cisco-open/jalapeno/blob/main/README.md)
 
-### Jalapeno Architecture and Data Flow
+**Jalapeno Architecture and Data Flow**
 ![jalapeno_architecture](https://github.com/cisco-open/jalapeno/blob/main/docs/img/jalapeno_architecture.png)
 
 
@@ -110,7 +106,7 @@ The Jalapeno package is preinstalled and running on the **Jalapeno** VM (198.18.
     example: kubectl describe pod -n jalapeno topology-678ddb8bb4-rt9jg
     ```
 
-## BGP Monitoring Protocol (BMP)
+### BGP Monitoring Protocol (BMP)
 
 Most transport SDN systems use BGP-LS to gather and model the underlying IGP topology. Jalapeno is intended to be a more generalized data platform to support development of all sorts of use cases such as VPNs or service chains. Because of this, Jalapeno's primary method of capturing topology data is via BMP. BMP provides all BGP AFI/SAFI info including BGP-LS, thus Jalapeno is able to model many different kinds of topologies, including the topology of the Internet (at least from the perspective of our peering routers).
 
@@ -166,9 +162,7 @@ Here is an example of the BMP configuration on **xrd05** and **xrd06**:
     RP/0/RP0/CPU0:xrd06#
     ```
 
-## Exploring Jalapeno
-
-#### Optional: Explore Kafka Topics 
+### Kafka 
 
 Jalapeno uses the very popular Kafka messaging bus to transport data received from the network to data processors which map it into the graph database. We've included a brief guide to exploring the Jalapeno Kafka setup including listing and monitoring topics: 
 
@@ -196,7 +190,7 @@ At the heart of Jalapeno is the Arango Graph Database, which is used to model ne
 
 2. Feel free to spot check the various data collections in Arango. At this point some will be empty as we are not using those AFI/SAFI types.
 
-### ArangoDB Query Language (AQL)
+**ArangoDB Query Language (AQL)**
 
 The ArangoDB Query Language (AQL) can be used to retrieve and modify data that are stored in ArangoDB.
 
@@ -317,7 +311,7 @@ The Topology Viewer prompts the user to select a graph from the dropdown and the
 ### Calculate a Path
 To use the path calculation function, select a source and destination node in the graph, then select a constraint from the dropdown. The application will then calculate and light up the shortest path through the network based on the selected constraint. The path calculation algorithms on the backend are using the telemetry meta data we uploaded earlier in the lab. In a future release we hope to incorporate streaming telemetry data into the graph and include it in path calculations.
 
-#### Constraints:
+**Constraints:**
 * **Lowest Latency**: The path calculation will return the shortest path through the network based on the latency meta-data we uploaded earlier in the lab
 * **Least Utilized**: The path calculation will return the path with the lowest average outbound utilization
 * **Load**: under construction (see Schedule a Workload below)
