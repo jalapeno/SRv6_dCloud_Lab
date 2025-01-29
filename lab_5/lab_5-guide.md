@@ -116,8 +116,10 @@ Reference: the GoBMP Git Repository can be found [HERE](https://github.com/sbezv
 
 Here is an example of the BMP configuration on **xrd05** and **xrd06**:
 
-   ```
-   bmp server 1
+```
+conf t
+
+bmp server 1
      host 198.18.128.101 port 30511
      description jalapeno GoBMP  
      update-source MgmtEth0/RP0/CPU0/0
