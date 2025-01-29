@@ -19,7 +19,7 @@ This lab is divided into two main sections :
     - [Arango Graph Database](#arango-graph-database)
     - [Install Jalapeno Graph Processors](#install-jalapeno-graph-processors)
     - [Kafka](#kafka)
-    - [Populating the DB with external data](#populating-the-db-with-external-data)
+  - [Populating Jalapeno DB with meta-data](#populating-jalapeno-db-with-meta-data)
   - [Jalapeno REST API](#jalapeno-rest-api)
   - [Jalapeno Web UI](#jalapeno-web-ui)
     - [Data Collections](#data-collections)
@@ -222,7 +222,7 @@ Jalapeno uses the very popular Kafka messaging bus to transport data received fr
 
 [Explore Kafka on Jalapeno](lab_5/lab_5-kafka.md)
 
-### Populating the DB with external data 
+## Populating Jalapeno DB with meta-data
 
 In preparation for our Host-Based SRv6 use cases in Part 2, we need to populate the DB with meta-data that we will use for upcoming path calculation API calls.
 
