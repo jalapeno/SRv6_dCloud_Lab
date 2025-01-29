@@ -179,7 +179,7 @@ At the heart of Jalapeno is the Arango Graph Database, which is used to model ne
     Once logged the UI should then show you its *collections* view, which should look something like:
    <img src="images/arango-collections.png" width="1000">
 
-5. Feel free to spot check the various data collections in Arango. At this point some will be empty as we are not using those AFI/SAFI types.
+5. Feel free to spot check the various data collections in Arango such as the *l3vpn_v4_prefix*. At this point some will be empty as we are not using those AFI/SAFI types.
 
 **ArangoDB Query Language (AQL)**
 
