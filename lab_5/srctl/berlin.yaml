@@ -7,17 +7,6 @@ spec:
   defaultVrf:
     ipv6:
       routes:
-        - name: berlin-to-rome-v6
-          graph: ipv6_graph
-          pathType: shortest_path
-          metric: data-sovereignty
-          excluded_countries: 
-            - FRA
-          direction: outbound
-          source: hosts/berlin-k8s
-          destination: hosts/rome
-          destination_prefix: "fc00:0:107:1::/64"
-          outbound_interface: "ens192"
 
         - name: berlin-to-xrd07
           graph: ipv6_graph
