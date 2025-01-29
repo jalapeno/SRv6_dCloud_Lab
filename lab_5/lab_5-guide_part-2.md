@@ -185,7 +185,7 @@ Our first use case is to make path selection through the network based on the cu
 
 3. Run a ping test from Rome to Amsterdam.
    ```
-   ping fc00:0:101:1::1 -i .4
+   ping fc00:0:101:2::1 -i .4
    ```
 
    Optional: run tcpdump on the XRD VM to see the traffic flow and SRv6 uSID in action. 
@@ -214,7 +214,7 @@ In our lab the Amsterdam VM represents a content server whose application owners
 ssh cisco@198.18.128.102
 ```
 
-2. Amsterdam has a Linux veth pair connecting kernel forwarding to its onboard VPP instance. The VM has preconfigured ip routes (see /etc/netplan/00-installer-config.yaml) pointing to VPP via its "ams-out" interface. If you like you can check the ip link and routes:
+2. Amsterdam has a Linux veth pair connecting kernel forwarding to its onboard VPP instance. The VM has preconfigured ip routes (see */etc/netplan/00-installer-config.yaml*) pointing to VPP via its "ams-out" interface. If you like you can check the ip link and routes:
 ```
 ip link | grep ams-out
 ip route
@@ -232,7 +232,7 @@ unix {
   full-coredump
   cli-listen /run/vpp/cli.sock
   gid vpp
-  startup-config /home/cisco/SRv6_dCloud_Lab/lab_1/config/amsterdam-vpp.conf
+  startup-config /home/cisco/SRv6_dCloud_Lab/lab_1/config/amsterdam-vpp.conf   # additional config we've added
 }
 dpdk {
   dev 0000:0b:00.0
@@ -270,6 +270,11 @@ cisco@amsterdam:~/SRv6_dCloud_Lab/lab_6/python$
 
 5. The VPP CLI can also be driven from the Linux command line:
 ```
+sudo vppctl show interface address
+```
+
+Example:
+```
 cisco@amsterdam:~/SRv6_dCloud_Lab/lab_6$ sudo vppctl show interface address
 GigabitEthernetb/0/0 (up):
   L3 10.101.1.1/24
@@ -279,7 +284,7 @@ host-vpp-in (up):
 local0 (dn):
 ```
 
-6. Other handy VPP commands:
+1. Other handy VPP commands:
 ```
 quit                     # exit VPP CLI
 show ip fib              # show VPP's forwarding table, which will include SR and SRv6 policy/encap info later
@@ -314,7 +319,7 @@ Many segment routing and other SDN solutions focus on the *low latency path* as 
            - name: amsterdam-to-rome-v4
              graph: ipv4_graph
              pathType: shortest_path  # the path type is a signal to the API/DB to use the shortest path algorithm based on the specified metric
-             metric: least_utilized   # in the case we're specifying shortest_path based on lowest avg utilization
+             metric: least-utilized   # in the case we're specifying shortest_path based on lowest avg utilization
              source: hosts/amsterdam
              destination: hosts/rome
              destination_prefix: "10.107.1.0/24"
@@ -381,7 +386,7 @@ Many segment routing and other SDN solutions focus on the *low latency path* as 
    sudo vppctl show ip6 fib fc00:0:107:1::/64
    ```
 
-   Expected output:
+   Expected output (its a lot to look at, but essentially the prefix is resolved to the BSID, which in turn recurses to the SR policy encapsulation):
    ```yaml
    cisco@amsterdam:~$ sudo vppctl show ip6 fib fc00:0:107:1::/64
    ipv6-VRF:0, fib_index:0, flow hash:[src dst sport dport proto flowlabel ] epoch:0 flags:none locks:[adjacency:1, default-route:1, ]
@@ -395,7 +400,7 @@ Many segment routing and other SDN solutions focus on the *low latency path* as 
      [@0]: dpo-load-balance: [proto:ip6 index:42 buckets:1 uRPF:41 to:[18891:1964664]]
        [0] [@23]: dpo-load-balance: [proto:ip6 index:39 buckets:1 uRPF:-1 to:[0:0] via:[18891:1964664]]
              [0] [@22]: SR: Segment List index:[0]  # BSID recurses to sr policy encapsulation
-     Segments:< fc00:0:1111:2222:3333:4444:7777:0 > - Weight: 1
+     Segments:< fc00:0:1111:2222:3333:4444:7777:0 > - Weight: 1  # SRv6 uSID
    SRv6 steering of IP4 prefixes through BSIDs, fib_index:3, flow hash:[src dst sport dport proto flowlabel ] epoch:0 flags:none locks:[SR:1, recursive-resolution:1, ]
    ```
 
@@ -420,7 +425,7 @@ Many segment routing and other SDN solutions focus on the *low latency path* as 
    ```
 
   > [!NOTE]
-  > If we wanted to implement either the Amsterdam or Rome or Rome to Amsterdam SRv6 service for global table traffic as an SRv6-TE steering policy on our xrd routers we would create a policy like the below example, which is very similar to the work we did in Lab 3 for L3VPN prefixes.
+  > If we wanted to implement either the Amsterdam to Rome or Rome to Amsterdam SRv6 service for global table traffic as an SRv6-TE steering policy on our xrd routers we would create a policy like the below example, which is very similar to the work we did in Lab 3 for L3VPN prefixes.
      
   On router **xrd07** we need to add in config to advertise the global prefix with the bulk transfer community.
      ```
@@ -459,7 +464,7 @@ Many segment routing and other SDN solutions focus on the *low latency path* as 
   ```
 
 ## Berlin VM - not quite Cilium SRv6-TE
-On the Berlin VM we have our K8s pods which are connected to Cilium SRv6 L3VPN instances. However, Cilium doesn't currently support SRv6-TE. But as we saw with Rome, Linux does! So for now we'll use **srctl** to program a Berlin to Rome path, but we'll specify Linux as the platform. This workaround is functional because Cilium performs the SRv6 L3VPN encapsulation, and then Linux performs the SRv6-TE encapsulation before sending the packets out the interface. Sure, double encapsulation is not ideal, but...
+On the Berlin VM we have our K8s pods which are connected to Cilium SRv6 L3VPN instances. However, Cilium doesn't currently support SRv6-TE. But as we saw with Rome, Linux does! So for now we'll use **srctl** to program a Berlin-to-Rome path, but we'll specify Linux as the platform. This workaround is functional because Cilium performs the SRv6 L3VPN encapsulation, and then Linux performs the SRv6-TE encapsulation before sending the packets out the interface. Sure, double encapsulation is not ideal, but...its a lab!
 
 Hopefully by this time next year Cilium will support SRv6-TE and we'll add it to the list of *srctl* platforms.
 
