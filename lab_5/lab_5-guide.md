@@ -143,9 +143,10 @@ bmp server 1
 
        neighbor fc00:0000:8888::1
          bmp-activate server 1
-   ```
+   commit
+```
 
-1. ssh to **xrd05** or **xrd06** and validate BMP session establishment and client monitoring:
+Next ssh to **xrd05** or **xrd06** and validate BMP session establishment and client monitoring:
 
     ```
     ssh cisco@clab-cleu25-xrd06
