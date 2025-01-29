@@ -254,12 +254,7 @@ The [add_meta_data.py](python/add_meta_data.py) python script will connect to th
 The Jalapeno REST API is used to run queries against the ArangoDB and retrieve graph topology data or execute shortest path calculations. 
 
 1. Test the Jalapeno REST API:
-   From the ssh session on the Jalapeno VM or the XRD VM (or the command line on your local machine) validate the Jalapeno REST API is running:
-   ```
-   curl http://198.18.128.101:30800/api/v1/collections
-   ```
-
-   Also on the Jalapeno VM we installed the *`jq`* tool to help with nicer JSON parsing:
+   From the ssh session on the Jalapeno VM or the XRD VM (or the command line on your local machine) validate the Jalapeno REST API is running. We installed the *`jq`* tool to help with improved JSON parsing:
    ```
    curl http://198.18.128.101:30800/api/v1/collections | jq | more
    ```
