@@ -112,8 +112,8 @@ The Jalapeno package is preinstalled and running on the **Jalapeno** VM (198.18.
     ```
     ssh cisco@198.18.128.101
     ```
-
-    - verify k8s pods
+    
+    Verify k8s pods
     ```
     kubectl get pods -A
     ```
