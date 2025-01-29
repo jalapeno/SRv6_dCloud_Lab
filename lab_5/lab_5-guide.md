@@ -16,7 +16,6 @@ This lab is divided into two main sections :
   - [Validate BGP Monitoring Protocol (BMP)](#validate-bgp-monitoring-protocol-bmp)
   - [Jalapeno Overview](#jalapeno-overview)
   - [Validate Jalapeno State](#validate-jalapeno-state)
-  - [Validate BGP Monitoring Protocol (BMP)](#validate-bgp-monitoring-protocol-bmp)
     - [Kafka](#kafka)
     - [Arango Graph Database](#arango-graph-database)
     - [Install Jalapeno Graph Processors](#install-jalapeno-graph-processors)
