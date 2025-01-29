@@ -161,24 +161,16 @@ The Jalapeno package is preinstalled and running on the **Jalapeno** VM (198.18.
 
     example: kubectl describe pod -n jalapeno topology-678ddb8bb4-rt9jg
     ```
-
-### Kafka 
-
-Jalapeno uses the very popular Kafka messaging bus to transport data received from the network to data processors which map it into the graph database. We've included a brief guide to exploring the Jalapeno Kafka setup including listing and monitoring topics: 
-
-[Explore Kafka on Jalapeno](lab_5/lab_5-kafka.md)
-
-This element of the lab is completely optional, however, because this lab guide is published on Github, you can come back to it in the future to explore Kafka on your own.
-
 ### Arango Graph Database
 At the heart of Jalapeno is the Arango Graph Database, which is used to model network topology and provide a graph-based data store for the network data collected via BMP or other sources. 
 
-1. Validate Jalapeno has populated the Arango graphDB with BMP data. Open the Arango web UI at:
+4. Validate Jalapeno has populated the Arango graphDB with BMP data. Open the Arango web UI at:
 
     ```
     http://198.18.128.101:30852/
     ```
-    - Login and select the "jalapeno" DB from the dropdown:
+    
+    Login and select the "jalapeno" DB from the dropdown:
     ```
     user: root
     password: jalapeno
@@ -188,7 +180,7 @@ At the heart of Jalapeno is the Arango Graph Database, which is used to model ne
 
   <img src="images/arango-collections.png" width="1000">
 
-2. Feel free to spot check the various data collections in Arango. At this point some will be empty as we are not using those AFI/SAFI types.
+5. Feel free to spot check the various data collections in Arango. At this point some will be empty as we are not using those AFI/SAFI types.
 
 **ArangoDB Query Language (AQL)**
 
@@ -197,28 +189,26 @@ The ArangoDB Query Language (AQL) can be used to retrieve and modify data that a
 For more information on AQL see the ArangoDB documentation [HERE](https://www.arangodb.com/docs/stable/aql/index.html)
 
 
-1. Optional or for reference: feel free to connect to the DB and try some of the queries in the [lab_5-queries.md doc](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_5/lab_5-queries.md)
+6. Optional or for reference: feel free to connect to the DB and try some of the queries in the [lab_5-queries.md doc](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_5/lab_5-queries.md)
 
 ### Install Jalapeno Graph Processors
 Jalapeno's base installation processes BMP data and populates it into ArangoDB. We have since written some addtitional processors which mine the existing data collections and create enriched topology models or graphs. We'll add these additional processors to our Jalapeno K8s cluster via a simple shell script.
    
-1. ssh to Jalapeno VM, cd to the lab_5/graph-processors directory, and run the deploy.sh script:
+7. ssh to Jalapeno VM, cd to the lab_5/graph-processors directory, and run the deploy.sh script:
     ```
     ssh cisco@198.18.128.101
 
     cd ~/SRv6_dCloud_Lab/lab_5/graph-processors
     ./deploy.sh
     ```
-
-The new processors will have created the following new collections in the Arango graphDB, feel free to explore them in the ArangoDB UI, or move on to the next section.
-
-- *`igpv4_graph`*: a model of the ipv4 IGP topology including SRv6 SID data
-- *`igpv6_graph`*: a model of the ipv6 IGP topology including SRv6 SID data
-- *`ipv4_graph`*: a model of the entire ipv4 topology (IGP and BGP)
-- *`ipv6_graph`*: a model of the entire ipv6 topology (IGP and BGP)
-- *`sr_local_sids`*: a collection of SRv6 SID information that is not available via BMP
+    The new processors will have created the following new collections in the Arango graphDB, feel free to explore them in the ArangoDB UI, or move on to the next section.
+   - *`igpv4_graph`*: a model of the ipv4 IGP topology including SRv6 SID data
+   - *`igpv6_graph`*: a model of the ipv6 IGP topology including SRv6 SID data
+   - *`ipv4_graph`*: a model of the entire ipv4 topology (IGP and BGP)
+   - *`ipv6_graph`*: a model of the entire ipv6 topology (IGP and BGP)
+   - *`sr_local_sids`*: a collection of SRv6 SID information that is not available via BMP
   
-2. Verify the Graph Processors have deployed successfully:
+8. Verify the Graph Processors have deployed successfully:
     ```
     kubectl get pods -n jalapeno
     ```
@@ -230,7 +220,15 @@ The new processors will have created the following new collections in the Arango
     ipv6-graph-56db757fc9-kgbbg                    1/1     Running   0              52s
     srv6-localsids-78c644bc76-ccpwh                1/1     Running   0              52s
     ```
- 
+### Kafka 
+
+Jalapeno uses the very popular Kafka messaging bus to transport data received from the network to data processors which map it into the graph database. We've included a brief guide to exploring the Jalapeno Kafka setup including listing and monitoring topics: 
+
+[Explore Kafka on Jalapeno](lab_5/lab_5-kafka.md)
+
+This element of the lab is completely optional, however, because this lab guide is published on Github, you can come back to it in the future to explore Kafka on your own.
+
+
 ### Populating the DB with external data 
 
 In preparation for our Host-Based SRv6 use cases in Part 2, we need to populate the DB with meta-data that we will use for upcoming path calculation API calls.
