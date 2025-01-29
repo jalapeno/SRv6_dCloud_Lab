@@ -13,9 +13,10 @@ This lab is divided into two main sections :
     - [Description](#description)
   - [Contents](#contents)
   - [Lab Objectives](#lab-objectives)
+  - [Validate BGP Monitoring Protocol (BMP)](#validate-bgp-monitoring-protocol-bmp)
   - [Jalapeno Overview](#jalapeno-overview)
-  - [Lab 5 Part 1: Project Jalapeno](#lab-5-part-1-project-jalapeno)
-    - [BGP Monitoring Protocol (BMP)](#bgp-monitoring-protocol-bmp)
+  - [Validate Jalapeno State](#validate-jalapeno-state)
+  - [Validate BGP Monitoring Protocol (BMP)](#validate-bgp-monitoring-protocol-bmp)
     - [Kafka](#kafka)
     - [Arango Graph Database](#arango-graph-database)
     - [Install Jalapeno Graph Processors](#install-jalapeno-graph-processors)
@@ -36,6 +37,62 @@ The student upon completion of Lab 5 should have achieved the following objectiv
 * Familiarity with the ArangoDB UI and the BMP/BGP data collections the system has created
 * Familiarity with the Jalapeno API and UI
 
+### Validate BGP Monitoring Protocol (BMP)
+
+Most transport SDN systems use BGP-LS to gather and model the underlying IGP topology. Jalapeno is intended to be a more generalized data platform to support development of all sorts of use cases such as VPNs or service chains. Because of this, Jalapeno's primary method of capturing topology data is via BMP. BMP provides all BGP AFI/SAFI info including BGP-LS, thus Jalapeno is able to model many different kinds of topologies, including the topology of the Internet (at least from the perspective of our peering routers).
+
+We've preconfigured BMP on the **xrd05** and **xrd06** route-reflectors to send BMP data to Jalapeno's GoBMP collector. We've also enabled BMP monitoring of the RRs' BGP peering sessions with our PE routers **xrd01** and **xrd07**. With these configurations in place the RRs' will stream all BGP NLRI info they receive from the PE routers to Jalapeno to be stored in the graph database. 
+
+Reference: the GoBMP Git Repository can be found [HERE](https://github.com/sbezverk/gobmp)
+
+Here is an example of the BMP configuration on **xrd05** and **xrd06**:
+
+```
+bmp server 1
+     host 198.18.128.101 port 30511
+     description jalapeno GoBMP  
+     update-source MgmtEth0/RP0/CPU0/0
+     flapping-delay 60
+     initial-delay 5
+       stats-reporting-period 60
+       initial-refresh delay 25 spread 2
+    
+     router bgp 65000
+       neighbor 10.0.0.1
+         bmp-activate server 1
+    
+       neighbor fc00:0000:1111::1
+         bmp-activate server 1
+
+       neighbor 10.0.0.7
+         bmp-activate server 1
+    
+       neighbor fc00:0000:7777::1
+         bmp-activate server 1
+
+       neighbor fc00:0000:8888::1
+         bmp-activate server 1
+```
+
+Lets validate the BMP session on **xrd05** and **xrd06** are established and client monitoring:
+
+```
+ssh cisco@clab-cleu25-xrd06
+```
+
+```
+show bgp bmp summary
+```
+
+Expected output:  
+```
+ RP/0/RP0/CPU0:xrd06#show bgp bmp sum
+Sat Dec 16 03:19:26.045 UTC
+ID   Host                 Port     State   Time        NBRs
+1   198.18.128.101       30511    ESTAB   00:00:07    4   
+RP/0/RP0/CPU0:xrd06#
+```
+
 ## Jalapeno Overview
 Project Jalapeno combines existing open source tools with some new stuff we've developed into a data collection and warehousing infrastructure intended to enable development of network service applications. Think of it as applying microservices architecture and concepts to SDN: give developers the ability to quickly and easily build microservice control planes on top of a common data infrastructure. More information on Jalapeno can be found at the Jalapeno Git repository: 
 
@@ -47,7 +104,7 @@ Project Jalapeno combines existing open source tools with some new stuff we've d
 
 One of the primary goals of the Jalapeno project is to be flexible and extensible. In the future we expect Jalapeno could support any number of Topology models (LLDP, Service Chain, Service Mesh, etc.). Netflow data could be incorporated via a future integration with a tool like [pmacct](http://www.pmacct.net/). Or an operator might already have a telemetry stack and could choose to selectively integrate Jalapeno's Topology modules into an existing environment running Kafka. We also envision future integrations with other API-driven data warehouses such as Cisco ThousandEyes: https://www.thousandeyes.com/ or Accedian Skylight: https://docs.accedian.io/docs/provider-connectivity-assurance
 
-## Lab 5 Part 1: Project Jalapeno 
+## Validate Jalapeno State 
 
 The Jalapeno package is preinstalled and running on the **Jalapeno** VM (198.18.128.101).
 
@@ -105,62 +162,6 @@ The Jalapeno package is preinstalled and running on the **Jalapeno** VM (198.18.
 
     example: kubectl describe pod -n jalapeno topology-678ddb8bb4-rt9jg
     ```
-
-### BGP Monitoring Protocol (BMP)
-
-Most transport SDN systems use BGP-LS to gather and model the underlying IGP topology. Jalapeno is intended to be a more generalized data platform to support development of all sorts of use cases such as VPNs or service chains. Because of this, Jalapeno's primary method of capturing topology data is via BMP. BMP provides all BGP AFI/SAFI info including BGP-LS, thus Jalapeno is able to model many different kinds of topologies, including the topology of the Internet (at least from the perspective of our peering routers).
-
-We've preconfigured BMP on the **xrd05** and **xrd06** route-reflectors to send BMP data to Jalapeno's GoBMP collector. We've also enabled BMP monitoring of the RRs' BGP peering sessions with our PE routers **xrd01** and **xrd07**. With these configurations in place the RRs' will stream all BGP NLRI info they receive from the PE routers to Jalapeno to be stored in the graph database. 
-
-Reference: the GoBMP Git Repository can be found [HERE](https://github.com/sbezverk/gobmp)
-
-Here is an example of the BMP configuration on **xrd05** and **xrd06**:
-
-```
-bmp server 1
-     host 198.18.128.101 port 30511
-     description jalapeno GoBMP  
-     update-source MgmtEth0/RP0/CPU0/0
-     flapping-delay 60
-     initial-delay 5
-       stats-reporting-period 60
-       initial-refresh delay 25 spread 2
-    
-     router bgp 65000
-       neighbor 10.0.0.1
-         bmp-activate server 1
-    
-       neighbor fc00:0000:1111::1
-         bmp-activate server 1
-
-       neighbor 10.0.0.7
-         bmp-activate server 1
-    
-       neighbor fc00:0000:7777::1
-         bmp-activate server 1
-
-       neighbor fc00:0000:8888::1
-         bmp-activate server 1
-```
-
-Lets validate the BMP session on **xrd05** and **xrd06** are established and client monitoring:
-
-```
-ssh cisco@clab-cleu25-xrd06
-```
-
-```
-show bgp bmp summary
-```
-
-Expected output:  
-```
- RP/0/RP0/CPU0:xrd06#show bgp bmp sum
-Sat Dec 16 03:19:26.045 UTC
-ID   Host                 Port     State   Time        NBRs
-1   198.18.128.101       30511    ESTAB   00:00:07    4   
-RP/0/RP0/CPU0:xrd06#
-```
 
 ### Kafka 
 
