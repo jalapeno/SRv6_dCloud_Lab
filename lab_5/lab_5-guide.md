@@ -218,12 +218,9 @@ Jalapeno's base installation processes BMP data and populates it into ArangoDB. 
     ```
 ### Kafka 
 
-Jalapeno uses the very popular Kafka messaging bus to transport data received from the network to data processors which map it into the graph database. We've included a brief guide to exploring the Jalapeno Kafka setup including listing and monitoring topics: 
+Jalapeno uses the very popular Kafka messaging bus to transport data received from the network to data processors which map it into the graph database. We've included a brief guide to exploring the Jalapeno Kafka setup. This element of the lab is completely optional, however, because this lab guide is published on Github, you can come back to it in the future to explore Kafka on your own.
 
 [Explore Kafka on Jalapeno](lab_5/lab_5-kafka.md)
-
-This element of the lab is completely optional, however, because this lab guide is published on Github, you can come back to it in the future to explore Kafka on your own.
-
 
 ### Populating the DB with external data 
 
