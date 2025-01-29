@@ -1,0 +1,15 @@
+apiVersion: jalapeno.srv6/v1
+kind: PathRequest
+metadata:
+  name: path-request
+spec:
+  defaultVrf:
+    ipv6:
+      routes:
+        - name: amsterdam-to-rome
+          graph: ipv6_graph
+          path_type: best-paths
+          limit: 4
+          source: hosts/amsterdam
+          destination: hosts/rome
+          direction: outbound

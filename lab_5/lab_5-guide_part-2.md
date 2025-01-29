@@ -480,6 +480,11 @@ The Data Sovereignty service enables the user or application to steer their traf
           metric: data-sovereignty  # data-sovereignty metric
           excluded_countries:       # list of countries to avoid
             - FRA
+          direction: outbound
+          source: hosts/berlin-k8s
+          destination: hosts/rome
+          destination_prefix: "fc00:0:7777::/48"  # destination prefix is actually xrd07 because we're constructing this route to serve VRF carrots traffic, and the L3VPN terminates on xrd07
+          outbound_interface: "ens192"
 ``` 
 
 For our lab we've specified that Berlin-to-Rome traffic should avoid France (FRA) - no offense, its just the easiest path in our topology to demonstrate the use case. *`xrd06`* is located in Paris, so all requests to the *`data-sovereignty`* service should produce a shortest-path result that avoids *`xrd06`*.
@@ -497,13 +502,9 @@ For our lab we've specified that Berlin-to-Rome traffic should avoid France (FRA
 
    Expected output:
    ```yaml
-   cisco@berlin:~/SRv6_dCloud_Lab/lab_5/srctl$ sudo srctl --api-server http://198.18.128.101:30800 apply -f berlin.yaml 
+   cisco@berlin:~/SRv6_dCloud_Lab/lab_5/srctl$ sudo srctl --api-server http://198.18.128.101:30800 apply -f berlin.yaml
    Loaded configuration from berlin.yaml
-   Deleted existing route to fc00:0:107:1::/64 in table 0
    Adding route with encap: {'type': 'seg6', 'mode': 'encap', 'segs': ['fc00:0:2222:3333:4444:7777:0:0']} to table 0
-   Deleted existing route to fc00:0:7777::/48 in table 0
-   Adding route with encap: {'type': 'seg6', 'mode': 'encap', 'segs': ['fc00:0:2222:3333:4444:7777:0:0']} to table 0
-   berlin-to-rome-v6: fc00:0:2222:3333:4444:7777: Route to fc00:0:107:1::/64 via fc00:0:2222:3333:4444:7777:0:0 programmed successfully in table 0
    berlin-to-xrd07: fc00:0:2222:3333:4444:7777: Route to fc00:0:7777::/48 via fc00:0:2222:3333:4444:7777:0:0 programmed successfully in table 0
    ```
 
@@ -532,7 +533,7 @@ For our lab we've specified that Berlin-to-Rome traffic should avoid France (FRA
 
 ## Get All Paths
 
-The Get All Paths Service will query the DB for all paths up to 6-hops in length between a pair of source and destination prefixes.
+**srctl's** *Get All Paths* service will query the API for all paths from a source to a destination. The CLI can specify a limit to the number of paths returned.
 
 1. Run the Get All Paths 'gp' service:
     ``` 
