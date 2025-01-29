@@ -85,7 +85,7 @@ show bgp bmp summary
 
 Expected output:  
 ```
- RP/0/RP0/CPU0:xrd06#show bgp bmp sum
+RP/0/RP0/CPU0:xrd06#show bgp bmp sum
 Sat Dec 16 03:19:26.045 UTC
 ID   Host                 Port     State   Time        NBRs
 1   198.18.128.101       30511    ESTAB   00:00:07    4   
