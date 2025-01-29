@@ -495,25 +495,30 @@ For our lab we've specified that Berlin-to-Rome traffic should avoid France (FRA
    cd ~/SRv6_dCloud_Lab/lab_5/srctl
    ```
 
-2. Run **srctl** and apply the *berlin.yaml* file to get your Berlin-to-Rome path. This file specifies both the Rome VM's ipv6 prefix in the global table, but also a route to xrd07 - this second route gives us a *data-sovereignty* path that Berlin's VRF pods can reach.
+2. Up till now we've been specifying the api-server address when using **srctl**. We can also set the api-server as an environment variable, which will shorten the command line:
    ```
-   sudo srctl --api-server http://198.18.128.101:30800 apply -f berlin.yaml
+   export JALAPENO_API_SERVER="http://198.18.128.101:30800"
+   ```
+
+3. Run **srctl** and apply the *berlin.yaml* file to get your Berlin-to-Rome path. This file specifies both the Rome VM's ipv6 prefix in the global table, but also a route to xrd07 - this second route gives us a *data-sovereignty* path that Berlin's VRF pods can reach.
+   ```
+   sudo -E srctl apply -f berlin.yaml
    ```
 
    Expected output:
    ```yaml
-   cisco@berlin:~/SRv6_dCloud_Lab/lab_5/srctl$ sudo srctl --api-server http://198.18.128.101:30800 apply -f berlin.yaml
+   cisco@berlin:~/SRv6_dCloud_Lab/lab_5/srctl$ sudo -E srctl apply -f berlin.yaml
    Loaded configuration from berlin.yaml
    Adding route with encap: {'type': 'seg6', 'mode': 'encap', 'segs': ['fc00:0:2222:3333:4444:7777:0:0']} to table 0
    berlin-to-xrd07: fc00:0:2222:3333:4444:7777: Route to fc00:0:7777::/48 via fc00:0:2222:3333:4444:7777:0:0 programmed successfully in table 0
    ```
 
-3. Exec into one of the carrots pods and run a ping:
+4. Exec into one of the carrots pods and run a ping:
    ```
    kubectl exec -it carrots0 -n veggies -- ping 10.107.2.1 -i .4
    ```
 
-4. Optional: run tcpdump on the XRD VM to see the traffic flow and SRv6 uSID in action. 
+5. Optional: run tcpdump on the XRD VM to see the traffic flow and SRv6 uSID in action. 
    ```
    sudo ip netns exec clab-cleu25-xrd02 tcpdump -lni Gi0-0-0-3
    sudo ip netns exec clab-cleu25-xrd03 tcpdump -lni Gi0-0-0-1
@@ -537,53 +542,37 @@ For our lab we've specified that Berlin-to-Rome traffic should avoid France (FRA
 
 Examples:
 ```
+srctl get-paths -f paths-ams-rome.yaml 
+srctl get-paths -s hosts/amsterdam -d hosts/rome --type best-paths --limit 3
+```
 
-
-1. Run the Get All Paths 'gp' service:
+1. On any of the VMs (Amsterdam, Rome, Berlin) run the **srctl** *Get All Paths* CLI:
     ``` 
-    python3 jalapeno.py -f rome.json -s gp -e srv6
+    cd ~/SRv6_dCloud_Lab/lab_5/srctl
+    srctl get-paths -f paths-ams-rome.yaml
     ```
-      - Sample command line output:
+    Expected output:
     ```
-    cisco@rome:~/SRv6_dCloud_Lab/lab_6/python$ python3 jalapeno.py -f rome.json -s gp -e srv6
-
-    Get All Paths Service
-    number of paths found:  4
-
-    path locator list:  ['fc00:0:7777::', 'fc00:0:4444::', 'fc00:0:5555::', 'fc00:0:1111::']
-    srv6 sid for this path:  fc00:0:7777:4444:5555:1111::
-
-    path locator list:  ['fc00:0:7777::', 'fc00:0:6666::', 'fc00:0:2222::', 'fc00:0:1111::']
-    srv6 sid for this path:  fc00:0:7777:6666:2222:1111::
-
-    path locator list:  ['fc00:0:7777::', 'fc00:0:6666::', 'fc00:0:5555::', 'fc00:0:1111::']
-    srv6 sid for this path:  fc00:0:7777:6666:5555:1111::
-
-    path locator list:  ['fc00:0:7777::', 'fc00:0:4444::', 'fc00:0:3333::', 'fc00:0:2222::', 'fc00:0:1111::']
-    srv6 sid for this path:  fc00:0:7777:4444:3333:2222:1111::
-
-    All paths data from unicast_prefix_v4/20.0.0.0_24_10.0.0.7 to unicast_prefix_v4/10.101.2.0_24_10.0.0.1 logged to log/get_paths.json
-    ```
-    - The code contains a number of console logging instances that are commented out, and some that are active (hence the output above). Note this line which provides a summary of the relevant paths by outputing the SRv6 locators along each path:
-
-      https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_6/python/netservice/gp.py#L46
-
-
-    - All the jalapeno network services will output some data to the console. More verbose data will be logged to the lab_6/python/log directory. Check log output:
-    ```
-    more log/get_paths.json
-    ```
-    - We can expect to see a json file with source, destination, and path data which includes srv6 locators and sids
-
-2. Optional: try increasing the number of hops the graph may traverse:
 
     ```
-    for v, e, p in 1..8 outbound
-    ```
-    Save the file and re-run the script. You should see 8 total path options in the command line output and log.
 
+2. **srctl** *Get Next Best Paths* is an extension of the *Get Paths* service. It will query the API for a set of ECMP paths and also a set of *next best* paths that are one hop longer than the shortest/best path. The *next best* paths are the paths that would be used if the *best* path failed, or if we wanted to create an SRv6 policy that performed UCMP load balancing.
 
+   ```
+   srctl get-paths -s hosts/amsterdam -d hosts/rome --type next-best-path --same-hop-limit 3 --plus-one-limit 5
+   ```
 
+   Expected output:
+   ```
+   cisco@berlin:~/SRv6_dCloud_Lab/lab_5/srctl$ srctl get-paths -s hosts/amsterdam -d hosts/rome --type next-best-path --same-hop-limit 3 --plus-one-limit 5
+
+   hosts/amsterdam-to-hosts/rome:
+     Best Path SRv6 uSID: fc00:0:1111:2222:6666:7777:
+     Additional Best Path 1 SRv6 uSID: fc00:0:1111:2222:6666:7777:
+     Additional Best Path 2 SRv6 uSID: fc00:0:1111:5555:4444:7777:
+     Additional Best Path 3 SRv6 uSID: fc00:0:1111:5555:6666:7777:
+     Next Best Path 1 SRv6 uSID: fc00:0:1111:2222:3333:4444:7777:
+   ```
 
 ## Low Latency Re-Route
 Now we are going to simulate a recalculation of the SRv6 topology. The *Sub-Standard Construction Company* has taken out fiber link "G" with a backhoe. Luckily you have paid for optical path redundancy and the link has failed to a geographicaly different path. The result though is that the primary path latency of *5ms* has increased to *25 ms*. This should cause a new low latency route. Time to test it out!
@@ -603,9 +592,8 @@ For full size image see [LINK](/topo_drawings/low-latency-alternate-path.png)
 
 2. Re-run the Low latency SRv6 service on **Rome VM**. After running your ping time should decrease to around 70ms:
     ```
-    ./cleanup_rome_routes.sh 
-    python3 jalapeno.py -f rome.json -e srv6 -s ll
-    ping 10.101.2.1 -I 20.0.0.1 -i .3
+    export JALAPENO_API_SERVER="http://198.18.128.101:30800"
+    sudo -E srctl apply -f rome.yaml
     ```
 
 3. Run an iPerf3 test from Rome to Amsterdam and watch our network crush 250Kbps!
@@ -646,8 +634,6 @@ For full size image see [LINK](/topo_drawings/low-latency-alternate-path.png)
 
     iperf Done. 
     ```
-
-
 
 ### You have reached the end of LTRSPG-2212, hooray!
 
