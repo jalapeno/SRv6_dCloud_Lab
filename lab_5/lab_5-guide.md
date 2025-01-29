@@ -177,17 +177,13 @@ At the heart of Jalapeno is the Arango Graph Database, which is used to model ne
     DB: jalapeno
     ```
     Once logged the UI should then show you its *collections* view, which should look something like:
-
-  <img src="images/arango-collections.png" width="1000">
+   <img src="images/arango-collections.png" width="1000">
 
 5. Feel free to spot check the various data collections in Arango. At this point some will be empty as we are not using those AFI/SAFI types.
 
 **ArangoDB Query Language (AQL)**
 
-The ArangoDB Query Language (AQL) can be used to retrieve and modify data that are stored in ArangoDB.
-
-For more information on AQL see the ArangoDB documentation [HERE](https://www.arangodb.com/docs/stable/aql/index.html)
-
+The ArangoDB Query Language (AQL) can be used to retrieve and modify data that are stored in ArangoDB. For more information on AQL see the ArangoDB documentation [HERE](https://www.arangodb.com/docs/stable/aql/index.html)
 
 6. Optional or for reference: feel free to connect to the DB and try some of the queries in the [lab_5-queries.md doc](https://github.com/jalapeno/SRv6_dCloud_Lab/tree/main/lab_5/lab_5-queries.md)
 
