@@ -509,12 +509,13 @@ For our lab we've specified that Berlin-to-Rome traffic should avoid France (FRA
 
 3. Exec into one of the carrots pods and run a ping:
    ```
-   kubectl exec -it carrots0 -n veggies -- ping fc00:0:107:2::1 -i .4
+   kubectl exec -it carrots0 -n veggies -- ping 10.107.2.1 -i .4
    ```
 
 4. Optional: run tcpdump on the XRD VM to see the traffic flow and SRv6 uSID in action. 
    ```
    sudo ip netns exec clab-cleu25-xrd02 tcpdump -lni Gi0-0-0-3
+   sudo ip netns exec clab-cleu25-xrd03 tcpdump -lni Gi0-0-0-1
    ```
 
    This tcpdump shows the outer SRv6 encapsulation and the *data-sovereignty* uSID combination.
