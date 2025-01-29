@@ -22,10 +22,6 @@ This lab is divided into two main sections :
   - [Populating Jalapeno DB with meta-data](#populating-jalapeno-db-with-meta-data)
   - [Jalapeno REST API](#jalapeno-rest-api)
   - [Jalapeno Web UI](#jalapeno-web-ui)
-    - [Data Collections](#data-collections)
-    - [Topology Viewer](#topology-viewer)
-    - [Calculate a Path](#calculate-a-path)
-    - [Schedule a Workload](#schedule-a-workload)
   - [End of lab 5 Part 1](#end-of-lab-5-part-1)
 
 ## Lab Objectives
