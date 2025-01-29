@@ -533,7 +533,11 @@ For our lab we've specified that Berlin-to-Rome traffic should avoid France (FRA
 
 ## Get All Paths
 
-**srctl's** *Get All Paths* service will query the API for all paths from a source to a destination. The CLI can specify a limit to the number of paths returned.
+**srctl's** *Get All Paths* service will query the API for a set of ECMP paths from a source to a destination. The CLI can take a yaml file as input, or can take command line variables for source and destination. The CLI can also specify a limit to the number of paths returned.
+
+Examples:
+```
+
 
 1. Run the Get All Paths 'gp' service:
     ``` 
