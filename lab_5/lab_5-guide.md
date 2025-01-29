@@ -117,8 +117,6 @@ Reference: the GoBMP Git Repository can be found [HERE](https://github.com/sbezv
 Here is an example of the BMP configuration on **xrd05** and **xrd06**:
 
 ```
-conf t
-
 bmp server 1
      host 198.18.128.101 port 30511
      description jalapeno GoBMP  
@@ -143,27 +141,26 @@ bmp server 1
 
        neighbor fc00:0000:8888::1
          bmp-activate server 1
-   commit
 ```
 
-Next ssh to **xrd05** or **xrd06** and validate BMP session establishment and client monitoring:
+Lets validate the BMP session on **xrd05** and **xrd06** are established and client monitoring:
 
-    ```
-    ssh cisco@clab-cleu25-xrd06
-    ```
+```
+ssh cisco@clab-cleu25-xrd06
+```
 
-    ```
-    show bgp bmp summary
-    ```
+```
+show bgp bmp summary
+```
 
-    Expected output:  
-    ```
-    RP/0/RP0/CPU0:xrd06#show bgp bmp sum
-    Sat Dec 16 03:19:26.045 UTC
-    ID   Host                 Port     State   Time        NBRs
-    1   198.18.128.101       30511    ESTAB   00:00:07    4   
-    RP/0/RP0/CPU0:xrd06#
-    ```
+Expected output:  
+```
+ RP/0/RP0/CPU0:xrd06#show bgp bmp sum
+Sat Dec 16 03:19:26.045 UTC
+ID   Host                 Port     State   Time        NBRs
+1   198.18.128.101       30511    ESTAB   00:00:07    4   
+RP/0/RP0/CPU0:xrd06#
+```
 
 ### Kafka 
 
