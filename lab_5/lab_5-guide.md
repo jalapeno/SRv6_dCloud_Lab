@@ -42,51 +42,52 @@ Reference: the GoBMP Git Repository can be found [HERE](https://github.com/sbezv
 
 Here is an example of the BMP configuration on **xrd05** and **xrd06**:
 
-```
-bmp server 1
+1. Review refrence BMP configuration:
+   ```
+   bmp server 1
      host 198.18.128.101 port 30511
-     description jalapeno GoBMP  
+     description jalapeno GoBMP
      update-source MgmtEth0/RP0/CPU0/0
      flapping-delay 60
      initial-delay 5
-       stats-reporting-period 60
-       initial-refresh delay 25 spread 2
-    
-     router bgp 65000
-       neighbor 10.0.0.1
-         bmp-activate server 1
-    
-       neighbor fc00:0000:1111::1
-         bmp-activate server 1
+     stats-reporting-period 60
+     initial-refresh delay 25 spread 2
 
-       neighbor 10.0.0.7
-         bmp-activate server 1
-    
-       neighbor fc00:0000:7777::1
-         bmp-activate server 1
+   router bgp 65000
+     neighbor 10.0.0.1
+       bmp-activate server 1
 
-       neighbor fc00:0000:8888::1
-         bmp-activate server 1
-```
+     neighbor fc00:0000:1111::1
+       bmp-activate server 1
 
-Lets validate the BMP session on **xrd05** and **xrd06** are established and client monitoring:
+     neighbor 10.0.0.7
+       bmp-activate server 1
 
-```
-ssh cisco@clab-cleu25-xrd06
-```
+     neighbor fc00:0000:7777::1
+       bmp-activate server 1
 
-```
-show bgp bmp summary
-```
+     neighbor fc00:0000:8888::1
+       bmp-activate server 1
+   ```
 
-Expected output:  
-```
-RP/0/RP0/CPU0:xrd06#show bgp bmp sum
-Sat Dec 16 03:19:26.045 UTC
-ID   Host                 Port     State   Time        NBRs
-1   198.18.128.101       30511    ESTAB   00:00:07    4   
-RP/0/RP0/CPU0:xrd06#
-```
+   2. Lets validate the BMP session on **xrd05** and **xrd06** are established and client monitoring:
+
+      ```
+      ssh cisco@clab-cleu25-xrd06
+      ```
+
+      ```
+      show bgp bmp summary
+      ```
+
+      Expected output:
+      ```
+      RP/0/RP0/CPU0:xrd06#show bgp bmp sum
+      Sat Dec 16 03:19:26.045 UTC
+      ID   Host                 Port     State   Time        NBRs
+      1   198.18.128.101       30511    ESTAB   00:00:07    4
+      RP/0/RP0/CPU0:xrd06#
+      ```
 
 ## Jalapeno Overview
 Project Jalapeno combines existing open source tools with some new stuff we've developed into a data collection and warehousing infrastructure intended to enable development of network service applications. Think of it as applying microservices architecture and concepts to SDN: give developers the ability to quickly and easily build microservice control planes on top of a common data infrastructure. More information on Jalapeno can be found at the Jalapeno Git repository: 
