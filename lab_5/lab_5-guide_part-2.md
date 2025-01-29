@@ -67,7 +67,7 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
 
  - Linux SRv6 route reference: https://segment-routing.org/index.php/Implementation/Configuration
 
-1.  Login to the Rome VM
+1. Login to the Rome VM
    ```
    ssh cisco@198.18.128.103
    ```
@@ -79,7 +79,7 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
 
    Expected output:
    ```yaml
-   cisco@rome:~$ srctl --help
+   cisco@berlin:~$ srctl --help
    Usage: srctl [OPTIONS] COMMAND [ARGS]...
 
      Command line interface for Segment Routing Configuration
@@ -89,11 +89,17 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
      --help             Show this message and exit.
 
    Commands:
-     apply   Apply a configuration from file
-     delete  Delete a configuration from file
+     apply      Apply a configuration from file
+     delete     Delete a configuration from file
+     get-paths  Get best paths between source and destination
    ```
 
-   Per the *help* output we see that our current options are to *apply* or *delete* a configuration from a yaml file.
+   Per the *help* output we see that our current options are to *apply* or *delete* a configuration from a yaml file, or an informational *get-paths* command.
+
+   Example usage:
+   ```
+   sudo srctl apply --api-server http://198.18.128.101:30800 -f rome.yaml
+   ```
 
 3. Here is a commented version of Rome's srctl yaml file:
    
@@ -110,7 +116,7 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
            - name: rome-to-amsterdam-v4           # the name of the route
              graph: ipv4_graph                    # the Jalapeno graph to use for calculating the route
              pathType: shortest_path              # the type of path to use for the route
-             metric: least-utilized            # the metric to use for the route
+             metric: low-latency                  # the metric to use for the route
              source: hosts/rome                   # the source's database ID
              destination: hosts/amsterdam         # the destination's database ID
              destination_prefix: "10.101.2.0/24"  # the destination prefix
@@ -121,7 +127,7 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
            - name: rome-to-amsterdam-v6
              graph: ipv6_graph
              pathType: shortest_path
-             metric: least-utilized
+             metric: low-latency
              source: hosts/rome
              destination: hosts/amsterdam
              destination_prefix: "fc00:0:101:2::/64"
