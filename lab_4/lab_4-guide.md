@@ -1,7 +1,7 @@
 # Lab 4: SRv6 for Kubernetes with Cilium [30 Min]
 
 ### Description
-Now that we've established SRv6 L3VPNs across our network, we're going to transition from router-based services to host-based services. And our first step will be to enable SRv6 L3VPN for Kubernetes. The Berlin VM has had Kubernetes pre-installed and running the Cilium CNI (Container Network Interface). In this lab we'll review some basic Kubernetes commands (kubectl) and then we'll setup Cilium BGP peering with our XRd route reflectors. After that we'll configure Cilium SRv6 SID manager and Locator pool. We'll then add a couple containers to our K8s cluster and join them to the carrots VRF.
+Now that we've established SRv6 L3VPNs across our network, we're going to transition from *router-based services* to *host-based services*. And our first step will be to enable SRv6 L3VPN for Kubernetes. The Berlin VM has had Kubernetes pre-installed and is running the *Cilium CNI* (Container Network Interface). In this lab we'll review some basic Kubernetes commands (kubectl) and then we'll setup Cilium BGP peering with our XRd route reflectors. After that we'll configure Cilium SRv6 SID manager and Locator pool. We'll then add a couple containers to our K8s cluster and join them to the carrots VRF.
 
 > [!NOTE]
 > This portion of the lab makes use of Cilium Enterprise, which is a licensed set of features. The Cilium SRv6 feature set is in Beta is not available in the open source version. If you are interested in SRv6 on Cilium or other Enterprise features, please contact the relevant Cisco Isovalent sales team.  
@@ -19,7 +19,6 @@ The original version of this lab was developed in partnership with Arkadiusz Kal
   - [Lab Objectives](#lab-objectives)
   - [Verify pre-installed Cilium is running](#verify-pre-installed-cilium-is-running)
   - [Setup Cilium BGP Peering](#setup-cilium-bgp-peering)
-    - [Brief explanation of Kubernetes Custom Resource Definitions (CRDs)](#brief-explanation-of-kubernetes-custom-resource-definitions-crds)
     - [Cilium BGP CRD](#cilium-bgp-crd)
     - [Establish the Cilium BGP global and peer configurations](#establish-the-cilium-bgp-global-and-peer-configurations)
     - [Verify Cilium BGP peering](#verify-cilium-bgp-peering)
@@ -92,7 +91,7 @@ Kubernetes and Cilium Enterprise are pre-installed on the **Berlin** VM. All of 
 Now we're ready!
 
 ##  Setup Cilium BGP Peering
-### Brief explanation of Kubernetes Custom Resource Definitions (CRDs) 
+**Brief explanation of Kubernetes Custom Resource Definitions (CRDs)**
 
 Per: https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/
 
@@ -100,7 +99,7 @@ Per: https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-
 
 Said another way, CRDs enable us to add, update, or delete Kubernetes cluster elements and their configurations. The add/update/delete action might apply to the cluster as a whole, a node in the cluster, an aspect of cluster networking or the CNI (aka, the work we'll do in this lab), or any given element or set of elements within the cluster including pods, services, daemonsets, etc.
 
-A CRD applied to a single element in the K8s cluster would be analogous configuring BGP on a router. A CRD applied to multiple or cluster-wide would be analogous to adding BGP route-reflection to a network as a whole. 
+A CRD applied to a single element in the K8s cluster would be analogous to configuring BGP on a router. A CRD applied to multiple elements or cluster-wide would be analogous to adding BGP route-reflection to a network as a whole. 
 
 CRDs come in YAML file format and in the next several sections of this lab we'll apply CRDs to the K8s cluster to setup Cilium BGP peering, establish Cilium SRv6 locator ranges, create VRFs, etc.
 
@@ -159,13 +158,13 @@ In the next few steps we'll walk through applying the configuration one element 
 
 ![Cilium SRv6 L3VPN](/topo_drawings/cilium-l3vpn-topology.png)
 
-1. On the **Berlin** VM cd into the Lab 4 cilium directory and apply the Cilium BGP Cluster Config CRD. BGP Cluster config establishes our Cilium Node's BGP ASN and base BGP peering with the route reflectors **xrd05** and **xrd06**.
+1. On the **Berlin** VM cd into the Lab 4 cilium directory and apply the *Cilium BGP Cluster Config CRD*. BGP Cluster config establishes our Cilium Node's BGP ASN and base BGP peering with the route reflectors **xrd05** and **xrd06**.
    ```
    cd ~/SRv6_dCloud_Lab/lab_4/cilium/
    kubectl apply -f 01-bgp-cluster.yaml
    ```
 
-   The BGP Peer Config CRD is where we control address families and other BGP peering or route policies on a per peer or peer-group basis.
+   Next: The *BGP Peer Config CRD* is where we control address families and other BGP peering or route policies on a per peer or peer-group basis.
    Here is a portion of the BGP Peer Config CRD with notes:
    ```yaml
    metadata:
@@ -176,9 +175,9 @@ In the next few steps we'll walk through applying the configuration one element 
          safi: unicast
          advertisements:
            matchLabels:
-             advertise: "bgpv6unicast"        # advertise ipv6 prefixes found in the bgpv6unicast advertisement CR
+             advertise: "bgpv6unicast"   # advertise ipv6 prefixes found in the bgpv6unicast advertisement CR
        - afi: ipv4
-         safi: mpls_vpn     # a bit of a misnomer, but we're advertising SRv6 L3VPN, or the equivalent of vpnv4 unicast in XR
+         safi: mpls_vpn  # a bit of a misnomer, but we're advertising SRv6 L3VPN, or the equivalent of vpnv4 unicast in XR
    ```
 
 2. Apply the Cilium BGP Peer Config CRD. 
@@ -200,7 +199,7 @@ In the next few steps we'll walk through applying the configuration one element 
     spec:
       bgpInstances:
         - name: "asn65000"        # required field, must match the name of the bgpInstance in the cluster config
-          srv6Responder: true     # instructs BGP to advertise the node's SRv6 Locator
+          srv6Responder: true     # instructs BGP to advertise the node's SRv6 Locator (to be created a few steps after this)
           peers:
             - name: "xrd05-rr"                 # must match the name of the peer in the cluster config
               localAddress: fc00:0:8888::1     # the source address to use for the peering session
@@ -254,7 +253,7 @@ Here is a portion of the prefix advertisement CRD with notes:
         advertise: bgpv6unicast     # this label will be used by the peer config CRD for prefixes to advertise
     spec:
       advertisements:                            # the list of elements to be advertised
-        - advertisementType: "SRv6LocatorPool"   # advertise the SRv6 locator pool
+        - advertisementType: "SRv6LocatorPool"   # advertise the SRv6 locator pool (to be created a few steps after this)
           selector:
             matchLabels:
               export: "pool0"
@@ -281,6 +280,9 @@ Here is a portion of the prefix advertisement CRD with notes:
 
 3. Let's get a little more detail on advertised prefixes with the `cilium bgp routes` command. Let's first add a -h flag to see our options
 
+   ```
+   cilium bgp routes -h
+   ```
 
    Example output:
    ```
@@ -341,7 +343,7 @@ Here is a portion of the prefix advertisement CRD with notes:
 ### Create the carrots BGP VRF
 We are now going to apply the BGP configuration for *vrf carrots* per the yaml file here: [05-bgp-vrf.yaml](cilium/05-bgp-vrf.yaml)
 
-Earlier you saw we broke the BGP peering and route advertisement configurations into two separate yaml files. For the VRf we've got both in single file to illustrate the point about config modularity, and to also have one less step to apply. Here is a brief overview of the BGP VRF CRD:
+Earlier you saw we broke the BGP peering and route advertisement configurations into two separate yaml files. For the VRF we've got both in single file to illustrate the point about config modularity, and to also have one less step to apply. Here is a brief overview of the BGP VRF CRD:
   ```yaml
   ---
   apiVersion: isovalent.com/v1alpha1
@@ -379,16 +381,16 @@ Our Cilium BGP configuration is now complete. Next we'll setup the Cilium SRv6 S
 Per Cilium Enterprise documentation:
 *The SID Manager manages a cluster-wide pool of SRv6 locator prefixes. You can define a prefix pool using the IsovalentSRv6LocatorPool resource. The Cilium Operator assigns a locator for each node from this prefix.*
 
-So essentially we're going to configure a /40 range from which Cilium will allocate a /48 bit uSID based locator to each node in the K8s cluster.
+So essentially we're going to configure a /40 range from which Cilium will allocate a /48 bit uSID-based locator to each node in the K8s cluster.
 
-Cilium also supports /64 locators, but for simplicity and consistency with our *xrd* nodes we're going to use the very commonly deployed /48 bit uSID based locators. Here is a portion of the yaml file CRD with notes:
+Cilium also supports /64 locators, but for simplicity and consistency with our *xrd* nodes we're going to use the very commonly deployed /48 bit locators. Here is a portion of the yaml file CRD with notes:
 
    ```yaml
    behaviorType: uSID          # options are uSID or SRH
    prefix: fc00:0:A000::/40    # the larger /40 block from which a /48 would be allocated to each node in the cluster
    structure:
      locatorBlockLenBits: 32   # the uSID block length
-     locatorNodeLenBits: 16    # the uSID node length - here 32 + 16 results in our /48 bit uSID
+     locatorNodeLenBits: 16    # the uSID node length - here 32 + 16 results in our /48 bit Locator
    ```
 
 1. Define and apply a Cilium SRv6 locator pool. The full CRD may be reviewed here: [06-srv6-locator-pool.yaml](cilium/06-srv6-locator-pool.yaml)
@@ -406,7 +408,7 @@ Cilium also supports /64 locators, but for simplicity and consistency with our *
              export: "pool0"
    ```
 
-3. Now that we have a local pool to advertise, let's check our BGP advertised prefixes again:
+2. Now that we have a local pool to advertise, let's check our BGP advertised prefixes again:
    ```
    cilium bgp routes advertised ipv6 unicast
    ```
@@ -450,7 +452,7 @@ Cilium also supports /64 locators, but for simplicity and consistency with our *
       locatorAllocations:
       - locators:
         - behaviorType: uSID
-          prefix: fc00:0:a0ba::/48               # Berlin's dynamically allocated uSID prefix (Locator)
+          prefix: fc00:0:a01f::/48               # Berlin's dynamically allocated uSID prefix (Locator)
           structure:
             argumentLenBits: 0
             functionLenBits: 16
@@ -468,6 +470,14 @@ In the next step we've combined creation of both the *carrots* VRF and kubernete
 A brief explanation of the VRF and pods CRD:
 ```yaml
 ---
+apiVersion: v1
+kind: Namespace   # we're creating a new k8s namespace
+metadata:
+  name: veggies   # called veggies
+  labels:
+    name: veggies
+
+---
 apiVersion: isovalent.com/v1alpha1
 kind: IsovalentVRF         # VRF CRD - analogous to the global VRF config on a router
 metadata:
@@ -482,7 +492,28 @@ spec:
           vrf: carrots    # analogous to the RT import/export policy on a router
     destinationCIDRs:
     - 0.0.0.0/0
-  ```
+
+---
+apiVersion: v1
+kind: Pod   # we're creating a new k8s pod
+metadata:
+  namespace: veggies   # the pod is in the veggies namespace
+  labels:
+    app: alpine-ping
+    vrf: carrots   # the pod is in the carrots VRF
+  name: carrots0   # the pod's name
+spec:
+  containers:
+  - image: alpine:latest   # the pod's image
+    imagePullPolicy: IfNotPresent
+    name: carrots0
+    command:
+      - /bin/sh
+      - "-c"
+      - "sleep 60m"
+```
+
+You'll note that the pod is in the *carrots VRF* and the K8s namespace *veggies*. We didn't do this to be overly complext, but rather to illustrate the fact that the namespace and VRF are independent of each other. We could have pods from multiple namespaces in the same VRF and vice versa.
 
 1. Add VRF, namespace, and pods:
    [07-vrf-carrots.yaml](cilium/07-vrf-carrots.yaml)
@@ -563,10 +594,11 @@ spec:
    ```
    ssh cisco@clab-cleu25-xrd01
    show bgp vpnv4 unicast
+   
    show bgp vpnv4 unicast rd 9:9 10.200.0.0/24
    ```
 
-   In the output of the first command we expect to see Cilium advertise L3VPN prefix:
+   Somewhere in the output of the first command we expect to find the Cilium advertised L3VPN prefix:
    ```
    *>i10.200.0.0/24      fc00:0:8888::1                100      0 ?
    ```
@@ -626,7 +658,7 @@ spec:
 
 ### Run a ping test!
 
-1. On the Berlin VM exec into one of the carrotspod containers and ping Amsterdam's interface in the carrots VRF:
+3. On the Berlin VM exec into one of the carrotspod containers and ping Amsterdam's interface in the carrots VRF:
     ```
     kubectl exec -it -n veggies carrots0 -- sh
     ```
@@ -634,7 +666,7 @@ spec:
     ping 10.101.3.1 -i .4 
     ```
 
-2. Return to the XRd VM and run a tcpdump to capture Cilium's SRv6 encapsulation of outbound packets:
+4. Optional: return to the XRd VM and run a tcpdump to capture Cilium's SRv6 encapsulation of outbound packets:
 
     ```
     sudo ip netns exec clab-cleu25-xrd02 tcpdump -lni Gi0-0-0-3

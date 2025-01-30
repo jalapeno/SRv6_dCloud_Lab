@@ -1,9 +1,10 @@
 #!/bin/sh
 
 kubectl apply -f igp-graph.yaml
-sleep 5
+echo "Waiting for 10 seconds for igp-graph to be ready"
+sleep 10
 kubectl apply -f ipv4-graph.yaml
-sleep 5
 kubectl apply -f ipv6-graph.yaml
-sleep 5
 kubectl apply -f srv6-localsids.yaml
+
+
