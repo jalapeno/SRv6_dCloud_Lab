@@ -28,7 +28,7 @@ In Part 2 we will use the **`srctl`** command line tool we developed to program 
 
 ## Host-Based SR/SRv6 and building your own SDN App
 
-We won't claim to be professional developers, but using Jalapeno and just a few hours of python coding we were able to build an SRv6 SDN App called **"srctl"**. Our App can program SRv6-TE routes/policies on Linux hostsor VMs and on [VPP](https://fd.io/). 
+We won't claim to be professional developers, but using Jalapeno and just a few hours of python coding we were able to build an SRv6 SDN App called **srctl**. Our App can program SRv6-TE routes/policies on Linux hostsor VMs and on [VPP](https://fd.io/). 
 
 **srctl** is still under development and is modeled after Kubernetes' *kubectl* command line tool. It gives a sense of the power and possibilities when combining *SRv6 and host-based or cloud-native networking*. 
 
@@ -54,7 +54,7 @@ The student upon completion of Lab 6 should have achieved the following objectiv
 ## srctl command line tool
 As mentioned in the introduction, **srctl** is a command line tool that allows us to access SRv6 network services by programing SRv6 routes on Linux hosts or VPP. It is modeled after *kubectl*, and as such it expects to be fed a *yaml* file defining the source and destination prefixes or endpionts for which we want a specific SRv6 network service. When the user runs the command, **srctl** will call the Jalapeno API and pass the yaml file data. Jalapeno will perform its path calculations and will return a set of SRv6 instructions. **srctl** will then program the SRv6 routes on the Linux host or VPP.
 
- `srctl's` currently supported network services are: 
+ **srctl's** currently supported network services are: 
 
  - Low Latency Path
  - Least Utilized Path
