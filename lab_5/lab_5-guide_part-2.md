@@ -7,7 +7,7 @@ The goals of the Jalapeno project are:
    
 2. Enable developers to quickly and easily build network control or SDN Apps that client applications may use achieve goal #1 
    
-In Part 2 we will use the **`srctl`** command line tool to program SRv6 routes on the Amsterdam, Rome, and Berlin VMs, thus giving the hosts or their workloads the direct control that we've been discussing.
+In Part 2 we will use the **`srctl`** command line tool we developed to program SRv6 routes on the Amsterdam, Rome, and Berlin VMs, thus giving the hosts or their workloads the direct control that we've been discussing.
 
 ## Contents
 - [Lab 5 Part 2: Host-Based SRv6 \[25 min\]](#lab-5-part-2-host-based-srv6-25-min)
