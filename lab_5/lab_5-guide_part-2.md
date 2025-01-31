@@ -301,7 +301,7 @@ sudo vppctl show interface # same command but executed from Linux
 
 Many segment routing and other SDN solutions focus on the *low latency path* as their primary use case. We absolutely feel low latency is an important network service, especially for real time applications. However, we believe one of the use cases which deliver the most bang for the buck is **Least Utilized Path**. The idea behind this use case is that the routing protocol's chosen best path is very often *`The Actual Best Path`*. Because of this `srctl's` *`Least Utilized`* service looks to steer lower priority traffic (backups, content replication, etc.) to lesser used paths and preserve the routing protocol's *"best path"* for higher priority traffic.
 
-1. On the Amsterdam VM, cd into the *lab_5/srctl* directory. 
+1. On the **Amsterdam** VM, cd into the *lab_5/srctl* directory. 
    ```
    cd ~/SRv6_dCloud_Lab/lab_5/srctl
    ```
