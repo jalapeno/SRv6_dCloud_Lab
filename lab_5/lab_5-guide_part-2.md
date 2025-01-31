@@ -166,6 +166,10 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
 
 Our first use case is to make path selection through the network based on the cummulative link latency from A to Z. Calculating best paths using latency meta-data is not something traditional routing protocols can do, though it may be possible to statically build routes through your network using weights to define a path. However, what these workarounds cannot do is provide path selection based on near real time data which is possible with an application like Jalapeno. This provides customers to have a flexible network policy that can react to changes in the WAN environment.
 
+For the next section we will query Jalapeno looking for the lowest latency path between Rome and Amsterdam for specifc routes. See the diagram below for what the expected SR path results will be.
+
+![jalapeno_architecture](https://github.com/cisco-open/jalapeno/blob/main/docs/img/low-latency-path.png)
+
 1. From the *lab_5/srctl* directory on Rome, run the following command (note, we add *sudo* to the command as we are applying the routes to the Linux host):
 
    ```
