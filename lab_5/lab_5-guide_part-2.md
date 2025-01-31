@@ -28,11 +28,11 @@ In Part 2 we will use the **`srctl`** command line tool we developed to program 
 
 ## Host-Based SR/SRv6 and building your own SDN App
 
-We won't claim to be professional developers, but using Jalapeno and just a few hours of python coding we were able to build an SRv6 SDN App called **srctl**. Our App can program SRv6-TE routes/policies on Linux hostsor VMs and on [VPP](https://fd.io/). 
+We won't claim to be professional developers, but using Jalapeno and just a few hours of python coding we were able to build an SRv6 SDN App called **srctl**. Our App can program SRv6-TE routes/policies on Linux hosts or VMs and on [VPP](https://fd.io/). 
 
 **srctl** is still under development and is modeled after Kubernetes' *kubectl* command line tool. It gives a sense of the power and possibilities when combining *SRv6 and host-based or cloud-native networking*. 
 
-And if the two of us knuckleheads can cobble together a functional SDN App in a couple of hours, imagine what a group of real developers could do in a few short weeks!
+And if the two of us knuckleheads can cobble together a functional SDN App in a few hours, imagine what a group of real developers could do in a few short weeks!
 
 ### Why host-based SRv6? 
 
@@ -52,7 +52,7 @@ The student upon completion of Lab 6 should have achieved the following objectiv
 * How to use the **srctl** command line tool to program SRv6 routes on Linux hosts or VPP
 
 ## srctl command line tool
-As mentioned in the introduction, **srctl** is a command line tool that allows us to access SRv6 network services by programing SRv6 routes on Linux hosts or VPP. It is modeled after *kubectl*, and as such it expects to be fed a *yaml* file defining the source and destination prefixes or endpionts for which we want a specific SRv6 network service. When the user runs the command, **srctl** will call the Jalapeno API and pass the yaml file data. Jalapeno will perform its path calculations and will return a set of SRv6 instructions. **srctl** will then program the SRv6 routes on the Linux host or VPP.
+As mentioned in the introduction, **srctl** is a command line tool that allows us to access SRv6 network services by programing SRv6 routes on Linux hosts or VPP. It is modeled after *kubectl*, and as such it generally expects to be fed a *yaml* file defining the source and destination prefixes or endpionts for which we want a specific SRv6 network service. When the user runs the command, **srctl** will call the Jalapeno API and pass the yaml file data. Jalapeno will perform its path calculations and will return a set of SRv6 instructions. **srctl** will then program the SRv6 routes on the Linux host or VPP.
 
  **srctl's** currently supported network services are: 
 
@@ -94,11 +94,16 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
      get-paths  Get best paths between source and destination
    ```
 
-   Per the *help* output we see that our current options are to *apply* or *delete* a configuration from a yaml file, or an informational *get-paths* command.
+   Per the *help* output we see that our current options are to *apply* or *delete* a configuration from a yaml file, or an informational *get-paths* command. Also notice the --api-server option where you can specify the Jalapeno API server address.
 
    Example usage:
    ```
    sudo srctl apply --api-server http://198.18.128.101:30800 -f rome.yaml
+   ```
+
+   Alternatively, define the API server address with an environment variable:
+   ```
+   export JALAPENO_API_SERVER="http://198.18.128.101:30800"
    ```
 
 3. Here is a commented version of Rome's srctl yaml file:
@@ -109,14 +114,14 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
    metadata:
      name: rome-routes              # the name of the object
    spec:
-     platform: linux             # we specify the platform so srctl knows which type of routes to install (linux or vpp)
-     defaultVrf:                 # also supports linux and vpp VRFs or tables
-       ipv4:                     # address family
-         routes:                 # a list of routes for which we want SRv6 services
+     platform: linux   # we specify the platform so srctl knows which type of routes to install (linux or vpp)
+     defaultVrf:       # also supports linux and vpp VRFs or tables
+       ipv4:           # address family
+         routes:       # a list of routes for which we want SRv6 services
            - name: rome-to-amsterdam-v4           # the name of the route
              graph: ipv4_graph                    # the Jalapeno graph to use for calculating the route
              pathType: shortest_path              # the type of path to use for the route
-             metric: low-latency                  # the metric to use for the route
+             metric: low-latency                  # the metric or constraint to use for the route
              source: hosts/rome                   # the source's database ID
              destination: hosts/amsterdam         # the destination's database ID
              destination_prefix: "10.101.2.0/24"  # the destination prefix
@@ -134,14 +139,14 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
              outbound_interface: "ens192"
    ```
 
-   4. cd into the *lab_5/srctl* directory. If you like you can review the yaml files in the directory - they should basically match the commented example.
+4. cd into the *lab_5/srctl* directory. If you like you can review the yaml files in the directory - they should basically match the commented example.
 
    ```
    cd ~/SRv6_dCloud_Lab/lab_5/srctl
    cat rome.yaml
    ```
 
-   5. For SRv6 outbound encapsulation we'll need to set Rome's SRv6 source address:
+5. For SRv6 outbound encapsulation we'll need to set Rome's SRv6 source address:
 
    ```
    sudo ip sr tunsrc set fc00:0:107:1::1
