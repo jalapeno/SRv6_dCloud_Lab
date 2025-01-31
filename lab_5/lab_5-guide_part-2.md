@@ -116,17 +116,6 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
    spec:
      platform: linux   # we specify the platform so srctl knows which type of routes to install (linux or vpp)
      defaultVrf:       # also supports linux and vpp VRFs or tables
-       ipv4:           # address family
-         routes:       # a list of routes for which we want SRv6 services
-           - name: rome-to-amsterdam-v4           # the name of the route
-             graph: ipv4_graph                    # the Jalapeno graph to use for calculating the route
-             pathType: shortest_path              # the type of path to use for the route
-             metric: low-latency                  # the metric or constraint to use for the route
-             source: hosts/rome                   # the source's database ID
-             destination: hosts/amsterdam         # the destination's database ID
-             destination_prefix: "10.101.2.0/24"  # the destination prefix
-             outbound_interface: "ens192"         # the linux or VPP outbound interface
- 
        ipv6:      # the same applies to ipv6
          routes:
            - name: rome-to-amsterdam-v6
@@ -199,13 +188,7 @@ For the next section we will query Jalapeno looking for the lowest latency path 
 
 2. Take a look at the Linux route table on Rome to see the new routes:
    ```
-   ip route show 
    ip -6 route show 
-   ```
-
-   Expected truncated output for ipv4:
-   ```
-   10.101.2.0/24  encap seg6 mode encap segs 1 [ fc00:0:7777:6666:5555:1111:: ] dev ens192 proto static 
    ```
 
    Expected truncated output for ipv6:
