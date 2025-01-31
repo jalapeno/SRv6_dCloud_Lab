@@ -116,17 +116,6 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
    spec:
      platform: linux   # we specify the platform so srctl knows which type of routes to install (linux or vpp)
      defaultVrf:       # also supports linux and vpp VRFs or tables
-       ipv4:           # address family
-         routes:       # a list of routes for which we want SRv6 services
-           - name: rome-to-amsterdam-v4           # the name of the route
-             graph: ipv4_graph                    # the Jalapeno graph to use for calculating the route
-             pathType: shortest_path              # the type of path to use for the route
-             metric: low-latency                  # the metric or constraint to use for the route
-             source: hosts/rome                   # the source's database ID
-             destination: hosts/amsterdam         # the destination's database ID
-             destination_prefix: "10.101.2.0/24"  # the destination prefix
-             outbound_interface: "ens192"         # the linux or VPP outbound interface
- 
        ipv6:      # the same applies to ipv6
          routes:
            - name: rome-to-amsterdam-v6
@@ -152,24 +141,28 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
    sudo ip sr tunsrc set fc00:0:107:1::1
    ```
 
+   Validate that the SR tunnel source was set:
+   ```
+   sudo ip sr tunsrc show
+   ```
+   Example output:
+   ```
+   cisco@rome:~/SRv6_dCloud_Lab/lab_5/srctl$ sudo ip sr tunsrc show
+   tunsrc addr fc00:0:107:1::1
+   ```
+
 ### Rome to Amsterdam: Lowest Latency Path
 
 Our first use case is to make path selection through the network based on the cummulative link latency from A to Z. Calculating best paths using latency meta-data is not something traditional routing protocols can do, though it may be possible to statically build routes through your network using weights to define a path. However, what these workarounds cannot do is provide path selection based on near real time data which is possible with an application like Jalapeno. This provides customers to have a flexible network policy that can react to changes in the WAN environment.
+
+For the next section we will query Jalapeno looking for the lowest latency path between Rome and Amsterdam for specifc routes. See the diagram below for what the expected SR path results will be.
+
+![Low Latency Path](/topo_drawings/low-latency-path.png)
 
 1. From the *lab_5/srctl* directory on Rome, run the following command (note, we add *sudo* to the command as we are applying the routes to the Linux host):
 
    ```
    sudo srctl --api-server http://198.18.128.101:30800 apply -f rome.yaml
-   ```
-
-   Alternatively, define the API server address via environment variable:
-   ```
-   export JALAPENO_API_SERVER="http://198.18.128.101:30800"
-   ```
-   
-   Then run the command without the --api-server option (specify *sudo -E* so sudo picks up the environment variable):
-   ```
-   sudo -E srctl apply -f rome.yaml
    ```
 
    The Output should look something like this:
@@ -178,20 +171,12 @@ Our first use case is to make path selection through the network based on the cu
    Loaded configuration from rome.yaml
    Deleted existing route to 10.101.2.0/24 in table 0  # cleanup existing route
    Adding route with encap: {'type': 'seg6', 'mode': 'encap', 'segs': ['fc00:0:7777:6666:5555:1111:0:0']} to table 0  # add new route
-   Adding route with encap: {'type': 'seg6', 'mode': 'encap', 'segs': ['fc00:0:7777:6666:5555:1111:0:0']} to table 0
-   rome-to-amsterdam-v4: fc00:0:7777:6666:5555:1111: Route to 10.101.2.0/24 via fc00:0:7777:6666:5555:1111:0:0 programmed successfully in table 0  # success message
    rome-to-amsterdam-v6: fc00:0:7777:6666:5555:1111: Route to fc00:0:101:2::/64 via fc00:0:7777:6666:5555:1111:0:0 programmed successfully in table 0  # success message
    ```
 
 2. Take a look at the Linux route table on Rome to see the new routes:
    ```
-   ip route show 
    ip -6 route show 
-   ```
-
-   Expected truncated output for ipv4:
-   ```
-   10.101.2.0/24  encap seg6 mode encap segs 1 [ fc00:0:7777:6666:5555:1111:: ] dev ens192 proto static 
    ```
 
    Expected truncated output for ipv6:
@@ -316,7 +301,7 @@ sudo vppctl show interface # same command but executed from Linux
 
 Many segment routing and other SDN solutions focus on the *low latency path* as their primary use case. We absolutely feel low latency is an important network service, especially for real time applications. However, we believe one of the use cases which deliver the most bang for the buck is **Least Utilized Path**. The idea behind this use case is that the routing protocol's chosen best path is very often *`The Actual Best Path`*. Because of this `srctl's` *`Least Utilized`* service looks to steer lower priority traffic (backups, content replication, etc.) to lesser used paths and preserve the routing protocol's *"best path"* for higher priority traffic.
 
-1. On the Amsterdam VM, cd into the *lab_5/srctl* directory. 
+1. On the **Amsterdam** VM, cd into the *lab_5/srctl* directory. 
    ```
    cd ~/SRv6_dCloud_Lab/lab_5/srctl
    ```
