@@ -98,7 +98,7 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
 
    Example usage:
    ```
-   sudo srctl apply --api-server http://198.18.128.101:30800 -f rome.yaml
+   sudo srctl --api-server http://198.18.128.101:30800 apply -f rome.yaml
    ```
 
    Alternatively, define the API server address with an environment variable:
@@ -159,7 +159,7 @@ Our first use case is to make path selection through the network based on the cu
 1. From the *lab_5/srctl* directory on Rome, run the following command (note, we add *sudo* to the command as we are applying the routes to the Linux host):
 
    ```
-   sudo srctl apply --api-server http://198.18.128.101:30800 -f rome.yaml
+   sudo srctl --api-server http://198.18.128.101:30800 apply -f rome.yaml
    ```
 
    Alternatively, define the API server address via environment variable:
