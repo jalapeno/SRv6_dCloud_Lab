@@ -168,7 +168,7 @@ Our first use case is to make path selection through the network based on the cu
 
 For the next section we will query Jalapeno looking for the lowest latency path between Rome and Amsterdam for specifc routes. See the diagram below for what the expected SR path results will be.
 
-![jalapeno_architecture](https://github.com/cisco-open/jalapeno/blob/main/docs/img/low-latency-path.png)
+![Low Latency Path](/topo_drawings/low-latency-path.png)
 
 1. From the *lab_5/srctl* directory on Rome, run the following command (note, we add *sudo* to the command as we are applying the routes to the Linux host):
 
