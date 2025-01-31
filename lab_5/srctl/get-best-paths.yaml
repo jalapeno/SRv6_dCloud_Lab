@@ -9,7 +9,7 @@ spec:
         - name: amsterdam-to-rome
           graph: ipv6_graph
           path_type: best-paths
-          limit: 4
+          limit: 3
           source: hosts/amsterdam
           destination: hosts/rome
           direction: outbound
