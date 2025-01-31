@@ -152,6 +152,16 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
    sudo ip sr tunsrc set fc00:0:107:1::1
    ```
 
+   Validate that the SR tunnel source was set:
+   ```
+   sudo ip sr tunsrc show
+   ```
+   Example output:
+   ```
+   cisco@rome:~/SRv6_dCloud_Lab/lab_5/srctl$ sudo ip sr tunsrc show
+   tunsrc addr fc00:0:107:1::1
+   ```
+
 ### Rome to Amsterdam: Lowest Latency Path
 
 Our first use case is to make path selection through the network based on the cummulative link latency from A to Z. Calculating best paths using latency meta-data is not something traditional routing protocols can do, though it may be possible to statically build routes through your network using weights to define a path. However, what these workarounds cannot do is provide path selection based on near real time data which is possible with an application like Jalapeno. This provides customers to have a flexible network policy that can react to changes in the WAN environment.
