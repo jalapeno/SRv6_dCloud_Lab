@@ -165,16 +165,6 @@ For the next section we will query Jalapeno looking for the lowest latency path 
    sudo srctl --api-server http://198.18.128.101:30800 apply -f rome.yaml
    ```
 
-   Alternatively, define the API server address via environment variable:
-   ```
-   export JALAPENO_API_SERVER="http://198.18.128.101:30800"
-   ```
-   
-   Then run the command without the --api-server option (specify *sudo -E* so sudo picks up the environment variable):
-   ```
-   sudo -E srctl apply -f rome.yaml
-   ```
-
    The Output should look something like this:
    ```yaml
    cisco@rome:~/SRv6_dCloud_Lab/lab_5/srctl$ sudo srctl --api-server http://198.18.128.101:30800 apply -f rome.yaml
@@ -182,7 +172,6 @@ For the next section we will query Jalapeno looking for the lowest latency path 
    Deleted existing route to 10.101.2.0/24 in table 0  # cleanup existing route
    Adding route with encap: {'type': 'seg6', 'mode': 'encap', 'segs': ['fc00:0:7777:6666:5555:1111:0:0']} to table 0  # add new route
    Adding route with encap: {'type': 'seg6', 'mode': 'encap', 'segs': ['fc00:0:7777:6666:5555:1111:0:0']} to table 0
-   rome-to-amsterdam-v4: fc00:0:7777:6666:5555:1111: Route to 10.101.2.0/24 via fc00:0:7777:6666:5555:1111:0:0 programmed successfully in table 0  # success message
    rome-to-amsterdam-v6: fc00:0:7777:6666:5555:1111: Route to fc00:0:101:2::/64 via fc00:0:7777:6666:5555:1111:0:0 programmed successfully in table 0  # success message
    ```
 
