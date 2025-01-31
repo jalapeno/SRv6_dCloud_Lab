@@ -154,11 +154,22 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
 
 ### Rome to Amsterdam: Lowest Latency Path
 
-Our first use case is to make path selection through the network based on the cummulative link latency from A to Z. Calculating best paths using latency meta-data is not something traditional routing protocols can do. It may be possible to statically build routes through your network using weights to define a path. However, what these workarounds cannot do is provide path selection based on near real time data which is possible with an application like Jalapeno. This provides customers to have a flexible network policy that can react to changes in the WAN environment.
+Our first use case is to make path selection through the network based on the cummulative link latency from A to Z. Calculating best paths using latency meta-data is not something traditional routing protocols can do, though it may be possible to statically build routes through your network using weights to define a path. However, what these workarounds cannot do is provide path selection based on near real time data which is possible with an application like Jalapeno. This provides customers to have a flexible network policy that can react to changes in the WAN environment.
 
 1. From the *lab_5/srctl* directory on Rome, run the following command (note, we add *sudo* to the command as we are applying the routes to the Linux host):
+
    ```
-   sudo srctl --api-server http://198.18.128.101:30800 apply -f rome.yaml
+   sudo srctl apply --api-server http://198.18.128.101:30800 -f rome.yaml
+   ```
+
+   Alternatively, define the API server address via environment variable:
+   ```
+   export JALAPENO_API_SERVER="http://198.18.128.101:30800"
+   ```
+   
+   Then run the command without the --api-server option:
+   ```
+   sudo srctl apply -f rome.yaml
    ```
 
    The Output should look something like this:
