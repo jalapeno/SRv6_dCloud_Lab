@@ -167,9 +167,9 @@ Our first use case is to make path selection through the network based on the cu
    export JALAPENO_API_SERVER="http://198.18.128.101:30800"
    ```
    
-   Then run the command without the --api-server option:
+   Then run the command without the --api-server option (specify *sudo -E* so sudo picks up the environment variable):
    ```
-   sudo srctl apply -f rome.yaml
+   sudo -E srctl apply -f rome.yaml
    ```
 
    The Output should look something like this:
@@ -207,6 +207,8 @@ Our first use case is to make path selection through the network based on the cu
    Optional: run tcpdump on the XRD VM to see the traffic flow and SRv6 uSID in action. 
    ```
    sudo ip netns exec clab-cleu25-xrd07 tcpdump -lni Gi0-0-0-0
+   ```
+   ```
    sudo ip netns exec clab-cleu25-xrd06 tcpdump -lni Gi0-0-0-0
    ```
 
@@ -314,9 +316,8 @@ sudo vppctl show interface # same command but executed from Linux
 
 Many segment routing and other SDN solutions focus on the *low latency path* as their primary use case. We absolutely feel low latency is an important network service, especially for real time applications. However, we believe one of the use cases which deliver the most bang for the buck is **Least Utilized Path**. The idea behind this use case is that the routing protocol's chosen best path is very often *`The Actual Best Path`*. Because of this `srctl's` *`Least Utilized`* service looks to steer lower priority traffic (backups, content replication, etc.) to lesser used paths and preserve the routing protocol's *"best path"* for higher priority traffic.
 
-1. ssh to the Amsterdam VM and cd into the *lab_5/srctl* directory. 
+1. On the Amsterdam VM, cd into the *lab_5/srctl* directory. 
    ```
-   ssh cisco@198.18.128.102
    cd ~/SRv6_dCloud_Lab/lab_5/srctl
    ```
 
@@ -346,6 +347,16 @@ Many segment routing and other SDN solutions focus on the *low latency path* as 
 3. Run **srctl** *Least Utilized* service on Amsterdam VM
    ```
    sudo srctl --api-server http://198.18.128.101:30800 apply -f amsterdam.yaml
+   ```
+
+   Alternatively, define the API server address via environment variable:
+   ```
+   export JALAPENO_API_SERVER="http://198.18.128.101:30800"
+   ```
+   
+   Then run the command without the --api-server option (specify *sudo -E* so sudo picks up the environment variable):
+   ```
+   sudo -E srctl apply -f amsterdam.yaml
    ```
 
    Expected output:
@@ -428,6 +439,8 @@ Many segment routing and other SDN solutions focus on the *low latency path* as 
    Optional: run tcpdump on the XRD VM to see the traffic flow and SRv6 uSID in action. 
    ```
    sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-0
+   ```
+   ```
    sudo ip netns exec clab-cleu25-xrd03 tcpdump -lni Gi0-0-0-0
    ```
 
@@ -444,18 +457,18 @@ Many segment routing and other SDN solutions focus on the *low latency path* as 
   > If we wanted to implement either the Amsterdam to Rome or Rome to Amsterdam SRv6 service for global table traffic as an SRv6-TE steering policy on our xrd routers we would create a policy like the below example, which is very similar to the work we did in Lab 3 for L3VPN prefixes.
      
   On router **xrd07** we need to add in config to advertise the global prefix with the bulk transfer community.
-     ```
-     extcommunity-set opaque bulk-transfer
-       40
-     end-set
+  ```
+  extcommunity-set opaque bulk-transfer
+    40
+  end-set
 
-     route-policy set-global-color
-        if destination in (fc00:0:107:1::/64) then
-          set extcommunity color bulk-transfer
-        endif
-        pass
-     end-policy 
-     ```
+  route-policy set-global-color
+    if destination in (fc00:0:107:1::/64) then
+      set extcommunity color bulk-transfer
+    endif
+    pass
+  end-policy 
+  ```
   
   Then on router **xrd01** we would add an SRv6 segment-list config to define the hops returned from our query between router **xrd01** (source) and **xrd07** (destination). 
    
