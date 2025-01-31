@@ -524,7 +524,7 @@ For our lab we've specified that Berlin-to-Rome traffic should avoid France (FRA
    cd ~/SRv6_dCloud_Lab/lab_5/srctl
    ```
 
-2. Up till now we've been specifying the api-server address when using **srctl**. We can also set the api-server as an environment variable, which will shorten the command line:
+2. Let's go ahead and set the api-server environment variable and give ourselves a shorter command line:
    ```
    export JALAPENO_API_SERVER="http://198.18.128.101:30800"
    ```
@@ -550,10 +550,12 @@ For our lab we've specified that Berlin-to-Rome traffic should avoid France (FRA
 5. Optional: run tcpdump on the XRD VM to see the traffic flow and SRv6 uSID in action. 
    ```
    sudo ip netns exec clab-cleu25-xrd02 tcpdump -lni Gi0-0-0-3
+   ```
+   ```
    sudo ip netns exec clab-cleu25-xrd03 tcpdump -lni Gi0-0-0-1
    ```
 
-   This tcpdump shows the outer SRv6 encapsulation and the *data-sovereignty* uSID combination.
+   This tcpdump shows the outer SRv6 encapsulation and the *data-sovereignty* uSID combination *fc00:0:2222:3333:4444:7777::*.
 
    ```yaml
    cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd02 tcpdump -lni Gi0-0-0-3
@@ -582,7 +584,7 @@ srctl get-paths -s hosts/amsterdam -d hosts/rome --type best-paths --limit 3
     ```
     Expected output:
     ```
-
+    jan 30 - bug in srctl get-paths, to be fixed asap
     ```
 
 2. **srctl** *Get Next Best Paths* is an extension of the *Get Paths* service. It will query the API for a set of ECMP paths and also a set of *next best* paths that are one hop longer than the shortest/best path. The *next best* paths are the paths that would be used if the *best* path failed, or if we wanted to create an SRv6 policy that performed UCMP load balancing.
@@ -610,7 +612,7 @@ Now we are going to simulate a recalculation of the SRv6 topology. The *Sub-Stan
 
 For full size image see [LINK](/topo_drawings/low-latency-alternate-path.png)
 
-1. Link "G" needs to have the latency in your topology updated. We will use the Python script located in /lab_6/python/set_latency.py to change the link latency in the lab and then update the ArangoDb topology database with the new value. Set latency has two cli requirements -l (link letter) [A,B,C,D,E,F,G,H,I] and -ms (milliseconds latency) xxx values.
+1. Link "G" needs to have the latency in your topology updated. We will use the Python script located in */lab_5/python/set_latency.py* to change the link latency in the lab and then update the ArangoDb topology database with the new value. Set latency has two cli requirements -l (link letter) [A,B,C,D,E,F,G,H,I] and -ms (milliseconds latency) xxx values.
 
     On **XRD VM** run the command
     ```
