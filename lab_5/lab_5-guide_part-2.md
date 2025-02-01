@@ -22,7 +22,7 @@ In Part 2 we will use the **`srctl`** command line tool we developed to program 
     - [Amsterdam to Rome: Least Utilized Path](#amsterdam-to-rome-least-utilized-path)
   - [Berlin VM - not quite Cilium SRv6-TE](#berlin-vm---not-quite-cilium-srv6-te)
     - [Berlin to Rome: Data Sovereignty Path](#berlin-to-rome-data-sovereignty-path)
-  - [Get All Paths](#get-all-paths)
+  - [Get Paths](#get-paths)
   - [Low Latency Re-Route](#low-latency-re-route)
     - [You have reached the end of LTRSPG-2212, hooray!](#you-have-reached-the-end-of-ltrspg-2212-hooray)
 
@@ -552,17 +552,17 @@ For our lab we've specified that Berlin-to-Rome traffic should avoid France (FRA
    18:58:38.578878 IP6 fc00:0:7777::1 > fc00:0:a0fb:3845::: IP 10.107.2.1 > 10.200.0.134: ICMP echo reply, id 32, seq 11, length 64
    ```
 
-## Get All Paths
+## Get Paths
 
 **srctl's** *Get All Paths* service will query the API for a set of ECMP paths from a source to a destination. The CLI can take a yaml file as input, or can take command line variables for source and destination. The CLI can also specify a limit to the number of paths returned.
 
 Examples:
 ```
-srctl get-paths -f paths-ams-rome.yaml 
-srctl get-paths -s hosts/amsterdam -d hosts/rome --type best-paths --limit 3
+srctl get-paths -f berlin-to-rome.yaml 
+srctl get-paths -s hosts/berlin-k8s -d hosts/rome --type best-paths --limit 3
 ```
 
-1. On any of the VMs (Amsterdam, Rome, Berlin) run the **srctl** *Get All Paths* CLI:
+1. On any of the VMs (Amsterdam, Rome, Berlin) run the **srctl** *Get Paths* CLI:
     ``` 
     cd ~/SRv6_dCloud_Lab/lab_5/srctl
     srctl get-paths -f paths-ams-rome.yaml
