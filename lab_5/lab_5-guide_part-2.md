@@ -558,24 +558,38 @@ For our lab we've specified that Berlin-to-Rome traffic should avoid France (FRA
 
 Examples:
 ```
-srctl get-paths -f berlin-to-rome.yaml 
+srctl get-paths -f amsterdam-to-rome.yaml 
 srctl get-paths -s hosts/berlin-k8s -d hosts/rome --type best-paths --limit 3
 ```
 
 1. On any of the VMs (Amsterdam, Rome, Berlin) run the **srctl** *Get Paths* CLI:
     ``` 
     cd ~/SRv6_dCloud_Lab/lab_5/srctl
-    srctl get-paths -f paths-ams-rome.yaml
+    srctl get-paths -f amsterdam-to-rome.yaml 
     ```
     Expected output:
     ```
-    jan 30 - bug in srctl get-paths, to be fixed asap
+    cisco@rome:~/SRv6_dCloud_Lab/lab_5/srctl$ srctl get-paths -f amsterdam-to-rome.yaml 
+    Loaded configuration from amsterdam-to-rome.yaml
+
+    amsterdam-to-rome:
+      Path 1 SRv6 uSID: fc00:0:1111:2222:6666:7777:
+      Path 2 SRv6 uSID: fc00:0:1111:5555:4444:7777:
+      Path 3 SRv6 uSID: fc00:0:1111:5555:6666:7777:
+      Path 4 SRv6 uSID: fc00:0:1111:2222:3333:4444:7777:
     ```
+
+Optional: run get-paths using all CLI options and/or with -v for verbose output:
+    ```
+    srctl get-paths -s hosts/berlin-k8s -d hosts/rome --type best-paths --limit 3
+    srctl get-paths -s hosts/amsterdam -d hosts/rome --type best-paths --limit 4 -v
+    ```
+
 
 2. **srctl** *Get Next Best Paths* is an extension of the *Get Paths* service. It will query the API for a set of ECMP paths and also a set of *next best* paths that are one hop longer than the shortest/best path. The *next best* paths are the paths that would be used if the *best* path failed, or if we wanted to create an SRv6 policy that performed UCMP load balancing.
 
    ```
-   srctl get-paths -s hosts/amsterdam -d hosts/rome --type next-best-path --same-hop-limit 3 --plus-one-limit 5
+   srctl get-paths -s hosts/amsterdam -d hosts/rome --type next-best-path --same-hop-limit 3 --plus-one-limit 5 
    ```
 
    Expected output:
@@ -588,7 +602,7 @@ srctl get-paths -s hosts/berlin-k8s -d hosts/rome --type best-paths --limit 3
      Additional Best Path 2 SRv6 uSID: fc00:0:1111:5555:4444:7777:
      Additional Best Path 3 SRv6 uSID: fc00:0:1111:5555:6666:7777:
      Next Best Path 1 SRv6 uSID: fc00:0:1111:2222:3333:4444:7777:
-   ```
+   ``` 
 
 ## Low Latency Re-Route
 Now we are going to simulate a recalculation of the SRv6 topology. The *Sub-Standard Construction Company* has taken out fiber link "G" with a backhoe. Luckily you have paid for optical path redundancy and the link has failed to a geographicaly different path. The result though is that the primary path latency of *5ms* has increased to *25 ms*. This should cause a new low latency route. Time to test it out!
