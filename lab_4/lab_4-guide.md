@@ -754,21 +754,21 @@ In lab 3 we created the *radish VRF* on *xrd07* and bound a loopback interface t
 
    Expected output:
    ```diff
-   cisco@berlin:~/SRv6_dCloud_Lab/lab_4/cilium$ kubectl describe pod -n veggies carrots1 | more
-+   Name:             carrots1
+   cisco@berlin:~/SRv6_dCloud_Lab/lab_4/cilium$ kubectl describe pod -n veggies carrots1
+   +   Name:             carrots1
    Namespace:        veggies
    Priority:         0
    Service Account:  default
    Node:             berlin/198.18.4.104
    Start Time:       Wed, 22 Jan 2025 02:19:34 -0500
    Labels:           app=alpine-ping
-+                    vrf=radish                            # carrots1 is now in the radish VRF
+   +                 vrf=radish                            # carrots1 is now in the radish VRF
    Annotations:      <none>
    Status:           Running
    IP:               10.200.0.164
    IPs:
-     IP:  10.200.0.164
-     IP:  2001:db8:42::d582
+        IP:  10.200.0.164
+        IP:  2001:db8:42::d582
    ```
 
 > [!NOTE]
