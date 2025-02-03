@@ -580,7 +580,7 @@ You'll note that the pod is in the *carrots VRF* and the K8s namespace *veggies*
     +     metadata: carrots             # table to perform the lookup in
           owner: srv6-manager
           sid:
-    +       addr: 'fc00:0:a0ba:ec7::'   # Berlin VRF carrots SRv6 Locator + uDT4 Function
+    +       addr: 'fc00:0:a0ba:ec7::'   # Berlin VRF carrots SRv6 Locator + uDT4 Function (ec7)
             structure:
               argumentLenBits: 0
               functionLenBits: 16
@@ -609,7 +609,7 @@ You'll note that the pod is in the *carrots VRF* and the K8s namespace *veggies*
    Not advertised to any peer
    Local
        fc00:0:8888::1 (metric 2) from fc00:0:5555::1 (198.18.4.104)
-   +     Received Label 0xec70      # uDT4 function bits match the SRv6 SID manager output from Cilium
+   +     Received Label 0xec70      # uDT4 function bits (ec7) match the SRv6 SID manager output from Cilium
          Origin incomplete, localpref 100, valid, internal, best, group-best, import-candidate, not-in-vrf
          Received Path ID 0, Local Path ID 1, version 20
          Extended community: RT:9:9
