@@ -1,4 +1,5 @@
 #!/bin/bash
+#Updated to do a hard reset on the git pull
 
 export HOME=/home/cisco
 cd /home/cisco/SRv6_dCloud_Lab
