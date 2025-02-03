@@ -96,17 +96,7 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
 
    Per the *help* output we see that our current options are to *apply* or *delete* a configuration from a yaml file, or an informational *get-paths* command. Also notice the --api-server option where you can specify the Jalapeno API server address.
 
-   Example usage:
-   ```
-   sudo srctl --api-server http://198.18.128.101:30800 apply -f rome.yaml
-   ```
-
-   Alternatively, define the API server address with an environment variable:
-   ```
-   export JALAPENO_API_SERVER="http://198.18.128.101:30800"
-   ```
-
-3. Here is a commented version of Rome's srctl yaml file:
+3. Lets review the yaml file we will use in later steps to program Rome use srctl.
    
    ```yaml
    apiVersion: jalapeno.srv6/v1     # following the k8s design pattern, the api version
@@ -163,6 +153,11 @@ For the next section we will query Jalapeno looking for the lowest latency path 
 
    ```
    sudo srctl --api-server http://198.18.128.101:30800 apply -f rome.yaml
+   ```
+
+   Alternatively, define the API server address with an environment variable:
+   ```
+   export JALAPENO_API_SERVER="http://198.18.128.101:30800"
    ```
 
    The Output should look something like this:
