@@ -547,6 +547,8 @@ For our lab we've specified that Berlin-to-Rome traffic should avoid France (FRA
 Examples:
 ```
 srctl get-paths -f amsterdam-to-rome.yaml 
+```
+```
 srctl get-paths -s hosts/berlin-k8s -d hosts/rome --type best-paths --limit 3
 ```
 
@@ -568,10 +570,10 @@ srctl get-paths -s hosts/berlin-k8s -d hosts/rome --type best-paths --limit 3
     ```
 
 Optional: run get-paths using all CLI options and/or with -v for verbose output:
-    ```
-    srctl get-paths -s hosts/berlin-k8s -d hosts/rome --type best-paths --limit 3
-    srctl get-paths -s hosts/amsterdam -d hosts/rome --type best-paths --limit 4 -v
-    ```
+   ```
+   srctl get-paths -s hosts/berlin-k8s -d hosts/rome --type best-paths --limit 3
+   srctl get-paths -s hosts/amsterdam -d hosts/rome --type best-paths --limit 4 -v
+   ```
 
 
 2. **srctl** *Get Next Best Paths* is an extension of the *Get Paths* service. It will query the API for a set of ECMP paths and also a set of *next best* paths that are one hop longer than the shortest/best path. The *next best* paths are the paths that would be used if the *best* path failed, or if we wanted to create an SRv6 policy that performed UCMP load balancing.
