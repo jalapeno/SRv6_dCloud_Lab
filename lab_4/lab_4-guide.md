@@ -593,8 +593,9 @@ You'll note that the pod is in the *carrots VRF* and the K8s namespace *veggies*
 1. On the xrd VM ssh to **xrd01** and run some BGP verification commands.
    ```
    ssh cisco@clab-cleu25-xrd01
+   ```
+   ```
    show bgp vpnv4 unicast
-   
    show bgp vpnv4 unicast rd 9:9 10.200.0.0/24
    ```
 
