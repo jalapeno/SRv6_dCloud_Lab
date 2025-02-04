@@ -24,8 +24,6 @@ This lab is divided into two main sections :
   - [Jalapeno Web UI](#jalapeno-web-ui)
     - [Data Collections](#data-collections)
     - [Topology Viewer](#topology-viewer)
-    - [Calculate a Path](#calculate-a-path)
-    - [Schedule a Workload](#schedule-a-workload)
   - [End of lab 5 Part 1](#end-of-lab-5-part-1)
 
 ## Lab Objectives
@@ -204,6 +202,9 @@ Jalapeno's base installation processes BMP data and populates it into ArangoDB. 
    - *`ipv4_graph`*: a model of the entire ipv4 topology (IGP and BGP)
    - *`ipv6_graph`*: a model of the entire ipv6 topology (IGP and BGP)
    - *`sr_local_sids`*: a collection of SRv6 SID information that is not available via BMP
+
+> [!NOTE]
+> The script will also re-deploy the Jalapeno UI and API so they get the latest changes.
   
 8. Verify the Graph Processors have deployed successfully:
     ```
@@ -268,16 +269,15 @@ The Jalapeno REST API is used to run queries against the ArangoDB and retrieve g
 
 ## Jalapeno Web UI
 
-The Jalapeno UI is very much a work in progress and is meant to illustrate the potential use cases for extending SRv6 services beyond traditional network elements and into the server, host, VM, k8s, or other workloads. Once Jalapeno has programmatically collected data from the network and built its topology graphs, the network operator has complete flexibility to add data or augment the graph as we saw in the previous section. From there, its not too difficult to conceive of building network services based on calls to the Jalapeno API and leveraging the SRv6 uSID stacks that are returned.
+The Jalapeno UI is a demo or proof-of-concept meant to illustrate the potential use cases for extending SRv6 services beyond traditional network elements and into the server, host, VM, k8s, or other workloads. Once Jalapeno has programmatically collected data from the network and built its topology graphs, the network operator has complete flexibility to add data or augment the graph as we saw in the previous section. From there, its not too difficult to conceive of building network services based on calls to the Jalapeno API and leveraging the SRv6 uSID stacks that are returned.
 
 Each lab instance has a Jalapeno Web UI that can be accessed at the following URL: [http://198.18.128.101:30700](http://198.18.128.101:30700). 
 
-On the left hand sidebar you will see that UI functionality is split into four sections:
+On the left hand sidebar you will see that UI functionality is split into three sections:
 
 - **Data Collections**: explore raw object and graph data collected from the network.
-- **Topology Viewer**: explore the network topology graphs built by Jalapeno's BMP data.
-- **Calculate a Path**: gives the user the ability to select a source and destination in the graph and calculate the best path through the network based upon a selected constraint.
-- **Schedule a Workload**: this function is still under construction. The idea behind `Schedule a Workload` is to have a SRv6-based fabric load-balancing service.
+- **Topology Viewer**: explore the network topology graphs and perform path calculations.
+- **Schedule a Workload**: this function is under construction. 
 
 ### Data Collections
 Currently populated with raw BMP and graph data. We have placeholders for future data collections such as Services (like firewalls or load balancers), Hosts, and GPUs.
@@ -285,29 +285,15 @@ Currently populated with raw BMP and graph data. We have placeholders for future
 <img src="images/jalapeno-ui-data-collections.png" width="900">
 
 ### Topology Viewer
-The Topology Viewer prompts the user to select a graph from the dropdown and then displays the graph in the center of the screen. The graph is interactive and the user can hover over a node to see more information about it. There are also dropdowns to change the graph's layout and to show a 'nodes-only' view. Finally the user can click on nodes along a path and the relevant SRv6 uSID stack will be displayed in the upper right corner of the screen.
+The Topology Viewer prompts the user to select a graph from the dropdown and then displays the graph in the center of the screen. The graph is interactive and the user can hover over a node to see more information about it. There are dropdowns to change the graph's layout and to perform path calculations based on a selected constraint. 
 
-> [!NOTE]
-> There is currently a bug in the Topology Viewer where the node highlight and click function doesn't work at first. Try changing the layout using the upper left dropdown, then change it back to the **Default Layout** dropdown. Node highlighting and clicking functionality should then work.
-
-<img src="images/jalapeno-ui-topology-viewer.png" width="900">
-
-
-### Calculate a Path
-To use the path calculation function, select a source and destination node in the graph, then select a constraint from the dropdown. The application will then calculate and light up the shortest path through the network based on the selected constraint. The path calculation algorithms on the backend are using the telemetry meta data we uploaded earlier in the lab. In a future release we hope to incorporate streaming telemetry data into the graph and include it in path calculations.
+To perform a path calculation select a source and destination node in the graph, then select a constraint from the dropdown. The application will then calculate and light up the shortest path through the network based on the selected constraint. Finally the user can click on nodes along a path and the relevant SRv6 SID list will be displayed in the upper right corner of the screen.
+The path calculation algorithms on the backend are using the telemetry meta data we uploaded earlier in the lab. In a future release we hope to incorporate streaming telemetry data into the graph and include it in path calculations.
 
 **Constraints:**
 * **Lowest Latency**: The path calculation will return the shortest path through the network based on the latency meta-data we uploaded earlier in the lab
 * **Least Utilized**: The path calculation will return the path with the lowest average outbound utilization
-* **Load**: under construction (see Schedule a Workload below)
-
-<img src="images/jalapeno-ui-calculate-path.png" width="900">
-
-
-### Schedule a Workload
-This function is still under construction. The idea behind `Schedule a Workload` is to have a fabric load-balancing service where the user can select a set of endpoints, such as hosts or even GPUs, then ask Jalapeno to calculate a set of paths based on each source/destination pair of the selected endpoints. Jalapeno would return a set of uSIDs that would evenly balance the source/destination flows across available paths in the fabric.
-
-<img src="images/jalapeno-ui-sched-workload.png" width="900">
+* **Data Sovereignty**: The user can select a country to avoid and the path calculation will return the path that traverses the network avoiding the selected country.
 
 
 ## End of lab 5 Part 1
