@@ -79,7 +79,7 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
 
    Expected output:
    ```yaml
-   cisco@berlin:~$ srctl --help
+   cisco@rome:~$ srctl --help
    Usage: srctl [OPTIONS] COMMAND [ARGS]...
 
      Command line interface for Segment Routing Configuration
