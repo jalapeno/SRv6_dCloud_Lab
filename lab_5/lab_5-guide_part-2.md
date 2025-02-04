@@ -96,7 +96,7 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
 
    Per the *help* output we see that our current options are to *apply* or *delete* a configuration from a yaml file, or an informational *get-paths* command. Also notice the --api-server option where you can specify the Jalapeno API server address.
 
-3. Lets review the yaml file we will use in later steps to program Rome use srctl.
+3. Lets review the [rome.yaml](srctl/rome.yaml) file we will use in later steps to program Rome use srctl.
    
    ```yaml
    apiVersion: jalapeno.srv6/v1     # following the k8s design pattern, the api version
@@ -143,9 +143,9 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
 
 ### Rome to Amsterdam: Lowest Latency Path
 
-Our first use case is to make path selection through the network based on the cummulative link latency from A to Z. Calculating best paths using latency meta-data is not something traditional routing protocols can do, though it may be possible to statically build routes through your network using weights to define a path. However, what these workarounds cannot do is provide path selection based on near real time data which is possible with an application like Jalapeno. This provides customers to have a flexible network policy that can react to changes in the WAN environment.
+Our first use case is to make path selection through the network based on the cummulative link latency from A to Z. Calculating best paths using latency meta-data is not something traditional routing protocols can do, though it may be possible to statically build routes through your network using weights to define a path. However, what these workarounds cannot do is provide path selection based on near real time data which is possible with an application like Jalapeno. This provides customers a flexible tool that can react to changes in the WAN environment.
 
-For the next section we will query Jalapeno looking for the lowest latency path between Rome and Amsterdam for specifc routes. See the diagram below for what the expected SR path results will be.
+For the next section we will run the **srctl** *Low Latency* service to program the lowest latency path between Rome and Amsterdam. See the diagram below for what the expected SRv6 path will be.
 
 ![Low Latency Path](/topo_drawings/low-latency-path.png)
 
