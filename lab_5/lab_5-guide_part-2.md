@@ -145,7 +145,7 @@ The Rome VM is simulating a user host or endpoint and will use its Linux datapla
 
 Our first use case is to make path selection through the network based on the cummulative link latency from A to Z. Calculating best paths using latency meta-data is not something traditional routing protocols can do, though it may be possible to statically build routes through your network using weights to define a path. However, what these workarounds cannot do is provide path selection based on near real time data which is possible with an application like Jalapeno. This provides customers a flexible tool that can react to changes in the WAN environment.
 
-For the next section we will run the **srctl** *Low Latency* service to program the lowest latency path between Rome and Amsterdam. See the diagram below for what the expected SRv6 path will be.
+For the next section we will run the **srctl** *Low Latency* service on Rome to give it the lowest latency path to Amsterdam. See the diagram below for what the expected SRv6 path will be.
 
 ![Low Latency Path](/topo_drawings/low-latency-path.png)
 
@@ -236,10 +236,10 @@ dpdk {
   dev 0000:0b:00.0
 }
 ```
- - You can review the VPP startup-config file here: https://github.com/jalapeno/SRv6_dCloud_Lab/blob/main/lab_1/config/amsterdam-vpp.conf
+ - You can review the VPP startup-config file here: [amsterdam-vpp.conf](../lab_1/config/amsterdam-vpp.conf)
 
 
-4. VPP's CLI may be invoked directly:
+1. VPP's CLI may be invoked directly:
 ```
 sudo vppctl
 ```
