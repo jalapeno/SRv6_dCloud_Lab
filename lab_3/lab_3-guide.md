@@ -1,7 +1,7 @@
 # Lab 3: Configure SRv6 L3VPN and SRv6-TE [30 Min]
 
 ### Description
-In Lab 3 we will establish a Layer-3 VPN named *`carrots`* which will use SRv6 transport and will have endpoints on **xrd01** and **xrd07**. In order to extend L3VPN *`carrots`* to the Amsterdam and Rome VM we will be adding VRF *`carrots`* to interfaces on **xrd01** and **xrd07** that connect to seconrday NICs on the Amsterdam and Rome. Once the L3VPN is established and you run test traffic between Amsterdam and Rome we will then setup SRv6-TE traffic steering from Amsterdam to specific Rome prefixes.
+In Lab 3 we will establish a Layer-3 VPN named *`carrots`* which will use SRv6 transport and will have endpoints on **xrd01** and **xrd07**. We will also preconfigure VRF *`radish`* on **xrd07**, which we'll make use of in Lab 4. In order to extend L3VPN *`carrots`* to the Amsterdam and Rome VM we will be adding VRF *`carrots`* to interfaces on **xrd01** and **xrd07** that connect to seconrday NICs on the Amsterdam and Rome. Once the L3VPN is established and you run test traffic between Amsterdam and Rome we will then setup SRv6-TE traffic steering from Amsterdam to specific Rome prefixes.
 
 ## Contents
 - [Lab 3: Configure SRv6 L3VPN and SRv6-TE \[30 Min\]](#lab-3-configure-srv6-l3vpn-and-srv6-te-30-min)
@@ -16,7 +16,7 @@ In Lab 3 we will establish a Layer-3 VPN named *`carrots`* which will use SRv6 t
   - [Configure SRv6-TE steering for L3VPN](#configure-srv6-te-steering-for-l3vpn)
     - [Create SRv6-TE steering policy](#create-srv6-te-steering-policy)
     - [Validate SRv6-TE steering of L3VPN traffic](#validate-srv6-te-steering-of-l3vpn-traffic)
-      - [Validate bulk traffic takes the non-shortest path: xrd01 -\> 02 -\> 03 -\> 04 -\> 07](#validate-bulk-traffic-takes-the-non-shortest-path-xrd01---02---03---04---07)
+    - [Validate bulk traffic takes the non-shortest path: **xrd01 -\> 02 -\> 03 -\> 04 -\> 07**](#validate-bulk-traffic-takes-the-non-shortest-path-xrd01---02---03---04---07)
       - [Validate low latency traffic takes the path: xrd01 -\> 05 -\> 06 -\> 07](#validate-low-latency-traffic-takes-the-path-xrd01---05---06---07)
     - [End of Lab 3](#end-of-lab-3)
 
@@ -48,13 +48,15 @@ BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4/6 L3VPN Network
 
 
   ### Configure VRF
-  Time to configure VRF *carrots* for IPv4 and IPv6 VPN. The *carrots* VRF will be setup on the two edge routers in our SP network: **xrd01** and **xrd07**. Intermediate routers do not need to be VRF aware and are instead forwarding on the SRv6 data plane. (technically the intermediate routers don't need to be SRv6 aware and could simply perform IPv6 forwarding based on the outer IPv6 header)
+  Time to configure our VRFs for IPv4 and IPv6 VPN. The *carrots* VRF will be setup on the two edge routers in our SP network: **xrd01** and **xrd07**. Intermediate routers do not need to be VRF aware and are instead forwarding on the SRv6 data plane. (technically the intermediate routers don't need to be SRv6 aware and could simply perform IPv6 forwarding based on the outer IPv6 header). The *radish* VRF will be setup on **xrd07** and will be used in Lab 4.
 
   Configure the VRF on **xrd01** and **xrd07**:
 
 > [!NOTE]
 > the below commands are also available in the *`quick config doc`* [HERE](/lab_3/lab_3_quick_config.md)  
 
+
+  On both **xrd01** and **xrd07**:
   ```yaml
   conf t
   vrf carrots
@@ -70,6 +72,23 @@ BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4/6 L3VPN Network
       export route-target
       9:9
 
+    commit
+  ```
+
+  Only on **xrd07**:
+  ```yaml
+  conf t
+  vrf radish
+    address-family ipv4 unicast
+      import route-target
+      10:10
+      export route-target
+      10:10
+    address-family ipv6 unicast
+      import route-target
+      10:10
+      export route-target
+      10:10
     commit
   ```
 
@@ -101,6 +120,10 @@ BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4/6 L3VPN Network
       ipv4 address 10.107.2.2 255.255.255.0
       ipv6 address fc00:0:107:2::2/64
       no shutdown
+    interface Loopback100
+      vrf radish
+      ipv4 address 100.0.7.1 255.255.255.0
+      ipv6 address 2001:db8:100:7::1/64
     commit
     ```
 
@@ -163,7 +186,7 @@ BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4/6 L3VPN Network
 
    Last on **xrd01** we will redistribute connected routes using the command *`redistribute connected`*. This will trigger the two interfaces ipv4 and ipv6 networks facing the Amsterdam VM to advertise in VRF *carrots*.
 
-   On **xrd07** we will need to redistribute both the connected and static routes to provide reachability to Rome and its additional prefixes. For **xrd07** we will add both *`redistribute connected`* and *`redistribute static`* command.
+   On **xrd07** we will need to redistribute both the connected and static routes to provide reachability to Rome and its additional prefixes. For **xrd07** we will add *`redistribute connected`* to VRF *radish* and both *`redistribute connected`* and *`redistribute static`* for VRF *carrots*.
 
     **xrd01**  
     ```yaml
@@ -204,7 +227,20 @@ BGP encodes the SRv6 SID in the prefix-SID attribute of the IPv4/6 L3VPN Network
           alloc mode per-vrf
           redistribute static
           redistribute connected
-        commit
+
+      vrf radish
+        rd auto
+        address-family ipv4 unicast
+          segment-routing srv6
+          locator MyLocator
+          alloc mode per-vrf
+          redistribute connected
+        address-family ipv6 unicast
+          segment-routing srv6
+          locator MyLocator
+          alloc mode per-vrf
+          redistribute connected
+      commit
       ```
 
 3. The BGP route reflectors will also need to have L3VPN capability added to their peering group.
