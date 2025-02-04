@@ -287,6 +287,8 @@ Currently populated with raw BMP and graph data. We have placeholders for future
 ### Topology Viewer
 The Topology Viewer prompts the user to select a graph from the dropdown and then displays the graph in the center of the screen. The graph is interactive and the user can hover over a node to see more information about it. There are dropdowns to change the graph's layout and to perform path calculations based on a selected constraint. 
 
+<img src="images/jalapeno-ui-topology-viewer.png" width="900">
+
 To perform a path calculation select a source and destination node in the graph, then select a constraint from the dropdown. The application will then calculate and light up the shortest path through the network based on the selected constraint. Finally the user can click on nodes along a path and the relevant SRv6 SID list will be displayed in the upper right corner of the screen.
 The path calculation algorithms on the backend are using the telemetry meta data we uploaded earlier in the lab. In a future release we hope to incorporate streaming telemetry data into the graph and include it in path calculations.
 
