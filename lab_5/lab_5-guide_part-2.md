@@ -343,7 +343,6 @@ Many segment routing and other SDN solutions focus on the *low latency path* as 
    ```yaml
    cisco@amsterdam:~/SRv6_dCloud_Lab/lab_5/srctl$ sudo srctl --api-server http://198.18.128.101:30800 apply -f amsterdam.yaml
    Loaded configuration from amsterdam.yaml
-   amsterdam-to-rome-v4: fc00:0:1111:2222:3333:4444:7777: Route programmed successfully
    amsterdam-to-rome-v6: fc00:0:1111:2222:3333:4444:7777: Route programmed successfully
    ```
 
@@ -363,13 +362,6 @@ Many segment routing and other SDN solutions focus on the *low latency path* as 
      Segment Lists:
        [0].- < fc00:0:1111:2222:3333:4444:7777:0 > weight: 1
    -----------
-   [1].-	BSID: 101::101
-     Behavior: Encapsulation
-     Type: Default
-     FIB table: 0
-     Segment Lists:
-       [1].- < fc00:0:1111:2222:3333:4444:7777:0 > weight: 1
-   -----------
    ```
 
 5. Check VPP's SR traffic steering rules. 
@@ -382,7 +374,6 @@ Many segment routing and other SDN solutions focus on the *low latency path* as 
    cisco@amsterdam:~/SRv6_dCloud_Lab/lab_5/srctl$ sudo vppctl show sr steering-policies
    SR steering policies:
    Traffic		SR policy BSID
-   L3 10.107.1.0/24	101::101
    L3 fc00:0:107:1::/64	101::102
    ```
 
@@ -475,11 +466,11 @@ Many segment routing and other SDN solutions focus on the *low latency path* as 
 ## Berlin VM - not quite Cilium SRv6-TE
 On the Berlin VM we have our K8s pods which are connected to Cilium SRv6 L3VPN instances. However, Cilium doesn't currently support SRv6-TE. But as we saw with Rome, Linux does! So for now we'll use **srctl** to program a Berlin-to-Rome path, but we'll specify Linux as the platform. This workaround is functional because Cilium performs the SRv6 L3VPN encapsulation, and then Linux performs the SRv6-TE encapsulation before sending the packets out the interface. Sure, double encapsulation is not ideal, but...its a lab!
 
-Hopefully by this time next year Cilium will support SRv6-TE and we'll add it to the list of *srctl* platforms.
+Hopefully by this time next year Cilium will support SRv6-TE and we'll add it to the list of **srctl** platforms.
 
 ### Berlin to Rome: Data Sovereignty Path
 
-The Data Sovereignty service enables the user or application to steer their traffic through a path or geography that is considered safe per a set of legal guidelines or other regulatory framework. Or perhaps to avoid a country or geography for similar reasons. In our case the *`data-sovereignty`* service allows us to choose a country (or countries) to avoid when transmitting traffic from a source to a given destination. The country to avoid is specified as a country code in the *srctl* yaml file:
+The Data Sovereignty service enables the user or application to steer their traffic through a path or geography that is considered safe per a set of legal guidelines or other regulatory framework. Or perhaps to avoid a country or geography for similar reasons. In our case the *`data-sovereignty`* service allows us to choose a country (or countries) to avoid when transmitting traffic from a source to a given destination. The country to avoid is specified as a country code in the **srctl** yaml file:
 
 ```yaml
       routes:
@@ -501,6 +492,8 @@ For our lab we've specified that Berlin-to-Rome traffic should avoid France (FRA
 1. ssh to the Berlin VM and cd into the *lab_5/srctl* directory. 
    ```
    ssh cisco@198.18.128.104
+   ```
+   ```
    cd ~/SRv6_dCloud_Lab/lab_5/srctl
    ```
 
