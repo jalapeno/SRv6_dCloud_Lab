@@ -13,7 +13,7 @@ This lab is divided into two main sections :
     - [Description](#description)
   - [Contents](#contents)
   - [Lab Objectives](#lab-objectives)
-  - [Validate BGP Monitoring Protocol (BMP)](#validate-bgp-monitoring-protocol-bmp)
+    - [Validate BGP Monitoring Protocol (BMP)](#validate-bgp-monitoring-protocol-bmp)
   - [Jalapeno Overview](#jalapeno-overview)
   - [Validate Jalapeno State](#validate-jalapeno-state)
     - [Arango Graph Database](#arango-graph-database)
@@ -22,6 +22,10 @@ This lab is divided into two main sections :
   - [Populating Jalapeno DB with meta-data](#populating-jalapeno-db-with-meta-data)
   - [Jalapeno REST API](#jalapeno-rest-api)
   - [Jalapeno Web UI](#jalapeno-web-ui)
+    - [Data Collections](#data-collections)
+    - [Topology Viewer](#topology-viewer)
+    - [Calculate a Path](#calculate-a-path)
+    - [Schedule a Workload](#schedule-a-workload)
   - [End of lab 5 Part 1](#end-of-lab-5-part-1)
 
 ## Lab Objectives
@@ -189,7 +193,8 @@ Jalapeno's base installation processes BMP data and populates it into ArangoDB. 
 7. ssh to Jalapeno VM, cd to the lab_5/graph-processors directory, and run the deploy.sh script:
     ```
     ssh cisco@198.18.128.101
-
+    ```
+    ```
     cd ~/SRv6_dCloud_Lab/lab_5/graph-processors
     ./deploy.sh
     ```
