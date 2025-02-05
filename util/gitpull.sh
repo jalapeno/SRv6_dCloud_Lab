@@ -11,6 +11,7 @@ cd /home/cisco/srctl
 git config --global --add safe.directory /home/cisco/srctl
 git fetch origin
 git reset --hard origin/main 
+pip install -e .
 
 cd /home/cisco
 chown cisco:cisco -R /home/cisco/SRv6_dCloud_Lab
