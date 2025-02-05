@@ -696,11 +696,9 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
          index 20 sid fc00:0:6666::
     ```
 
-    And we expect to see in the packet header the follow tag order shown below in the tcpdump output:
+    Normally we might expect the tcpudmp output to show *5555:6666:7777* in the packet header, however, when the XRd headend router performs its SRv6-TE policy calculation it recognizes that **xrd05's** best path to **xrd07** is through **xrd06**, so it doesn't need to include the *6666* in the SID stack.
 
-    ```
-    5555:6666
-    ```
+   
     ```yaml
     cisco@xrd:~$ sudo ip netns exec clab-cleu25-xrd01 tcpdump -lni Gi0-0-0-2
     tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
@@ -724,7 +722,7 @@ The ingress PE, **xrd01**, will then be configured with SRv6 segment-lists and S
     13:42:19.419534 IP6 fc00:0:1111::1 > fc00:0:5555:7777:e009::: IP6 fc00:0:101:3:250:56ff:fe97:22cc > fc00:0:50::1: ICMP6, echo request, seq 11, length 64
     ```
 
-4.  Optional, run tcpdump on the outbound interfaces of xrd05 and xrd06 to see SRv6 uSID shift-and-forward behavior:
+3.  Optional, run tcpdump on the outbound interfaces of xrd05 and xrd06 to see SRv6 uSID shift-and-forward behavior:
     ```
     sudo ip netns exec clab-cleu25-xrd05 tcpdump -lni Gi0-0-0-1
     ```
