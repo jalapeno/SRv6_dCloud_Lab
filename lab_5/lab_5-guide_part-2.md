@@ -164,7 +164,6 @@ For the next section we will run the **srctl** *Low Latency* service on Rome to 
    ```yaml
    cisco@rome:~/SRv6_dCloud_Lab/lab_5/srctl$ sudo srctl --api-server http://198.18.128.101:30800 apply -f rome.yaml
    Loaded configuration from rome.yaml
-   Deleted existing route to fc00:0:101:2::/64 in table 0
    Adding route with encap: {'type': 'seg6', 'mode': 'encap', 'segs': ['fc00:0:7777:6666:5555:1111:0:0']} to table 0
    rome-to-amsterdam-v6: fc00:0:7777:6666:5555:1111: Route to fc00:0:101:2::/64 via fc00:0:7777:6666:5555:1111:0:0 programmed successfully in table 0  # success message
    ```
