@@ -48,6 +48,8 @@ Kubernetes and Cilium Enterprise are pre-installed on the **Berlin** VM. All of 
 1. SSH into the Berlin VM and cd into the lab_4/cilium directory and check out the contents
    ```
    ssh cisco@198.18.128.104
+   ```
+   ```
    cd ~/SRv6_dCloud_Lab/lab_4/cilium/
    ```
 

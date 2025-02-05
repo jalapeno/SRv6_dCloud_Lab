@@ -196,6 +196,10 @@ Jalapeno's base installation processes BMP data and populates it into ArangoDB. 
     cd ~/SRv6_dCloud_Lab/lab_5/graph-processors
     ./deploy.sh
     ```
+
+> [!NOTE]
+> The script will also re-deploy the Jalapeno UI and API so they get the latest changes. You may get a couple warning messages about the UI and API already being deployed, but they can be ignored.
+
     The new processors will have created the following new collections in the Arango graphDB, feel free to explore them in the ArangoDB UI, or move on to the next section.
    - *`igpv4_graph`*: a model of the ipv4 IGP topology including SRv6 SID data
    - *`igpv6_graph`*: a model of the ipv6 IGP topology including SRv6 SID data
@@ -203,8 +207,6 @@ Jalapeno's base installation processes BMP data and populates it into ArangoDB. 
    - *`ipv6_graph`*: a model of the entire ipv6 topology (IGP and BGP)
    - *`sr_local_sids`*: a collection of SRv6 SID information that is not available via BMP
 
-> [!NOTE]
-> The script will also re-deploy the Jalapeno UI and API so they get the latest changes.
   
 8. Verify the Graph Processors have deployed successfully:
     ```
