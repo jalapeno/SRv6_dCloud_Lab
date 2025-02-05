@@ -155,9 +155,11 @@ For the next section we will run the **srctl** *Low Latency* service on Rome to 
    sudo srctl --api-server http://198.18.128.101:30800 apply -f rome.yaml
    ```
 
-   Alternatively, define the API server address with an environment variable:
+   Alternatively, define the API server address with an environment variable and run a simplified version of the command:
    ```
    export JALAPENO_API_SERVER="http://198.18.128.101:30800"
+
+   sudo -E srctl apply -f rome.yaml
    ```
 
    The Output should look something like this:
