@@ -200,7 +200,8 @@ Jalapeno's base installation processes BMP data and populates it into ArangoDB. 
 > [!NOTE]
 > The script will also re-deploy the Jalapeno UI and API so they get the latest changes. You may get a couple warning messages about the UI and API already being deployed, but they can be ignored.
 
-    The new processors will have created the following new collections in the Arango graphDB, feel free to explore them in the ArangoDB UI, or move on to the next section.
+The new processors will have created the following new collections in the Arango graphDB, feel free to explore them in the ArangoDB UI, or move on to the next section.
+
    - *`igpv4_graph`*: a model of the ipv4 IGP topology including SRv6 SID data
    - *`igpv6_graph`*: a model of the ipv6 IGP topology including SRv6 SID data
    - *`ipv4_graph`*: a model of the entire ipv4 topology (IGP and BGP)
