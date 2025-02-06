@@ -1,0 +1,15 @@
+[xrd]
+xrd ansible_host=198.18.128.100
+
+[jalapeno]
+jalapeno ansible_host=198.18.128.101
+
+[amsterdam]
+amsterdam ansible_host=198.18.128.102
+
+[rome]
+rome ansible_host=198.18.128.103
+
+[berlin]
+berlin ansible_host=198.18.128.104
+

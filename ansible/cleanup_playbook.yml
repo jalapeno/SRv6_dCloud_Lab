@@ -1,0 +1,80 @@
+---
+
+# ansible-playbook -i hosts cleanup_playbook.yml -e "ansible_user=cisco ansible_ssh_pass=cisco123 ansible_sudo_pass=cisco123" -vv
+
+- name: xrd cleanup
+  hosts: xrd
+  become: true
+  tasks:
+
+    - name: cleanup lab 1
+      command: ./cleanup-lab_1.sh
+      args:
+        chdir: /home/cisco/SRv6_dCloud_Lab/lab_1
+      ignore_errors: yes
+
+    - name: cleanup lab 2
+      command: ./cleanup-lab_2.sh
+      args:
+        chdir: /home/cisco/SRv6_dCloud_Lab/lab_2
+      ignore_errors: yes
+
+    - name: cleanup lab 3
+      command: ./cleanup-lab_3.sh
+      args:
+        chdir: /home/cisco/SRv6_dCloud_Lab/lab_3
+      ignore_errors: yes
+
+    - name: cleanup lab 4
+      command: ./cleanup-lab_4.sh
+      args:
+        chdir: /home/cisco/SRv6_dCloud_Lab/lab_4
+      ignore_errors: yes
+
+- name: jalapeno cleanup
+  hosts: jalapeno
+  become: true
+  tasks:
+
+    - name: cleanup graph processors
+      command: ./destroy.sh
+      args:
+        chdir: /home/cisco/SRv6_dCloud_Lab/lab_5/graph-processors
+      ignore_errors: yes
+
+- name: amsterdam cleanup
+  hosts: amsterdam
+  become: true
+  tasks:
+
+    - name: cleanup vpp steering policy
+      command: vppctl sr steer del l3 fc00:0:107:1::/64
+      ignore_errors: yes
+
+    - name: cleanup vpp sr policy
+      command: vppctl sr policy del bsid 101::102
+      ignore_errors: yes
+
+- name: rome cleanup
+  hosts: rome
+  become: true
+  tasks:
+
+    - name: cleanup linux routes
+      command: ip -6 route del fc00:0:101:2::/64 encap seg6 dev ens192
+      ignore_errors: yes
+
+- name: berlin cleanup
+  hosts: berlin
+  become: true
+  tasks:
+
+    - name: cleanup linux routes
+      command: sudo ip -6 route del fc00:0:7777::/48  encap seg6  dev ens192
+      ignore_errors: yes
+
+    - name: cleanup cilium
+      command: ./delete.sh
+      args:
+        chdir: /home/cisco/SRv6_dCloud_Lab/lab_4/cilium
+      ignore_errors: yes
