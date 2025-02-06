@@ -71,6 +71,7 @@
 
     - name: cleanup linux routes
       command: sudo ip -6 route del fc00:0:7777::/48  encap seg6  dev ens192
+      become: true
       ignore_errors: yes
 
     - name: cleanup cilium
