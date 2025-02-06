@@ -314,14 +314,14 @@ Many segment routing and other SDN solutions focus on the *low latency path* as 
      defaultVrf:  
        ipv4:
          routes:
-           - name: amsterdam-to-rome-v4
-             graph: ipv4_graph
+           - name: amsterdam-to-rome-v6
+             graph: ipv6_graph
              pathType: shortest_path  # the path type is a signal to the API/DB to use the shortest path algorithm based on the specified metric
              metric: least-utilized   # in the case we're specifying shortest_path based on lowest avg utilization
              source: hosts/amsterdam
              destination: hosts/rome
-             destination_prefix: "10.107.1.0/24"
-             bsid: "101::101"                       # Required for VPP
+             destination_prefix: "fc00:0:107:1::/64"
+             bsid: "101::102"                       # Required for VPP
    ```
 
 
