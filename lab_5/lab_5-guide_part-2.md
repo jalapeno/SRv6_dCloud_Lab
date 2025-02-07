@@ -634,6 +634,34 @@ For full size image see [LINK](/topo_drawings/low-latency-alternate-path.png)
    rome-to-amsterdam-v6: fc00:0:7777:6666:2222:1111: Route to fc00:0:101:2::/64 via fc00:0:7777:6666:2222:1111:0:0 programmed successfully in table 0
    ```
 
+3. Validate the route was programmed into **Rome's** IPv6 routing table
+   ```
+   ip -6 route
+   ```
+   ```diff
+   cisco@rome:~/SRv6_dCloud_Lab/lab_5/srctl$ ip -6 route
+   ::1 dev lo proto kernel metric 256 pref medium
+   fc00:0:40::/64 dev lo proto kernel metric 256 pref medium
+   fc00:0:50::/64 dev lo proto kernel metric 256 pref medium
+   +fc00:0:101:2::/64  encap seg6 mode encap segs 1 [ fc00:0:7777:6666:2222:1111:: ] dev ens192 proto static metric 1024 pref medium
+   ```
+
+5. Lets check that the newly programmed route is working. Go to **XRD** VM and run tcpdump command
+
+   ```
+   sudo ip netns exec clab-cleu25-xrd07 tcpdump -lni Gi0-0-0-0
+   ```
+
+6. Switch back to the **Rome** VM and ping the IPv6 address on Amsterdam *fc00:0:101:2::1*
+   ```
+   ping fc00:0:101:2::1
+   ```
+   Look at the tcp dump and you should see the following output:
+   ```
+   20:20:54.877278 IP6 fc00:0:101:2::1 > fc00:0:107:1:250:56ff:fe97:11bb: ICMP6, echo reply, seq 1, length 64
+   20:20:55.885649 IP6 fc00:0:101:2::1 > fc00:0:107:1:250:56ff:fe97:11bb: ICMP6, echo reply, seq 2, length 64
+   ```
+   
 
 ### You have reached the end of LTRSPG-2212, hooray!
 
