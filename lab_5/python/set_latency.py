@@ -114,5 +114,7 @@ record = srt.get(link_EtoW[args.l])
 record['latency'] = args.ms
 srt.update(record)
 
+print ("Link " + args.l + " programmed successfully for " + str(args.ms) + "ms of latency.")
+
 
 
