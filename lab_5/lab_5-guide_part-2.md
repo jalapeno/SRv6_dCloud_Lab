@@ -610,7 +610,7 @@ For full size image see [LINK](/topo_drawings/low-latency-alternate-path.png)
     python3 set_latency_ipv6.py -l G -ms 100
     ```
 
-2. Re-run the Low latency SRv6 service on **Rome VM**. After running your ping time should decrease to around 70ms:
+2. Re-run the Low latency SRv6 service on **Rome VM**.
     ```
     export JALAPENO_API_SERVER="http://198.18.128.101:30800"
     sudo -E srctl apply -f rome.yaml
