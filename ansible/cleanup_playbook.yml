@@ -64,7 +64,7 @@
       command: ip -6 route del fc00:0:101:2::/64 encap seg6 dev ens192
       ignore_errors: yes
 
-- name: berlin cleanup
+- name: berlin cleanup linux
   hosts: berlin
   become: false
   tasks:
@@ -75,7 +75,7 @@
       ignore_errors: yes
 
     - name: cleanup cilium
-      command: ./delete.sh
+      command: kubectl delete -f 99-cilium-all.yaml
       args:
         chdir: /home/cisco/SRv6_dCloud_Lab/lab_4/cilium
       ignore_errors: yes
