@@ -602,12 +602,12 @@ Now we are going to simulate a recalculation of the SRv6 topology. The *Sub-Stan
 
 For full size image see [LINK](/topo_drawings/low-latency-alternate-path.png)
 
-1. Link "G" needs to have the latency in your topology updated. We will use the Python script located in */lab_5/python/set_latency.py* to change the link latency in the lab and then update the ArangoDb topology database with the new value. Set latency has two cli requirements -l (link letter) [A,B,C,D,E,F,G,H,I] and -ms (milliseconds latency) xxx values.
+1. Link "G" needs to have the latency in your topology updated. We will use the Python script located in */lab_5/python/set_latency_ipv6.py* to change the link latency in the lab and then update the ArangoDb topology database with the new value. Set latency has two cli requirements -l (link letter) [A,B,C,D,E,F,G,H,I] and -ms (milliseconds latency) xxx values.
 
     On **XRD VM** run the command
     ```
     cd /home/cisco/SRv6_dCloud_Lab/lab_6/python
-    python3 set_latency.py -l G -ms 100
+    python3 set_latency_ipv6.py -l G -ms 100
     ```
 
 2. Re-run the Low latency SRv6 service on **Rome VM**. After running your ping time should decrease to around 70ms:
@@ -616,44 +616,24 @@ For full size image see [LINK](/topo_drawings/low-latency-alternate-path.png)
     sudo -E srctl apply -f rome.yaml
     ```
 
-3. Run an iPerf3 test from Rome to Amsterdam and watch our network crush 250Kbps!
-   
-   First ssh to Amsterdam VM:
-    ```
-    ssh cisco@198.18.128.102
-    ```
+   Highlighted below is the original output we saw earlier in the lab.
+   ```diff
+   cisco@rome:~/SRv6_dCloud_Lab/lab_5/srctl$ export JALAPENO_API_SERVER="http://198.18.128.101:30800"
+   Loaded configuration from rome.yaml
+   +Adding route with encap: {'type': 'seg6', 'mode': 'encap', 'segs': ['fc00:0:7777:6666:5555:1111:0:0']} to table 0
+   rome-to-amsterdam-v6: fc00:0:7777:6666:5555:1111: Route to fc00:0:101:2::/64 via fc00:0:7777:6666:5555:1111:0:0 programmed
+   successfully in table 0
+   ```
 
-    Then activate the iPerf3 server:
-    ```
-    iperf3 -s -D
-    ```
+   And now notice the changed SID after we changed the latency in step 
+   ```diff
+   cisco@rome:~/SRv6_dCloud_Lab/lab_5/srctl$ sudo -E srctl apply -f rome.yaml
+   Loaded configuration from rome.yaml
+   Deleted existing route to fc00:0:101:2::/64 in table 0
+   +Adding route with encap: {'type': 'seg6', 'mode': 'encap', 'segs': ['fc00:0:7777:6666:2222:1111:0:0']} to table 0
+   rome-to-amsterdam-v6: fc00:0:7777:6666:2222:1111: Route to fc00:0:101:2::/64 via fc00:0:7777:6666:2222:1111:0:0 programmed successfully in table 0
+   ```
 
-    Start iPerf3 traffic on Rome VM:
-    ```
-    iperf3 -c 10.101.2.1 -B 20.0.0.1 -w 2700 -M 2700
-    ```
-    ```
-    cisco@rome:~$  iperf3 -c 10.101.2.1 -B 20.0.0.1 -w 2700 -M 2700
-    Connecting to host 10.101.2.1, port 5201
-    [  5] local 20.0.0.1 port 56113 connected to 10.101.2.1 port 5201
-    [ ID] Interval           Transfer     Bitrate         Retr  Cwnd
-    [  5]   0.00-1.00   sec  22.6 KBytes   185 Kbits/sec    2   7.42 KBytes       
-    [  5]   1.00-2.00   sec  33.9 KBytes   278 Kbits/sec    0   7.42 KBytes       
-    [  5]   2.00-3.00   sec  31.8 KBytes   261 Kbits/sec    0   7.42 KBytes       
-    [  5]   3.00-4.00   sec  33.9 KBytes   278 Kbits/sec    0   7.42 KBytes       
-    [  5]   4.00-5.00   sec  33.9 KBytes   278 Kbits/sec    0   7.42 KBytes       
-    [  5]   5.00-6.00   sec  31.8 KBytes   261 Kbits/sec    0   7.42 KBytes       
-    [  5]   6.00-7.00   sec  33.9 KBytes   278 Kbits/sec    0   7.42 KBytes       
-    [  5]   7.00-8.00   sec  31.8 KBytes   261 Kbits/sec    0   7.42 KBytes       
-    [  5]   8.00-9.00   sec  31.8 KBytes   261 Kbits/sec    0   7.42 KBytes       
-    [  5]   9.00-10.00  sec  33.9 KBytes   278 Kbits/sec    0   7.42 KBytes       
-    - - - - - - - - - - - - - - - - - - - - - - - - -
-    [ ID] Interval           Transfer     Bitrate         Retr
-    [  5]   0.00-10.00  sec   320 KBytes   262 Kbits/sec    2             sender
-    [  5]   0.00-10.06  sec   319 KBytes   259 Kbits/sec                  receiver
-
-    iperf Done. 
-    ```
 
 ### You have reached the end of LTRSPG-2212, hooray!
 
