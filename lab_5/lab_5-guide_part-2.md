@@ -607,9 +607,8 @@ For full size image see [LINK](/topo_drawings/low-latency-alternate-path.png)
     On **XRD VM** run the command
     ```
     cd /home/cisco/SRv6_dCloud_Lab/lab_6/python
-    python3 set_latency.py -l G -ms 25
+    python3 set_latency.py -l G -ms 100
     ```
-    * Note: if your ping is still running you should see its reply time increase from around 55ms to around 85ms
 
 2. Re-run the Low latency SRv6 service on **Rome VM**. After running your ping time should decrease to around 70ms:
     ```
