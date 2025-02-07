@@ -35,47 +35,6 @@ file_dict={
     'I':'xrd06-xrd07'
 }
 
-# This section of code is being commented out as container labs uses a different connectivity structure for containers.
-# file = '../../util/' + file_dict.get(args.l) 
-
-# Open and read in the router link file
-# with open(file, 'r') as file:
-#    bridge_id = file.read().rstrip()
-
-# Run bridge control and find assocaiated interface to the bridge_id
-# using the Popen function to execute the
-# command and store the result in temp.
-# it returns a tuple that contains the 
-# data and the error if any.
-# result1 = subprocess.Popen(['brctl', 'show'], stdout = subprocess.PIPE)
-# result2 = subprocess.Popen(['grep', bridge_id],stdin=result1.stdout, stdout=subprocess.PIPE)
-    
-# we use the communicate function to fetch the output
-# a = str(result2.communicate())
-
-# splitting the output so that
-# we can parse them line by line
-# b = re.sub(r'\\t|\\n', ',', a)
-# c = b.split(",")
-# search the list for veth interface
-# for i in c:
-# if i[0:4] == "veth":
-#   interface = i
-
-# Program the upated latency value for the Linux bridge
-# Create tc option list
-# tc_command = "tc qdisc change dev "+interface +" root netem delay " + str(args.ms) +"ms"
-# tc_command = "sudo tc qdisc change dev "+interface +" root netem delay " + str(args.ms) +"ms"
-
-# program the bridge interface with new latency value
-# result = subprocess.run([tc_command], capture_output=True, shell = True)
-
-# if result.returncode == 0:
-#	print ("Link " + args.l + " programmed successfully for " + str(args.ms) + "ms of latency.")
-# else:
-#	print ("Link programming failed")
-
-# Updating the ArangoDb with user defined latency
 # Create a dictionary lookup of key values 
 link_WtoE ={
     'A':'2_0_0_0_0000.0000.0001_10.1.1.0_0000.0000.0002_10.1.1.1',
@@ -97,12 +56,37 @@ link_EtoW ={
     'G':'2_0_0_0_0000.0000.0006_10.1.1.15_0000.0000.0005_10.1.1.14',
     'H':'2_0_0_0_0000.0000.0007_10.1.1.7_0000.0000.0006_10.1.1.6'
 }
+
+link_WtoE ={
+    'A':'2_0_2_0_0000.0000.0001_2001:1:1:1::_0000.0000.0002_2001:1:1:1::1',
+    'B':'2_0_2_0_0000.0000.0001_2001:1:1:1::8_0000.0000.0005_2001:1:1:1::9',
+    'C':'2_0_2_0_0000.0000.0002_2001:1:1:1::10_0000.0000.0006_2001:1:1:1::11',
+    'D':'2_0_2_0_0000.0000.0005_2001:1:1:1::12_0000.0000.0004_2001:1:1:1::13',
+    'E':'2_0_2_0_0000.0000.0002_2001:1:1:1::2_0000.0000.0003_2001:1:1:1::3',
+    'F':'2_0_2_0_0000.0000.0003_2001:1:1:1::4_0000.0000.0004_2001:1:1:1::5',
+    'G':'2_0_2_0_0000.0000.0005_2001:1:1:1::14_0000.0000.0006_2001:1:1:1::15',
+    'H':'2_0_2_0_0000.0000.0004_2001:1:1:1::6_0000.0000.0007_2001:1:1:1::7',
+    'I':'2_0_2_0_0000.0000.0006_2001:1:1:1::16_0000.0000.0007_2001:1:1:1::17'
+}
+
+link_EtoW ={
+    'A':'2_0_2_0_0000.0000.0002_2001:1:1:1::_0000.0000.0001_2001:1:1:1::1',
+    'B':'2_0_2_0_0000.0000.0005_2001:1:1:1::9_0000.0000.0001_2001:1:1:1::8',
+    'C':'2_0_2_0_0000.0000.0006_2001:1:1:1::11_0000.0000.0002_2001:1:1:1::10',
+    'D':'2_0_2_0_0000.0000.0004_2001:1:1:1::13_0000.0000.0005_2001:1:1:1::12',
+    'E':'2_0_2_0_0000.0000.0003_2001:1:1:1::3_0000.0000.0002_2001:1:1:1::2',
+    'F':'2_0_2_0_0000.0000.0004_2001:1:1:1::5_0000.0000.0003_2001:1:1:1::4',
+    'G':'2_0_2_0_0000.0000.0006_2001:1:1:1::15_0000.0000.0005_2001:1:1:1::14',
+    'H':'2_0_2_0_0000.0000.0007_2001:1:1:1::7_0000.0000.0004_2001:1:1:1::6',
+    'I':'2_0_2_0_0000.0000.0007_2001:1:1:1::17_0000.0000.0006_2001:1:1:1::16'
+}
+
 # Connect to ArangoDb
 client = ArangoClient(hosts='http://198.18.128.101:30852')
 db = client.db(dbname, username=user, password=password)
 
 # Set the document in Arango
-srt = db.collection('ipv4_graph')
+srt = db.collection('ipv6_graph')
 
 # Set West to East Link Latency
 record = srt.get(link_WtoE[args.l])
