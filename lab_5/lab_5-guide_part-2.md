@@ -602,11 +602,11 @@ Now we are going to simulate a recalculation of the SRv6 topology. The *Sub-Stan
 
 For full size image see [LINK](/topo_drawings/low-latency-alternate-path.png)
 
-1. Link "G" needs to have the latency in your topology updated. We will use the Python script located in */lab_5/python/set_latency_ipv6.py* to change the link latency in the lab and then update the ArangoDb topology database with the new value. Set latency has two cli requirements -l (link letter) [A,B,C,D,E,F,G,H,I] and -ms (milliseconds latency) xxx values.
+1. Link "G" needs to have the latency in your topology updated. We will use the Python script located in */lab_5/python/set_latency_ipv6.py* to change the link latency in the lab and then update the ArangoDb topology database with the new value. Set latency has two cli requirements *-l (link letter) [A,B,C,D,E,F,G,H,I]* and *-ms (milliseconds latency) xxx* values.
 
     On **XRD VM** run the command
     ```
-    cd /home/cisco/SRv6_dCloud_Lab/lab_6/python
+    cd /home/cisco/SRv6_dCloud_Lab/lab_5/python
     python3 set_latency_ipv6.py -l G -ms 100
     ```
 
