@@ -625,7 +625,7 @@ For full size image see [LINK](/topo_drawings/low-latency-alternate-path.png)
    successfully in table 0
    ```
 
-   And now notice the changed SID after we changed the latency in step 
+   And now notice the changed SID where router SID *5555* has been swapped for *2222* the latency in step 
    ```diff
    cisco@rome:~/SRv6_dCloud_Lab/lab_5/srctl$ sudo -E srctl apply -f rome.yaml
    Loaded configuration from rome.yaml
