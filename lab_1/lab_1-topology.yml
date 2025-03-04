@@ -55,13 +55,13 @@ topology:
       image: ubuntu-22.04:latest
       mgmt-ipv4: 10.254.254.108
 
-    xrd01-amsterdam1:
+    amsterdam1:
       kind: bridge
 
-    xrd01-amsterdam2:
+    amsterdam2:
       kind: bridge
 
-    xrd02-berlin1:
+    berlin1:
       kind: bridge
 
 
@@ -79,15 +79,15 @@ topology:
     - endpoints: ["xrd06:Gi0-0-0-0", "xrd07:Gi0-0-0-2"]
 
     # Link betwen xrd01 and the Amsterdam VM
-    - endpoints: ["xrd01:Gi0-0-0-0", "xrd01-amsterdam1:xrd01-Gi0-0-0-0"]
-    - endpoints: ["xrd01:Gi0-0-0-3", "xrd01-amsterdam2:xrd01-Gi0-0-0-3"]
+    - endpoints: ["xrd01:Gi0-0-0-0", "amsterdam1:xrd01-Gi0-0-0-0"]
+    - endpoints: ["xrd01:Gi0-0-0-3", "amsterdam2:xrd01-Gi0-0-0-3"]
 
     # Link betwen xrd07 and the Rome VM
     - endpoints: ["xrd07:Gi0-0-0-0", "rome:eth1"]
     - endpoints: ["xrd07:Gi0-0-0-3", "rome:eth2"]
     
     # Link betwen xrd02 and the Berlin VM
-    - endpoints: ["xrd02:Gi0-0-0-3", "xrd02-berlin1:xrd02-Gi0-0-0-3"]
+    - endpoints: ["xrd02:Gi0-0-0-3", "berlin1:xrd02-Gi0-0-0-3"]
 
 
 
