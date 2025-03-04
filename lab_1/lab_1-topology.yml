@@ -58,7 +58,7 @@ topology:
     rome:
       kind: linux
       image: ubuntu-22.04:clus2025
-      mgmt-ipv4: 10.254.254.108
+      mgmt-ipv4: 10.254.254.109
 
     amsterdam1:
       kind: bridge
