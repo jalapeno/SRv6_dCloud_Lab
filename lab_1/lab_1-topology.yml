@@ -53,6 +53,9 @@ topology:
     sonic08:
       kind: linux
       image: c8000-clab-sonic:43
+      env:
+          IMAGE: /opt/cisco/images/sonic-cisco-8000.bin
+          PID: '8101-32H'
       mgmt-ipv4: 10.254.254.108
 
     rome:
