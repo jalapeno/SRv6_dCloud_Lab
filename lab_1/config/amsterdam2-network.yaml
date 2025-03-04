@@ -1,0 +1,5 @@
+<network>
+  <name>amsterdam2</name>
+  <forward mode="bridge"/>
+  <bridge name="amsterdam2"/>
+</network>
