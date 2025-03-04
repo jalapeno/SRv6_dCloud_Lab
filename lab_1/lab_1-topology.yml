@@ -1,6 +1,6 @@
 # Containerlab topology file for Cisco Live EU 2025 Lab 1
 
-name: cleu25
+name: clus25
 
 mgmt:
   network: clab-management-network
@@ -50,6 +50,11 @@ topology:
       startup-config: config/xrd07.cfg
       mgmt-ipv4: 10.254.254.107
 
+    sonic08:
+      kind: linux
+      image: c8000-clab-sonic:43
+      mgmt-ipv4: 10.254.254.108
+
     rome:
       kind: linux
       image: ubuntu-22.04:clus2025
@@ -70,13 +75,21 @@ topology:
     # Link between XR Routers
     - endpoints: ["xrd01:Gi0-0-0-1", "xrd02:Gi0-0-0-0"]      
     - endpoints: ["xrd01:Gi0-0-0-2", "xrd05:Gi0-0-0-0"]
+
     - endpoints: ["xrd02:Gi0-0-0-1", "xrd03:Gi0-0-0-0"]
     - endpoints: ["xrd02:Gi0-0-0-2", "xrd06:Gi0-0-0-1"]
-    - endpoints: ["xrd05:Gi0-0-0-1", "xrd04:Gi0-0-0-2"]
+
+    - endpoints: ["xrd05:Gi0-0-0-1", "sonic08:eth1"]
     - endpoints: ["xrd05:Gi0-0-0-2", "xrd06:Gi0-0-0-2"]
+
     - endpoints: ["xrd03:Gi0-0-0-1", "xrd04:Gi0-0-0-0"]
+
     - endpoints: ["xrd04:Gi0-0-0-1", "xrd07:Gi0-0-0-1"]
+    - endpoints: ["xrd04:Gi0-0-0-2", "sonic08:eth2"]
+
     - endpoints: ["xrd06:Gi0-0-0-0", "xrd07:Gi0-0-0-2"]
+
+    - endpoints: ["sonic08:eth3", "xrd07:Gi0-0-0-3"]
 
     # Link betwen xrd01 and the Amsterdam VM
     - endpoints: ["xrd01:Gi0-0-0-0", "amsterdam1:xrd01-Gi0-0-0-0"]
@@ -84,7 +97,7 @@ topology:
 
     # Link betwen xrd07 and the Rome VM
     - endpoints: ["xrd07:Gi0-0-0-0", "rome:eth1"]
-    - endpoints: ["xrd07:Gi0-0-0-3", "rome:eth2"]
+    - endpoints: ["xrd07:Gi0-0-0-4", "rome:eth2"]
     
     # Link betwen xrd02 and the Berlin VM
     - endpoints: ["xrd02:Gi0-0-0-3", "berlin1:xrd02-Gi0-0-0-3"]
