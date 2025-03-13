@@ -58,10 +58,15 @@ topology:
           PID: '8101-32H'
       mgmt-ipv4: 10.254.254.108
 
+    berlin:
+      kind: generic_vm
+      image: vrnetlab/canonical_ubuntu:jammy
+      mgmt-ipv4: 10.254.254.109
+
     rome:
       kind: linux
       image: ubuntu-22.04:clus2025
-      mgmt-ipv4: 10.254.254.109
+      mgmt-ipv4: 10.254.254.110
 
     amsterdam1:
       kind: bridge
@@ -81,6 +86,7 @@ topology:
 
     - endpoints: ["xrd02:Gi0-0-0-1", "xrd03:Gi0-0-0-0"]
     - endpoints: ["xrd02:Gi0-0-0-2", "xrd06:Gi0-0-0-1"]
+    - endpoints: ["xrd02:Gi0-0-0-3", "berlin:eth1"]
 
     - endpoints: ["xrd05:Gi0-0-0-1", "sonic08:eth1"]
     - endpoints: ["xrd05:Gi0-0-0-2", "xrd06:Gi0-0-0-2"]
@@ -103,7 +109,7 @@ topology:
     - endpoints: ["xrd07:Gi0-0-0-4", "rome:eth2"]
     
     # Link betwen xrd02 and the Berlin VM
-    - endpoints: ["xrd02:Gi0-0-0-3", "berlin1:xrd02-Gi0-0-0-3"]
+    - endpoints: ["xrd02:Gi0-0-0-4", "berlin1:xrd02-Gi0-0-0-4"]
 
 
 
