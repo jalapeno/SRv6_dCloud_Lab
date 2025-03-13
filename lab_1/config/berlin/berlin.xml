@@ -14,8 +14,8 @@
   <os>
     <type arch='x86_64' machine='pc-i440fx-bionic'>hvm</type>
 		<boot dev='cdrom'/>
-    <boot dev='network'/>
-    <boot dev='hd'/>
+    <!-- <boot dev='network'/>
+    <boot dev='hd'/> -->
   </os>
   <features>
     <acpi/>
