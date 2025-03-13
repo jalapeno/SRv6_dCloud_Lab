@@ -60,7 +60,7 @@ topology:
 
     berlin:
       kind: generic_vm
-      image: vrnetlab/canonical_ubuntu:jammy
+      image: vrnetlab/canonical_ubuntu:berlin2.qow2
       mgmt-ipv4: 10.254.254.109
 
     rome:
