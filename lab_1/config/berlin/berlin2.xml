@@ -13,8 +13,9 @@
   <vcpu placement='static'>2</vcpu>
   <os>
     <type arch='x86_64' machine='pc-i440fx-bionic'>hvm</type>
-    <boot dev='network'/>
-    <boot dev='hd'/>
+    <boot dev='cdrom'/>
+    <!-- <boot dev='network'/>
+    <boot dev='hd'/> -->
   </os>
   <features>
     <acpi/>
@@ -43,7 +44,7 @@
       <readonly/>
     </disk>
     <interface type='network'>
-      <mac address='52:54:a2:b2:c2:d2'/>
+      <mac address='52:54:a3:b3:c3:d3'/>
       <source network='default' bridge='virbr0'/>
       <target dev='vnet0'/>
       <model type='virtio'/>
@@ -51,7 +52,7 @@
       <address type='pci' domain='0x0000' bus='0x00' slot='0x03' function='0x0'/>
     </interface>
     <interface type='network'>
-      <mac address="52:54:e2:f2:a2:b2"/>   
+      <mac address="52:54:e3:f3:a3:b3"/>   
       <source network='berlin1' bridge='berlin1'/>
       <target dev='vnet1'/>
       <model type='virtio'/>
